@@ -2,6 +2,15 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.8.2
+
+- The DS version chip now shows in the top bar of `/` (the landing), not only
+  `/design-system`.
+- Landing (`/`) and the demo hub (`/demo`) are now in English, matching the
+  showcase. The product screens (`/agendar`, `/dashboard`, `/onboarding`) keep
+  their pt-BR copy.
+- README rewritten in English.
+
 ## 0.8.1
 
 - SEO: `/dashboard` and `/onboarding` now set their own `openGraph` title / url

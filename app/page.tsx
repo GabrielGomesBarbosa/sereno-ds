@@ -1,26 +1,31 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ThemeToggle } from '@/theme/ThemeToggle';
+import { DS_VERSION } from '@/design-system/version';
+
+const pageTitle = 'Sereno — Design System & product showcase';
+const pageDescription =
+  'The 25 approved React primitives with a navigable live showcase, plus the three real product screens running on mocked data.';
 
 export const metadata: Metadata = {
-  title: 'Sereno — agendamento online para profissionais de saúde e beleza',
-  description:
-    'Link público de agendamento, mobile-first e sem cadastro obrigatório, e um dashboard completo para o profissional gerir a agenda, clientes e serviços.',
+  title: pageTitle,
+  description: pageDescription,
   alternates: { canonical: '/' },
+  openGraph: { title: pageTitle, description: pageDescription, url: '/' },
 };
 
 const ENTRIES = [
   {
     href: '/design-system',
-    kicker: 'Componentes',
-    title: 'Abrir o Design System',
-    body: 'As 25 primitivas React, a página de tokens (claro × escuro) e a vitrine navegável com prévia ao vivo de cada componente.',
+    kicker: 'Components',
+    title: 'Open the Design System',
+    body: 'The 25 React primitives, the tokens page (light × dark) and a navigable showcase with a live preview of every component.',
   },
   {
     href: '/demo',
-    kicker: 'Produto',
-    title: 'Ver a aplicação',
-    body: 'As três telas reais — fluxo público de agendamento, dashboard do profissional e onboarding — navegáveis com dados mockados.',
+    kicker: 'Product',
+    title: 'See the app',
+    body: 'The three real screens — public booking flow, professional dashboard and onboarding — navigable on mocked data.',
   },
 ];
 
@@ -29,7 +34,23 @@ export default function Home() {
     <main style={{ minHeight: '100dvh', background: 'var(--bg-canvas)', display: 'flex', flexDirection: 'column' }}>
       <div style={{ width: '100%', maxWidth: 'var(--container-content)', margin: '0 auto', padding: '0 var(--gutter-desktop)', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 'var(--topbar-height)' }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-lg)', letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-lg)', letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>
+            <span
+              title="Design System version"
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 'var(--text-2xs)',
+                fontWeight: 600,
+                color: 'var(--text-muted)',
+                padding: '2px 6px',
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--bg-subtle)',
+              }}
+            >
+              v{DS_VERSION}
+            </span>
+          </div>
           <ThemeToggle />
         </header>
 
@@ -39,8 +60,8 @@ export default function Home() {
               Sereno
             </h1>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-md)', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0, maxWidth: 520 }}>
-              Design System e vitrine da plataforma de agendamento para profissionais autônomos de saúde e beleza. Escolha por onde
-              começar.
+              Design System and showcase for Sereno — a scheduling platform for independent health &amp; beauty professionals.
+              Pick where to start.
             </p>
           </div>
 

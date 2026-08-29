@@ -2,30 +2,35 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ThemeToggle } from '@/theme/ThemeToggle';
 
+const pageTitle = 'App — demo screens';
+const pageDescription =
+  'The three real screens of the Sereno platform, built with the Design System and navigable on mocked data.';
+
 export const metadata: Metadata = {
-  title: 'Aplicação — telas de demonstração',
-  description: 'As três telas reais da plataforma Sereno construídas com o Design System, navegáveis com dados mockados.',
+  title: pageTitle,
+  description: pageDescription,
   alternates: { canonical: '/demo' },
+  openGraph: { title: pageTitle, description: pageDescription, url: '/demo' },
 };
 
 const SCREENS = [
   {
     href: '/agendar/ana-ramos',
-    kicker: 'Fluxo público',
-    title: 'Agendamento do cliente',
-    body: 'O cliente abre o link do profissional, escolhe o serviço, a data e o horário, deixa os dados e confirma. Mobile-first, sem cadastro.',
+    kicker: 'Public flow',
+    title: 'Client booking',
+    body: "The client opens the professional's link, picks a service, a date and a time, leaves their details and confirms. Mobile-first, no sign-up.",
   },
   {
     href: '/dashboard',
-    kicker: 'Área logada',
-    title: 'Dashboard do profissional',
-    body: 'Agenda do dia, clientes, catálogo de serviços, financeiro e configurações — incluindo a grade horária semanal.',
+    kicker: 'Signed-in area',
+    title: 'Professional dashboard',
+    body: "The day's agenda, clients, service catalog, finance and settings — including the weekly schedule.",
   },
   {
     href: '/onboarding',
-    kicker: 'Primeiro acesso',
-    title: 'Onboarding em 3 passos',
-    body: 'Perfil, primeiro serviço e grade horária. Ao final, o link público já aceita agendamentos.',
+    kicker: 'First run',
+    title: '3-step onboarding',
+    body: 'Profile, first service and weekly schedule. At the end, the public link already accepts bookings.',
   },
 ];
 
@@ -55,7 +60,7 @@ export default function DemoHub() {
           >
             Sereno
           </Link>
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>Aplicação</span>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>App</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
           <Link
@@ -92,11 +97,10 @@ export default function DemoHub() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: 0 }}>
-            Telas de demonstração
+            Demo screens
           </h1>
           <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-md)', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0, maxWidth: 560 }}>
-            As três telas reais do produto, construídas com as primitivas do Design System e navegáveis fim a fim com dados
-            mockados.
+            The three real product screens, built with the Design System primitives and navigable end to end on mocked data.
           </p>
         </div>
 
