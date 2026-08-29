@@ -1,0 +1,11 @@
+:root{
+--space-0:0px;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;
+--space-6:24px;--space-7:32px;--space-8:40px;--space-9:48px;--space-10:64px;--space-11:80px;--space-12:96px;
+
+--gutter-mobile:20px;--gutter-desktop:32px;
+--stack-tight:8px;--stack-default:16px;--stack-loose:24px;--stack-section:40px;
+--control-height-sm:32px;--control-height-md:40px;--control-height-lg:48px;--control-height-xl:56px;
+--tap-target-min:44px;
+--container-narrow:480px;--container-content:760px;--container-app:1240px;
+--bottom-nav-height:64px;--topbar-height:60px;--sidebar-width:248px;
+}

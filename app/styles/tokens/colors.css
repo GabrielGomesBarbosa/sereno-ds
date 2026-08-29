@@ -1,0 +1,157 @@
+/* Selector widened from `:root` to also cover an explicit `[data-theme="light"]`
+   scope, so the /design-system/tokens page can render a light panel nested inside
+   a dark page (theme islands). Token VALUES are unchanged from the DS source. */
+:root, [data-theme="light"]{
+/* ── Base ramps ─────────────────────────────────────────────── */
+/* Brand — calm indigo-blue. Trust without corporate coldness. */
+--brand-50:#EFF1FD;--brand-100:#DFE3FA;--brand-200:#C3CAF4;--brand-300:#A0ABEB;--brand-400:#7D8BDF;
+--brand-500:#5D6BCE;--brand-600:#4A55B4;--brand-700:#3C4593;--brand-800:#2F3672;--brand-900:#242A55;--brand-950:#171B38;
+
+/* Accent — vivid turquoise. Reserved for the single most important action on a view. */
+--accent-50:#E6F8F5;--accent-100:#C4EFE9;--accent-200:#8DE1D6;--accent-300:#52CFC1;--accent-400:#20BCAC;
+--accent-500:#0FA695;--accent-600:#0A8B7C;--accent-700:#0A6F64;--accent-800:#0B564F;--accent-900:#09423D;
+
+/* Neutrals — cool slate, very slightly blue so it sits under the brand hue. */
+--neutral-0:#FFFFFF;--neutral-25:#FAFBFD;--neutral-50:#F5F7FA;--neutral-100:#ECEFF4;--neutral-200:#DDE2EA;
+--neutral-300:#C5CBD6;--neutral-400:#9BA3B3;--neutral-500:#6F788A;--neutral-600:#545C6E;--neutral-700:#3E4554;
+--neutral-800:#2A303C;--neutral-900:#1B202A;--neutral-950:#12161E;
+
+/* Semantic ramps */
+--green-100:#D9F2E5;--green-200:#A7E1C6;--green-500:#2E9E6B;--green-600:#238055;--green-900:#123A28;
+--amber-100:#FBEDD3;--amber-200:#F4D8A2;--amber-500:#C8811F;--amber-600:#A66A16;--amber-900:#40290A;
+--red-100:#FBE0DF;--red-200:#F3B9B7;--red-500:#D0473F;--red-600:#AE372F;--red-900:#421512;
+--violet-100:#EEE6FB;--violet-500:#7C5AC7;--violet-900:#2C1F4A;
+
+/* ── Semantic aliases (light theme) ───────────────────────────
+   Background scale revised 2026-08-29 (product-owner decision, supersedes the
+   original "não reescrever" note): the previous canvas (#F5F7FA) sat too close to
+   the white surface and to brand-soft, so `secondary` buttons and tinted panels
+   didn't read against the page. Canvas is now a clear cool-grey step below the
+   surface; the soft tints and low-emphasis fills moved one ramp step to keep the
+   separation. Text / brand / accent / status hues are unchanged. */
+--bg-canvas:#E8ECF3;
+--bg-surface:var(--neutral-0);
+--bg-raised:var(--neutral-0);
+--bg-subtle:#DFE4EC;
+--bg-sunken:#D9DFE9;
+--bg-inverse:var(--neutral-900);
+--bg-brand-soft:var(--brand-100);
+--bg-accent-soft:var(--accent-100);
+--bg-overlay:rgba(27,32,42,.48);
+
+--text-primary:var(--neutral-900);
+--text-secondary:var(--neutral-600);
+--text-muted:var(--neutral-500);
+--text-disabled:var(--neutral-400);
+--text-inverse:var(--neutral-0);
+--text-brand:var(--brand-600);
+--text-accent:var(--accent-600);
+--text-link:var(--brand-600);
+--text-link-hover:var(--brand-700);
+
+--border-subtle:var(--neutral-100);
+--border-default:var(--neutral-200);
+--border-strong:var(--neutral-300);
+--border-brand:var(--brand-400);
+--border-focus:var(--brand-500);
+
+--interactive-primary:var(--brand-600);
+--interactive-primary-hover:var(--brand-700);
+--interactive-primary-active:var(--brand-800);
+--interactive-primary-fg:var(--neutral-0);
+--interactive-secondary:var(--neutral-0);
+--interactive-secondary-hover:#E6EAF1;
+--interactive-secondary-active:#DAE0EA;
+--interactive-secondary-fg:var(--neutral-800);
+--interactive-accent:var(--accent-500);
+--interactive-accent-hover:var(--accent-600);
+--interactive-accent-active:var(--accent-700);
+--interactive-accent-fg:#FFFFFF;
+/* Solid semantic action fills (Button / IconButton). Same words as the tint tones. */
+--interactive-success:var(--green-500);
+--interactive-success-hover:var(--green-600);
+--interactive-success-fg:#FFFFFF;
+--interactive-warning:var(--amber-600);
+--interactive-warning-hover:#8C5912;
+--interactive-warning-fg:#FFFFFF;
+--interactive-error:var(--red-500);
+--interactive-error-hover:var(--red-600);
+--interactive-error-fg:#FFFFFF;
+--interactive-ghost-hover:#DFE4EC;
+--interactive-disabled-bg:#DFE4EC;
+--interactive-disabled-fg:var(--neutral-400);
+
+/* Status — booking lifecycle */
+--status-success-bg:var(--green-100);--status-success-fg:var(--green-600);--status-success-dot:var(--green-500);
+--status-warning-bg:var(--amber-100);--status-warning-fg:var(--amber-600);--status-warning-dot:var(--amber-500);
+--status-error-bg:var(--red-100);--status-error-fg:var(--red-600);--status-error-dot:var(--red-500);
+--status-neutral-bg:var(--neutral-100);--status-neutral-fg:var(--neutral-600);--status-neutral-dot:var(--neutral-400);
+--status-info-bg:var(--brand-50);--status-info-fg:var(--brand-600);--status-info-dot:var(--brand-500);
+
+--focus-ring:0 0 0 3px color-mix(in srgb,var(--brand-500) 30%,transparent);
+--focus-ring-accent:0 0 0 3px color-mix(in srgb,var(--accent-500) 32%,transparent);
+color-scheme:light;
+}
+
+[data-theme="dark"]{
+--bg-canvas:var(--neutral-950);
+--bg-surface:var(--neutral-900);
+--bg-raised:var(--neutral-800);
+--bg-subtle:var(--neutral-800);
+--bg-sunken:#0D1017;
+--bg-inverse:var(--neutral-100);
+--bg-brand-soft:color-mix(in srgb,var(--brand-500) 16%,var(--neutral-900));
+--bg-accent-soft:color-mix(in srgb,var(--accent-500) 15%,var(--neutral-900));
+--bg-overlay:rgba(6,9,14,.66);
+
+--text-primary:#E9ECF3;
+--text-secondary:#A8B0C0;
+--text-muted:#828B9C;
+--text-disabled:#5A6273;
+--text-inverse:var(--neutral-900);
+--text-brand:var(--brand-300);
+--text-accent:var(--accent-300);
+--text-link:var(--brand-300);
+--text-link-hover:var(--brand-200);
+
+--border-subtle:#242B37;
+--border-default:#313949;
+--border-strong:#414A5C;
+--border-brand:var(--brand-500);
+--border-focus:var(--brand-400);
+
+--interactive-primary:var(--brand-500);
+--interactive-primary-hover:var(--brand-400);
+--interactive-primary-active:var(--brand-300);
+--interactive-primary-fg:#0F1220;
+--interactive-secondary:var(--neutral-800);
+--interactive-secondary-hover:#333B49;
+--interactive-secondary-active:#3C4553;
+--interactive-secondary-fg:#E9ECF3;
+--interactive-accent:var(--accent-400);
+--interactive-accent-hover:var(--accent-300);
+--interactive-accent-active:var(--accent-200);
+--interactive-accent-fg:#04231F;
+--interactive-success:#4FC189;
+--interactive-success-hover:#6FD3A2;
+--interactive-success-fg:#04231A;
+--interactive-warning:#E0A64F;
+--interactive-warning-hover:#EBBC72;
+--interactive-warning-fg:#3A2708;
+--interactive-error:#E06B63;
+--interactive-error-hover:#EA8781;
+--interactive-error-fg:#3A100D;
+--interactive-ghost-hover:#262E3B;
+--interactive-disabled-bg:#242B37;
+--interactive-disabled-fg:#5A6273;
+
+--status-success-bg:color-mix(in srgb,var(--green-500) 20%,var(--neutral-900));--status-success-fg:#7FD9AC;--status-success-dot:#4FC189;
+--status-warning-bg:color-mix(in srgb,var(--amber-500) 20%,var(--neutral-900));--status-warning-fg:#EFC076;--status-warning-dot:#E0A64F;
+--status-error-bg:color-mix(in srgb,var(--red-500) 20%,var(--neutral-900));--status-error-fg:#F0A19B;--status-error-dot:#E2736B;
+--status-neutral-bg:#262E3B;--status-neutral-fg:#A8B0C0;--status-neutral-dot:#6F788A;
+--status-info-bg:color-mix(in srgb,var(--brand-500) 20%,var(--neutral-900));--status-info-fg:var(--brand-200);--status-info-dot:var(--brand-400);
+
+--focus-ring:0 0 0 3px color-mix(in srgb,var(--brand-400) 40%,transparent);
+--focus-ring-accent:0 0 0 3px color-mix(in srgb,var(--accent-400) 40%,transparent);
+color-scheme:dark;
+}
