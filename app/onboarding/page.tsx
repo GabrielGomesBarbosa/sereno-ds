@@ -1,10 +1,15 @@
 import type { Metadata } from 'next';
 import { Onboarding } from '@/screens/Onboarding';
 
+const title = 'Onboarding do profissional';
+const description =
+  'Três passos guiados — perfil, primeiro serviço e grade horária — antes de o link público aceitar agendamentos.';
+
 export const metadata: Metadata = {
-  title: 'Onboarding do profissional',
-  description: 'Três passos guiados — perfil, primeiro serviço e grade horária — antes de o link público aceitar agendamentos.',
+  title,
+  description,
   alternates: { canonical: '/onboarding' },
+  openGraph: { title, description, url: '/onboarding' },
 };
 
 export default function OnboardingPage() {

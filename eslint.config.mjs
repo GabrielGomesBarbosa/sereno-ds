@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local Netlify CLI working dir (build copy — never lint it).
+    ".netlify/**",
   ]),
 ]);
 

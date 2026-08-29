@@ -2,6 +2,12 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.8.1
+
+- SEO: `/dashboard` and `/onboarding` now set their own `openGraph` title / url
+  (they were falling back to the site default). `/` and `/agendar/[slug]` were
+  already correct.
+
 ## 0.8.0 — breaking (`Select`)
 
 - **`Select` is no longer a styled native `<select>` on desktop.** On pointer
