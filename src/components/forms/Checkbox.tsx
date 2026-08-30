@@ -3,16 +3,23 @@
 import * as React from 'react';
 import { sx } from '../_internal/style';
 
-/** Opt-in control for consents and multi-select filters. Host must include the `.sereno-check:checked` rule (see globals.css). */
+/** Opt-in control for consents and multi-select filters. Host must include the `.sereno-check:checked` and `.sereno-check:indeterminate` rules (see globals.css). */
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
   /** Secondary line under the label. */
   description?: string;
+  /** Mixed state — some but not all children selected. Visual only; a form still submits it as unchecked. */
+  indeterminate?: boolean;
 }
 
-export function Checkbox({ label, description, checked, defaultChecked, disabled, onChange, style, ...rest }: CheckboxProps) {
+export function Checkbox({ label, description, checked, defaultChecked, disabled, indeterminate, onChange, style, ...rest }: CheckboxProps) {
   const [hover, setHover] = React.useState(false);
-  const on = checked !== undefined ? checked : undefined;
+  const ref = React.useRef<HTMLInputElement>(null);
+  // `indeterminate` is a DOM property, not an attribute — set it imperatively, and
+  // re-assert on every render so a `checked` change never leaves it stale.
+  React.useEffect(() => {
+    if (ref.current) ref.current.indeterminate = Boolean(indeterminate);
+  });
   return (
     <label
       onMouseEnter={() => setHover(true)}
@@ -21,8 +28,9 @@ export function Checkbox({ label, description, checked, defaultChecked, disabled
     >
       <span style={sx({ position: 'relative', display: 'inline-flex', flex: '0 0 auto', marginTop: 1 })}>
         <input
+          ref={ref}
           type="checkbox"
-          checked={on}
+          checked={checked}
           defaultChecked={defaultChecked}
           disabled={disabled}
           onChange={onChange}

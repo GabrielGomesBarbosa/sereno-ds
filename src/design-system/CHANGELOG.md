@@ -2,6 +2,19 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.11.0 — Checkbox: indeterminate + fuller examples (SS-47)
+
+- `Checkbox` gains an **`indeterminate`** prop — the mixed state for a "select
+  all" parent. It's a DOM property (not an attribute), so the component sets it
+  imperatively via a ref; you just pass the boolean. New
+  `.sereno-check:indeterminate` global rule (dash icon, same fill as `:checked`).
+- Checkbox showcase went from 2 thin examples to 4: **Basic** (unchecked /
+  checked / with description), **Disabled** (plain + locked-on), **Indeterminate**
+  (parent + indented children), **Group** (`<fieldset>` / `<legend>` multi-select
+  filter list).
+- Deliberately *not* adding MUI's `color` / `size` props — the box stays one
+  brand colour at 20px (documented in the Don't list).
+
 ## 0.10.2 — /design-system scrolls the document on mobile (SS-143)
 
 - Replaces the v0.10.1 `KeyboardReveal` shim with the structural fix. At ≤900px

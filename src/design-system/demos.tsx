@@ -432,20 +432,76 @@ function SelectTamanhos() {
 function CheckboxBasico() {
   const [a, setA] = React.useState(false);
   const [b, setB] = React.useState(true);
+  const [c, setC] = React.useState(true);
   return (
     <div style={col}>
       <Checkbox label="I accept the terms" checked={a} onChange={(e) => setA(e.currentTarget.checked)} />
+      <Checkbox label="Subscribe to the newsletter" checked={b} onChange={(e) => setB(e.currentTarget.checked)} />
       <Checkbox
         label="Send me WhatsApp reminders"
         description="Sent 24h and 1h before the session."
-        checked={b}
-        onChange={(e) => setB(e.currentTarget.checked)}
+        checked={c}
+        onChange={(e) => setC(e.currentTarget.checked)}
       />
     </div>
   );
 }
-function CheckboxDesabilitado() {
-  return <Checkbox label="Not available on the free plan" disabled />;
+function CheckboxEstados() {
+  return (
+    <div style={col}>
+      <Checkbox label="Unavailable on the free plan" disabled />
+      <Checkbox label="Included on every plan" disabled defaultChecked />
+    </div>
+  );
+}
+const CHANNELS = ['WhatsApp', 'Email', 'SMS'];
+function CheckboxIndeterminado() {
+  const [on, setOn] = React.useState([true, false, false]);
+  const all = on.every(Boolean);
+  const none = on.every((v) => !v);
+  return (
+    <div style={col}>
+      <Checkbox label="All channels" checked={all} indeterminate={!all && !none} onChange={(e) => setOn(CHANNELS.map(() => e.target.checked))} />
+      <div style={{ ...col, paddingLeft: 32 }}>
+        {CHANNELS.map((name, i) => (
+          <Checkbox
+            key={name}
+            label={name}
+            checked={on[i]}
+            onChange={(e) => {
+              const v = e.target.checked;
+              setOn((s) => s.map((old, j) => (j === i ? v : old)));
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+function CheckboxGrupo() {
+  const OPTS = ['Psychology', 'Nutrition', 'Physiotherapy', 'Speech therapy'];
+  const [sel, setSel] = React.useState<string[]>(['Psychology', 'Nutrition']);
+  const toggle = (o: string) => setSel((s) => (s.includes(o) ? s.filter((x) => x !== o) : [...s, o]));
+  return (
+    <fieldset style={{ border: 'none', margin: 0, padding: 0, ...col }}>
+      <legend
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 'var(--text-2xs)',
+          fontWeight: 700,
+          letterSpacing: '0.07em',
+          textTransform: 'uppercase',
+          color: 'var(--text-muted)',
+          marginBottom: 4,
+        }}
+      >
+        Filter by specialty
+      </legend>
+      {OPTS.map((o) => (
+        <Checkbox key={o} label={o} checked={sel.includes(o)} onChange={() => toggle(o)} />
+      ))}
+    </fieldset>
+  );
 }
 
 function RadioGrupo() {
@@ -947,7 +1003,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   },
   textarea: { basic: TextareaBasico, count: TextareaContador, error: TextareaErro },
   select: { basic: SelectBasico, placeholder: SelectHint, disabled: SelectDesabilitado, sizes: SelectTamanhos },
-  checkbox: { basic: CheckboxBasico, disabled: CheckboxDesabilitado },
+  checkbox: { basic: CheckboxBasico, states: CheckboxEstados, indeterminate: CheckboxIndeterminado, group: CheckboxGrupo },
   radio: { group: RadioGrupo },
   switch: { basic: SwitchBasico, disabled: SwitchDesabilitado },
   'date-time-picker': { calendar: DateTimeCalendario, 'with-times': DateTimeComHorarios },

@@ -578,10 +578,11 @@ export const COMPONENTS: ComponentMeta[] = [
     slug: 'checkbox',
     name: 'Checkbox',
     category: 'forms',
-    summary: 'Opt-in control for consents and multi-select filters. The host needs the `.sereno-check:checked` rule.',
+    summary: 'Opt-in control for consents and multi-select filters. The host needs the `.sereno-check:checked` / `:indeterminate` rules.',
     props: [
       R('label', 'string', 'Label next to the box.'),
       R('description', 'string', 'Secondary line below the label.'),
+      R('indeterminate', 'boolean', 'Mixed state (some children selected). Visual only — a form still submits it as unchecked.', 'false'),
       R('checked / defaultChecked / disabled', 'boolean', 'Native input props passed through.'),
     ],
     code: `<Checkbox
@@ -594,20 +595,57 @@ export const COMPONENTS: ComponentMeta[] = [
         title: 'Basic',
         description: '`label` next to the box; `description` is an optional second line. The `.sereno-check:checked` tick comes from the global CSS.',
         code: `<Checkbox label="I accept the terms" />
+<Checkbox label="Subscribe to the newsletter" defaultChecked />
 <Checkbox
   label="Send me WhatsApp reminders"
   description="Sent 24h and 1h before the session."
+  defaultChecked
 />`,
       },
       {
-        id: 'disabled',
+        id: 'states',
         title: 'Disabled',
-        code: `<Checkbox label="Not available on the free plan" disabled />`,
+        description: '`disabled` dims the whole row (box + label). Combine with `defaultChecked` for a locked-on option.',
+        code: `<Checkbox label="Unavailable on the free plan" disabled />
+<Checkbox label="Included on every plan" disabled defaultChecked />`,
+      },
+      {
+        id: 'indeterminate',
+        title: 'Indeterminate',
+        description:
+          'A "select all" parent is `checked` when every child is, `indeterminate` when only some are. `indeterminate` is a DOM property, so the component sets it via a ref — you just pass the boolean.',
+        code: `<Checkbox
+  label="All channels"
+  checked={on.every(Boolean)}
+  indeterminate={on.some(Boolean) && !on.every(Boolean)}
+  onChange={(e) => setOn(CHANNELS.map(() => e.currentTarget.checked))}
+/>
+{/* children, indented */}
+<Checkbox label="WhatsApp" checked={on[0]} onChange={…} />`,
+      },
+      {
+        id: 'group',
+        title: 'Group',
+        description: 'Multi-select: independent boxes sharing a `<fieldset>` / `<legend>`. This is the filter-list pattern — for a single yes/no, one `Checkbox` is enough.',
+        code: `<fieldset>
+  <legend>Filter by specialty</legend>
+  {OPTS.map((o) => (
+    <Checkbox key={o} label={o} checked={sel.includes(o)} onChange={() => toggle(o)} />
+  ))}
+</fieldset>`,
       },
     ],
     guidelines: {
-      do: ['Consents and multi-select filters.', 'Affirmative label ("I accept…", "I want…").'],
-      dont: ['A mutually exclusive single choice — use `Radio`.', 'An instant-apply setting — use `Switch`.'],
+      do: [
+        'Consents and multi-select filters.',
+        'Affirmative label ("I accept…", "I want…").',
+        '`indeterminate` for a "select all" parent — never a plain third state.',
+      ],
+      dont: [
+        'A mutually exclusive single choice — use `Radio`.',
+        'An instant-apply setting — use `Switch`.',
+        'A `color` or `size` prop — the box is one brand colour at 20px on purpose.',
+      ],
     },
   },
   {
