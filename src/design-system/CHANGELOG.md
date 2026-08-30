@@ -2,6 +2,21 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.10.0 — Input masks (SS-46)
+
+- `Input` gains a **`mask`** prop — hand-rolled, no dependency
+  (`src/components/forms/_internal/mask.ts`). Presets: `phone` (switches
+  8/9-digit), `cpf`, `cep`, `currency` (digits read as cents → `R$ 1.234,56`);
+  or a custom `#`-per-digit pattern. It also sets `inputMode` and `maxLength`.
+  `onChange` receives the formatted value in `e.currentTarget.value`.
+  Known limit: the caret jumps to the end after re-format (fine for forward
+  typing; no caret-preservation yet).
+- New **Masked** example on the Input page.
+- Wired into the product screens: `BookingFlow` WhatsApp field (`mask="phone"`),
+  `Onboarding` price field (`mask="currency"`, dropped the manual `R$` prefix).
+- Showcase: the Overview cards now render the backticks in each component
+  summary as inline `code` (they were showing literally).
+
 ## 0.9.0 — colour contrast pass (SS-45)
 
 Full WCAG 2.1 AA audit of every meaningful text/bg and non-text pair, light and

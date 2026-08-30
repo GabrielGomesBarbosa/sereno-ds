@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { CATEGORIES, COMPONENTS } from '@/design-system/catalog';
+import { InlineCode } from '@/design-system/ExampleSection';
 
 export default function DesignSystemOverview() {
   return (
@@ -46,7 +47,9 @@ export default function DesignSystemOverview() {
                 }}
               >
                 <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--text-primary)' }}>{c.name}</span>
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{c.summary}</span>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  <InlineCode text={c.summary} />
+                </span>
               </Link>
             ))}
           </div>

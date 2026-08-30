@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { formatMask, MASK_INPUTMODE, MASK_MAXLENGTH, type MaskName } from '../_internal/mask';
 
 /**
  * Single-line text field with label, hint and error states.
@@ -18,16 +19,58 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   iconLeft?: React.ReactNode;
   /** Trailing text or control (e.g. "min", a clear button). */
   suffix?: React.ReactNode;
+  /**
+   * Format the value as the user types. A preset (`phone` / `cpf` / `cep` /
+   * `currency`) or a custom pattern where `#` is one digit (`(##) #####-####`).
+   * Sets `inputMode` and `maxLength` unless you pass your own.
+   */
+  mask?: MaskName | string;
   containerStyle?: React.CSSProperties;
 }
 
 const H = { sm: 'var(--control-height-sm)', md: 'var(--control-height-md)', lg: 'var(--control-height-lg)' } as const;
 
-export function Input({ label, hint, error, required, size = 'md', iconLeft, suffix, disabled, id, style, containerStyle, ...rest }: InputProps) {
+export function Input({
+  label,
+  hint,
+  error,
+  required,
+  size = 'md',
+  iconLeft,
+  suffix,
+  disabled,
+  id,
+  style,
+  containerStyle,
+  mask,
+  onChange,
+  inputMode,
+  maxLength,
+  defaultValue,
+  ...rest
+}: InputProps) {
   const [focus, setFocus] = React.useState(false);
   // SSR-stable id (the DS source used Math.random(), which breaks hydration).
   const autoId = React.useId();
   const rid = id || autoId;
+
+  const handleChange = mask
+    ? (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatMask(mask, e.currentTarget.value);
+        if (formatted !== e.currentTarget.value) {
+          const el = e.currentTarget;
+          el.value = formatted;
+          // keep the caret at the end — the natural spot while typing forward
+          try {
+            el.setSelectionRange(formatted.length, formatted.length);
+          } catch {
+            /* type doesn't support selection */
+          }
+        }
+        onChange?.(e);
+      }
+    : onChange;
+
   return (
     <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle}>
       <div
@@ -50,6 +93,10 @@ export function Input({ label, hint, error, required, size = 'md', iconLeft, suf
           disabled={disabled}
           onFocus={() => setFocus(true)}
           onBlur={() => setFocus(false)}
+          onChange={handleChange}
+          inputMode={mask ? inputMode ?? MASK_INPUTMODE[mask] ?? 'numeric' : inputMode}
+          maxLength={mask ? maxLength ?? MASK_MAXLENGTH[mask] : maxLength}
+          defaultValue={mask && typeof defaultValue === 'string' ? formatMask(mask, defaultValue) : defaultValue}
           {...rest}
           style={sx({
             flex: 1,

@@ -303,6 +303,20 @@ function InputIconeSufixo() {
     </div>
   );
 }
+function InputMascaras() {
+  const [phone, setPhone] = React.useState('');
+  const [cpf, setCpf] = React.useState('');
+  const [cep, setCep] = React.useState('');
+  const [price, setPrice] = React.useState('');
+  return (
+    <div style={fieldCol}>
+      <Input label="WhatsApp" mask="phone" iconLeft={<Phone size={16} strokeWidth={1.75} />} placeholder="(11) 90000-0000" value={phone} onChange={(e) => setPhone(e.currentTarget.value)} />
+      <Input label="CPF" mask="cpf" placeholder="000.000.000-00" value={cpf} onChange={(e) => setCpf(e.currentTarget.value)} />
+      <Input label="CEP" mask="cep" placeholder="00000-000" value={cep} onChange={(e) => setCep(e.currentTarget.value)} />
+      <Input label="Price" mask="currency" placeholder="R$ 0,00" value={price} onChange={(e) => setPrice(e.currentTarget.value)} />
+    </div>
+  );
+}
 function InputEstados() {
   return (
     <div style={fieldCol}>
@@ -896,7 +910,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   badge: { tones: BadgeCiclo, labels: BadgeGenericos, sizes: BadgeTamanhos },
   card: { padding: CardPadding, elevation: CardElevacao, interactive: CardInterativo },
   avatar: { sizes: AvatarTamanhos, 'initials-photo': AvatarIniciais, status: AvatarStatus },
-  input: { basic: InputBasico, 'icon-suffix': InputIconeSufixo, states: InputEstados, sizes: InputTamanhos },
+  input: { basic: InputBasico, 'icon-suffix': InputIconeSufixo, masked: InputMascaras, states: InputEstados, sizes: InputTamanhos },
   textarea: { basic: TextareaBasico, error: TextareaErro },
   select: { basic: SelectBasico, placeholder: SelectHint, disabled: SelectDesabilitado, sizes: SelectTamanhos },
   checkbox: { basic: CheckboxBasico, disabled: CheckboxDesabilitado },

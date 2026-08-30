@@ -367,6 +367,7 @@ export const COMPONENTS: ComponentMeta[] = [
       R('size', "'sm' | 'md' | 'lg'", 'Control height.', "'md'"),
       R('iconLeft', 'React.ReactNode', 'Icon on the left inside the field.'),
       R('suffix', 'React.ReactNode', 'Trailing text or control (e.g. "min").'),
+      R('mask', "'phone' | 'cpf' | 'cep' | 'currency' | string", "Format as you type — a preset or a custom `#`-per-digit pattern (`(##) #####-####`). Sets `inputMode` + `maxLength`."),
     ],
     code: `<Input
   label="WhatsApp"
@@ -389,6 +390,16 @@ export const COMPONENTS: ComponentMeta[] = [
         description: '`iconLeft` for a glyph inside the field; `suffix` for a unit or a trailing control.',
         code: `<Input label="WhatsApp" iconLeft={<Phone size={16} />} placeholder="(11) 90000-0000" />
 <Input label="Duration" suffix="min" defaultValue="50" />`,
+      },
+      {
+        id: 'masked',
+        title: 'Masked',
+        description:
+          '`mask` formats the value as you type. Presets: `phone` (switches 8/9-digit), `cpf`, `cep`, `currency` (digits read as cents). Pass a custom `#`-per-digit pattern for anything else. `onChange` receives the formatted value in `e.currentTarget.value`.',
+        code: `<Input label="WhatsApp" mask="phone" placeholder="(11) 90000-0000" />
+<Input label="CPF" mask="cpf" placeholder="000.000.000-00" />
+<Input label="CEP" mask="cep" placeholder="00000-000" />
+<Input label="Price" mask="currency" placeholder="R$ 0,00" />`,
       },
       {
         id: 'states',
