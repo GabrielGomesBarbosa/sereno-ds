@@ -8,4 +8,13 @@
 --tap-target-min:44px;
 --container-narrow:480px;--container-content:760px;--container-app:1240px;
 --bottom-nav-height:64px;--topbar-height:60px;--sidebar-width:248px;
+
+/* Layout grid — no column system by design; layout is flex / CSS grid bounded by
+   the container widths above. These are the canonical breakpoints (reference —
+   CSS @media cannot read custom properties, so media queries repeat the values). */
+--bp-sm:560px;--bp-md:768px;--bp-lg:1024px;--bp-xl:1280px;
+
+/* Iconography — lucide-react at strokeWidth 1.75. sm/md controls use 16, lg uses
+   18, standalone icons 20; xs/xl for dense chrome and hero marks. */
+--icon-xs:14px;--icon-sm:16px;--icon-md:18px;--icon-lg:20px;--icon-xl:24px;
 }

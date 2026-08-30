@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { CalendarClock } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Tokens · Design System',
@@ -65,6 +66,27 @@ const SPACE_SCALE: [string, string][] = [
   ['--space-10', '64'],
 ];
 
+const CONTAINERS: [string, string, string][] = [
+  ['--container-narrow', '480', 'Focused single-column flow (booking card)'],
+  ['--container-content', '760', 'Reading width — docs, forms, marketing'],
+  ['--container-app', '1240', 'Full app shell (dashboard)'],
+];
+
+const BREAKPOINTS: [string, string][] = [
+  ['--bp-sm', '560'],
+  ['--bp-md', '768'],
+  ['--bp-lg', '1024'],
+  ['--bp-xl', '1280'],
+];
+
+const ICON_SIZES: [string, string][] = [
+  ['--icon-xs', '14'],
+  ['--icon-sm', '16'],
+  ['--icon-md', '18'],
+  ['--icon-lg', '20'],
+  ['--icon-xl', '24'],
+];
+
 const label: React.CSSProperties = {
   fontFamily: 'var(--font-body)',
   fontSize: 'var(--text-2xs)',
@@ -88,6 +110,14 @@ const mono: React.CSSProperties = {
   fontFamily: 'var(--font-mono)',
   fontSize: '0.92em',
   color: 'var(--text-primary)',
+};
+
+const sublabel: React.CSSProperties = {
+  fontFamily: 'var(--font-body)',
+  fontSize: 'var(--text-xs)',
+  fontWeight: 600,
+  color: 'var(--text-secondary)',
+  margin: 0,
 };
 
 function Swatch({ varName, name }: { varName: string; name: string }) {
@@ -211,12 +241,12 @@ export default function TokensPage() {
         <h2 style={label}>Type scale</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', borderTop: '1px solid var(--border-subtle)' }}>
           {TYPE_SCALE.map(([v, px]) => (
-            <div key={v} style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-4)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 'var(--space-3)' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', width: 96, flex: '0 0 auto' }}>
+            <div key={v} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 'var(--space-2) var(--space-4)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 'var(--space-3)' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', width: 132, flex: '0 0 auto', whiteSpace: 'nowrap' }}>
                 {v} · {px}px
               </span>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: `var(${v})`, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: 1.15 }}>
-                Confirmed appointment
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: `var(${v})`, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: 1.15, minWidth: 0, overflowWrap: 'anywhere' }}>
+                Confirmed
               </span>
             </div>
           ))}
@@ -228,12 +258,75 @@ export default function TokensPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
           {SPACE_SCALE.map(([v, px]) => (
             <div key={v} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', width: 96, flex: '0 0 auto' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', width: 132, flex: '0 0 auto', whiteSpace: 'nowrap' }}>
                 {v} · {px}px
               </span>
               <span style={{ display: 'block', height: 16, width: `var(${v})`, background: 'var(--interactive-primary)', borderRadius: 'var(--radius-xs)' }} />
             </div>
           ))}
+        </div>
+      </section>
+
+      <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+        <h2 style={label}>Grid &amp; iconography</h2>
+        <p style={note}>
+          There is no column-grid system: layout is flex / CSS grid, kept within one of three max content widths. The
+          breakpoints are the fixed set of widths where the layout switches between phone, tablet and desktop.
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <p style={sublabel}>Content widths</p>
+          {CONTAINERS.map(([v, px, use]) => (
+            <div key={v} style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-primary)', minWidth: 210 }}>
+                {v} · {px}px
+              </span>
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{use}</span>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <p style={sublabel}>Breakpoints</p>
+          <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+            {BREAKPOINTS.map(([v, px]) => (
+              <span
+                key={v}
+                style={{
+                  display: 'inline-flex',
+                  gap: 6,
+                  alignItems: 'baseline',
+                  padding: '4px 10px',
+                  borderRadius: 'var(--radius-chip)',
+                  background: 'var(--bg-subtle)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--text-primary)',
+                }}
+              >
+                {v}
+                <span style={{ color: 'var(--text-muted)' }}>{px}px</span>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <p style={sublabel}>Icon sizes</p>
+          <p style={note}>
+            <code style={mono}>lucide-react</code> at <code style={mono}>strokeWidth&#123;1.75&#125;</code>. <code style={mono}>sm</code>/
+            <code style={mono}>md</code> controls use 16, <code style={mono}>lg</code> uses 18, standalone icons 20.
+          </p>
+          <div style={{ display: 'flex', gap: 'var(--space-5)', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            {ICON_SIZES.map(([v, px]) => (
+              <div key={v} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, color: 'var(--text-primary)' }}>
+                <CalendarClock size={Number(px)} strokeWidth={1.75} />
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>
+                  {v.replace('--icon-', '')} · {px}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>

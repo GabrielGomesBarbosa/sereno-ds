@@ -97,7 +97,8 @@ html, body { padding: 0; margin: 0; }
 /* Mobile: keep the app-shell, collapse the sidebar into a hamburger + drawer. */
 @media (max-width: 900px) {
   .ds-header { padding-inline: var(--gutter-mobile); }
-  .ds-header-sub, .ds-header-ver { display: none; }
+  /* Drop the "Design System" sub-label to save room, but keep the version chip. */
+  .ds-header-sub { display: none; }
   .ds-body { grid-template-columns: minmax(0, 1fr); }
   .ds-aside { display: none; }
   .ds-main { padding-inline: var(--gutter-mobile); }
