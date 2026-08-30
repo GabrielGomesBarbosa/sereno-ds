@@ -55,6 +55,14 @@ Full context and scope: Jira card **SS-39** (project SS). Read it before any lar
 - **Global keyframes / states** (`sereno-spin`, `sereno-pop`, `sereno-slide-up`,
   `sereno-pulse`, `.sereno-check:checked`, `.sereno-radio:checked`) live in
   `app/globals.css` — components depend on them.
+- **Host-app (shell) concerns — not the library.** These live outside
+  `src/components/**` and a consuming app opts into them:
+  - `app/globals.css` `@media (pointer: coarse)` — forces text controls to 16px
+    so iOS / WebKit don't zoom on focus.
+  - `app/_shell/KeyboardReveal.tsx` — nudges a focused field above the software
+    keyboard. Only needed when the app uses a fixed app-shell with a nested
+    scroller (like `/design-system` and `/agendar`); document-scrolled pages
+    (`/onboarding`) don't need it. Brave for iOS is the browser that needs it.
 - Dynamic routes need `generateStaticParams` (static export). `robots.ts` /
   `sitemap.ts` need `export const dynamic = 'force-static'`.
 - `/design-system/**` is `noindex` and stays out of the sitemap.

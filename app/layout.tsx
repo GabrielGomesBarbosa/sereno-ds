@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Manrope, JetBrains_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/theme/ThemeProvider';
+import { KeyboardReveal } from './_shell/KeyboardReveal';
 import './globals.css';
 
 // Self-hosted, optimised by next/font — no Google Fonts CDN (SS-39 decisão 3).
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" suppressHydrationWarning className={`${inter.variable} ${manrope.variable} ${jetbrainsMono.variable}`}>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
+        <KeyboardReveal />
       </body>
     </html>
   );
