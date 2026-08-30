@@ -87,6 +87,21 @@ const ICON_SIZES: [string, string][] = [
   ['--icon-xl', '24'],
 ];
 
+// WCAG 2.1 contrast ratios — worst case in the group, light × dark.
+// Recompute if any colour token changes (see the SS-45 audit). AA = 4.5:1 for
+// body text, 3:1 for large text / non-text UI.
+const CONTRAST: { pair: string; need: string; light: string; dark: string }[] = [
+  { pair: 'text-primary on any surface', need: '4.5', light: '12.2', dark: '11.2' },
+  { pair: 'text-secondary on any surface', need: '4.5', light: '5.0', dark: '6.1' },
+  { pair: 'text-muted on surface / canvas', need: '4.5', light: '4.6', dark: '5.3' },
+  { pair: 'text-brand / text-link', need: '4.5', light: '5.5', dark: '7.4' },
+  { pair: 'text-accent', need: '4.5', light: '5.1', dark: '8.6' },
+  { pair: 'Badge / Alert text (status -fg on -bg)', need: '4.5', light: '5.0', dark: '6.3' },
+  { pair: 'Button label (fg on fill)', need: '4.5', light: '4.5', dark: '5.1' },
+  { pair: 'Status dots on surface', need: '3.0', light: '3.2', dark: '5.2' },
+  { pair: 'Focus ring on surface', need: '3.0', light: '4.7', dark: '5.2' },
+];
+
 const label: React.CSSProperties = {
   fontFamily: 'var(--font-body)',
   fontSize: 'var(--text-2xs)',
@@ -328,6 +343,45 @@ export default function TokensPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+        <h2 style={label}>Contrast (WCAG 2.1 AA)</h2>
+        <p style={note}>
+          Worst-case ratio per group, light × dark. Body text needs <code style={mono}>4.5:1</code>, large text and non-text UI
+          need <code style={mono}>3:1</code>. Every pair below passes for its use.
+        </p>
+
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ borderCollapse: 'collapse', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', minWidth: 460 }}>
+            <thead>
+              <tr style={{ textAlign: 'left', color: 'var(--text-muted)' }}>
+                <th style={{ padding: '6px 16px 6px 0', fontWeight: 600 }}>Pair</th>
+                <th style={{ padding: '6px 16px 6px 0', fontWeight: 600 }}>Need</th>
+                <th style={{ padding: '6px 16px 6px 0', fontWeight: 600 }}>Light</th>
+                <th style={{ padding: '6px 16px 6px 0', fontWeight: 600 }}>Dark</th>
+              </tr>
+            </thead>
+            <tbody>
+              {CONTRAST.map((r) => (
+                <tr key={r.pair} style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
+                  <td style={{ padding: '6px 16px 6px 0' }}>{r.pair}</td>
+                  <td style={{ padding: '6px 16px 6px 0', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{r.need}</td>
+                  <td style={{ padding: '6px 16px 6px 0', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)' }}>{r.light}:1</td>
+                  <td style={{ padding: '6px 16px 6px 0', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)' }}>{r.dark}:1</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p style={note}>
+          <strong>Exemptions:</strong> disabled text (<code style={mono}>--text-disabled</code>, ~2.5:1) — WCAG 1.4.3 excludes
+          inactive controls. Resting <code style={mono}>--border-default</code> / <code style={mono}>--border-strong</code> —
+          decorative, and never the only affordance (fields also carry a label, fill and focus ring).{' '}
+          <code style={mono}>--text-muted</code> on <code style={mono}>--bg-subtle</code> / <code style={mono}>--bg-sunken</code>{' '}
+          lands ~4.2:1 → large text only; use <code style={mono}>--text-secondary</code> there for body copy.
+        </p>
       </section>
     </div>
   );

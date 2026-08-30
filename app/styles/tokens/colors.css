@@ -17,8 +17,8 @@
 --neutral-800:#2A303C;--neutral-900:#1B202A;--neutral-950:#12161E;
 
 /* Semantic ramps */
---green-100:#D9F2E5;--green-200:#A7E1C6;--green-500:#2E9E6B;--green-600:#238055;--green-900:#123A28;
---amber-100:#FBEDD3;--amber-200:#F4D8A2;--amber-500:#C8811F;--amber-600:#A66A16;--amber-900:#40290A;
+--green-100:#D9F2E5;--green-200:#A7E1C6;--green-500:#2E9E6B;--green-600:#238055;--green-700:#1C7249;--green-900:#123A28;
+--amber-100:#FBEDD3;--amber-200:#F4D8A2;--amber-500:#C8811F;--amber-600:#A66A16;--amber-700:#8A5410;--amber-900:#40290A;
 --red-100:#FBE0DF;--red-200:#F3B9B7;--red-500:#D0473F;--red-600:#AE372F;--red-900:#421512;
 --violet-100:#EEE6FB;--violet-500:#7C5AC7;--violet-900:#2C1F4A;
 
@@ -41,11 +41,11 @@
 
 --text-primary:var(--neutral-900);
 --text-secondary:var(--neutral-600);
---text-muted:var(--neutral-500);
+--text-muted:#616A7B; /* was neutral-500; darkened for AA on surface+canvas (SS-45) */
 --text-disabled:var(--neutral-400);
 --text-inverse:var(--neutral-0);
 --text-brand:var(--brand-600);
---text-accent:var(--accent-600);
+--text-accent:var(--accent-700); /* AA on white (SS-45) */
 --text-link:var(--brand-600);
 --text-link-hover:var(--brand-700);
 
@@ -66,13 +66,13 @@
 --interactive-accent:var(--accent-500);
 --interactive-accent-hover:var(--accent-600);
 --interactive-accent-active:var(--accent-700);
---interactive-accent-fg:#FFFFFF;
+--interactive-accent-fg:#04231F; /* dark-on-vivid — white failed AA on accent-500 (SS-45) */
 /* Solid semantic action fills (Button / IconButton). Same words as the tint tones. */
---interactive-success:var(--green-500);
---interactive-success-hover:var(--green-600);
+--interactive-success:var(--green-600);
+--interactive-success-hover:var(--green-700);
 --interactive-success-fg:#FFFFFF;
---interactive-warning:var(--amber-600);
---interactive-warning-hover:#8C5912;
+--interactive-warning:#9C6414;
+--interactive-warning-hover:#7C4E10;
 --interactive-warning-fg:#FFFFFF;
 --interactive-error:var(--red-500);
 --interactive-error-hover:var(--red-600);
@@ -82,8 +82,8 @@
 --interactive-disabled-fg:var(--neutral-400);
 
 /* Status — booking lifecycle */
---status-success-bg:var(--green-100);--status-success-fg:var(--green-600);--status-success-dot:var(--green-500);
---status-warning-bg:var(--amber-100);--status-warning-fg:var(--amber-600);--status-warning-dot:var(--amber-500);
+--status-success-bg:var(--green-100);--status-success-fg:var(--green-700);--status-success-dot:var(--green-500);
+--status-warning-bg:var(--amber-100);--status-warning-fg:var(--amber-700);--status-warning-dot:var(--amber-500);
 --status-error-bg:var(--red-100);--status-error-fg:var(--red-600);--status-error-dot:var(--red-500);
 --status-neutral-bg:var(--neutral-100);--status-neutral-fg:var(--neutral-600);--status-neutral-dot:var(--neutral-400);
 --status-info-bg:var(--brand-50);--status-info-fg:var(--brand-600);--status-info-dot:var(--brand-500);
@@ -106,7 +106,7 @@ color-scheme:light;
 
 --text-primary:#E9ECF3;
 --text-secondary:#A8B0C0;
---text-muted:#828B9C;
+--text-muted:#909AAD; /* lightened for AA on bg-subtle (SS-45) */
 --text-disabled:#5A6273;
 --text-inverse:var(--neutral-900);
 --text-brand:var(--brand-300);
@@ -120,10 +120,10 @@ color-scheme:light;
 --border-brand:var(--brand-500);
 --border-focus:var(--brand-400);
 
---interactive-primary:var(--brand-500);
---interactive-primary-hover:var(--brand-400);
---interactive-primary-active:var(--brand-300);
---interactive-primary-fg:#0F1220;
+--interactive-primary:var(--brand-400);
+--interactive-primary-hover:var(--brand-300);
+--interactive-primary-active:var(--brand-200);
+--interactive-primary-fg:#0F1220; /* fill bumped a step so #0F1220 clears AA (SS-45) */
 --interactive-secondary:var(--neutral-800);
 --interactive-secondary-hover:#333B49;
 --interactive-secondary-active:#3C4553;

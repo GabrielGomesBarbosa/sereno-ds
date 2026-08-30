@@ -56,6 +56,20 @@ somem. Regra geral: em superfície tingida, prefira variantes que se autodefinem
 - Hover `ghost` cinza (`--bg-subtle`) **é o comportamento documentado** e correto em
   superfície neutra (barras, diálogos, cards). Só não use ghost sobre superfície tingida.
 
+## Contraste WCAG 2.1 AA (0.9.0, SS-45)
+
+- Auditoria de todos os pares texto/fundo e não-texto, light + dark. Ajustes só de
+  lightness, hues intactos: `--text-muted` (escureceu no light, clareou no dark),
+  `--text-accent` → `accent-700` no light, `--status-success/warning-fg` → novos
+  `green-700`/`amber-700`, `--interactive-success/warning` (light) mais escuros.
+- **`--interactive-accent-fg` no light virou texto escuro** (`#04231F`) — branco sobre
+  o turquesa vivo dava 3.0:1. O CTA accent agra é escuro-sobre-claro nos dois temas.
+- Dark `--interactive-primary` subiu um passo (`brand-400`) pro label quase-preto passar.
+- **Isentos** (documentado na página de Tokens): texto disabled (WCAG 1.4.3), bordas
+  de repouso `--border-default/strong` (decorativas, nunca a única pista). `--text-muted`
+  sobre `--bg-subtle`/`--bg-sunken` fica ~4.2:1 → só texto grande; use `--text-secondary`.
+- Nova seção **Contrast** na página `/design-system/tokens`.
+
 ## Responsividade — componentes precisam refluir
 
 - `Tabs` `pill`: abraça o conteúdo (`inline-flex` + `align-self:flex-start`); nunca

@@ -2,6 +2,27 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.9.0 — colour contrast pass (SS-45)
+
+Full WCAG 2.1 AA audit of every meaningful text/bg and non-text pair, light and
+dark. Token value changes (hues kept, lightness nudged):
+
+- `--text-muted` darkened in light (`neutral-500` → `#616A7B`), lightened in dark
+  (`#828B9C` → `#909AAD`) — was < 4.5:1 as body text.
+- `--text-accent` (light) → `accent-700`; failed AA on white.
+- `--interactive-accent-fg` (light) is now **dark teal instead of white** — white
+  on the vivid turquoise fill was 3.0:1. The accent CTA now has dark-on-bright
+  text, matching dark mode.
+- `--interactive-success` (light) → `green-600`, `--interactive-warning` (light)
+  → `#9C6414` — white label was < 4.5:1 on the old fills.
+- `--status-success-fg` / `--status-warning-fg` (light) → new `green-700` /
+  `amber-700` steps; badge text was < 4.5:1.
+- Dark `--interactive-primary` ladder moved one step lighter (`brand-400` fill)
+  so the near-black label clears AA.
+- New **Contrast (WCAG 2.1 AA)** section on the Tokens page: worst-case ratio per
+  group light × dark, plus the documented exemptions (disabled text, decorative
+  resting borders, muted-on-tinted-surface = large text only).
+
 ## 0.8.3
 
 - Foundations: added `--icon-{xs,sm,md,lg,xl}` (14–24px, the lucide `strokeWidth 1.75`
