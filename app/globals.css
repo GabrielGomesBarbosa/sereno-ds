@@ -311,7 +311,54 @@ html, body { padding: 0; margin: 0; }
   .cv-prevnext { flex-direction: column; }
 }
 
-/* ── Onboarding wizard — step field grids collapse on narrow ───────────────── */
+/* ── Onboarding wizard ───────────────────────────────────────────────────────
+   Mobile: full-bleed column on the canvas. ≥768: a contained card, the same
+   shape as the booking flow's tablet layout. */
+.onb-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-canvas);
+  padding: var(--space-6) var(--gutter-mobile) var(--space-9);
+}
+.onb-card {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+@media (min-width: 768px) {
+  .onb-shell { padding: var(--space-10) var(--space-6); }
+  .onb-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-8);
+  }
+}
+
+.onb-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+.onb-skip {
+  align-self: center;
+  padding: var(--space-2);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.onb-skip:hover { color: var(--text-secondary); }
+
 .onb-row { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: var(--space-3); }
 .onb-row-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 @media (max-width: 520px) {
