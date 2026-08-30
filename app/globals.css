@@ -63,9 +63,7 @@
    Mobile Safari (and Brave / other WebKit shells) zoom the viewport in when a
    focused field's computed font-size is < 16px. Force every text control to 16px
    at coarse-pointer / narrow widths. The viewport meta stays pinch-zoomable
-   (a11y — do not add maximum-scale).
-   Companion shell workaround: app/_shell/KeyboardReveal.tsx (focused field vs.
-   the software keyboard on Brave iOS). Both are host-app concerns, not the lib. */
+   (a11y — do not add maximum-scale). Host-app concern, not the component lib. */
 @media (pointer: coarse), (max-width: 768px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   textarea,
@@ -130,12 +128,27 @@ html, body { padding: 0; margin: 0; }
 
 /* Mobile: keep the app-shell, collapse the sidebar into a hamburger + drawer. */
 @media (max-width: 900px) {
-  .ds-header { padding-inline: var(--gutter-mobile); }
+  /* The document scrolls on mobile — not a nested panel. iOS / Brave then reveal
+     a focused field above the software keyboard natively (same as /onboarding).
+     Do not reintroduce a nested overflow:auto scroller here. */
+  .ds-root { height: auto; overflow: visible; }
+  .ds-body { display: block; min-height: 0; }
+  .ds-main {
+    height: auto;
+    overflow: visible;
+    overscroll-behavior: auto;
+    padding-inline: var(--gutter-mobile);
+  }
+  .ds-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding-inline: var(--gutter-mobile);
+  }
+  html { scroll-padding-top: var(--topbar-height); }
   /* Drop the "Design System" sub-label to save room, but keep the version chip. */
   .ds-header-sub { display: none; }
-  .ds-body { grid-template-columns: minmax(0, 1fr); }
   .ds-aside { display: none; }
-  .ds-main { padding-inline: var(--gutter-mobile); }
 
   .ds-menu-btn { display: inline-flex; }
   .ds-drawer-scrim {
