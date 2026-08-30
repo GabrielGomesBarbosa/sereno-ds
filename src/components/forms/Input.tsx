@@ -1,8 +1,10 @@
 'use client';
 
 import * as React from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { CharCount } from '../_internal/CharCount';
 import { formatMask, MASK_INPUTMODE, MASK_MAXLENGTH, type MaskName } from '../_internal/mask';
 
 /**
@@ -27,6 +29,11 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
    * Sets `inputMode` and `maxLength` unless you pass your own.
    */
   mask?: MaskName | string;
+  /**
+   * Show a `n / max` character counter on the hint row. Implied when `maxLength`
+   * is set; pass `showCount` on its own for a bare count with no ceiling.
+   */
+  showCount?: boolean;
   containerStyle?: React.CSSProperties;
 }
 
@@ -46,6 +53,8 @@ export function Input({
   style,
   containerStyle,
   mask,
+  showCount,
+  type,
   onChange,
   inputMode,
   maxLength,
@@ -53,29 +62,52 @@ export function Input({
   ...rest
 }: InputProps) {
   const [focus, setFocus] = React.useState(false);
+  const [reveal, setReveal] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
   // SSR-stable id (the DS source used Math.random(), which breaks hydration).
   const autoId = React.useId();
   const rid = id || autoId;
 
-  const handleChange = mask
+  const isPassword = type === 'password';
+  const showCounter = Boolean(showCount) || maxLength != null;
+
+  const seed = mask && typeof defaultValue === 'string' ? formatMask(mask, defaultValue) : defaultValue;
+  const [uncount, setUncount] = React.useState(() =>
+    typeof seed === 'string' || typeof seed === 'number' ? String(seed).length : 0,
+  );
+  const count = rest.value !== undefined ? String(rest.value ?? '').length : uncount;
+
+  const needsWrap = Boolean(mask) || showCounter;
+  const handleChange = needsWrap
     ? (e: React.ChangeEvent<HTMLInputElement>) => {
-        const formatted = formatMask(mask, e.currentTarget.value);
-        if (formatted !== e.currentTarget.value) {
-          const el = e.currentTarget;
-          el.value = formatted;
-          // keep the caret at the end — the natural spot while typing forward
-          try {
-            el.setSelectionRange(formatted.length, formatted.length);
-          } catch {
-            /* type doesn't support selection */
+        if (mask) {
+          const formatted = formatMask(mask, e.currentTarget.value);
+          if (formatted !== e.currentTarget.value) {
+            const el = e.currentTarget;
+            el.value = formatted;
+            // keep the caret at the end — the natural spot while typing forward
+            try {
+              el.setSelectionRange(formatted.length, formatted.length);
+            } catch {
+              /* type doesn't support selection */
+            }
           }
         }
+        if (rest.value === undefined) setUncount(e.currentTarget.value.length);
         onChange?.(e);
       }
     : onChange;
 
   return (
-    <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle}>
+    <Field
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      htmlFor={rid}
+      style={containerStyle}
+      counter={showCounter ? <CharCount count={count} max={maxLength ?? undefined} /> : undefined}
+    >
       <div
         style={sx({
           display: 'flex',
@@ -94,6 +126,8 @@ export function Input({
         {prefix && <span style={sx({ display: 'flex', color: 'var(--text-muted)', fontSize: 'var(--text-sm)', flex: '0 0 auto' })}>{prefix}</span>}
         <input
           id={rid}
+          ref={inputRef}
+          type={isPassword && reveal ? 'text' : type}
           disabled={disabled}
           onFocus={() => setFocus(true)}
           onBlur={() => setFocus(false)}
@@ -114,7 +148,22 @@ export function Input({
             ...style,
           })}
         />
-        {suffix && <span style={sx({ display: 'flex', color: 'var(--text-muted)', fontSize: 'var(--text-sm)', flex: '0 0 auto' })}>{suffix}</span>}
+        {isPassword ? (
+          <button
+            type="button"
+            className="ds-affix-btn"
+            aria-label={reveal ? 'Ocultar senha' : 'Mostrar senha'}
+            aria-pressed={reveal}
+            onClick={() => {
+              setReveal((r) => !r);
+              inputRef.current?.focus();
+            }}
+          >
+            {reveal ? <EyeOff size={16} strokeWidth={1.75} /> : <Eye size={16} strokeWidth={1.75} />}
+          </button>
+        ) : (
+          suffix && <span style={sx({ display: 'flex', color: 'var(--text-muted)', fontSize: 'var(--text-sm)', flex: '0 0 auto' })}>{suffix}</span>
+        )}
       </div>
     </Field>
   );

@@ -369,6 +369,8 @@ export const COMPONENTS: ComponentMeta[] = [
       R('prefix', 'React.ReactNode', 'Leading text adornment ("R$", "@", "+55"). Not part of the value.'),
       R('suffix', 'React.ReactNode', 'Trailing text or control (e.g. "min"). Not part of the value.'),
       R('mask', "'phone' | 'cpf' | 'cep' | 'currency' | string", "Format as you type — a preset or a custom `#`-per-digit pattern (`(##) #####-####`). Sets `inputMode` + `maxLength`."),
+      R('type', "'text' | 'password' | 'email' | …", 'Native input type. `password` adds a show/hide eye toggle at the end of the field.', "'text'"),
+      R('showCount', 'boolean', 'Show a `n / max` character counter on the hint row. Implied when `maxLength` is set.', 'false'),
     ],
     code: `<Input
   label="WhatsApp"
@@ -404,6 +406,19 @@ export const COMPONENTS: ComponentMeta[] = [
 <Input label="Price" mask="currency" prefix="R$" placeholder="0,00" />`,
       },
       {
+        id: 'password',
+        title: 'Password',
+        description: '`type="password"` adds a show/hide eye toggle at the end of the field. It swaps the input `type` and keeps focus; `aria-label` flips between "Mostrar senha" / "Ocultar senha".',
+        code: `<Input label="Password" type="password" iconLeft={<Lock size={16} />} />
+<Input label="New password" type="password" hint="At least 8 characters." />`,
+      },
+      {
+        id: 'count',
+        title: 'Character counter',
+        description: 'Set `maxLength` (or pass `showCount`) to get a `n / max` counter on the hint row. It turns red once the limit is reached.',
+        code: `<Input label="Headline" maxLength={60} />`,
+      },
+      {
         id: 'states',
         title: 'Error and disabled',
         description: '`error` replaces `hint` and turns the border red. `disabled` uses its own fill.',
@@ -436,6 +451,7 @@ export const COMPONENTS: ComponentMeta[] = [
     props: [
       R('label / hint / error / required', 'string / string / string / boolean', 'Same label contract as Input.'),
       R('rows', 'number', 'Initial height in lines.', '4'),
+      R('showCount', 'boolean', 'Show a `n / max` character counter on the hint row. Implied when `maxLength` is set.', 'false'),
     ],
     code: `<Textarea label="Any notes?" rows={3} hint="Optional." />`,
     examples: [
@@ -444,6 +460,12 @@ export const COMPONENTS: ComponentMeta[] = [
         title: 'Basic',
         description: 'Same label/hint/error contract as `Input`. `rows` sets the initial height; the field is vertically resizable.',
         code: `<Textarea label="Any notes?" rows={3} hint="Optional." />`,
+      },
+      {
+        id: 'count',
+        title: 'Character counter',
+        description: 'Set `maxLength` (or pass `showCount`) for a `n / max` counter on the hint row — handy for notes with a ceiling. It turns red at the limit.',
+        code: `<Textarea label="Any notes?" rows={3} maxLength={140} hint="Optional." />`,
       },
       {
         id: 'error',

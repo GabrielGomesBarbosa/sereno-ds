@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Flag,
+  Lock,
   Mail,
   MoreVertical,
   Phone,
@@ -318,6 +319,22 @@ function InputMascaras() {
     </div>
   );
 }
+function InputSenha() {
+  return (
+    <div style={fieldCol}>
+      <Input label="Password" type="password" iconLeft={<Lock size={16} strokeWidth={1.75} />} defaultValue="sereno123" />
+      <Input label="New password" type="password" hint="At least 8 characters." placeholder="••••••••" />
+    </div>
+  );
+}
+function InputContador() {
+  const [bio, setBio] = React.useState('Psicóloga clínica, abordagem TCC.');
+  return (
+    <div style={fieldCol}>
+      <Input label="Headline" maxLength={60} value={bio} onChange={(e) => setBio(e.currentTarget.value)} />
+    </div>
+  );
+}
 function InputEstados() {
   return (
     <div style={fieldCol}>
@@ -347,6 +364,14 @@ function TextareaErro() {
   return (
     <div style={{ maxWidth: 420 }}>
       <Textarea label="Service description" rows={3} error="The description needs at least 20 characters." defaultValue="Session." />
+    </div>
+  );
+}
+function TextareaContador() {
+  const [note, setNote] = React.useState('First time in therapy.');
+  return (
+    <div style={{ maxWidth: 420 }}>
+      <Textarea label="Any notes?" rows={3} maxLength={140} hint="Optional." value={note} onChange={(e) => setNote(e.currentTarget.value)} />
     </div>
   );
 }
@@ -911,8 +936,16 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   badge: { tones: BadgeCiclo, labels: BadgeGenericos, sizes: BadgeTamanhos },
   card: { padding: CardPadding, elevation: CardElevacao, interactive: CardInterativo },
   avatar: { sizes: AvatarTamanhos, 'initials-photo': AvatarIniciais, status: AvatarStatus },
-  input: { basic: InputBasico, 'icon-suffix': InputIconeSufixo, masked: InputMascaras, states: InputEstados, sizes: InputTamanhos },
-  textarea: { basic: TextareaBasico, error: TextareaErro },
+  input: {
+    basic: InputBasico,
+    'icon-suffix': InputIconeSufixo,
+    masked: InputMascaras,
+    password: InputSenha,
+    count: InputContador,
+    states: InputEstados,
+    sizes: InputTamanhos,
+  },
+  textarea: { basic: TextareaBasico, count: TextareaContador, error: TextareaErro },
   select: { basic: SelectBasico, placeholder: SelectHint, disabled: SelectDesabilitado, sizes: SelectTamanhos },
   checkbox: { basic: CheckboxBasico, disabled: CheckboxDesabilitado },
   radio: { group: RadioGrupo },

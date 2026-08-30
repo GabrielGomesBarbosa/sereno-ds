@@ -2,7 +2,7 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
-## 0.10.0 — Input masks + prefix (SS-46)
+## 0.10.0 — Input: masks, prefix, password reveal, counter (SS-46, SS-141)
 
 - `Input` gains a **`mask`** prop — hand-rolled, no dependency
   (`src/components/_internal/mask.ts`). Presets: `phone` (switches 8/9-digit),
@@ -19,6 +19,19 @@ Version shown in the `/design-system` header. Source: `src/design-system/version
   the Input page.
 - Wired into the product screens: `BookingFlow` WhatsApp field (`mask="phone"`),
   `Onboarding` price field (`mask="currency"` + `prefix="R$"`).
+- `Input` with **`type="password"`** now shows a show/hide **eye toggle** at the
+  end of the field (`Eye` / `EyeOff`, `.ds-affix-btn`). It swaps the input `type`,
+  keeps focus, and flips `aria-label` between "Mostrar senha" / "Ocultar senha".
+  When both apply, the eye wins over `suffix`.
+- **Character counter** on `Input` and `Textarea`: set `maxLength` (or pass
+  `showCount`) for an `n / max` readout on the hint row — right-aligned, tabular
+  figures, turns `--interactive-error` at the limit. `Field` gained a `counter`
+  slot; shared `_internal/CharCount.tsx`.
+- **iOS / WebKit focus-zoom fix**: text controls are forced to 16px at
+  `(pointer: coarse), (max-width: 768px)` so mobile Safari / Brave stop zooming
+  the viewport on focus. The viewport meta stays pinch-zoomable (a11y).
+- New **Password** and **Character counter** examples on the Input page, a
+  **Character counter** example on Textarea.
 - Showcase polish: Overview cards render the backticks in each component summary
   as inline `code` (were literal); the "Next" prev/next card is now right-aligned
   to mirror "Previous".
