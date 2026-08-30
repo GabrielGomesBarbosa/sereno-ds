@@ -257,7 +257,9 @@ export function FileUpload(props: FileUploadProps) {
       style={sx({
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'flex-start',
         gap: 'var(--space-4)',
+        width: '100%',
         padding: 0,
         border: 'none',
         background: 'transparent',
@@ -269,8 +271,8 @@ export function FileUpload(props: FileUploadProps) {
     >
       <span
         style={sx({
-          width: 88,
-          height: 88,
+          width: 96,
+          height: 96,
           flex: '0 0 auto',
           borderRadius: '999px',
           display: 'inline-flex',
@@ -282,7 +284,7 @@ export function FileUpload(props: FileUploadProps) {
           transition: 'var(--transition-control)',
         })}
       >
-        <UploadCloud size={22} strokeWidth={1.75} />
+        <UploadCloud size={24} strokeWidth={1.75} />
       </span>
       <span style={sx({ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--text-primary)' })}>{usePrompt}</span>
     </button>
