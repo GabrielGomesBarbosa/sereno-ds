@@ -2,6 +2,17 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.12.0 — Switch & Select: fuller examples, Switch size + keyboard (SS-144)
+
+- `Switch` gains a **`size`** prop (`sm` 36×22 / `md` 44×26) to match
+  `Checkbox` / `Radio` / `Input`, and is now **keyboard-operable** — the toggle
+  takes focus (with a focus ring), Space / Enter flip it, `disabled` drops it
+  from the tab order.
+- Switch showcase 2 → 4 examples: **Basic**, **Settings list** (the stacked
+  instant-apply rows Switch is actually for), **Disabled** (off + on), **Sizes**.
+- Select showcase gains an **Error** example — the `error` contract was
+  documented but never shown. No component change.
+
 ## 0.11.0 — Checkbox & Radio: indeterminate, size, fuller examples (SS-47)
 
 - `Checkbox` gains an **`indeterminate`** prop — the mixed state for a "select
