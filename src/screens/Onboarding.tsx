@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Calendar, CheckCircle2, Link2, Share2, Sparkles, Upload, User } from 'lucide-react';
-import { Avatar, Badge, Button, Card, Input, Select, ServiceCard, Stepper, WeeklyScheduleEditor, type WeekSchedule } from '@/components';
+import { Calendar, CheckCircle2, Link2, Share2, Sparkles, User } from 'lucide-react';
+import { Badge, Button, Card, FileUpload, Input, Select, ServiceCard, Stepper, WeeklyScheduleEditor, type WeekSchedule } from '@/components';
 import { DEFAULT_WEEK } from '@/lib/mock';
 
 const STEPS = [
@@ -25,6 +25,7 @@ const sub: React.CSSProperties = { fontFamily: 'var(--font-body)', fontSize: 'va
 
 interface Data {
   name: string;
+  photo: File | null;
   council: string;
   credential: string;
   svcName: string;
@@ -49,6 +50,7 @@ export function Onboarding() {
   const [done, setDone] = React.useState(false);
   const [data, setData] = React.useState<Data>({
     name: '',
+    photo: null,
     council: 'crp',
     credential: '',
     svcName: '',
@@ -143,15 +145,14 @@ function PerfilStep({ data, set }: { data: Data; set: (p: Partial<Data>) => void
   return (
     <div style={vcol('var(--space-5)')}>
       <StepHeader title="Vamos começar pelo seu perfil" description="É o que seus clientes veem antes de agendar. Você pode ajustar depois nas configurações." />
-      <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
-        <Avatar name={data.name || '?'} size="xl" />
-        <div style={vcol('var(--space-2)')}>
-          <Button variant="secondary" size="sm" iconLeft={<Upload size={16} strokeWidth={1.75} />}>
-            Enviar foto
-          </Button>
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>JPG ou PNG, até 5 MB. Opcional.</span>
-        </div>
-      </div>
+      <FileUpload
+        label="Foto de perfil"
+        hint="JPG ou PNG, até 5 MB. Opcional."
+        shape="circle"
+        prompt="Arraste uma foto ou clique para escolher"
+        value={data.photo}
+        onChange={(f) => set({ photo: f })}
+      />
       <Input label="Nome completo" required size="lg" placeholder="Ana Beatriz Ramos" value={data.name} onChange={(e) => set({ name: e.currentTarget.value })} />
       <div className="onb-row">
         <Select

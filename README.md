@@ -20,9 +20,9 @@ navigable showcase and three real product screens — no backend, everything sta
 
 ## What's inside
 
-- **25 React primitives** in `src/components/`, ported 1:1 from the approved
-  Design System — token-driven (CSS custom properties), inline styles, native
-  dark mode. No Radix / MUI / Tailwind.
+- **26 React primitives** in `src/components/` — 25 ported 1:1 from the approved
+  Design System, plus `FileUpload` (net-new, SS-49). Token-driven (CSS custom
+  properties), inline styles, native dark mode. No Radix / MUI / Tailwind.
 - **Tokens** in `app/styles/tokens/*.css` — colours (light × dark), type scale,
   spacing, breakpoints, icon sizes, radii, elevation, motion.
 - **Navigable showcase** (`/design-system`) — MUI-doc-style page per component:
@@ -68,7 +68,7 @@ npm run build    # production build + static export to out/
 npm run lint     # ESLint
 ```
 
-`npm run build` must produce `out/` with no error — 39 routes: the 25 component
+`npm run build` must produce `out/` with no error — 40 routes: the 26 component
 pages, the tokens page, the 3 product screens (3 slugs for `/agendar`), plus
 `/`, `/demo`, `robots.txt`, `sitemap.xml`.
 
@@ -85,7 +85,7 @@ app/                       routes (App Router)
   demo/  page.tsx          the demo hub, the landing
   robots.ts  sitemap.ts    basic SEO
 src/
-  components/              25 .tsx primitives + index.ts (barrel) + _internal/ helpers
+  components/              26 .tsx primitives + index.ts (barrel) + _internal/ helpers
   screens/                 BookingFlow, Dashboard, Onboarding (client components)
   design-system/           catalog, demos, ComponentView, Sidebar, version.ts + CHANGELOG.md
   theme/                   ThemeProvider + ThemeToggle

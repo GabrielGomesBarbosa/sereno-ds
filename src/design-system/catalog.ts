@@ -1,4 +1,5 @@
-// Server-safe catalogue of the 25 Design System primitives. Powers the sidebar,
+// Server-safe catalogue of the Design System primitives (25 ported + FileUpload).
+// Powers the sidebar,
 // the /design-system index and `generateStaticParams` for the per-component routes.
 // Prop rows are transcribed from each component's .d.ts contract.
 
@@ -853,6 +854,86 @@ export const COMPONENTS: ComponentMeta[] = [
     guidelines: {
       do: ['`month` is 0-indexed.', 'Unavailable slots as `{ value, disabled: true }` — they keep their place in the grid.', 'Let the accent time marker be the only one on the screen.'],
       dont: ['Removing unavailable slots from the list — the grid "jumps".'],
+    },
+  },
+  {
+    slug: 'file-upload',
+    name: 'FileUpload',
+    category: 'forms',
+    summary: 'Pick one file — click, keyboard or drag-and-drop — with a local preview. No upload happens here; `onChange` hands you the `File`.',
+    props: [
+      R('multiple', 'boolean', 'A list instead of one file. Flips `value` to `File[]` and `onChange` to `(files: File[]) => void`.', 'false'),
+      R('value', 'File | string | null  ·  File[]', 'Single: the picked file or an existing URL. Multiple: the file list. Omit for uncontrolled.'),
+      R('onChange', '(file: File | null) => void  ·  (files: File[]) => void', 'The chosen file(s). Signature follows `multiple`.'),
+      R('accept', 'string', '`accept` attribute — also enforced on drop.', "'image/*'"),
+      R('maxSizeMB', 'number', 'Files above this are rejected with a message.', '5'),
+      R('shape', "'circle' | 'square'", 'Thumbnail shape for image previews — `circle` for avatars (single only).', "'square'"),
+      R('prompt', 'string', 'Text inside the empty drop area.'),
+      R('label / hint / error / required / disabled', '—', 'Same label contract as Input.'),
+    ],
+    code: `<FileUpload
+  label="Profile photo"
+  hint="PNG or JPG, up to 5 MB."
+  shape="circle"
+  value={photo}
+  onChange={setPhoto}
+/>`,
+    examples: [
+      {
+        id: 'basic',
+        title: 'Basic',
+        description: 'Empty state is a dashed drop area — click, `Enter` / `Space`, or drop a file on it. Once a file is set it swaps to a preview with **Replace** and **Remove**. `hint` carries the accepted types / size.',
+        code: `<FileUpload
+  label="Attachment"
+  hint="PDF or image, up to 5 MB."
+  accept="image/*,.pdf"
+  value={file}
+  onChange={setFile}
+/>`,
+      },
+      {
+        id: 'avatar',
+        title: 'Avatar (circle)',
+        description: '`shape="circle"` makes the preview a disc — the profile-photo case. Non-image files fall back to an extension chip.',
+        code: `<FileUpload label="Profile photo" hint="A square image works best." shape="circle" value={photo} onChange={setPhoto} />`,
+      },
+      {
+        id: 'multiple',
+        title: 'Multiple files',
+        description: '`multiple` keeps the drop zone visible and stacks the picked files below, each with its own Remove. `value` is `File[]`, `onChange` gets the whole list. Files failing `accept` / `maxSizeMB` are skipped with a count.',
+        code: `<FileUpload
+  label="Portfolio"
+  hint="Up to 5 MB each."
+  multiple
+  accept="image/*"
+  value={files}
+  onChange={setFiles}
+/>`,
+      },
+      {
+        id: 'error',
+        title: 'Rejected file',
+        description: 'A file outside `accept`, or over `maxSizeMB`, is refused with a message in the `error` slot — the field itself keeps its last valid value. You can also drive `error` yourself.',
+        code: `<FileUpload label="Logo" accept="image/png" maxSizeMB={1} onChange={setLogo} />
+// drop a 4 MB JPG -> "File is too large — keep it under 1 MB."`,
+      },
+      {
+        id: 'disabled',
+        title: 'Disabled',
+        description: 'No picker, no drop, no Replace / Remove — an existing `value` still shows as a static preview.',
+        code: `<FileUpload label="Profile photo" shape="circle" value="/img/ana.jpg" disabled />`,
+      },
+    ],
+    guidelines: {
+      do: [
+        'Put the accepted types and the size limit in `hint`.',
+        '`shape="circle"` whenever the file is a person’s photo.',
+        '`multiple` for a gallery / attachment list; single (default) for one photo or document.',
+      ],
+      dont: [
+        'Expecting it to upload — it only hands you the `File`(s); the screen does the request.',
+        '`shape="circle"` with `multiple` — the disc is a single-photo affordance.',
+      ],
     },
   },
 
