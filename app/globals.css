@@ -40,6 +40,38 @@
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
 }
 
+/* ── In-field affix button (Input's password reveal toggle) ───────────────────
+   A bare icon button that sits inside the field frame, aligned like suffix text. */
+.ds-affix-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.ds-affix-btn:hover { color: var(--text-secondary); }
+.ds-affix-btn:focus { outline: none; }
+.ds-affix-btn:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+/* ── iOS / WebKit: stop the focus auto-zoom on small controls ─────────────────
+   Mobile Safari (and Brave / other WebKit shells) zoom the viewport in when a
+   focused field's computed font-size is < 16px. Force every text control to 16px
+   at coarse-pointer / narrow widths. The viewport meta stays pinch-zoomable
+   (a11y — do not add maximum-scale). */
+@media (pointer: coarse), (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 html, body { padding: 0; margin: 0; }
 
 /* ── Design System showcase — fixed app-shell ─────────────────────────────────

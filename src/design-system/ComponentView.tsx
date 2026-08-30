@@ -119,7 +119,7 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
             <span />
           )}
           {next && (
-            <Link href={`/design-system/${next.category}/${next.slug}`} style={{ ...prevNextLink, textAlign: 'right' }}>
+            <Link href={`/design-system/${next.category}/${next.slug}`} style={{ ...prevNextLink, justifyContent: 'flex-end', textAlign: 'right' }}>
               <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                 <span style={prevNextKicker}>Next</span>
                 <span style={prevNextName}>{next.name}</span>

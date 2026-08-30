@@ -247,6 +247,7 @@ export function BookingFlow({ professional, services }: { professional: Professi
                 label="WhatsApp"
                 required
                 size="lg"
+                mask="phone"
                 placeholder="(11) 90000-0000"
                 iconLeft={<Phone size={16} strokeWidth={1.75} />}
                 hint="Enviaremos a confirmação e os lembretes por aqui."

@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Flag,
+  Lock,
   Mail,
   MoreVertical,
   Phone,
@@ -300,6 +301,37 @@ function InputIconeSufixo() {
     <div style={fieldCol}>
       <Input label="WhatsApp" iconLeft={<Phone size={16} strokeWidth={1.75} />} placeholder="(11) 90000-0000" />
       <Input label="Duration" suffix="min" defaultValue="50" />
+      <Input label="Price" prefix="R$" placeholder="0,00" />
+    </div>
+  );
+}
+function InputMascaras() {
+  const [phone, setPhone] = React.useState('');
+  const [cpf, setCpf] = React.useState('');
+  const [cep, setCep] = React.useState('');
+  const [price, setPrice] = React.useState('');
+  return (
+    <div style={fieldCol}>
+      <Input label="WhatsApp" mask="phone" iconLeft={<Phone size={16} strokeWidth={1.75} />} placeholder="(11) 90000-0000" value={phone} onChange={(e) => setPhone(e.currentTarget.value)} />
+      <Input label="CPF" mask="cpf" placeholder="000.000.000-00" value={cpf} onChange={(e) => setCpf(e.currentTarget.value)} />
+      <Input label="CEP" mask="cep" placeholder="00000-000" value={cep} onChange={(e) => setCep(e.currentTarget.value)} />
+      <Input label="Price" mask="currency" prefix="R$" placeholder="0,00" value={price} onChange={(e) => setPrice(e.currentTarget.value)} />
+    </div>
+  );
+}
+function InputSenha() {
+  return (
+    <div style={fieldCol}>
+      <Input label="Password" type="password" iconLeft={<Lock size={16} strokeWidth={1.75} />} defaultValue="sereno123" />
+      <Input label="New password" type="password" hint="At least 8 characters." placeholder="••••••••" />
+    </div>
+  );
+}
+function InputContador() {
+  const [bio, setBio] = React.useState('Psicóloga clínica, abordagem TCC.');
+  return (
+    <div style={fieldCol}>
+      <Input label="Headline" maxLength={60} value={bio} onChange={(e) => setBio(e.currentTarget.value)} />
     </div>
   );
 }
@@ -332,6 +364,14 @@ function TextareaErro() {
   return (
     <div style={{ maxWidth: 420 }}>
       <Textarea label="Service description" rows={3} error="The description needs at least 20 characters." defaultValue="Session." />
+    </div>
+  );
+}
+function TextareaContador() {
+  const [note, setNote] = React.useState('First time in therapy.');
+  return (
+    <div style={{ maxWidth: 420 }}>
+      <Textarea label="Any notes?" rows={3} maxLength={140} hint="Optional." value={note} onChange={(e) => setNote(e.currentTarget.value)} />
     </div>
   );
 }
@@ -896,8 +936,16 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   badge: { tones: BadgeCiclo, labels: BadgeGenericos, sizes: BadgeTamanhos },
   card: { padding: CardPadding, elevation: CardElevacao, interactive: CardInterativo },
   avatar: { sizes: AvatarTamanhos, 'initials-photo': AvatarIniciais, status: AvatarStatus },
-  input: { basic: InputBasico, 'icon-suffix': InputIconeSufixo, states: InputEstados, sizes: InputTamanhos },
-  textarea: { basic: TextareaBasico, error: TextareaErro },
+  input: {
+    basic: InputBasico,
+    'icon-suffix': InputIconeSufixo,
+    masked: InputMascaras,
+    password: InputSenha,
+    count: InputContador,
+    states: InputEstados,
+    sizes: InputTamanhos,
+  },
+  textarea: { basic: TextareaBasico, count: TextareaContador, error: TextareaErro },
   select: { basic: SelectBasico, placeholder: SelectHint, disabled: SelectDesabilitado, sizes: SelectTamanhos },
   checkbox: { basic: CheckboxBasico, disabled: CheckboxDesabilitado },
   radio: { group: RadioGrupo },

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { CharCount } from '../_internal/CharCount';
 
 /** Multi-line field for booking notes and service descriptions. */
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -11,16 +12,43 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
   error?: string;
   required?: boolean;
   rows?: number;
+  /**
+   * Show a `n / max` character counter on the hint row. Implied when `maxLength`
+   * is set; pass `showCount` on its own for a bare count with no ceiling.
+   */
+  showCount?: boolean;
   containerStyle?: React.CSSProperties;
 }
 
-export function Textarea({ label, hint, error, required, rows = 4, disabled, id, style, containerStyle, ...rest }: TextareaProps) {
+export function Textarea({ label, hint, error, required, rows = 4, showCount, disabled, id, style, containerStyle, ...rest }: TextareaProps) {
   const [focus, setFocus] = React.useState(false);
   // SSR-stable id (the DS source used Math.random(), which breaks hydration).
   const autoId = React.useId();
   const rid = id || autoId;
+
+  const max = typeof rest.maxLength === 'number' ? rest.maxLength : undefined;
+  const showCounter = Boolean(showCount) || max != null;
+  const [uncount, setUncount] = React.useState(() =>
+    typeof rest.defaultValue === 'string' || typeof rest.defaultValue === 'number' ? String(rest.defaultValue).length : 0,
+  );
+  const count = rest.value !== undefined ? String(rest.value ?? '').length : uncount;
+  const handleChange = showCounter
+    ? (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        if (rest.value === undefined) setUncount(e.currentTarget.value.length);
+        rest.onChange?.(e);
+      }
+    : rest.onChange;
+
   return (
-    <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle}>
+    <Field
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      htmlFor={rid}
+      style={containerStyle}
+      counter={showCounter ? <CharCount count={count} max={max} /> : undefined}
+    >
       <textarea
         id={rid}
         rows={rows}
@@ -28,6 +56,7 @@ export function Textarea({ label, hint, error, required, rows = 4, disabled, id,
         onFocus={() => setFocus(true)}
         onBlur={() => setFocus(false)}
         {...rest}
+        onChange={handleChange}
         style={sx({
           width: '100%',
           padding: 'var(--space-3)',

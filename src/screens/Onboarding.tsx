@@ -202,10 +202,11 @@ function ServicoStep({ data, set }: { data: Data; set: (p: Partial<Data>) => voi
           label="Valor"
           required
           size="lg"
-          placeholder="180"
+          mask="currency"
+          prefix="R$"
+          placeholder="0,00"
           value={data.price}
           onChange={(e) => set({ price: e.currentTarget.value })}
-          iconLeft={<span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>R$</span>}
         />
       </div>
       <Select
