@@ -428,6 +428,13 @@ function SelectTamanhos() {
     </div>
   );
 }
+function SelectErro() {
+  return (
+    <div style={{ maxWidth: 420 }}>
+      <Select label="Duration" required placeholder="Pick a duration" error="Choose how long the session lasts." options={SEL_OPTS} />
+    </div>
+  );
+}
 
 function CheckboxBasico() {
   const [a, setA] = React.useState(false);
@@ -563,10 +570,33 @@ function SwitchBasico() {
     </div>
   );
 }
-function SwitchDesabilitado() {
+function SwitchSettings() {
+  const [s, setS] = React.useState({ online: true, whats: true, reminders: false, digest: false });
+  const set = (k: keyof typeof s) => (e: { target: { checked: boolean } }) => setS((v) => ({ ...v, [k]: e.target.checked }));
   return (
-    <div style={{ maxWidth: 360 }}>
-      <Switch label="Paid-plan feature" disabled />
+    <div style={{ ...col, gap: 20, maxWidth: 420 }}>
+      <Switch label="Accept online bookings" description="Your public link takes new appointments." checked={s.online} onChange={set('online')} />
+      <Switch label="WhatsApp notifications" description="A message on every new booking or cancellation." checked={s.whats} onChange={set('whats')} />
+      <Switch label="Client reminders" description="Sent to the client 24h and 1h before." checked={s.reminders} onChange={set('reminders')} />
+      <Switch label="Daily agenda email" description="At 7am, the day's appointments." checked={s.digest} onChange={set('digest')} />
+    </div>
+  );
+}
+function SwitchEstados() {
+  return (
+    <div style={{ ...col, maxWidth: 360 }}>
+      <Switch label="Paid-plan feature (off)" disabled />
+      <Switch label="Locked on" checked disabled />
+    </div>
+  );
+}
+function SwitchTamanhos() {
+  const [a, setA] = React.useState(true);
+  const [b, setB] = React.useState(true);
+  return (
+    <div style={{ ...col, maxWidth: 360 }}>
+      <Switch size="sm" label="Small track" checked={a} onChange={(e) => setA(e.target.checked)} />
+      <Switch label="Medium track (default)" checked={b} onChange={(e) => setB(e.target.checked)} />
     </div>
   );
 }
@@ -1041,7 +1071,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     sizes: InputTamanhos,
   },
   textarea: { basic: TextareaBasico, count: TextareaContador, error: TextareaErro },
-  select: { basic: SelectBasico, placeholder: SelectHint, disabled: SelectDesabilitado, sizes: SelectTamanhos },
+  select: { basic: SelectBasico, placeholder: SelectHint, error: SelectErro, disabled: SelectDesabilitado, sizes: SelectTamanhos },
   checkbox: {
     basic: CheckboxBasico,
     states: CheckboxEstados,
@@ -1050,7 +1080,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     group: CheckboxGrupo,
   },
   radio: { vertical: RadioVertical, horizontal: RadioHorizontal, states: RadioEstados, sizes: RadioTamanhos },
-  switch: { basic: SwitchBasico, disabled: SwitchDesabilitado },
+  switch: { basic: SwitchBasico, settings: SwitchSettings, states: SwitchEstados, sizes: SwitchTamanhos },
   'date-time-picker': { calendar: DateTimeCalendario, 'with-times': DateTimeComHorarios },
   'service-card': { basic: ServiceCardBasico, selectable: ServiceCardSelectable },
   'professional-card': { basic: ProfessionalCardBasico, 'with-action': ProfessionalCardComAcao },

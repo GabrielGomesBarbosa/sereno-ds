@@ -53,8 +53,9 @@ Full context and scope: Jira card **SS-39** (project SS). Read it before any lar
   `children`…). Never a CDN or `data-lucide`.
 - **Fonts:** `next/font/google` only. Never the Google Fonts CDN.
 - **Global keyframes / states** (`sereno-spin`, `sereno-pop`, `sereno-slide-up`,
-  `sereno-pulse`, `.sereno-check:checked`, `.sereno-radio:checked`) live in
-  `app/globals.css` — components depend on them.
+  `sereno-pulse`, `.sereno-check:checked` / `:indeterminate`, `.sereno-radio:checked`,
+  `.sereno-switch:focus-visible`) live in `app/globals.css` — components depend
+  on them.
 - **Host-app (shell) concerns — not the library.** These live outside
   `src/components/**`:
   - `app/globals.css` `@media (pointer: coarse)` — forces text controls to 16px
