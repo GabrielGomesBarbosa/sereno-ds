@@ -19,6 +19,20 @@ export function MobileNav() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   React.useEffect(() => setOpen(false), [pathname]);
 
+  // Lock the document scroll while the drawer is open (on mobile the page itself
+  // scrolls now, so the content behind the scrim would otherwise move).
+  React.useEffect(() => {
+    if (!open) return;
+    const root = document.documentElement;
+    const prev = { html: root.style.overflow, body: document.body.style.overflow };
+    root.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    return () => {
+      root.style.overflow = prev.html;
+      document.body.style.overflow = prev.body;
+    };
+  }, [open]);
+
   return (
     <>
       <span className="ds-menu-btn">

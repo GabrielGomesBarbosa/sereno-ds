@@ -2,6 +2,21 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.10.2 — /design-system scrolls the document on mobile (SS-143)
+
+- Replaces the v0.10.1 `KeyboardReveal` shim with the structural fix. At ≤900px
+  the showcase drops the fixed app-shell: `.ds-root` / `.ds-body` / `.ds-main`
+  go back to normal flow (no `100dvh` lock, no nested `overflow:auto`), and
+  `.ds-header` becomes `position: sticky`. The document is the scroller now, so
+  iOS Safari **and Brave** reveal a focused field above the software keyboard
+  natively — fluid, like `/onboarding`. Zero JS.
+- `ScrollPanel` also resets `window` scroll on route change; `MobileNav` locks
+  body scroll while the drawer is open (the old `overflow:hidden` shell did that
+  implicitly).
+- `app/_shell/KeyboardReveal.tsx` **removed**. Desktop unchanged.
+- `/agendar` (mobile) still has a nested scroller + sticky footer — same fix is
+  a follow-up.
+
 ## 0.10.1 — Brave iOS keyboard reveal (SS-142)
 
 - `app/_shell/KeyboardReveal.tsx` — an app-shell workaround, **not** part of the
