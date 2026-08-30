@@ -20,8 +20,8 @@ navigable showcase and three real product screens — no backend, everything sta
 
 ## What's inside
 
-- **26 React primitives** in `src/components/` — 25 ported 1:1 from the approved
-  Design System, plus `FileUpload` (net-new, SS-49). Token-driven (CSS custom
+- **27 React primitives** in `src/components/` — 25 ported 1:1 from the approved
+  Design System, plus `FileUpload` (SS-49) and `AvatarUpload` (SS-146), net-new. Token-driven (CSS custom
   properties), inline styles, native dark mode. No Radix / MUI / Tailwind.
 - **Tokens** in `app/styles/tokens/*.css` — colours (light × dark), type scale,
   spacing, breakpoints, icon sizes, radii, elevation, motion.
@@ -68,7 +68,7 @@ npm run build    # production build + static export to out/
 npm run lint     # ESLint
 ```
 
-`npm run build` must produce `out/` with no error — 40 routes: the 26 component
+`npm run build` must produce `out/` with no error — 41 routes: the 27 component
 pages, the tokens page, the 3 product screens (3 slugs for `/agendar`), plus
 `/`, `/demo`, `robots.txt`, `sitemap.xml`.
 
@@ -85,7 +85,7 @@ app/                       routes (App Router)
   demo/  page.tsx          the demo hub, the landing
   robots.ts  sitemap.ts    basic SEO
 src/
-  components/              26 .tsx primitives + index.ts (barrel) + _internal/ helpers
+  components/              27 .tsx primitives + index.ts (barrel) + _internal/ helpers
   screens/                 BookingFlow, Dashboard, Onboarding (client components)
   design-system/           catalog, demos, ComponentView, Sidebar, version.ts + CHANGELOG.md
   theme/                   ThemeProvider + ThemeToggle
