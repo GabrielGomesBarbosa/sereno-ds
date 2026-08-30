@@ -69,17 +69,8 @@ export function Onboarding() {
   ][step];
 
   return (
-    <div
-      style={{
-        minHeight: '100dvh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        background: 'var(--bg-canvas)',
-        padding: 'var(--space-6) var(--space-4) var(--space-9)',
-      }}
-    >
-      <div style={{ width: '100%', maxWidth: 600, ...vcol('var(--space-6)') }}>
+    <div className="onb-shell">
+      <div className="onb-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>
           <Badge tone="neutral" dot={false}>
@@ -101,39 +92,29 @@ export function Onboarding() {
             {step === 0 && <PerfilStep data={data} set={set} />}
             {step === 1 && <ServicoStep data={data} set={set} />}
             {step === 2 && <GradeStep data={data} set={set} />}
-            <div style={{ display: 'flex', gap: 'var(--space-2)', paddingTop: 'var(--space-2)' }}>
-              {step > 0 && (
-                <Button variant="ghost" size="lg" onClick={() => setStep(step - 1)}>
-                  Voltar
+            <div className="onb-footer">
+              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                {step > 0 && (
+                  <Button variant="ghost" size="lg" onClick={() => setStep(step - 1)}>
+                    Voltar
+                  </Button>
+                )}
+                <Button
+                  variant={step === 2 ? 'accent' : 'primary'}
+                  size="lg"
+                  fullWidth
+                  disabled={!valid()}
+                  onClick={() => (step < 2 ? setStep(step + 1) : setDone(true))}
+                >
+                  {step < 2 ? 'Continuar' : 'Concluir configuração'}
                 </Button>
+              </div>
+              {step < 2 && (
+                <button className="onb-skip" onClick={() => setStep(step + 1)}>
+                  Preencher depois
+                </button>
               )}
-              <Button
-                variant={step === 2 ? 'accent' : 'primary'}
-                size="lg"
-                fullWidth
-                disabled={!valid()}
-                onClick={() => (step < 2 ? setStep(step + 1) : setDone(true))}
-              >
-                {step < 2 ? 'Continuar' : 'Concluir configuração'}
-              </Button>
             </div>
-            {step < 2 && (
-              <button
-                onClick={() => setStep(step + 1)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-sm)',
-                  color: 'var(--text-muted)',
-                  textDecoration: 'underline',
-                  alignSelf: 'center',
-                }}
-              >
-                Preencher depois
-              </button>
-            )}
           </>
         )}
       </div>
@@ -149,7 +130,7 @@ function PerfilStep({ data, set }: { data: Data; set: (p: Partial<Data>) => void
         label="Foto de perfil"
         hint="JPG ou PNG, até 5 MB. Opcional."
         shape="circle"
-        prompt="Arraste uma foto ou clique para escolher"
+        prompt="Adicionar foto"
         value={data.photo}
         onChange={(f) => set({ photo: f })}
       />
@@ -248,7 +229,7 @@ function DoneScreen({ data, onRestart }: { data: Data; onRestart: () => void }) 
     [<Link2 key="l" size={18} strokeWidth={1.75} />, 'sereno.app/ana-ramos'],
   ];
   return (
-    <div style={{ ...vcol('var(--space-4)'), alignItems: 'center', textAlign: 'center', padding: 'var(--space-6) 0' }}>
+    <div style={{ ...vcol('var(--space-4)'), alignItems: 'center', textAlign: 'center', padding: 'var(--space-3) 0' }}>
       <span
         style={{
           width: 64,
@@ -265,7 +246,7 @@ function DoneScreen({ data, onRestart }: { data: Data; onRestart: () => void }) 
       </span>
       <h1 style={h1}>Tudo pronto</h1>
       <p style={{ ...sub, maxWidth: 400 }}>Seu link já aceita agendamentos. Compartilhe com seus clientes quando quiser.</p>
-      <Card padding="md" style={{ width: '100%', textAlign: 'left', ...vcol('var(--space-3)'), marginTop: 'var(--space-2)' }}>
+      <Card padding="md" elevation="none" style={{ width: '100%', textAlign: 'left', ...vcol('var(--space-3)'), marginTop: 'var(--space-2)' }}>
         {rows.map(([icon, text], i) => (
           <div key={i} style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', color: 'var(--text-secondary)' }}>
             {icon}

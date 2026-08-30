@@ -2,6 +2,19 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.13.1 — Onboarding polish (SS-145)
+
+- `/onboarding` is now a **contained card** at ≥768px (surface, border,
+  `radius-xl`, `shadow-md`, `space-8` padding) — the same shape as the booking
+  flow's tablet layout — instead of a column floating on the canvas. Mobile stays
+  full-bleed and document-scrolled.
+- Step actions moved into an `.onb-footer` with a divider rule above them; the
+  "Preencher depois" skip lost its underline and is a quiet muted button
+  (`.onb-skip`).
+- The done-screen summary drops to `elevation="none"` — no card-inside-a-card
+  shadow. FileUpload prompt on step 1 shortened to "Adicionar foto".
+- Layout only — no component or flow change.
+
 ## 0.13.0 — FileUpload (SS-49)
 
 - New **`FileUpload`** primitive — the 26th component, and the first that is
