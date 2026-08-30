@@ -2,6 +2,17 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.10.1 — Brave iOS keyboard reveal (SS-142)
+
+- `app/_shell/KeyboardReveal.tsx` — an app-shell workaround, **not** part of the
+  component library. `/design-system` and `/agendar` (mobile) scroll inside a
+  nested `overflow: auto` container; iOS Safari / Chrome reveal a focused field
+  above the software keyboard in that setup but Brave for iOS does not. On
+  `focusin` of a text control at `pointer: coarse`, after the keyboard settles,
+  it `scrollIntoView({ block: 'center' })` — but only when the field is actually
+  covered, so it is a no-op everywhere else (Safari, Chrome, desktop). Mounted
+  once in `app/layout.tsx`. No dependency; `src/components/**` untouched.
+
 ## 0.10.0 — Input: masks, prefix, password reveal, counter (SS-46, SS-141)
 
 - `Input` gains a **`mask`** prop — hand-rolled, no dependency

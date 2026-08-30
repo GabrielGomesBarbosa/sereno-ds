@@ -63,7 +63,9 @@
    Mobile Safari (and Brave / other WebKit shells) zoom the viewport in when a
    focused field's computed font-size is < 16px. Force every text control to 16px
    at coarse-pointer / narrow widths. The viewport meta stays pinch-zoomable
-   (a11y — do not add maximum-scale). */
+   (a11y — do not add maximum-scale).
+   Companion shell workaround: app/_shell/KeyboardReveal.tsx (focused field vs.
+   the software keyboard on Brave iOS). Both are host-app concerns, not the lib. */
 @media (pointer: coarse), (max-width: 768px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   textarea,
