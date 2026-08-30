@@ -2,6 +2,15 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.8.3
+
+- Foundations: added `--icon-{xs,sm,md,lg,xl}` (14–24px, the lucide `strokeWidth 1.75`
+  convention) and `--bp-{sm,md,lg,xl}` breakpoint tokens. New **Grid & iconography**
+  section on the Tokens page (containers, breakpoints, icon sizes). Closes the
+  spacing / grid / iconography foundation.
+- The `/design-system` version chip is now visible on mobile too (only the
+  "Design System" sub-label is dropped at ≤900px).
+
 ## 0.8.2
 
 - The DS version chip now shows in the top bar of `/` (the landing), not only
