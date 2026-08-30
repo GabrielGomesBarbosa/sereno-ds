@@ -2,6 +2,31 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.13.0 — FileUpload (SS-49)
+
+- New **`FileUpload`** primitive — the 26th component, and the first that is
+  net-new rather than ported from the approved DS source.
+  - Picked by click, keyboard, or drag-and-drop. **No upload** — `onChange` hands
+    the consumer the `File`(s); the preview is local.
+  - **Single** (default): dashed drop area → swaps to a preview row with
+    **Replace** / **Remove**. `shape` `circle` (avatars) or `square`. `value`
+    takes a `File` or an existing URL string.
+  - **`multiple`**: the drop zone stays, picked files stack below, each with its
+    own remove. `value` is `File[]`.
+  - Image previews use a `usePreviewUrl` hook that creates *and* revokes the
+    object URL in one effect, so a re-render / StrictMode remount never leaves a
+    dead `blob:` on screen.
+  - Non-image files get a **colour-coded type glyph** — PDF red, doc/rtf blue,
+    xls/csv green, ppt/zip amber, else grey — on a faint tint of that colour.
+  - `accept` and `maxSizeMB` enforced on drop too. A rejected single file is a
+    field error; a "skipped N" in `multiple` mode is an informational note.
+  - Comfortable tap targets throughout (36px+), no bare micro-links.
+- Wired into `Onboarding` step 1 — replaces the dead "Enviar foto" button (and
+  its decorative `Avatar`) with a real `FileUpload shape="circle"`.
+- Showcase page (`/design-system/forms/file-upload`): Basic · Avatar · Multiple
+  files · Rejected file · Disabled. `25 primitives` references bumped to 26.
+- Closes SS-49 (its phone-mask half shipped in 0.10.0).
+
 ## 0.12.0 — Switch & Select: fuller examples, Switch size + keyboard (SS-144)
 
 - `Switch` gains a **`size`** prop (`sm` 36×22 / `md` 44×26) to match

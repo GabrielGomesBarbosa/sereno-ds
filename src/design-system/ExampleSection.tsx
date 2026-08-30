@@ -106,19 +106,28 @@ export function ExampleSection({ slug, example }: { slug: string; example: Examp
 }
 
 /** Render `backtick` spans in an authored caption as inline <code>. */
+/** Minimal inline markdown: `code` and **bold**. */
 export function InlineCode({ text }: { text: string }) {
-  const parts = text.split(/(`[^`]+`)/g);
+  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
   return (
     <>
-      {parts.map((p, i) =>
-        p.startsWith('`') && p.endsWith('`') ? (
-          <code key={i} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.92em', color: 'var(--text-brand)' }}>
-            {p.slice(1, -1)}
-          </code>
-        ) : (
-          <React.Fragment key={i}>{p}</React.Fragment>
-        ),
-      )}
+      {parts.map((p, i) => {
+        if (p.startsWith('`') && p.endsWith('`')) {
+          return (
+            <code key={i} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.92em', color: 'var(--text-brand)' }}>
+              {p.slice(1, -1)}
+            </code>
+          );
+        }
+        if (p.startsWith('**') && p.endsWith('**')) {
+          return (
+            <strong key={i} style={{ fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)' }}>
+              {p.slice(2, -2)}
+            </strong>
+          );
+        }
+        return <React.Fragment key={i}>{p}</React.Fragment>;
+      })}
     </>
   );
 }

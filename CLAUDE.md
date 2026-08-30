@@ -33,9 +33,10 @@ Full context and scope: Jira card **SS-39** (project SS). Read it before any lar
 
 - **Next.js 16 App Router + TypeScript**, `output: 'export'` (static, deployed to
   Netlify). No SSR / Node server.
-- **No UI base library.** The 25 components in `src/components/` are ported 1:1
-  from the approved Design System — token-driven, inline styles reading CSS custom
-  properties. When editing them, preserve behaviour; do not introduce
+- **No UI base library.** 25 of the 26 components in `src/components/` are ported
+  1:1 from the approved Design System (`FileUpload` is net-new, SS-49) —
+  token-driven, inline styles reading CSS custom properties. When editing them,
+  preserve behaviour; do not introduce
   Radix/MUI/Tailwind.
 - **Tokens** live in `app/styles/tokens/*.css`. Adjustments are made and documented
   in the file itself:
@@ -80,5 +81,5 @@ Full context and scope: Jira card **SS-39** (project SS). Read it before any lar
 npm run lint && npm run build
 ```
 
-`npm run build` must produce `out/` with no error — the 25 component pages plus the
-3 product screens (39 routes total).
+`npm run build` must produce `out/` with no error — the 26 component pages plus the
+3 product screens (40 routes total).
