@@ -9,21 +9,24 @@ import { sx } from '../_internal/style';
  * box, same hover and label/description rhythm — differing only in the pill radius and dot.
  * Host must include the `.sereno-radio:checked` rule (see globals.css).
  */
-export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
+export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
   label?: string;
   /** Secondary line under the label. */
   description?: string;
+  /** Circle size. `sm` (16px) for dense lists; `md` (20px) everywhere else. Matches `Checkbox`. */
+  size?: 'sm' | 'md';
 }
 
-export function Radio({ label, description, checked, defaultChecked, disabled, onChange, style, ...rest }: RadioProps) {
+export function Radio({ label, description, checked, defaultChecked, disabled, size = 'md', onChange, style, ...rest }: RadioProps) {
   const [hover, setHover] = React.useState(false);
+  const box = size === 'sm' ? 16 : 20;
   return (
     <label
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={sx({ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1, ...style })}
     >
-      <span style={sx({ position: 'relative', display: 'inline-flex', flex: '0 0 auto', marginTop: 1 })}>
+      <span style={sx({ position: 'relative', display: 'inline-flex', flex: '0 0 auto', marginTop: size === 'sm' ? 3 : 1 })}>
         <input
           type="radio"
           checked={checked}
@@ -31,15 +34,16 @@ export function Radio({ label, description, checked, defaultChecked, disabled, o
           disabled={disabled}
           onChange={onChange}
           {...rest}
+          data-size={size}
           className="sereno-radio"
           style={sx({
             appearance: 'none',
-            width: 20,
-            height: 20,
+            width: box,
+            height: box,
             margin: 0,
             borderRadius: 'var(--radius-pill)',
             border: 'var(--border-width-emphasis) solid ' + (hover && !disabled ? 'var(--border-brand)' : 'var(--border-strong)'),
-            background: 'var(--bg-surface)',
+            backgroundColor: 'var(--bg-surface)',
             cursor: 'inherit',
             transition: 'var(--transition-control)',
           })}

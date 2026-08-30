@@ -478,6 +478,16 @@ function CheckboxIndeterminado() {
     </div>
   );
 }
+function CheckboxTamanhos() {
+  const [a, setA] = React.useState(true);
+  const [b, setB] = React.useState(true);
+  return (
+    <div style={col}>
+      <Checkbox size="sm" label="Small (16px)" checked={a} onChange={(e) => setA(e.currentTarget.checked)} />
+      <Checkbox label="Medium (20px, default)" checked={b} onChange={(e) => setB(e.currentTarget.checked)} />
+    </div>
+  );
+}
 function CheckboxGrupo() {
   const OPTS = ['Psychology', 'Nutrition', 'Physiotherapy', 'Speech therapy'];
   const [sel, setSel] = React.useState<string[]>(['Psychology', 'Nutrition']);
@@ -504,12 +514,41 @@ function CheckboxGrupo() {
   );
 }
 
-function RadioGrupo() {
+function RadioVertical() {
   const [v, setV] = React.useState('online');
   return (
     <div style={col}>
-      <Radio name="format" label="Online" description="By video call." checked={v === 'online'} onChange={() => setV('online')} />
-      <Radio name="format" label="In person" description="At the office, in Pinheiros." checked={v === 'presencial'} onChange={() => setV('presencial')} />
+      <Radio name="fmt-v" label="Online" description="By video call." checked={v === 'online'} onChange={() => setV('online')} />
+      <Radio name="fmt-v" label="In person" description="At the office, in Pinheiros." checked={v === 'inperson'} onChange={() => setV('inperson')} />
+      <Radio name="fmt-v" label="Hybrid" description="First session in person, the rest online." checked={v === 'hybrid'} onChange={() => setV('hybrid')} />
+    </div>
+  );
+}
+function RadioHorizontal() {
+  const [v, setV] = React.useState('30');
+  return (
+    <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', width: '100%' }}>
+      {['30', '45', '60'].map((m) => (
+        <Radio key={m} name="dur-h" label={`${m} min`} checked={v === m} onChange={() => setV(m)} />
+      ))}
+    </div>
+  );
+}
+function RadioEstados() {
+  return (
+    <div style={col}>
+      <Radio name="plan-d" label="Free" defaultChecked />
+      <Radio name="plan-d" label="Pro — coming soon" disabled />
+      <Radio name="plan2-d" label="Locked selection" disabled defaultChecked />
+    </div>
+  );
+}
+function RadioTamanhos() {
+  const [v, setV] = React.useState('a');
+  return (
+    <div style={col}>
+      <Radio name="sz" size="sm" label="Small (16px)" checked={v === 'a'} onChange={() => setV('a')} />
+      <Radio name="sz" label="Medium (20px, default)" checked={v === 'b'} onChange={() => setV('b')} />
     </div>
   );
 }
@@ -1003,8 +1042,14 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   },
   textarea: { basic: TextareaBasico, count: TextareaContador, error: TextareaErro },
   select: { basic: SelectBasico, placeholder: SelectHint, disabled: SelectDesabilitado, sizes: SelectTamanhos },
-  checkbox: { basic: CheckboxBasico, states: CheckboxEstados, indeterminate: CheckboxIndeterminado, group: CheckboxGrupo },
-  radio: { group: RadioGrupo },
+  checkbox: {
+    basic: CheckboxBasico,
+    states: CheckboxEstados,
+    indeterminate: CheckboxIndeterminado,
+    sizes: CheckboxTamanhos,
+    group: CheckboxGrupo,
+  },
+  radio: { vertical: RadioVertical, horizontal: RadioHorizontal, states: RadioEstados, sizes: RadioTamanhos },
   switch: { basic: SwitchBasico, disabled: SwitchDesabilitado },
   'date-time-picker': { calendar: DateTimeCalendario, 'with-times': DateTimeComHorarios },
   'service-card': { basic: ServiceCardBasico, selectable: ServiceCardSelectable },
