@@ -19,21 +19,32 @@
 @keyframes sereno-slide-up { from { opacity: 0; transform: translateY(10px); } }
 @keyframes sereno-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 
-/* ── Checked states for the native check / radio inputs ───────────────────────
+/* ── Checked / indeterminate states for the native check / radio inputs ───────
    The DS's Checkbox and Radio render bare <input>s and require the host to
    supply these rules (documented in each .d.ts and the card HTML). */
-.sereno-check:checked {
-  background: var(--interactive-primary) !important;
+.sereno-check:checked,
+.sereno-check:indeterminate {
+  /* `background-color`, not the `background` shorthand — the shorthand would
+     reset `background-size` and the glyph would stop scaling with the box. */
+  background-color: var(--interactive-primary) !important;
   border-color: var(--interactive-primary) !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") !important;
-  background-size: 14px;
+  background-size: 68%; /* scales with the box: ~14px at md (20), ~11px at sm (16) */
   background-position: center;
   background-repeat: no-repeat;
 }
+.sereno-check:checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") !important;
+}
+.sereno-check:indeterminate {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round'%3E%3Cline x1='5' y1='12' x2='19' y2='12'/%3E%3C/svg%3E") !important;
+}
 .sereno-radio:checked {
-  background: var(--interactive-primary) !important;
+  background-color: var(--interactive-primary) !important;
   border-color: var(--interactive-primary) !important;
   box-shadow: inset 0 0 0 3.5px var(--bg-surface) !important;
+}
+.sereno-radio[data-size='sm']:checked {
+  box-shadow: inset 0 0 0 3px var(--bg-surface) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

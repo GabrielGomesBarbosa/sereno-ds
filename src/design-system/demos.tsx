@@ -432,28 +432,123 @@ function SelectTamanhos() {
 function CheckboxBasico() {
   const [a, setA] = React.useState(false);
   const [b, setB] = React.useState(true);
+  const [c, setC] = React.useState(true);
   return (
     <div style={col}>
       <Checkbox label="I accept the terms" checked={a} onChange={(e) => setA(e.currentTarget.checked)} />
+      <Checkbox label="Subscribe to the newsletter" checked={b} onChange={(e) => setB(e.currentTarget.checked)} />
       <Checkbox
         label="Send me WhatsApp reminders"
         description="Sent 24h and 1h before the session."
-        checked={b}
-        onChange={(e) => setB(e.currentTarget.checked)}
+        checked={c}
+        onChange={(e) => setC(e.currentTarget.checked)}
       />
     </div>
   );
 }
-function CheckboxDesabilitado() {
-  return <Checkbox label="Not available on the free plan" disabled />;
+function CheckboxEstados() {
+  return (
+    <div style={col}>
+      <Checkbox label="Unavailable on the free plan" disabled />
+      <Checkbox label="Included on every plan" disabled defaultChecked />
+    </div>
+  );
+}
+const CHANNELS = ['WhatsApp', 'Email', 'SMS'];
+function CheckboxIndeterminado() {
+  const [on, setOn] = React.useState([true, false, false]);
+  const all = on.every(Boolean);
+  const none = on.every((v) => !v);
+  return (
+    <div style={col}>
+      <Checkbox label="All channels" checked={all} indeterminate={!all && !none} onChange={(e) => setOn(CHANNELS.map(() => e.target.checked))} />
+      <div style={{ ...col, paddingLeft: 32 }}>
+        {CHANNELS.map((name, i) => (
+          <Checkbox
+            key={name}
+            label={name}
+            checked={on[i]}
+            onChange={(e) => {
+              const v = e.target.checked;
+              setOn((s) => s.map((old, j) => (j === i ? v : old)));
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+function CheckboxTamanhos() {
+  const [a, setA] = React.useState(true);
+  const [b, setB] = React.useState(true);
+  return (
+    <div style={col}>
+      <Checkbox size="sm" label="Small (16px)" checked={a} onChange={(e) => setA(e.currentTarget.checked)} />
+      <Checkbox label="Medium (20px, default)" checked={b} onChange={(e) => setB(e.currentTarget.checked)} />
+    </div>
+  );
+}
+function CheckboxGrupo() {
+  const OPTS = ['Psychology', 'Nutrition', 'Physiotherapy', 'Speech therapy'];
+  const [sel, setSel] = React.useState<string[]>(['Psychology', 'Nutrition']);
+  const toggle = (o: string) => setSel((s) => (s.includes(o) ? s.filter((x) => x !== o) : [...s, o]));
+  return (
+    <fieldset style={{ border: 'none', margin: 0, padding: 0, ...col }}>
+      <legend
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 'var(--text-2xs)',
+          fontWeight: 700,
+          letterSpacing: '0.07em',
+          textTransform: 'uppercase',
+          color: 'var(--text-muted)',
+          marginBottom: 4,
+        }}
+      >
+        Filter by specialty
+      </legend>
+      {OPTS.map((o) => (
+        <Checkbox key={o} label={o} checked={sel.includes(o)} onChange={() => toggle(o)} />
+      ))}
+    </fieldset>
+  );
 }
 
-function RadioGrupo() {
+function RadioVertical() {
   const [v, setV] = React.useState('online');
   return (
     <div style={col}>
-      <Radio name="format" label="Online" description="By video call." checked={v === 'online'} onChange={() => setV('online')} />
-      <Radio name="format" label="In person" description="At the office, in Pinheiros." checked={v === 'presencial'} onChange={() => setV('presencial')} />
+      <Radio name="fmt-v" label="Online" description="By video call." checked={v === 'online'} onChange={() => setV('online')} />
+      <Radio name="fmt-v" label="In person" description="At the office, in Pinheiros." checked={v === 'inperson'} onChange={() => setV('inperson')} />
+      <Radio name="fmt-v" label="Hybrid" description="First session in person, the rest online." checked={v === 'hybrid'} onChange={() => setV('hybrid')} />
+    </div>
+  );
+}
+function RadioHorizontal() {
+  const [v, setV] = React.useState('30');
+  return (
+    <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', width: '100%' }}>
+      {['30', '45', '60'].map((m) => (
+        <Radio key={m} name="dur-h" label={`${m} min`} checked={v === m} onChange={() => setV(m)} />
+      ))}
+    </div>
+  );
+}
+function RadioEstados() {
+  return (
+    <div style={col}>
+      <Radio name="plan-d" label="Free" defaultChecked />
+      <Radio name="plan-d" label="Pro — coming soon" disabled />
+      <Radio name="plan2-d" label="Locked selection" disabled defaultChecked />
+    </div>
+  );
+}
+function RadioTamanhos() {
+  const [v, setV] = React.useState('a');
+  return (
+    <div style={col}>
+      <Radio name="sz" size="sm" label="Small (16px)" checked={v === 'a'} onChange={() => setV('a')} />
+      <Radio name="sz" label="Medium (20px, default)" checked={v === 'b'} onChange={() => setV('b')} />
     </div>
   );
 }
@@ -947,8 +1042,14 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   },
   textarea: { basic: TextareaBasico, count: TextareaContador, error: TextareaErro },
   select: { basic: SelectBasico, placeholder: SelectHint, disabled: SelectDesabilitado, sizes: SelectTamanhos },
-  checkbox: { basic: CheckboxBasico, disabled: CheckboxDesabilitado },
-  radio: { group: RadioGrupo },
+  checkbox: {
+    basic: CheckboxBasico,
+    states: CheckboxEstados,
+    indeterminate: CheckboxIndeterminado,
+    sizes: CheckboxTamanhos,
+    group: CheckboxGrupo,
+  },
+  radio: { vertical: RadioVertical, horizontal: RadioHorizontal, states: RadioEstados, sizes: RadioTamanhos },
   switch: { basic: SwitchBasico, disabled: SwitchDesabilitado },
   'date-time-picker': { calendar: DateTimeCalendario, 'with-times': DateTimeComHorarios },
   'service-card': { basic: ServiceCardBasico, selectable: ServiceCardSelectable },

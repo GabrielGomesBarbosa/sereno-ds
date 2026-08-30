@@ -578,10 +578,12 @@ export const COMPONENTS: ComponentMeta[] = [
     slug: 'checkbox',
     name: 'Checkbox',
     category: 'forms',
-    summary: 'Opt-in control for consents and multi-select filters. The host needs the `.sereno-check:checked` rule.',
+    summary: 'Opt-in control for consents and multi-select filters. The host needs the `.sereno-check:checked` / `:indeterminate` rules.',
     props: [
       R('label', 'string', 'Label next to the box.'),
       R('description', 'string', 'Secondary line below the label.'),
+      R('indeterminate', 'boolean', 'Mixed state (some children selected). Visual only — a form still submits it as unchecked.', 'false'),
+      R('size', "'sm' | 'md'", 'Box size — `sm` is 16px for dense filter lists.', "'md'"),
       R('checked / defaultChecked / disabled', 'boolean', 'Native input props passed through.'),
     ],
     code: `<Checkbox
@@ -594,20 +596,65 @@ export const COMPONENTS: ComponentMeta[] = [
         title: 'Basic',
         description: '`label` next to the box; `description` is an optional second line. The `.sereno-check:checked` tick comes from the global CSS.',
         code: `<Checkbox label="I accept the terms" />
+<Checkbox label="Subscribe to the newsletter" defaultChecked />
 <Checkbox
   label="Send me WhatsApp reminders"
   description="Sent 24h and 1h before the session."
+  defaultChecked
 />`,
       },
       {
-        id: 'disabled',
+        id: 'states',
         title: 'Disabled',
-        code: `<Checkbox label="Not available on the free plan" disabled />`,
+        description: '`disabled` dims the whole row (box + label). Combine with `defaultChecked` for a locked-on option.',
+        code: `<Checkbox label="Unavailable on the free plan" disabled />
+<Checkbox label="Included on every plan" disabled defaultChecked />`,
+      },
+      {
+        id: 'indeterminate',
+        title: 'Indeterminate',
+        description:
+          'A "select all" parent is `checked` when every child is, `indeterminate` when only some are. `indeterminate` is a DOM property, so the component sets it via a ref — you just pass the boolean.',
+        code: `<Checkbox
+  label="All channels"
+  checked={on.every(Boolean)}
+  indeterminate={on.some(Boolean) && !on.every(Boolean)}
+  onChange={(e) => setOn(CHANNELS.map(() => e.currentTarget.checked))}
+/>
+{/* children, indented */}
+<Checkbox label="WhatsApp" checked={on[0]} onChange={…} />`,
+      },
+      {
+        id: 'sizes',
+        title: 'Sizes',
+        description: '`size="sm"` (16px) for dense filter lists; `md` (20px) is the default. The glyph scales with the box. `Radio` has the same two sizes.',
+        code: `<Checkbox size="sm" label="Small (16px)" defaultChecked />
+<Checkbox label="Medium (20px, default)" defaultChecked />`,
+      },
+      {
+        id: 'group',
+        title: 'Group',
+        description: 'Multi-select: independent boxes sharing a `<fieldset>` / `<legend>`. This is the filter-list pattern — for a single yes/no, one `Checkbox` is enough.',
+        code: `<fieldset>
+  <legend>Filter by specialty</legend>
+  {OPTS.map((o) => (
+    <Checkbox key={o} label={o} checked={sel.includes(o)} onChange={() => toggle(o)} />
+  ))}
+</fieldset>`,
       },
     ],
     guidelines: {
-      do: ['Consents and multi-select filters.', 'Affirmative label ("I accept…", "I want…").'],
-      dont: ['A mutually exclusive single choice — use `Radio`.', 'An instant-apply setting — use `Switch`.'],
+      do: [
+        'Consents and multi-select filters.',
+        'Affirmative label ("I accept…", "I want…").',
+        '`indeterminate` for a "select all" parent — never a plain third state.',
+        '`size="sm"` in dense filter panels; `md` in forms.',
+      ],
+      dont: [
+        'A mutually exclusive single choice — use `Radio`.',
+        'An instant-apply setting — use `Switch`.',
+        'A `color` prop — the box is one brand colour on purpose.',
+      ],
     },
   },
   {
@@ -619,6 +666,8 @@ export const COMPONENTS: ComponentMeta[] = [
       R('label', 'string', 'Label next to the circle.'),
       R('description', 'string', 'Secondary line below the label.'),
       R('name', 'string', 'Same value on every option in the group.'),
+      R('size', "'sm' | 'md'", 'Circle size — `sm` is 16px. Matches `Checkbox`.', "'md'"),
+      R('checked / defaultChecked / disabled', 'boolean', 'Native input props passed through.'),
     ],
     code: `<>
   <Radio name="format" label="Online" description="By video." defaultChecked />
@@ -626,16 +675,50 @@ export const COMPONENTS: ComponentMeta[] = [
 </>`,
     examples: [
       {
-        id: 'group',
-        title: 'Group',
-        description: 'Every option in the group shares the same `name`. A `description` explains each choice — good for payment method and appointment format.',
-        code: `<Radio name="format" label="Online" description="By video call." />
-<Radio name="format" label="In person" description="At the office, in Pinheiros." />`,
+        id: 'vertical',
+        title: 'Vertical',
+        description: 'The default: options stacked, every one sharing the same `name`. A `description` explains each choice — good for payment method and appointment format.',
+        code: `<Radio name="format" label="Online" description="By video call." defaultChecked />
+<Radio name="format" label="In person" description="At the office, in Pinheiros." />
+<Radio name="format" label="Hybrid" description="First session in person, the rest online." />`,
+      },
+      {
+        id: 'horizontal',
+        title: 'Horizontal',
+        description: 'Lay the same options in a row for short, label-only choices (duration, party size). Wrap them in a flex row — `Radio` itself does not manage layout.',
+        code: `<div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+  {['30', '45', '60'].map((m) => (
+    <Radio key={m} name="dur" label={\`\${m} min\`} checked={v === m} onChange={() => setV(m)} />
+  ))}
+</div>`,
+      },
+      {
+        id: 'states',
+        title: 'Disabled',
+        description: '`disabled` dims the row. Combine with `defaultChecked` for a locked-in selection the user cannot change.',
+        code: `<Radio name="plan" label="Free" defaultChecked />
+<Radio name="plan" label="Pro — coming soon" disabled />
+<Radio name="plan2" label="Locked selection" disabled defaultChecked />`,
+      },
+      {
+        id: 'sizes',
+        title: 'Sizes',
+        description: '`size="sm"` (16px) for dense lists; `md` (20px) is the default. Same two sizes as `Checkbox`.',
+        code: `<Radio name="sz" size="sm" label="Small (16px)" defaultChecked />
+<Radio name="sz" label="Medium (20px, default)" />`,
       },
     ],
     guidelines: {
-      do: ['Same `name` across the whole group.', 'A `description` per option when the difference is not obvious.'],
-      dont: ['A single lone `Radio` — if it is yes/no, use `Checkbox` or `Switch`.', 'A group with more than ~6 options — becomes a `Select`.'],
+      do: [
+        'Same `name` across the whole group.',
+        'A `description` per option when the difference is not obvious.',
+        'Horizontal only for short, label-only options.',
+      ],
+      dont: [
+        'A single lone `Radio` — if it is yes/no, use `Checkbox` or `Switch`.',
+        'A group with more than ~6 options — becomes a `Select`.',
+        'Horizontal rows when options carry a `description` — they get too tall.',
+      ],
     },
   },
   {

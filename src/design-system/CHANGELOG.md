@@ -2,6 +2,23 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.11.0 — Checkbox & Radio: indeterminate, size, fuller examples (SS-47)
+
+- `Checkbox` gains an **`indeterminate`** prop — the mixed state for a "select
+  all" parent. It's a DOM property (not an attribute), so the component sets it
+  imperatively via a ref; you just pass the boolean. New
+  `.sereno-check:indeterminate` global rule (dash icon, same fill as `:checked`).
+- `Checkbox` and `Radio` gain a matching **`size`** prop — `sm` (16px) for dense
+  filter lists, `md` (20px) default. The check glyph now scales with the box
+  (`background-size: 70%`); `.sereno-radio[data-size=sm]` tightens the dot.
+- Checkbox showcase 2 → 5 examples: **Basic**, **Disabled** (plain + locked-on),
+  **Indeterminate** (parent + indented children), **Sizes**, **Group**
+  (`<fieldset>` / `<legend>` multi-select).
+- Radio showcase 1 → 4 examples: **Vertical** (3 options), **Horizontal**
+  (label-only row), **Disabled**, **Sizes**.
+- Still *not* adding MUI's per-instance `color` — the box is one brand colour on
+  purpose (Don't list).
+
 ## 0.10.2 — /design-system scrolls the document on mobile (SS-143)
 
 - Replaces the v0.10.1 `KeyboardReveal` shim with the structural fix. At ≤900px
