@@ -366,7 +366,8 @@ export const COMPONENTS: ComponentMeta[] = [
       R('required', 'boolean', 'Adds the asterisk to the label.', 'false'),
       R('size', "'sm' | 'md' | 'lg'", 'Control height.', "'md'"),
       R('iconLeft', 'React.ReactNode', 'Icon on the left inside the field.'),
-      R('suffix', 'React.ReactNode', 'Trailing text or control (e.g. "min").'),
+      R('prefix', 'React.ReactNode', 'Leading text adornment ("R$", "@", "+55"). Not part of the value.'),
+      R('suffix', 'React.ReactNode', 'Trailing text or control (e.g. "min"). Not part of the value.'),
       R('mask', "'phone' | 'cpf' | 'cep' | 'currency' | string", "Format as you type — a preset or a custom `#`-per-digit pattern (`(##) #####-####`). Sets `inputMode` + `maxLength`."),
     ],
     code: `<Input
@@ -386,20 +387,21 @@ export const COMPONENTS: ComponentMeta[] = [
       },
       {
         id: 'icon-suffix',
-        title: 'Icon and suffix',
-        description: '`iconLeft` for a glyph inside the field; `suffix` for a unit or a trailing control.',
+        title: 'Icon, prefix and suffix',
+        description: '`iconLeft` for a glyph inside the field; `prefix` / `suffix` for a unit or a symbol. None of them are part of the value.',
         code: `<Input label="WhatsApp" iconLeft={<Phone size={16} />} placeholder="(11) 90000-0000" />
-<Input label="Duration" suffix="min" defaultValue="50" />`,
+<Input label="Duration" suffix="min" defaultValue="50" />
+<Input label="Price" prefix="R$" placeholder="0,00" />`,
       },
       {
         id: 'masked',
         title: 'Masked',
         description:
-          '`mask` formats the value as you type. Presets: `phone` (switches 8/9-digit), `cpf`, `cep`, `currency` (digits read as cents). Pass a custom `#`-per-digit pattern for anything else. `onChange` receives the formatted value in `e.currentTarget.value`.',
+          '`mask` formats the value as you type. Presets: `phone` (switches 8/9-digit), `cpf`, `cep`, `currency` (digits read as cents → `1.234,56`; pair it with `prefix="R$"`). Pass a custom `#`-per-digit pattern for anything else. `onChange` receives the formatted value in `e.currentTarget.value`.',
         code: `<Input label="WhatsApp" mask="phone" placeholder="(11) 90000-0000" />
 <Input label="CPF" mask="cpf" placeholder="000.000.000-00" />
 <Input label="CEP" mask="cep" placeholder="00000-000" />
-<Input label="Price" mask="currency" placeholder="R$ 0,00" />`,
+<Input label="Price" mask="currency" prefix="R$" placeholder="0,00" />`,
       },
       {
         id: 'states',

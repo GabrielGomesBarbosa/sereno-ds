@@ -300,6 +300,7 @@ function InputIconeSufixo() {
     <div style={fieldCol}>
       <Input label="WhatsApp" iconLeft={<Phone size={16} strokeWidth={1.75} />} placeholder="(11) 90000-0000" />
       <Input label="Duration" suffix="min" defaultValue="50" />
+      <Input label="Price" prefix="R$" placeholder="0,00" />
     </div>
   );
 }
@@ -313,7 +314,7 @@ function InputMascaras() {
       <Input label="WhatsApp" mask="phone" iconLeft={<Phone size={16} strokeWidth={1.75} />} placeholder="(11) 90000-0000" value={phone} onChange={(e) => setPhone(e.currentTarget.value)} />
       <Input label="CPF" mask="cpf" placeholder="000.000.000-00" value={cpf} onChange={(e) => setCpf(e.currentTarget.value)} />
       <Input label="CEP" mask="cep" placeholder="00000-000" value={cep} onChange={(e) => setCep(e.currentTarget.value)} />
-      <Input label="Price" mask="currency" placeholder="R$ 0,00" value={price} onChange={(e) => setPrice(e.currentTarget.value)} />
+      <Input label="Price" mask="currency" prefix="R$" placeholder="0,00" value={price} onChange={(e) => setPrice(e.currentTarget.value)} />
     </div>
   );
 }

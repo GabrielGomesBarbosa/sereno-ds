@@ -8,7 +8,7 @@ import { formatMask, MASK_INPUTMODE, MASK_MAXLENGTH, type MaskName } from '../_i
 /**
  * Single-line text field with label, hint and error states.
  */
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
   label?: string;
   /** Helper text under the field. Replaced by `error` when present. */
   hint?: string;
@@ -17,7 +17,9 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   required?: boolean;
   size?: 'sm' | 'md' | 'lg';
   iconLeft?: React.ReactNode;
-  /** Trailing text or control (e.g. "min", a clear button). */
+  /** Leading text adornment (e.g. "R$", "@", "+55"). Not part of the value. */
+  prefix?: React.ReactNode;
+  /** Trailing text or control (e.g. "min", a clear button). Not part of the value. */
   suffix?: React.ReactNode;
   /**
    * Format the value as the user types. A preset (`phone` / `cpf` / `cep` /
@@ -37,6 +39,7 @@ export function Input({
   required,
   size = 'md',
   iconLeft,
+  prefix,
   suffix,
   disabled,
   id,
@@ -88,6 +91,7 @@ export function Input({
         })}
       >
         {iconLeft && <span style={sx({ display: 'flex', color: 'var(--text-muted)', flex: '0 0 auto' })}>{iconLeft}</span>}
+        {prefix && <span style={sx({ display: 'flex', color: 'var(--text-muted)', fontSize: 'var(--text-sm)', flex: '0 0 auto' })}>{prefix}</span>}
         <input
           id={rid}
           disabled={disabled}

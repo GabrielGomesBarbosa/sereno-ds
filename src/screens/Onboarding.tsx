@@ -203,7 +203,8 @@ function ServicoStep({ data, set }: { data: Data; set: (p: Partial<Data>) => voi
           required
           size="lg"
           mask="currency"
-          placeholder="R$ 0,00"
+          prefix="R$"
+          placeholder="0,00"
           value={data.price}
           onChange={(e) => set({ price: e.currentTarget.value })}
         />
@@ -223,7 +224,7 @@ function ServicoStep({ data, set }: { data: Data; set: (p: Partial<Data>) => voi
         <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-2xs)', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
           Como o cliente vai ver
         </span>
-        <ServiceCard name={data.svcName || 'Nome do serviço'} duration={data.duration} price={data.price || 'R$ —'} tag={data.mode} />
+        <ServiceCard name={data.svcName || 'Nome do serviço'} duration={data.duration} price={data.price ? 'R$ ' + data.price : 'R$ —'} tag={data.mode} />
       </div>
     </div>
   );
@@ -241,7 +242,7 @@ function GradeStep({ data, set }: { data: Data; set: (p: Partial<Data>) => void 
 function DoneScreen({ data, onRestart }: { data: Data; onRestart: () => void }) {
   const rows: [React.ReactNode, string][] = [
     [<User key="u" size={18} strokeWidth={1.75} />, data.name || 'Seu perfil'],
-    [<Sparkles key="s" size={18} strokeWidth={1.75} />, `${data.svcName || 'Primeiro serviço'} · ${data.duration} · ${data.price || 'R$ —'}`],
+    [<Sparkles key="s" size={18} strokeWidth={1.75} />, `${data.svcName || 'Primeiro serviço'} · ${data.duration} · R$ ${data.price || '—'}`],
     [<Calendar key="c" size={18} strokeWidth={1.75} />, 'Grade semanal configurada'],
     [<Link2 key="l" size={18} strokeWidth={1.75} />, 'sereno.app/ana-ramos'],
   ];

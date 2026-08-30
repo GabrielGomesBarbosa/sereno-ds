@@ -24,11 +24,14 @@ function applyPattern(pattern: string, raw: string): string {
 const PHONE_10 = '(##) ####-####'; // landline
 const PHONE_11 = '(##) #####-####'; // mobile
 
-/** BR currency: the digits are read as cents. "1234" → "R$ 12,34". */
+/**
+ * BR currency amount — digits are read as cents. "1234" → "12,34". No symbol:
+ * pair it with `prefix="R$"` on the field so the value stays a plain number string.
+ */
 function currencyBRL(raw: string): string {
   const cents = (onlyDigits(raw).replace(/^0+/, '') || '0').padStart(3, '0');
   const int = cents.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  return `R$ ${int},${cents.slice(-2)}`;
+  return `${int},${cents.slice(-2)}`;
 }
 
 export function formatMask(name: MaskName | string, raw: string): string {
@@ -52,7 +55,7 @@ export const MASK_MAXLENGTH: Record<string, number> = {
   phone: 15, // "(11) 99999-9999"
   cpf: 14, // "000.000.000-00"
   cep: 9, // "00000-000"
-  currency: 20,
+  currency: 14, // "999.999.999,99"
 };
 
 export const MASK_INPUTMODE: Record<string, 'numeric' | 'tel'> = {
