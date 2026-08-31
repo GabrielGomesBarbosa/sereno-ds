@@ -3,6 +3,7 @@
 import * as React from 'react';
 import {
   BarChart3,
+  Bell,
   Calendar,
   ChevronRight,
   Copy,
@@ -12,7 +13,9 @@ import {
   Settings,
   Sparkles,
   Users,
+  Video,
   Wallet,
+  X,
 } from 'lucide-react';
 import {
   Alert,
@@ -29,30 +32,91 @@ import {
   SearchInput,
   Select,
   ServiceCard,
+  SidebarNav,
+  type SidebarNavSection,
   Switch,
   Tabs,
   Toast,
+  TopBar,
   WeeklyScheduleEditor,
 } from '@/components';
 import {
+  AGENDA_SCHEDULE,
   CLIENTS,
   CLIENT_STATUS_LABEL,
   DASHBOARD_STATS,
   DEFAULT_WEEK,
   SERVICES_BY_SLUG,
-  TODAY_APPOINTMENTS,
   UNAVAILABLE_DAYS,
+  type Appointment,
 } from '@/lib/mock';
 
-type View = 'agenda' | 'clientes' | 'servicos' | 'financeiro' | 'config';
+type View = 'agenda' | 'clientes' | 'servicos' | 'financeiro' | 'relatorios' | 'config';
+type ConfigSection = 'perfil' | 'grade' | 'lembretes';
 
-const NAV: { id: View; label: string; icon: React.ReactNode }[] = [
-  { id: 'agenda', label: 'Agenda', icon: <Calendar size={18} strokeWidth={1.75} /> },
-  { id: 'clientes', label: 'Clientes', icon: <Users size={18} strokeWidth={1.75} /> },
-  { id: 'servicos', label: 'Serviços', icon: <Sparkles size={18} strokeWidth={1.75} /> },
-  { id: 'financeiro', label: 'Financeiro', icon: <Wallet size={18} strokeWidth={1.75} /> },
-  { id: 'config', label: 'Configurações', icon: <Settings size={18} strokeWidth={1.75} /> },
+const ni = (icon: React.ReactNode) => icon;
+const SIDEBAR_SECTIONS: SidebarNavSection[] = [
+  {
+    label: 'Atendimento',
+    items: [
+      { value: 'agenda', label: 'Agenda', icon: ni(<Calendar size={18} strokeWidth={1.75} />) },
+      { value: 'clientes', label: 'Clientes', icon: ni(<Users size={18} strokeWidth={1.75} />), count: 128 },
+      { value: 'servicos', label: 'Serviços', icon: ni(<Sparkles size={18} strokeWidth={1.75} />) },
+    ],
+  },
+  {
+    label: 'Gestão',
+    items: [
+      {
+        value: 'financeiro',
+        label: 'Financeiro',
+        icon: ni(<Wallet size={18} strokeWidth={1.75} />),
+        children: [
+          { value: 'financeiro:resumo', label: 'Resumo do mês' },
+          { value: 'financeiro:receber', label: 'A receber', count: 4 },
+        ],
+      },
+      { value: 'relatorios', label: 'Relatórios', icon: ni(<BarChart3 size={18} strokeWidth={1.75} />) },
+    ],
+  },
+  {
+    label: 'Conta',
+    items: [
+      {
+        value: 'config',
+        label: 'Configurações',
+        icon: ni(<Settings size={18} strokeWidth={1.75} />),
+        children: [
+          { value: 'config:perfil', label: 'Perfil público' },
+          { value: 'config:grade', label: 'Grade horária' },
+          { value: 'config:lembretes', label: 'Lembretes' },
+        ],
+      },
+    ],
+  },
 ];
+
+const BOTTOM_NAV: { id: string; label: string; icon: React.ReactNode }[] = [
+  { id: 'agenda', label: 'Agenda', icon: <Calendar size={22} strokeWidth={1.75} /> },
+  { id: 'clientes', label: 'Clientes', icon: <Users size={22} strokeWidth={1.75} /> },
+  { id: 'servicos', label: 'Serviços', icon: <Sparkles size={22} strokeWidth={1.75} /> },
+  { id: 'financeiro:resumo', label: 'Financeiro', icon: <Wallet size={22} strokeWidth={1.75} /> },
+  { id: 'config:perfil', label: 'Ajustes', icon: <Settings size={22} strokeWidth={1.75} /> },
+];
+
+const VIEW_TITLE: Record<View, string> = {
+  agenda: 'Agenda',
+  clientes: 'Clientes',
+  servicos: 'Serviços',
+  financeiro: 'Financeiro',
+  relatorios: 'Relatórios',
+  config: 'Configurações',
+};
+const CONFIG_LABEL: Record<ConfigSection, string> = {
+  perfil: 'Perfil público',
+  grade: 'Grade horária',
+  lembretes: 'Lembretes',
+};
 
 const cardTitle: React.CSSProperties = { fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' };
 const vcol = (gap: string): React.CSSProperties => ({ display: 'flex', flexDirection: 'column', gap });
@@ -76,7 +140,8 @@ function Stat({ label, value, delta, tone }: { label: string; value: string; del
 }
 
 export function Dashboard() {
-  const [view, setView] = React.useState<View>('agenda');
+  const [view, setView] = React.useState<string>('agenda');
+  const [navCollapsed, setNavCollapsed] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [toast, setToast] = React.useState<string | null>(null);
 
@@ -86,68 +151,78 @@ export function Dashboard() {
     return () => clearTimeout(t);
   }, [toast]);
 
+  const [base, sub] = view.split(':') as [View, string | undefined];
+  const pageTitle =
+    base === 'financeiro'
+      ? sub === 'receber'
+        ? 'Financeiro · A receber'
+        : 'Financeiro'
+      : base === 'config'
+        ? `Configurações · ${CONFIG_LABEL[(sub as ConfigSection) ?? 'perfil']}`
+        : VIEW_TITLE[base];
+
   return (
     <div style={{ background: 'var(--bg-canvas)', minHeight: '100dvh' }}>
-      <div className="dash-shell">
-        <aside className="dash-sidebar">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)', padding: 'var(--space-5) var(--space-3)', minHeight: '100%' }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: 'var(--text-brand)', padding: '0 var(--space-2)' }}>Sereno</span>
-            <nav style={vcol('2px')}>
-              {NAV.map((n) => {
-                const on = view === n.id;
-                return (
-                  <button
-                    key={n.id}
-                    onClick={() => setView(n.id)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 'var(--space-3)',
-                      padding: '10px var(--space-3)',
-                      border: 'none',
-                      borderRadius: 'var(--radius-control)',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      background: on ? 'var(--bg-brand-soft)' : 'transparent',
-                      color: on ? 'var(--text-brand)' : 'var(--text-secondary)',
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 'var(--text-base)',
-                      fontWeight: on ? 600 : 500,
-                      transition: 'var(--transition-control)',
-                    }}
-                  >
-                    {n.icon}
-                    {n.label}
-                  </button>
-                );
-              })}
-            </nav>
-            <div style={{ marginTop: 'auto', ...vcol('var(--space-3)') }}>
-              <Card padding="sm" elevation="none" style={{ background: 'var(--bg-accent-soft)', border: '1px solid transparent', ...vcol('6px') }}>
-                <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Plano gratuito</span>
-                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.4 }}>18 de 20 agendamentos usados este mês.</span>
-                <Button variant="accent" size="sm" fullWidth style={{ marginTop: 4 }} onClick={() => setToast('Redirecionando para os planos…')}>
-                  Assinar agora
-                </Button>
-              </Card>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-2)' }}>
-                <Avatar name="Ana Beatriz Ramos" size="sm" />
-                <div style={{ ...vcol('0'), minWidth: 0 }}>
-                  <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Ana Beatriz</span>
-                  <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>Psicóloga clínica</span>
+      <div className="dash-shell" style={{ '--dash-sb-w': navCollapsed ? '72px' : '248px' } as React.CSSProperties}>
+        <div className="dash-sidebar">
+          <SidebarNav
+            value={view}
+            onChange={setView}
+            collapsed={navCollapsed}
+            onCollapsedChange={setNavCollapsed}
+            labels={{ expand: 'Expandir', collapse: 'Recolher' }}
+            sections={SIDEBAR_SECTIONS}
+            header={
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>
+                {navCollapsed ? 'S' : 'Sereno'}
+              </span>
+            }
+            footer={
+              <>
+                <Card padding="sm" elevation="none" style={{ background: 'var(--bg-accent-soft)', ...vcol('6px') }}>
+                  <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Plano gratuito</span>
+                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.4 }}>18 de 20 agendamentos usados este mês.</span>
+                  <Button variant="accent" size="sm" fullWidth style={{ marginTop: 4 }} onClick={() => setToast('Redirecionando para os planos…')}>
+                    Assinar agora
+                  </Button>
+                </Card>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: '0 var(--space-1)' }}>
+                  <Avatar name="Ana Beatriz Ramos" size="sm" />
+                  <div style={{ ...vcol('0'), minWidth: 0 }}>
+                    <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Ana Beatriz</span>
+                    <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>Psicóloga clínica</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </aside>
+              </>
+            }
+          />
+        </div>
 
-        <main className="dash-main" style={{ maxWidth: 'var(--container-app)' }}>
-          {view === 'agenda' && <AgendaView onCancel={() => setDialogOpen(true)} />}
-          {view === 'clientes' && <ClientesView />}
-          {view === 'servicos' && <ServicosView />}
-          {view === 'financeiro' && <FinanceiroView />}
-          {view === 'config' && <ConfigView />}
-        </main>
+        <div className="dash-content">
+          <TopBar
+            title={pageTitle}
+            subtitle={base === 'agenda' ? 'Segunda-feira, 24 de agosto' : undefined}
+            actions={
+              <>
+                <div className="dash-topbar-search">
+                  <SearchInput placeholder="Buscar" clearLabel="Limpar busca" containerStyle={{ width: 200 }} />
+                </div>
+                <IconButton label="Notificações" onClick={() => setToast('Você está em dia — nenhuma notificação.')}>
+                  <Bell size={18} strokeWidth={1.75} />
+                </IconButton>
+                <Avatar name="Ana Beatriz Ramos" size="sm" />
+              </>
+            }
+          />
+          <main className="dash-main" style={{ maxWidth: 'var(--container-app)' }}>
+            {base === 'agenda' && <AgendaView onCancel={() => setDialogOpen(true)} onToast={setToast} />}
+            {base === 'clientes' && <ClientesView />}
+            {base === 'servicos' && <ServicosView />}
+            {base === 'financeiro' && <FinanceiroView section={sub === 'receber' ? 'receber' : 'resumo'} />}
+            {base === 'relatorios' && <RelatoriosView />}
+            {base === 'config' && <ConfigView section={(sub as ConfigSection) ?? 'perfil'} />}
+          </main>
+        </div>
       </div>
 
       <div className="dash-bottomnav">
@@ -160,8 +235,8 @@ export function Dashboard() {
             borderTop: '1px solid var(--border-default)',
           }}
         >
-          {NAV.map((n) => {
-            const on = view === n.id;
+          {BOTTOM_NAV.map((n) => {
+            const on = base === n.id.split(':')[0];
             return (
               <button
                 key={n.id}
@@ -220,23 +295,83 @@ export function Dashboard() {
   );
 }
 
-function ViewHeader({ title, action }: { title: string; action?: React.ReactNode }) {
+function ViewHeader({ title, action }: { title?: string; action?: React.ReactNode }) {
+  if (!title && !action) return null;
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-      <h1 style={{ ...cardTitle, fontSize: 'var(--text-2xl)', margin: 0, letterSpacing: '-0.02em' }}>{title}</h1>
+    <div style={{ display: 'flex', justifyContent: title ? 'space-between' : 'flex-end', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+      {title && <h2 style={{ ...cardTitle, fontSize: 'var(--text-lg)', margin: 0, letterSpacing: '-0.01em' }}>{title}</h2>}
       {action}
     </div>
   );
 }
 
-function AgendaView({ onCancel }: { onCancel: () => void }) {
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+function AppointmentRow({ a, onCancel, onToast }: { a: Appointment; onCancel: () => void; onToast: (m: string) => void }) {
+  const first = a.client.split(' ')[0];
+  return (
+    <AppointmentCard
+      time={a.time}
+      date={a.date}
+      client={a.client}
+      service={a.service}
+      channel={a.channel}
+      status={a.status}
+      actions={
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          {a.status === 'pending' && (
+            <Button size="sm" onClick={() => onToast(`Agendamento com ${first} confirmado.`)}>
+              Confirmar
+            </Button>
+          )}
+          {a.status === 'confirmed' && a.channel === 'Online' && (
+            <Button size="sm" variant="secondary" iconLeft={<Video size={16} strokeWidth={1.75} />} onClick={() => onToast('Abrindo a sala de vídeo…')}>
+              Entrar
+            </Button>
+          )}
+          {a.status === 'cancelled' ? (
+            <Button size="sm" variant="ghost" onClick={() => onToast(`Reagendando com ${first}…`)}>
+              Reagendar
+            </Button>
+          ) : a.status !== 'completed' ? (
+            <IconButton label="Cancelar" onClick={onCancel}>
+              <X size={18} strokeWidth={1.75} />
+            </IconButton>
+          ) : null}
+        </div>
+      }
+    />
+  );
+}
+
+function DayBlock({ g, onCancel, onToast }: { g: (typeof AGENDA_SCHEDULE)[number]; onCancel: () => void; onToast: (m: string) => void }) {
+  return (
+    <div style={vcol('var(--space-3)')}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+        <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>{g.relative ?? g.weekday}</span>
+        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+          {(g.relative ? `${g.weekday}, ${g.date}` : g.date) + ' · ' + plural(g.items.length, 'atendimento', 'atendimentos')}
+        </span>
+      </div>
+      {g.items.map((a) => (
+        <AppointmentRow key={g.key + a.time} a={a} onCancel={onCancel} onToast={onToast} />
+      ))}
+    </div>
+  );
+}
+
+function AgendaView({ onCancel, onToast }: { onCancel: () => void; onToast: (m: string) => void }) {
   const [filter, setFilter] = React.useState('hoje');
   const [limitShown, setLimitShown] = React.useState(true);
   const [acceptOnline, setAcceptOnline] = React.useState(true);
 
+  const weekCount = AGENDA_SCHEDULE.reduce((n, g) => n + g.items.length, 0);
+  const groups = filter === 'hoje' ? AGENDA_SCHEDULE.slice(0, 1) : AGENDA_SCHEDULE;
+  const next = AGENDA_SCHEDULE[0].items.find((a) => a.status === 'confirmed' || a.status === 'pending');
+
   return (
     <div style={vcol('var(--space-5)')}>
-      <ViewHeader title="Agenda" action={<Button iconLeft={<Plus size={18} strokeWidth={1.75} />}>Novo agendamento</Button>} />
+      <ViewHeader action={<Button iconLeft={<Plus size={18} strokeWidth={1.75} />}>Novo agendamento</Button>} />
 
       {limitShown && (
         <Alert
@@ -244,7 +379,11 @@ function AgendaView({ onCancel }: { onCancel: () => void }) {
           title="Você usou 18 de 20 agendamentos deste mês"
           icon={<Wallet size={18} strokeWidth={1.75} />}
           onDismiss={() => setLimitShown(false)}
-          action={<Button variant="accent" size="sm">Assinar agora</Button>}
+          action={
+            <Button variant="accent" size="sm">
+              Assinar agora
+            </Button>
+          }
         >
           No plano gratuito o limite renova no dia 1º.
         </Alert>
@@ -257,43 +396,67 @@ function AgendaView({ onCancel }: { onCancel: () => void }) {
       </div>
 
       <div className="dash-agenda-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 320px', gap: 'var(--space-5)', alignItems: 'start' }}>
-        <div style={vcol('var(--space-3)')}>
+        <div style={vcol('var(--space-5)')}>
           <Tabs
             variant="pill"
             value={filter}
             onChange={setFilter}
             items={[
-              { value: 'hoje', label: 'Hoje', count: 5 },
-              { value: 'semana', label: 'Semana', count: 23 },
+              { value: 'hoje', label: 'Hoje', count: AGENDA_SCHEDULE[0].items.length },
+              { value: 'semana', label: 'Semana', count: weekCount },
               { value: 'mes', label: 'Mês' },
             ]}
           />
-          {TODAY_APPOINTMENTS.map((a) => (
-            <AppointmentCard
-              key={a.time}
-              time={a.time}
-              date={a.date}
-              client={a.client}
-              service={a.service}
-              channel={a.channel}
-              status={a.status}
-              actions={
-                <div style={{ display: 'flex', gap: 4 }}>
-                  {a.status === 'pending' && <Button size="sm">Confirmar</Button>}
-                  <IconButton label="Cancelar" onClick={onCancel}>
-                    <ChevronRight size={18} strokeWidth={1.75} />
-                  </IconButton>
-                </div>
-              }
-            />
+          {groups.map((g) => (
+            <DayBlock key={g.key} g={g} onCancel={onCancel} onToast={onToast} />
           ))}
         </div>
         <div style={vcol('var(--space-4)')} className="dash-agenda-aside">
+          {next && (
+            <Card padding="md" style={vcol('var(--space-3)')}>
+              <span style={{ fontSize: 'var(--text-2xs)', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 600 }}>Próximo atendimento</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                <Avatar name={next.client} size="sm" />
+                <div style={{ ...vcol('2px'), minWidth: 0 }}>
+                  <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>
+                    {next.time} · {next.client}
+                  </span>
+                  <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                    {next.service} · {next.channel}
+                  </span>
+                </div>
+              </div>
+              <Button size="sm" variant="secondary" fullWidth onClick={() => onToast(`Abrindo o atendimento de ${next.client.split(' ')[0]}…`)}>
+                Ver detalhes
+              </Button>
+            </Card>
+          )}
           <DateTimePicker year={2026} month={7} selectedDate={24} unavailable={UNAVAILABLE_DAYS} />
           <Card padding="md" style={vcol('var(--space-3)')}>
             <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>Seu link público</span>
-            <Input defaultValue="sereno.app/ana-ramos" readOnly suffix={<Copy size={16} strokeWidth={1.75} />} />
-            <Switch label="Aceitar agendamentos online" checked={acceptOnline} onChange={(e) => setAcceptOnline(e.target.checked)} />
+            <Input
+              defaultValue="sereno.app/ana-ramos"
+              readOnly
+              suffix={
+                <button
+                  type="button"
+                  className="ds-affix-btn"
+                  aria-label="Copiar link"
+                  onClick={() => onToast('Link copiado para a área de transferência.')}
+                  style={{ display: 'inline-flex', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}
+                >
+                  <Copy size={16} strokeWidth={1.75} />
+                </button>
+              }
+            />
+            <Switch
+              label="Aceitar agendamentos online"
+              checked={acceptOnline}
+              onChange={(e) => {
+                setAcceptOnline(e.target.checked);
+                onToast(e.target.checked ? 'Seu link voltou a aceitar agendamentos.' : 'Seu link está pausado para novos agendamentos.');
+              }}
+            />
           </Card>
         </div>
       </div>
@@ -307,7 +470,7 @@ function ClientesView() {
   const rows = q ? CLIENTS.filter((c) => c.name.toLowerCase().includes(q)) : CLIENTS;
   return (
     <div style={vcol('var(--space-4)')}>
-      <ViewHeader title="Clientes" action={<Button variant="secondary" iconLeft={<Download size={18} strokeWidth={1.75} />}>Exportar</Button>} />
+      <ViewHeader action={<Button variant="secondary" iconLeft={<Download size={18} strokeWidth={1.75} />}>Exportar</Button>} />
       <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-end', flexWrap: 'wrap' }}>
         <SearchInput
           placeholder="Buscar cliente"
@@ -346,7 +509,7 @@ function ClientesView() {
 function ServicosView() {
   return (
     <div style={{ ...vcol('var(--space-4)'), maxWidth: 720 }}>
-      <ViewHeader title="Seus serviços" action={<Button iconLeft={<Plus size={18} strokeWidth={1.75} />}>Novo serviço</Button>} />
+      <ViewHeader action={<Button iconLeft={<Plus size={18} strokeWidth={1.75} />}>Novo serviço</Button>} />
       {SERVICES_BY_SLUG['ana-ramos'].map((s) => (
         <ServiceCard key={s.id} name={s.name} duration={s.duration} price={s.price} description={s.description} tag={s.tag} />
       ))}
@@ -354,14 +517,64 @@ function ServicosView() {
   );
 }
 
-function FinanceiroView() {
+const PENDING_PAYMENTS = CLIENTS.slice(0, 4).map((c, i) => ({
+  name: c.name,
+  service: i % 2 ? 'Primeira consulta' : 'Sessão de psicoterapia',
+  amount: i % 2 ? 'R$ 220' : 'R$ 180',
+  due: ['vence hoje', 'vence em 2 dias', 'vence em 5 dias', 'atrasado 3 dias'][i],
+  late: i === 3,
+}));
+
+function FinanceiroView({ section }: { section: 'resumo' | 'receber' }) {
   return (
     <div style={{ ...vcol('var(--space-5)'), maxWidth: 760 }}>
-      <ViewHeader title="Financeiro" />
       <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-        <Stat label="Recebido em agosto" value="R$ 4.180" />
+        <Stat label="Recebido em agosto" value="R$ 4.180" delta="+12% vs. julho" tone="up" />
         <Stat label="A receber" value="R$ 860" delta="4 atendimentos" />
         <Stat label="Ticket médio" value="R$ 196" />
+      </div>
+      {section === 'resumo' ? (
+        <Card padding="none">
+          <EmptyState
+            icon={<BarChart3 size={22} strokeWidth={1.75} />}
+            title="Gráficos de receita em breve"
+            description="Os gráficos de receita e ocupação ainda não fazem parte deste design system — deixado propositalmente em branco."
+          />
+        </Card>
+      ) : (
+        <>
+          <ViewHeader title="Pagamentos pendentes" />
+          <Card padding="none">
+            {PENDING_PAYMENTS.map((p, i) => (
+              <div
+                key={p.name}
+                style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', padding: 'var(--space-4)', borderTop: i ? '1px solid var(--border-subtle)' : 'none' }}
+              >
+                <Avatar name={p.name} size="md" />
+                <div style={{ flex: 1, minWidth: 0, ...vcol('2px') }}>
+                  <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>{p.name}</span>
+                  <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>{p.service}</span>
+                </div>
+                <div style={{ ...vcol('2px'), alignItems: 'flex-end' }}>
+                  <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>{p.amount}</span>
+                  <Badge tone={p.late ? 'error' : 'warning'}>{p.due}</Badge>
+                </div>
+              </div>
+            ))}
+          </Card>
+        </>
+      )}
+    </div>
+  );
+}
+
+function RelatoriosView() {
+  return (
+    <div style={{ ...vcol('var(--space-5)'), maxWidth: 760 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+        <Stat label="Atendimentos no mês" value="72" delta="+8 vs. julho" tone="up" />
+        <Stat label="Taxa de comparecimento" value="94%" />
+        <Stat label="Novos clientes" value="11" />
       </div>
       <Card padding="none">
         <EmptyState
@@ -374,7 +587,7 @@ function FinanceiroView() {
   );
 }
 
-function ConfigView() {
+function ConfigView({ section }: { section: ConfigSection }) {
   const [week, setWeek] = React.useState(DEFAULT_WEEK);
   const [buffer, setBuffer] = React.useState('10');
   const [r24, setR24] = React.useState(true);
@@ -383,31 +596,38 @@ function ConfigView() {
 
   return (
     <div style={{ ...vcol('var(--space-4)'), maxWidth: 600 }}>
-      <ViewHeader title="Configurações" />
-      <Card padding="md" style={vcol('var(--space-4)')}>
-        <span style={{ ...cardTitle, fontSize: 'var(--text-lg)' }}>Perfil público</span>
-        <Input label="Nome exibido" defaultValue="Ana Beatriz Ramos" />
-        <Input label="Registro profissional" defaultValue="CRP 06/123456" />
-        <Select label="Fuso horário" defaultValue="sp" options={[{ value: 'sp', label: 'Brasília (GMT-3)' }, { value: 'mao', label: 'Manaus (GMT-4)' }]} />
-      </Card>
-      <Card padding="md" style={vcol('var(--space-4)')}>
-        <span style={{ ...cardTitle, fontSize: 'var(--text-lg)' }}>Grade horária</span>
-        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5, marginTop: -8 }}>Só os horários dentro da sua grade aparecem no link público.</span>
-        <WeeklyScheduleEditor value={week} buffer={buffer} onChange={setWeek} onBufferChange={setBuffer} />
-      </Card>
-      <Card padding="md" style={vcol('var(--space-4)')}>
-        <span style={{ ...cardTitle, fontSize: 'var(--text-lg)' }}>Lembretes e avisos</span>
-        <Switch label="Lembrete 24h antes" description="Enviado por WhatsApp ao cliente." checked={r24} onChange={(e) => setR24(e.target.checked)} />
-        <Switch label="Lembrete 1h antes" checked={r1} onChange={(e) => setR1(e.target.checked)} />
-        <Switch label="Resumo diário por e-mail" checked={daily} onChange={(e) => setDaily(e.target.checked)} />
-      </Card>
-      <Card padding="md" style={vcol('var(--space-3)')}>
-        <span style={{ ...cardTitle, fontSize: 'var(--text-lg)' }}>Encerrar conta</span>
-        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5 }}>Seus agendamentos futuros serão cancelados e os clientes avisados.</span>
-        <Button variant="error" style={{ alignSelf: 'flex-start' }}>
-          Excluir conta
-        </Button>
-      </Card>
+      {section === 'perfil' && (
+        <>
+          <Card padding="md" style={vcol('var(--space-4)')}>
+            <span style={{ ...cardTitle, fontSize: 'var(--text-lg)' }}>Perfil público</span>
+            <Input label="Nome exibido" defaultValue="Ana Beatriz Ramos" />
+            <Input label="Registro profissional" defaultValue="CRP 06/123456" />
+            <Select label="Fuso horário" defaultValue="sp" options={[{ value: 'sp', label: 'Brasília (GMT-3)' }, { value: 'mao', label: 'Manaus (GMT-4)' }]} />
+          </Card>
+          <Card padding="md" style={vcol('var(--space-3)')}>
+            <span style={{ ...cardTitle, fontSize: 'var(--text-lg)' }}>Encerrar conta</span>
+            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5 }}>Seus agendamentos futuros serão cancelados e os clientes avisados.</span>
+            <Button variant="error" style={{ alignSelf: 'flex-start' }}>
+              Excluir conta
+            </Button>
+          </Card>
+        </>
+      )}
+      {section === 'grade' && (
+        <Card padding="md" style={vcol('var(--space-4)')}>
+          <span style={{ ...cardTitle, fontSize: 'var(--text-lg)' }}>Grade horária</span>
+          <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5, marginTop: -8 }}>Só os horários dentro da sua grade aparecem no link público.</span>
+          <WeeklyScheduleEditor value={week} buffer={buffer} onChange={setWeek} onBufferChange={setBuffer} />
+        </Card>
+      )}
+      {section === 'lembretes' && (
+        <Card padding="md" style={vcol('var(--space-4)')}>
+          <span style={{ ...cardTitle, fontSize: 'var(--text-lg)' }}>Lembretes e avisos</span>
+          <Switch label="Lembrete 24h antes" description="Enviado por WhatsApp ao cliente." checked={r24} onChange={(e) => setR24(e.target.checked)} />
+          <Switch label="Lembrete 1h antes" checked={r1} onChange={(e) => setR1(e.target.checked)} />
+          <Switch label="Resumo diário por e-mail" checked={daily} onChange={(e) => setDaily(e.target.checked)} />
+        </Card>
+      )}
     </div>
   );
 }

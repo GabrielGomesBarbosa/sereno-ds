@@ -17,10 +17,12 @@ import {
   Phone,
   Plus,
   Search,
+  Settings,
   Share2,
   Sparkles,
   Trash2,
   Users,
+  Wallet,
 } from 'lucide-react';
 import {
   Alert,
@@ -43,6 +45,8 @@ import {
   SearchInput,
   ServiceCard,
   Select,
+  SidebarNav,
+  type SidebarNavSection,
   Skeleton,
   Stepper,
   Switch,
@@ -1078,6 +1082,119 @@ function BottomNavBadge() {
   );
 }
 
+const SIDE_SECTIONS: SidebarNavSection[] = [
+  {
+    label: 'Workspace',
+    items: [
+      { value: 'agenda', label: 'Calendar', icon: <Calendar size={18} strokeWidth={1.75} /> },
+      { value: 'clients', label: 'Clients', icon: <Users size={18} strokeWidth={1.75} />, count: 12 },
+      { value: 'services', label: 'Services', icon: <Sparkles size={18} strokeWidth={1.75} /> },
+    ],
+  },
+  {
+    label: 'Management',
+    items: [
+      {
+        value: 'finance',
+        label: 'Finance',
+        icon: <Wallet size={18} strokeWidth={1.75} />,
+        children: [
+          { value: 'finance:incoming', label: 'Incoming' },
+          { value: 'finance:payouts', label: 'Payouts', count: 3 },
+          { value: 'finance:invoices', label: 'Invoices' },
+        ],
+      },
+      { value: 'reports', label: 'Reports', icon: <BarChart3 size={18} strokeWidth={1.75} /> },
+    ],
+  },
+  {
+    label: 'Account',
+    items: [{ value: 'settings', label: 'Settings', icon: <Settings size={18} strokeWidth={1.75} /> }],
+  },
+];
+
+function SideFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        height: 460,
+        maxWidth: 640,
+        borderRadius: R,
+        boxShadow: '0 0 0 1px var(--border-default)',
+        overflow: 'hidden',
+        background: 'var(--bg-surface)',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+function Wordmark({ compact }: { compact?: boolean }) {
+  return (
+    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: compact ? 18 : 20, letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>
+      {compact ? 'S' : 'Sereno'}
+    </span>
+  );
+}
+function SideUser() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: '0 var(--space-1)' }}>
+      <Avatar name="Emma Johnson" size="sm" />
+      <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          Emma Johnson
+        </span>
+        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>Owner</span>
+      </div>
+    </div>
+  );
+}
+function SidePane({ label }: { label: string }) {
+  return (
+    <div style={{ flex: 1, minWidth: 0, padding: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', background: 'var(--bg-canvas)' }}>
+      <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-primary)' }}>{label}</span>
+      <BodyLines />
+    </div>
+  );
+}
+function sidePaneLabel(v: string) {
+  for (const it of SIDE_SECTIONS.flatMap((s) => s.items)) {
+    if (it.value === v) return it.label;
+    const sub = it.children?.find((c) => c.value === v);
+    if (sub) return `${it.label} · ${sub.label}`;
+  }
+  return v;
+}
+function SidebarNavBasico() {
+  const [view, setView] = React.useState('finance:payouts');
+  return (
+    <SideFrame>
+      <SidebarNav collapsible={false} value={view} onChange={setView} header={<Wordmark />} sections={SIDE_SECTIONS} />
+      <SidePane label={sidePaneLabel(view)} />
+    </SideFrame>
+  );
+}
+function SidebarNavColapsavel() {
+  const [view, setView] = React.useState('agenda');
+  const [collapsed, setCollapsed] = React.useState(false);
+  return (
+    <SideFrame>
+      <SidebarNav
+        collapsed={collapsed}
+        onCollapsedChange={setCollapsed}
+        labels={{ expand: 'Expand', collapse: 'Collapse' }}
+        value={view}
+        onChange={setView}
+        header={<Wordmark compact={collapsed} />}
+        footer={<SideUser />}
+        sections={SIDE_SECTIONS}
+      />
+      <SidePane label={sidePaneLabel(view)} />
+    </SideFrame>
+  );
+}
+
 const STEP_ITEMS = [
   { value: 'perfil', label: 'Your profile' },
   { value: 'servico', label: 'First service' },
@@ -1352,6 +1469,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   'top-bar': { basic: TopBarBasico, full: TopBarCompleto, transparent: TopBarTransparente },
   tabs: { underline: TabsUnderline, pill: TabsPill, 'full-width': TabsFullWidth, overflow: TabsOverflow },
   'bottom-nav': { basic: BottomNavBasico, 'with-badge': BottomNavBadge },
+  'sidebar-nav': { basic: SidebarNavBasico, collapsible: SidebarNavColapsavel },
   stepper: { bar: StepperBar, dots: StepperDots, clickable: StepperClicavel },
   alert: { tones: AlertTons, 'with-action': AlertComAcao, dismissible: AlertDispensavel },
   toast: { tones: ToastTons, 'with-action': ToastComAcao },

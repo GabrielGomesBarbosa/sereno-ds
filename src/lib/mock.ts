@@ -100,6 +100,54 @@ export const TODAY_APPOINTMENTS: Appointment[] = [
   { time: '18:00', date: 'seg, 24', client: 'Helena Costa', service: 'Sessão de psicoterapia', channel: 'Online', status: 'cancelled' },
 ];
 
+export interface DayGroup {
+  key: string;
+  weekday: string;
+  date: string;
+  relative?: string;
+  items: Appointment[];
+}
+
+/** A working week for the agenda view. The first group reuses TODAY_APPOINTMENTS. */
+export const AGENDA_SCHEDULE: DayGroup[] = [
+  { key: 'seg', weekday: 'Segunda-feira', date: '24 de agosto', relative: 'Hoje', items: TODAY_APPOINTMENTS },
+  {
+    key: 'ter',
+    weekday: 'Terça-feira',
+    date: '25 de agosto',
+    relative: 'Amanhã',
+    items: [
+      { time: '09:00', date: 'ter, 25', client: 'Marina Alves', service: 'Sessão de psicoterapia', channel: 'Online', status: 'confirmed' },
+      { time: '10:00', date: 'ter, 25', client: 'Diego Martins', service: 'Primeira consulta', channel: 'Online', status: 'pending' },
+      { time: '15:00', date: 'ter, 25', client: 'Juliana Prado', service: 'Sessão de psicoterapia', channel: 'Presencial', status: 'confirmed' },
+    ],
+  },
+  {
+    key: 'qua',
+    weekday: 'Quarta-feira',
+    date: '26 de agosto',
+    items: [
+      { time: '09:00', date: 'qua, 26', client: 'Rafael e Bia', service: 'Terapia de casal', channel: 'Presencial', status: 'confirmed' },
+      { time: '14:30', date: 'qua, 26', client: 'Camila Rocha', service: 'Sessão de psicoterapia', channel: 'Online', status: 'confirmed' },
+    ],
+  },
+  {
+    key: 'qui',
+    weekday: 'Quinta-feira',
+    date: '27 de agosto',
+    items: [
+      { time: '11:00', date: 'qui, 27', client: 'Carlos Dias', service: 'Sessão de psicoterapia', channel: 'Presencial', status: 'confirmed' },
+      { time: '16:00', date: 'qui, 27', client: 'Beatriz Nunes', service: 'Sessão de psicoterapia', channel: 'Online', status: 'pending' },
+    ],
+  },
+  {
+    key: 'sex',
+    weekday: 'Sexta-feira',
+    date: '28 de agosto',
+    items: [{ time: '09:00', date: 'sex, 28', client: 'Juliana Prado', service: 'Sessão de psicoterapia', channel: 'Online', status: 'confirmed' }],
+  },
+];
+
 export interface ClientRow {
   name: string;
   sessions: string;
