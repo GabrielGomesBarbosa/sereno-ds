@@ -894,7 +894,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'avatar',
         title: 'Circle thumbnail',
-        description: '`shape="circle"` rounds the preview — a logo or a round-cropped asset where you do not need a crop step. For a person’s photo use `AvatarUpload` instead (camera button + circular crop).',
+        description: '`shape="circle"` rounds the preview — a logo or a round-cropped asset where you do not need a crop step. For a person’s photo use `AvatarUpload` instead (pencil button + circular crop).',
         code: `<FileUpload label="Logo" hint="Square PNG, transparent background." shape="circle" value={logo} onChange={setLogo} />`,
       },
       {
@@ -931,7 +931,7 @@ export const COMPONENTS: ComponentMeta[] = [
       ],
       dont: [
         'Expecting it to upload — it only hands you the `File`(s); the screen does the request.',
-        'A profile photo — that is `AvatarUpload` (camera button + circular crop).',
+        'A profile photo — that is `AvatarUpload` (pencil button + circular crop).',
       ],
     },
   },
@@ -939,7 +939,7 @@ export const COMPONENTS: ComponentMeta[] = [
     slug: 'avatar-upload',
     name: 'AvatarUpload',
     category: 'forms',
-    summary: 'Profile-photo picker — an avatar disc with a camera button, a library / camera / remove menu, and a circular crop. Hands back a cropped, downscaled JPEG.',
+    summary: 'Profile-photo picker — an avatar disc with a pencil button, a library / camera / remove menu, and a circular crop. Hands back a cropped, downscaled JPEG.',
     props: [
       R('name', 'string', 'Full name — the initials fallback and the alt text.'),
       R('value', 'File | string | null', 'The current photo — a `File` (freshly cropped) or an existing URL string.'),
@@ -961,7 +961,7 @@ export const COMPONENTS: ComponentMeta[] = [
         id: 'basic',
         title: 'Basic',
         description:
-          'The camera button opens a menu: **Upload a photo** (library), **Take a photo** (camera — touch only), and **Remove** once a photo is set. Picking one opens a circular crop — drag to frame, scroll or the slider to zoom, **Save** exports. All strings are English by default; override with the `labels` prop.',
+          'The edit (pencil) button opens a menu: **Upload a photo** (library), **Take a photo** (the camera on touch devices; a file dialog elsewhere), and **Remove** once a photo is set. Picking one opens a circular crop — drag to frame, scroll or the slider to zoom, **Save** exports. All strings are English by default; override with the `labels` prop.',
         code: `<AvatarUpload name="Ana Beatriz Ramos" value={photo} onChange={setPhoto} />`,
       },
       {
@@ -973,7 +973,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'sizes',
         title: 'Sizes',
-        description: '`size` sets the disc; the camera button and initials scale with it.',
+        description: '`size` sets the disc; the button and initials scale with it.',
         code: `<AvatarUpload name="AB" size={64} />
 <AvatarUpload name="AB" size={96} />
 <AvatarUpload name="AB" size={128} />`,
@@ -981,7 +981,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'disabled',
         title: 'Disabled',
-        description: 'No camera button, no menu — an existing `value` still shows as a static disc.',
+        description: 'No edit button, no menu — an existing `value` still shows as a static disc.',
         code: `<AvatarUpload name="Ana" value="/img/ana.jpg" disabled />`,
       },
     ],
@@ -989,7 +989,7 @@ export const COMPONENTS: ComponentMeta[] = [
       do: [
         'Use for one person’s photo — profiles, team members, account settings.',
         'Let the crop do the framing; store the returned `File` and upload it server-side.',
-        'Keep `hint` short — the affordance (camera button) speaks for itself.',
+        'Keep `hint` short — the affordance (the pencil button) speaks for itself.',
       ],
       dont: [
         'Documents / attachments / multiple files — that is `FileUpload`.',

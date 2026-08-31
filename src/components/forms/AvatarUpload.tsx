@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Camera, Check, ImagePlus, Trash2, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Camera, Check, ImagePlus, Pencil, Trash2, X } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
 
@@ -102,14 +103,15 @@ export function AvatarUpload({
   const rid = id || autoId;
   const libRef = React.useRef<HTMLInputElement>(null);
   const camRef = React.useRef<HTMLInputElement>(null);
-  const menuWrapRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const menuRef = React.useRef<HTMLDivElement>(null);
 
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [menuPos, setMenuPos] = React.useState<{ top: number; left: number } | null>(null);
   const [rejected, setRejected] = React.useState<string | null>(null);
   const [cropSrc, setCropSrc] = React.useState<string | null>(null);
   const [internal, setInternal] = React.useState<File | null>(null);
 
-  const coarse = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
   const current = value !== undefined ? value : internal;
 
   // Preview URL for the current photo.
@@ -124,18 +126,44 @@ export function AvatarUpload({
     setPreview(typeof current === 'string' ? current : null);
   }, [current]);
 
-  // Close the menu on outside click / Escape.
+  const itemCount = 2 + (current ? 1 : 0);
+
+  const toggleMenu = () => {
+    if (menuOpen) {
+      setMenuOpen(false);
+      return;
+    }
+    const r = triggerRef.current?.getBoundingClientRect();
+    if (r) {
+      const h = itemCount * 40 + 8;
+      const flipUp = r.bottom + 6 + h > window.innerHeight - 8;
+      setMenuPos({
+        top: flipUp ? Math.max(8, r.top - 6 - h) : r.bottom + 6,
+        left: Math.max(8, Math.min(r.left, window.innerWidth - 208)),
+      });
+    }
+    setMenuOpen(true);
+  };
+
+  // Close the menu on outside click / Escape / scroll — it is portalled to <body>.
   React.useEffect(() => {
     if (!menuOpen) return;
     const onDown = (e: MouseEvent) => {
-      if (!menuWrapRef.current?.contains(e.target as Node)) setMenuOpen(false);
+      const target = e.target as Node;
+      if (triggerRef.current?.contains(target) || menuRef.current?.contains(target)) return;
+      setMenuOpen(false);
     };
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
+    const close = () => setMenuOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close();
     document.addEventListener('mousedown', onDown);
     document.addEventListener('keydown', onKey);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
     return () => {
       document.removeEventListener('mousedown', onDown);
       document.removeEventListener('keydown', onKey);
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
     };
   }, [menuOpen]);
 
@@ -190,7 +218,7 @@ export function AvatarUpload({
       <input ref={libRef} id={rid} type="file" accept="image/*" disabled={disabled} onChange={(e) => pick(e.target.files)} style={{ display: 'none' }} />
       <input ref={camRef} type="file" accept="image/*" capture="user" disabled={disabled} onChange={(e) => pick(e.target.files)} style={{ display: 'none' }} />
 
-      <div ref={menuWrapRef} style={sx({ position: 'relative', width: size, height: size, flex: '0 0 auto', opacity: disabled ? 0.6 : 1 })}>
+      <div style={sx({ position: 'relative', width: size, height: size, flex: '0 0 auto', opacity: disabled ? 0.6 : 1 })}>
         <span
           style={sx({
             width: size,
@@ -219,12 +247,13 @@ export function AvatarUpload({
 
         {!disabled && (
           <button
+            ref={triggerRef}
             type="button"
             className="ds-affix-btn"
             aria-label={t.trigger}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((o) => !o)}
+            onClick={toggleMenu}
             style={sx({
               position: 'absolute',
               right: -2,
@@ -242,19 +271,24 @@ export function AvatarUpload({
               cursor: 'pointer',
             })}
           >
-            <Camera size={Math.round(cameraBtn * 0.5)} strokeWidth={1.75} />
+            <Pencil size={Math.round(cameraBtn * 0.46)} strokeWidth={1.75} />
           </button>
         )}
 
-        {menuOpen && (
+      </div>
+
+      {menuOpen &&
+        menuPos &&
+        createPortal(
           <div
+            ref={menuRef}
             role="menu"
             style={sx({
-              position: 'absolute',
-              top: 'calc(100% + 6px)',
-              left: 0,
-              minWidth: 180,
-              zIndex: 5,
+              position: 'fixed',
+              top: menuPos.top,
+              left: menuPos.left,
+              minWidth: 200,
+              zIndex: 1000,
               padding: 'var(--space-1)',
               borderRadius: 'var(--radius-md)',
               background: 'var(--bg-surface)',
@@ -272,17 +306,15 @@ export function AvatarUpload({
                 libRef.current?.click();
               }}
             />
-            {coarse && (
-              <MenuItem
-                icon={<Camera size={16} strokeWidth={1.75} />}
-                label={t.takePhoto}
-                onClick={() => {
-                  setMenuOpen(false);
-                  camRef.current?.click();
-                }}
-              />
-            )}
-            {preview && (
+            <MenuItem
+              icon={<Camera size={16} strokeWidth={1.75} />}
+              label={t.takePhoto}
+              onClick={() => {
+                setMenuOpen(false);
+                camRef.current?.click();
+              }}
+            />
+            {current && (
               <MenuItem
                 icon={<Trash2 size={16} strokeWidth={1.75} />}
                 label={t.remove}
@@ -293,9 +325,9 @@ export function AvatarUpload({
                 }}
               />
             )}
-          </div>
+          </div>,
+          document.body,
         )}
-      </div>
 
       {cropSrc && <CropModal src={cropSrc} outputSize={outputSize} labels={t} onCancel={onCropCancel} onSave={onCropSave} />}
     </Field>
