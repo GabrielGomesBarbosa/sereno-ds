@@ -2,9 +2,10 @@
 
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, Check, ImagePlus, Pencil, Trash2, X } from 'lucide-react';
+import { Camera, Check, ImagePlus, Pencil, Trash2, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { Dialog } from '../feedback/Dialog';
 
 /**
  * Profile-photo picker: an avatar disc with a camera button. Pick from the
@@ -23,7 +24,9 @@ export interface AvatarUploadLabels {
   takePhoto: string;
   remove: string;
   cropTitle: string;
+  cropHint: string;
   cameraTitle: string;
+  cameraHint: string;
   capture: string;
   cancel: string;
   save: string;
@@ -41,7 +44,9 @@ const EN: AvatarUploadLabels = {
   takePhoto: 'Take a photo',
   remove: 'Remove photo',
   cropTitle: 'Adjust the photo',
+  cropHint: 'Drag to reposition · scroll to zoom.',
   cameraTitle: 'Take a photo',
+  cameraHint: 'Line your face up with the circle.',
   capture: 'Capture',
   cancel: 'Cancel',
   save: 'Save',
@@ -172,6 +177,30 @@ export function AvatarUpload({
       window.removeEventListener('resize', close);
     };
   }, [menuOpen]);
+
+  // Dialog doesn't lock scroll or bind Escape — do it here while a modal is up.
+  const modalUp = Boolean(cropSrc) || cameraOpen;
+  React.useEffect(() => {
+    if (!modalUp) return;
+    const root = document.documentElement;
+    const prev = { h: root.style.overflow, b: document.body.style.overflow };
+    root.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setCameraOpen(false);
+      setCropSrc((s) => {
+        if (s) URL.revokeObjectURL(s);
+        return null;
+      });
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      root.style.overflow = prev.h;
+      document.body.style.overflow = prev.b;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [modalUp]);
 
   const pick = (files: FileList | null) => {
     const f = files?.[0];
@@ -344,7 +373,7 @@ export function AvatarUpload({
       {cameraOpen && (
         <CameraModal
           labels={t}
-          onCancel={() => setCameraOpen(false)}
+          onClose={() => setCameraOpen(false)}
           onCapture={onCameraShot}
           onError={() => {
             setCameraOpen(false);
@@ -353,7 +382,7 @@ export function AvatarUpload({
         />
       )}
 
-      {cropSrc && <CropModal src={cropSrc} outputSize={outputSize} labels={t} onCancel={onCropCancel} onSave={onCropSave} />}
+      {cropSrc && <CropModal src={cropSrc} outputSize={outputSize} labels={t} onClose={onCropCancel} onSave={onCropSave} />}
     </Field>
   );
 }
@@ -390,9 +419,68 @@ function MenuItem({ icon, label, onClick, danger }: { icon: React.ReactNode; lab
   );
 }
 
-const V = 260; // crop viewport (square) in px
+const V = 280; // crop viewport (square) in px
 
-function CropModal({ src, outputSize, labels, onCancel, onSave }: { src: string; outputSize: number; labels: AvatarUploadLabels; onCancel: () => void; onSave: (b: Blob) => void }) {
+const modalBtn = {
+  flex: 1,
+  minHeight: 40,
+  borderRadius: 'var(--radius-control)',
+  fontFamily: 'var(--font-body)',
+  fontSize: 'var(--text-sm)',
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 6,
+} as const;
+const cancelBtn = { ...modalBtn, border: '1px solid var(--border-default)', background: 'var(--bg-surface)', fontWeight: 'var(--weight-medium)', color: 'var(--text-primary)' } as const;
+const confirmBtn = { ...modalBtn, border: 'none', background: 'var(--interactive-primary)', fontWeight: 'var(--weight-semibold)', color: 'var(--interactive-primary-fg)' } as const;
+
+/** The square viewport + circular guide, shared by the crop and camera modals. */
+function CropStage({ children, onPointerDown, onPointerMove, onPointerUp, onWheel }: {
+  children: React.ReactNode;
+  onPointerDown?: (e: React.PointerEvent) => void;
+  onPointerMove?: (e: React.PointerEvent) => void;
+  onPointerUp?: (e: React.PointerEvent) => void;
+  onWheel?: (e: React.WheelEvent) => void;
+}) {
+  return (
+    <div
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      onWheel={onWheel}
+      style={sx({
+        position: 'relative',
+        width: V,
+        height: V,
+        maxWidth: '100%',
+        alignSelf: 'center',
+        overflow: 'hidden',
+        borderRadius: 'var(--radius-lg)',
+        background: 'var(--bg-sunken)',
+        cursor: onPointerDown ? 'grab' : 'default',
+        touchAction: 'none',
+      })}
+    >
+      {children}
+      <span
+        style={sx({
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          borderRadius: '999px',
+          boxShadow: '0 0 0 9999px color-mix(in srgb, var(--bg-overlay) 80%, transparent)',
+          outline: '1px solid rgba(255, 255, 255, 0.9)',
+          outlineOffset: -1,
+        })}
+      />
+    </div>
+  );
+}
+
+function CropModal({ src, outputSize, labels, onClose, onSave }: { src: string; outputSize: number; labels: AvatarUploadLabels; onClose: () => void; onSave: (b: Blob) => void }) {
   const imgRef = React.useRef<HTMLImageElement>(null);
   const [nat, setNat] = React.useState<{ w: number; h: number } | null>(null);
   const [zoom, setZoom] = React.useState(1);
@@ -412,27 +500,13 @@ function CropModal({ src, outputSize, labels, onCancel, onSave }: { src: string;
     [dispW, dispH],
   );
 
-  // Lock body scroll while open.
-  React.useEffect(() => {
-    const prev = { h: document.documentElement.style.overflow, b: document.body.style.overflow };
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCancel();
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.documentElement.style.overflow = prev.h;
-      document.body.style.overflow = prev.b;
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [onCancel]);
-
   const onImgLoad = () => {
     const el = imgRef.current;
     if (!el) return;
     const w = el.naturalWidth;
     const h = el.naturalHeight;
     setNat({ w, h });
-    const s = (V / Math.min(w, h)) * 1;
+    const s = V / Math.min(w, h);
     setOffset({ x: (V - w * s) / 2, y: (V - h * s) / 2 });
   };
 
@@ -478,87 +552,36 @@ function CropModal({ src, outputSize, labels, onCancel, onSave }: { src: string;
   };
 
   return (
-    <div
-      onClick={onCancel}
-      style={sx({
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 'var(--space-4)',
-        background: 'var(--bg-overlay)',
-      })}
+    <Dialog
+      title={labels.cropTitle}
+      description={labels.cropHint}
+      width={352}
+      onClose={onClose}
+      footer={
+        <>
+          <button type="button" onClick={onClose} style={sx(cancelBtn)}>
+            <X size={16} strokeWidth={2} /> {labels.cancel}
+          </button>
+          <button type="button" onClick={save} style={sx(confirmBtn)}>
+            <Check size={16} strokeWidth={2.5} /> {labels.save}
+          </button>
+        </>
+      }
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-label={labels.cropTitle}
-        style={sx({
-          width: 'min(340px, 100%)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--space-4)',
-          padding: 'var(--space-5)',
-          borderRadius: 'var(--radius-xl)',
-          background: 'var(--bg-surface)',
-          boxShadow: 'var(--shadow-lg)',
-        })}
-      >
-        <span style={sx({ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-lg)', color: 'var(--text-primary)' })}>{labels.cropTitle}</span>
+      <CropStage onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onWheel={(e) => setZoomAt(zoom - e.deltaY * 0.002)}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          ref={imgRef}
+          src={src}
+          alt=""
+          draggable={false}
+          onLoad={onImgLoad}
+          style={sx({ position: 'absolute', left: offset.x, top: offset.y, width: dispW, height: dispH, maxWidth: 'none', userSelect: 'none', pointerEvents: 'none' })}
+        />
+      </CropStage>
 
-        <div
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
-          onWheel={(e) => setZoomAt(zoom - e.deltaY * 0.002)}
-          style={sx({
-            position: 'relative',
-            width: V,
-            height: V,
-            maxWidth: '100%',
-            alignSelf: 'center',
-            overflow: 'hidden',
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--bg-sunken)',
-            cursor: 'grab',
-            touchAction: 'none',
-          })}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            ref={imgRef}
-            src={src}
-            alt=""
-            draggable={false}
-            onLoad={onImgLoad}
-            style={sx({
-              position: 'absolute',
-              left: offset.x,
-              top: offset.y,
-              width: dispW,
-              height: dispH,
-              maxWidth: 'none',
-              userSelect: 'none',
-              pointerEvents: 'none',
-            })}
-          />
-          {/* circular mask */}
-          <span
-            style={sx({
-              position: 'absolute',
-              inset: 0,
-              pointerEvents: 'none',
-              boxShadow: '0 0 0 9999px color-mix(in srgb, var(--bg-overlay) 55%, transparent)',
-              borderRadius: '999px',
-              border: '2px solid rgba(255,255,255,0.85)',
-            })}
-          />
-        </div>
-
+      <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', color: 'var(--text-muted)' })}>
+        <ZoomOut size={16} strokeWidth={1.75} style={{ flex: '0 0 auto' }} />
         <input
           type="range"
           min={1}
@@ -567,96 +590,16 @@ function CropModal({ src, outputSize, labels, onCancel, onSave }: { src: string;
           value={zoom}
           onChange={(e) => setZoomAt(Number(e.target.value))}
           aria-label={labels.zoom}
-          style={sx({ width: '100%', accentColor: 'var(--interactive-primary)' })}
+          style={sx({ flex: 1, accentColor: 'var(--interactive-primary)' })}
         />
-
-        <div style={sx({ display: 'flex', gap: 'var(--space-2)' })}>
-          <button
-            type="button"
-            onClick={onCancel}
-            style={sx({
-              flex: 1,
-              minHeight: 40,
-              borderRadius: 'var(--radius-control)',
-              border: '1px solid var(--border-default)',
-              background: 'var(--bg-surface)',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--weight-medium)',
-              color: 'var(--text-primary)',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-            })}
-          >
-            <X size={16} strokeWidth={2} /> {labels.cancel}
-          </button>
-          <button
-            type="button"
-            onClick={save}
-            style={sx({
-              flex: 1,
-              minHeight: 40,
-              borderRadius: 'var(--radius-control)',
-              border: 'none',
-              background: 'var(--interactive-primary)',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--weight-semibold)',
-              color: 'var(--interactive-primary-fg)',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-            })}
-          >
-            <Check size={16} strokeWidth={2.5} /> {labels.save}
-          </button>
-        </div>
+        <ZoomIn size={16} strokeWidth={1.75} style={{ flex: '0 0 auto' }} />
       </div>
-    </div>
+    </Dialog>
   );
 }
 
-const modalOverlay = {
-  position: 'fixed',
-  inset: 0,
-  zIndex: 1000,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: 'var(--space-4)',
-  background: 'var(--bg-overlay)',
-} as const;
-const modalPanel = {
-  width: 'min(340px, 100%)',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 'var(--space-4)',
-  padding: 'var(--space-5)',
-  borderRadius: 'var(--radius-xl)',
-  background: 'var(--bg-surface)',
-  boxShadow: 'var(--shadow-lg)',
-} as const;
-const modalTitle = { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-lg)', color: 'var(--text-primary)' } as const;
-const modalBtn = {
-  flex: 1,
-  minHeight: 40,
-  borderRadius: 'var(--radius-control)',
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-sm)',
-  cursor: 'pointer',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 6,
-} as const;
-
 /** Live camera capture via getUserMedia — falls back through `onError`. */
-function CameraModal({ labels, onCapture, onCancel, onError }: { labels: AvatarUploadLabels; onCapture: (b: Blob) => void; onCancel: () => void; onError: () => void }) {
+function CameraModal({ labels, onCapture, onClose, onError }: { labels: AvatarUploadLabels; onCapture: (b: Blob) => void; onClose: () => void; onError: () => void }) {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
   const [ready, setReady] = React.useState(false);
@@ -685,19 +628,6 @@ function CameraModal({ labels, onCapture, onCancel, onError }: { labels: AvatarU
     };
   }, [onError]);
 
-  React.useEffect(() => {
-    const prev = { h: document.documentElement.style.overflow, b: document.body.style.overflow };
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCancel();
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.documentElement.style.overflow = prev.h;
-      document.body.style.overflow = prev.b;
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [onCancel]);
-
   const shoot = () => {
     const v = videoRef.current;
     if (!v || !v.videoWidth) return;
@@ -706,56 +636,32 @@ function CameraModal({ labels, onCapture, onCancel, onError }: { labels: AvatarU
     canvas.width = canvas.height = s;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    // Mirror to match the on-screen preview, centre-crop to a square.
     ctx.translate(s, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(v, (v.videoWidth - s) / 2, (v.videoHeight - s) / 2, s, s, 0, 0, s, s);
     canvas.toBlob((b) => b && onCapture(b), 'image/jpeg', 0.9);
   };
 
-  return createPortal(
-    <div onClick={onCancel} style={sx(modalOverlay)}>
-      <div onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={labels.cameraTitle} style={sx(modalPanel)}>
-        <span style={sx(modalTitle)}>{labels.cameraTitle}</span>
-        <div
-          style={sx({
-            position: 'relative',
-            width: V,
-            height: V,
-            maxWidth: '100%',
-            alignSelf: 'center',
-            overflow: 'hidden',
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--bg-sunken)',
-          })}
-        >
-          <video ref={videoRef} autoPlay playsInline muted style={sx({ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' })} />
-          <span
-            style={sx({
-              position: 'absolute',
-              inset: 0,
-              pointerEvents: 'none',
-              boxShadow: '0 0 0 9999px color-mix(in srgb, var(--bg-overlay) 45%, transparent)',
-              borderRadius: '999px',
-              border: '2px solid rgba(255,255,255,0.85)',
-            })}
-          />
-        </div>
-        <div style={sx({ display: 'flex', gap: 'var(--space-2)' })}>
-          <button type="button" onClick={onCancel} style={sx({ ...modalBtn, border: '1px solid var(--border-default)', background: 'var(--bg-surface)', fontWeight: 'var(--weight-medium)', color: 'var(--text-primary)' })}>
+  return (
+    <Dialog
+      title={labels.cameraTitle}
+      description={labels.cameraHint}
+      width={352}
+      onClose={onClose}
+      footer={
+        <>
+          <button type="button" onClick={onClose} style={sx(cancelBtn)}>
             <X size={16} strokeWidth={2} /> {labels.cancel}
           </button>
-          <button
-            type="button"
-            onClick={shoot}
-            disabled={!ready}
-            style={sx({ ...modalBtn, border: 'none', background: 'var(--interactive-primary)', fontWeight: 'var(--weight-semibold)', color: 'var(--interactive-primary-fg)', opacity: ready ? 1 : 0.6 })}
-          >
+          <button type="button" onClick={shoot} disabled={!ready} style={sx({ ...confirmBtn, opacity: ready ? 1 : 0.6 })}>
             <Camera size={16} strokeWidth={2} /> {labels.capture}
           </button>
-        </div>
-      </div>
-    </div>,
-    document.body,
+        </>
+      }
+    >
+      <CropStage>
+        <video ref={videoRef} autoPlay playsInline muted style={sx({ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' })} />
+      </CropStage>
+    </Dialog>
   );
 }
