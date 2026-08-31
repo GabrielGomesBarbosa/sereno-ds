@@ -6,9 +6,11 @@ Version shown in the `/design-system` header. Source: `src/design-system/version
 
 - New **`AvatarUpload`** primitive (the 27th; net-new). The profile-photo case,
   split out of `FileUpload`.
-  - An avatar disc (photo, or initials fallback) with a **camera button** in the
-    corner → a menu: **Enviar foto** (library), **Tirar foto** (camera, touch
-    only), **Remover** (once set).
+  - An avatar disc (photo, or initials fallback) with a **pencil button** in the
+    corner → a menu: **Upload a photo** (library), **Take a photo** (a live
+    `getUserMedia` camera capture, with a graceful fallback message if the
+    camera is blocked), **Remove** (once set). The menu is portalled to
+    `<body>` so a clipped container can't hide it.
   - Picking opens a **circular crop** — drag to frame, scroll / slider to zoom,
     **Salvar** draws the circle region to a canvas at `outputSize` (512) and
     `toBlob('image/jpeg', 0.85)`. So `onChange` hands back a **cropped +

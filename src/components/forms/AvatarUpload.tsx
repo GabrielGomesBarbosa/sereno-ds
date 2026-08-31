@@ -23,6 +23,8 @@ export interface AvatarUploadLabels {
   takePhoto: string;
   remove: string;
   cropTitle: string;
+  cameraTitle: string;
+  capture: string;
   cancel: string;
   save: string;
   zoom: string;
@@ -30,6 +32,7 @@ export interface AvatarUploadLabels {
   notImage: string;
   tooLarge: (mb: number) => string;
   unreadable: string;
+  cameraError: string;
 }
 
 const EN: AvatarUploadLabels = {
@@ -38,6 +41,8 @@ const EN: AvatarUploadLabels = {
   takePhoto: 'Take a photo',
   remove: 'Remove photo',
   cropTitle: 'Adjust the photo',
+  cameraTitle: 'Take a photo',
+  capture: 'Capture',
   cancel: 'Cancel',
   save: 'Save',
   zoom: 'Zoom',
@@ -45,6 +50,7 @@ const EN: AvatarUploadLabels = {
   notImage: 'Choose an image file.',
   tooLarge: (mb) => `The image is over ${mb} MB.`,
   unreadable: "Couldn't read that image. Try a JPG or PNG.",
+  cameraError: "Couldn't open the camera — upload a photo from your library instead.",
 };
 
 export interface AvatarUploadProps {
@@ -102,7 +108,6 @@ export function AvatarUpload({
   const autoId = React.useId();
   const rid = id || autoId;
   const libRef = React.useRef<HTMLInputElement>(null);
-  const camRef = React.useRef<HTMLInputElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
 
@@ -110,6 +115,7 @@ export function AvatarUpload({
   const [menuPos, setMenuPos] = React.useState<{ top: number; left: number } | null>(null);
   const [rejected, setRejected] = React.useState<string | null>(null);
   const [cropSrc, setCropSrc] = React.useState<string | null>(null);
+  const [cameraOpen, setCameraOpen] = React.useState(false);
   const [internal, setInternal] = React.useState<File | null>(null);
 
   const current = value !== undefined ? value : internal;
@@ -211,12 +217,17 @@ export function AvatarUpload({
     setCropSrc(null);
   };
 
+  const onCameraShot = (blob: Blob) => {
+    setCameraOpen(false);
+    setRejected(null);
+    setCropSrc(URL.createObjectURL(blob));
+  };
+
   const cameraBtn = Math.max(30, Math.round(size * 0.34));
 
   return (
     <Field label={label} hint={hint} error={error || rejected || undefined} required={required} htmlFor={rid} style={containerStyle}>
       <input ref={libRef} id={rid} type="file" accept="image/*" disabled={disabled} onChange={(e) => pick(e.target.files)} style={{ display: 'none' }} />
-      <input ref={camRef} type="file" accept="image/*" capture="user" disabled={disabled} onChange={(e) => pick(e.target.files)} style={{ display: 'none' }} />
 
       <div style={sx({ position: 'relative', width: size, height: size, flex: '0 0 auto', opacity: disabled ? 0.6 : 1 })}>
         <span
@@ -311,7 +322,8 @@ export function AvatarUpload({
               label={t.takePhoto}
               onClick={() => {
                 setMenuOpen(false);
-                camRef.current?.click();
+                setRejected(null);
+                setCameraOpen(true);
               }}
             />
             {current && (
@@ -328,6 +340,18 @@ export function AvatarUpload({
           </div>,
           document.body,
         )}
+
+      {cameraOpen && (
+        <CameraModal
+          labels={t}
+          onCancel={() => setCameraOpen(false)}
+          onCapture={onCameraShot}
+          onError={() => {
+            setCameraOpen(false);
+            setRejected(t.cameraError);
+          }}
+        />
+      )}
 
       {cropSrc && <CropModal src={cropSrc} outputSize={outputSize} labels={t} onCancel={onCropCancel} onSave={onCropSave} />}
     </Field>
@@ -594,5 +618,144 @@ function CropModal({ src, outputSize, labels, onCancel, onSave }: { src: string;
         </div>
       </div>
     </div>
+  );
+}
+
+const modalOverlay = {
+  position: 'fixed',
+  inset: 0,
+  zIndex: 1000,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: 'var(--space-4)',
+  background: 'var(--bg-overlay)',
+} as const;
+const modalPanel = {
+  width: 'min(340px, 100%)',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 'var(--space-4)',
+  padding: 'var(--space-5)',
+  borderRadius: 'var(--radius-xl)',
+  background: 'var(--bg-surface)',
+  boxShadow: 'var(--shadow-lg)',
+} as const;
+const modalTitle = { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-lg)', color: 'var(--text-primary)' } as const;
+const modalBtn = {
+  flex: 1,
+  minHeight: 40,
+  borderRadius: 'var(--radius-control)',
+  fontFamily: 'var(--font-body)',
+  fontSize: 'var(--text-sm)',
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 6,
+} as const;
+
+/** Live camera capture via getUserMedia — falls back through `onError`. */
+function CameraModal({ labels, onCapture, onCancel, onError }: { labels: AvatarUploadLabels; onCapture: (b: Blob) => void; onCancel: () => void; onError: () => void }) {
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const streamRef = React.useRef<MediaStream | null>(null);
+  const [ready, setReady] = React.useState(false);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const md = typeof navigator !== 'undefined' ? navigator.mediaDevices : undefined;
+    if (!md?.getUserMedia) {
+      onError();
+      return;
+    }
+    md.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1280 } }, audio: false })
+      .then((stream) => {
+        if (cancelled) {
+          stream.getTracks().forEach((tr) => tr.stop());
+          return;
+        }
+        streamRef.current = stream;
+        if (videoRef.current) videoRef.current.srcObject = stream;
+        setReady(true);
+      })
+      .catch(onError);
+    return () => {
+      cancelled = true;
+      streamRef.current?.getTracks().forEach((tr) => tr.stop());
+    };
+  }, [onError]);
+
+  React.useEffect(() => {
+    const prev = { h: document.documentElement.style.overflow, b: document.body.style.overflow };
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCancel();
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.documentElement.style.overflow = prev.h;
+      document.body.style.overflow = prev.b;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [onCancel]);
+
+  const shoot = () => {
+    const v = videoRef.current;
+    if (!v || !v.videoWidth) return;
+    const s = Math.min(v.videoWidth, v.videoHeight);
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = s;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    // Mirror to match the on-screen preview, centre-crop to a square.
+    ctx.translate(s, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(v, (v.videoWidth - s) / 2, (v.videoHeight - s) / 2, s, s, 0, 0, s, s);
+    canvas.toBlob((b) => b && onCapture(b), 'image/jpeg', 0.9);
+  };
+
+  return createPortal(
+    <div onClick={onCancel} style={sx(modalOverlay)}>
+      <div onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={labels.cameraTitle} style={sx(modalPanel)}>
+        <span style={sx(modalTitle)}>{labels.cameraTitle}</span>
+        <div
+          style={sx({
+            position: 'relative',
+            width: V,
+            height: V,
+            maxWidth: '100%',
+            alignSelf: 'center',
+            overflow: 'hidden',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-sunken)',
+          })}
+        >
+          <video ref={videoRef} autoPlay playsInline muted style={sx({ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' })} />
+          <span
+            style={sx({
+              position: 'absolute',
+              inset: 0,
+              pointerEvents: 'none',
+              boxShadow: '0 0 0 9999px color-mix(in srgb, var(--bg-overlay) 45%, transparent)',
+              borderRadius: '999px',
+              border: '2px solid rgba(255,255,255,0.85)',
+            })}
+          />
+        </div>
+        <div style={sx({ display: 'flex', gap: 'var(--space-2)' })}>
+          <button type="button" onClick={onCancel} style={sx({ ...modalBtn, border: '1px solid var(--border-default)', background: 'var(--bg-surface)', fontWeight: 'var(--weight-medium)', color: 'var(--text-primary)' })}>
+            <X size={16} strokeWidth={2} /> {labels.cancel}
+          </button>
+          <button
+            type="button"
+            onClick={shoot}
+            disabled={!ready}
+            style={sx({ ...modalBtn, border: 'none', background: 'var(--interactive-primary)', fontWeight: 'var(--weight-semibold)', color: 'var(--interactive-primary-fg)', opacity: ready ? 1 : 0.6 })}
+          >
+            <Camera size={16} strokeWidth={2} /> {labels.capture}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }

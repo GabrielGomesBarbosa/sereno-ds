@@ -138,6 +138,8 @@ function PerfilStep({ data, set }: { data: Data; set: (p: Partial<Data>) => void
           takePhoto: 'Tirar foto',
           remove: 'Remover foto',
           cropTitle: 'Ajustar a foto',
+          cameraTitle: 'Tirar foto',
+          capture: 'Capturar',
           cancel: 'Cancelar',
           save: 'Salvar',
           zoom: 'Zoom',
@@ -145,6 +147,7 @@ function PerfilStep({ data, set }: { data: Data; set: (p: Partial<Data>) => void
           notImage: 'Escolha um arquivo de imagem.',
           tooLarge: (mb) => `A imagem passa de ${mb} MB.`,
           unreadable: 'Não foi possível ler essa imagem. Tente um JPG ou PNG.',
+          cameraError: 'Não foi possível abrir a câmera — envie uma foto da galeria.',
         }}
       />
       <Input label="Nome completo" required size="lg" placeholder="Ana Beatriz Ramos" value={data.name} onChange={(e) => set({ name: e.currentTarget.value })} />

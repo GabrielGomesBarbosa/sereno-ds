@@ -961,7 +961,7 @@ export const COMPONENTS: ComponentMeta[] = [
         id: 'basic',
         title: 'Basic',
         description:
-          'The edit (pencil) button opens a menu: **Upload a photo** (library), **Take a photo** (the camera on touch devices; a file dialog elsewhere), and **Remove** once a photo is set. Picking one opens a circular crop — drag to frame, scroll or the slider to zoom, **Save** exports. All strings are English by default; override with the `labels` prop.',
+          'The edit (pencil) button opens a menu: **Upload a photo** (library), **Take a photo** (a live camera capture via `getUserMedia` — falls back to a message if the camera is blocked), and **Remove** once a photo is set. Both routes end in a circular crop — drag to frame, scroll or the slider to zoom, **Save** exports. All strings are English by default; override with the `labels` prop.',
         code: `<AvatarUpload name="Ana Beatriz Ramos" value={photo} onChange={setPhoto} />`,
       },
       {
