@@ -84,6 +84,15 @@
   outline: 2px solid var(--border-focus);
   outline-offset: -2px;
 }
+.sereno-sidenav-toggle:hover {
+  background: var(--interactive-secondary-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+/* Dashboard TopBar dropdown rows */
+.dash-menu-btn { transition: background-color var(--duration-fast) var(--ease-standard); }
+.dash-menu-btn:hover { background: var(--bg-subtle) !important; }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
@@ -238,11 +247,10 @@ html, body { padding: 0; margin: 0; }
 
 /* ── Dashboard shell — fixed sidebar + scrolling content on desktop, BottomNav
       + document scroll under 900px ─────────────────────────────────────────── */
-.dash-shell { display: grid; grid-template-columns: var(--dash-sb-w, 248px) minmax(0, 1fr); height: 100dvh; overflow: hidden; }
-.dash-sidebar { width: var(--dash-sb-w, 248px); height: 100dvh; overflow: hidden; }
+.dash-shell { display: grid; grid-template-columns: var(--dash-sb-w, 248px) minmax(0, 1fr); height: 100dvh; overflow: hidden; transition: grid-template-columns var(--duration-normal) var(--ease-out); }
+.dash-sidebar { width: var(--dash-sb-w, 248px); height: 100dvh; overflow: hidden; transition: width var(--duration-normal) var(--ease-out); }
 .dash-content { min-width: 0; height: 100dvh; overflow-y: auto; display: flex; flex-direction: column; }
 .dash-content > header { padding-inline: var(--gutter-desktop); }
-.dash-topbar-search { display: block; }
 .dash-main { padding: var(--space-7) var(--gutter-desktop); }
 .dash-bottomnav { display: none; }
 .dash-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); }
@@ -261,11 +269,11 @@ html, body { padding: 0; margin: 0; }
   .dash-bottomnav { display: block; position: sticky; bottom: 0; z-index: 30; }
   .dash-main { padding: var(--space-6) var(--gutter-mobile) var(--space-10); }
 }
-@media (max-width: 700px) {
-  .dash-topbar-search { display: none; }
-}
 @media (max-width: 620px) {
   .dash-agenda-aside { flex-direction: column !important; }
+}
+@media (max-width: 560px) {
+  .dash-user-name { display: none; }
 }
 
 /* ── WeeklyScheduleEditor — stack each day row on narrow screens ────────────── */

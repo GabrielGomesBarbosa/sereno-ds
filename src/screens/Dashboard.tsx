@@ -2,16 +2,21 @@
 
 import * as React from 'react';
 import {
+  AlertTriangle,
   BarChart3,
   Bell,
   Calendar,
+  CalendarCheck,
+  ChevronDown,
   ChevronRight,
   Copy,
   Download,
+  LogOut,
   Plus,
   Search,
   Settings,
   Sparkles,
+  UserPlus,
   Users,
   Video,
   Wallet,
@@ -46,6 +51,7 @@ import {
   CLIENT_STATUS_LABEL,
   DASHBOARD_STATS,
   DEFAULT_WEEK,
+  NOTIFICATIONS,
   SERVICES_BY_SLUG,
   UNAVAILABLE_DAYS,
   type Appointment,
@@ -139,6 +145,204 @@ function Stat({ label, value, delta, tone }: { label: string; value: string; del
   );
 }
 
+// ── TopBar menus ────────────────────────────────────────────────────────────────
+const panelStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: 'calc(100% + 10px)',
+  right: 0,
+  background: 'var(--bg-surface)',
+  borderRadius: 'var(--radius-lg)',
+  boxShadow: '0 0 0 1px var(--border-default), var(--shadow-lg)',
+  zIndex: 50,
+  overflow: 'hidden',
+};
+
+function useDismiss(open: boolean, close: () => void) {
+  React.useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest('[data-menu-root]')) close();
+    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close();
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open, close]);
+}
+
+const NOTIF_ICON: Record<(typeof NOTIFICATIONS)[number]['kind'], React.ReactNode> = {
+  booking: <CalendarCheck size={16} strokeWidth={1.75} />,
+  payment: <Wallet size={16} strokeWidth={1.75} />,
+  client: <UserPlus size={16} strokeWidth={1.75} />,
+  alert: <AlertTriangle size={16} strokeWidth={1.75} />,
+};
+const NOTIF_TONE: Record<(typeof NOTIFICATIONS)[number]['kind'], string> = {
+  booking: 'var(--status-info-fg)',
+  payment: 'var(--status-success-fg)',
+  client: 'var(--text-brand)',
+  alert: 'var(--status-warning-fg)',
+};
+
+function NotificationsMenu({ onToast }: { onToast: (m: string) => void }) {
+  const [open, setOpen] = React.useState(false);
+  const [items, setItems] = React.useState(NOTIFICATIONS);
+  const close = React.useCallback(() => setOpen(false), []);
+  useDismiss(open, close);
+  const unread = items.filter((n) => n.unread).length;
+
+  return (
+    <span data-menu-root style={{ position: 'relative', display: 'inline-flex' }}>
+      <IconButton label="Notificações" onClick={() => setOpen((o) => !o)}>
+        <Bell size={18} strokeWidth={1.75} />
+      </IconButton>
+      {unread > 0 && (
+        <span
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 2,
+            right: 2,
+            minWidth: 16,
+            height: 16,
+            padding: '0 4px',
+            borderRadius: 999,
+            background: 'var(--status-error-fg)',
+            color: '#fff',
+            fontSize: 10,
+            fontWeight: 700,
+            lineHeight: '16px',
+            textAlign: 'center',
+            boxShadow: '0 0 0 2px var(--bg-surface)',
+          }}
+        >
+          {unread}
+        </span>
+      )}
+      {open && (
+        <div style={{ ...panelStyle, width: 360 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-3) var(--space-4)', borderBottom: '1px solid var(--border-subtle)' }}>
+            <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Notificações</span>
+            {unread > 0 && (
+              <button
+                type="button"
+                className="dash-menu-btn"
+                onClick={() => setItems((xs) => xs.map((n) => ({ ...n, unread: false })))}
+                style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--text-brand)', borderRadius: 'var(--radius-sm)', padding: '4px 6px' }}
+              >
+                Marcar todas como lidas
+              </button>
+            )}
+          </div>
+          <div style={{ maxHeight: 340, overflowY: 'auto' }}>
+            {items.map((n, i) => (
+              <div
+                key={n.id}
+                style={{
+                  display: 'flex',
+                  gap: 'var(--space-3)',
+                  padding: 'var(--space-3) var(--space-4)',
+                  borderTop: i ? '1px solid var(--border-subtle)' : 'none',
+                  background: n.unread ? 'var(--bg-brand-soft)' : 'transparent',
+                }}
+              >
+                <span style={{ flex: '0 0 auto', color: NOTIF_TONE[n.kind], marginTop: 1 }}>{NOTIF_ICON[n.kind]}</span>
+                <div style={{ ...vcol('2px'), minWidth: 0 }}>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-primary)', lineHeight: 1.4 }}>{n.title}</span>
+                  <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>{n.time}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="dash-menu-btn"
+            onClick={() => {
+              setOpen(false);
+              onToast('Central de notificações — em breve.');
+            }}
+            style={{
+              width: '100%',
+              border: 'none',
+              borderTop: '1px solid var(--border-subtle)',
+              background: 'var(--bg-surface)',
+              cursor: 'pointer',
+              padding: 'var(--space-3)',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-xs)',
+              fontWeight: 600,
+              color: 'var(--text-secondary)',
+            }}
+          >
+            Ver todas
+          </button>
+        </div>
+      )}
+    </span>
+  );
+}
+
+function UserMenu({ onNavigate, onToast }: { onNavigate: (v: string) => void; onToast: (m: string) => void }) {
+  const [open, setOpen] = React.useState(false);
+  const close = React.useCallback(() => setOpen(false), []);
+  useDismiss(open, close);
+  const row: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'var(--space-3)',
+    width: '100%',
+    padding: 'var(--space-3) var(--space-4)',
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-sm)',
+    color: 'var(--text-secondary)',
+    textAlign: 'left',
+  };
+
+  return (
+    <span data-menu-root style={{ position: 'relative', display: 'inline-flex' }}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-2)',
+          border: 'none',
+          background: open ? 'var(--interactive-secondary-hover)' : 'transparent',
+          cursor: 'pointer',
+          padding: '4px 6px 4px 4px',
+          borderRadius: 'var(--radius-pill)',
+        }}
+      >
+        <Avatar name="Ana Beatriz Ramos" size="sm" />
+        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }} className="dash-user-name">
+          Ana Beatriz
+        </span>
+        <ChevronDown size={16} strokeWidth={2} style={{ color: 'var(--text-muted)', transition: 'transform var(--duration-fast) var(--ease-standard)', transform: open ? 'rotate(180deg)' : 'none' }} />
+      </button>
+      {open && (
+        <div style={{ ...panelStyle, width: 220 }}>
+          <div style={{ padding: 'var(--space-3) var(--space-4)', borderBottom: '1px solid var(--border-subtle)' }}>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>Ana Beatriz Ramos</div>
+            <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>ana.ramos@email.com</div>
+          </div>
+          <button type="button" className="dash-menu-btn" style={row} onClick={() => { setOpen(false); onNavigate('config:perfil'); }}>
+            <Settings size={16} strokeWidth={1.75} /> Configurações
+          </button>
+          <button type="button" className="dash-menu-btn" style={{ ...row, color: 'var(--status-error-fg)' }} onClick={() => { setOpen(false); onToast('Você saiu da sua conta.'); }}>
+            <LogOut size={16} strokeWidth={1.75} /> Sair
+          </button>
+        </div>
+      )}
+    </span>
+  );
+}
+
 export function Dashboard() {
   const [view, setView] = React.useState<string>('agenda');
   const [navCollapsed, setNavCollapsed] = React.useState(false);
@@ -202,16 +406,13 @@ export function Dashboard() {
           <TopBar
             title={pageTitle}
             subtitle={base === 'agenda' ? 'Segunda-feira, 24 de agosto' : undefined}
+            style={{ height: 68, background: 'var(--bg-surface)', backdropFilter: 'none' }}
             actions={
-              <>
-                <div className="dash-topbar-search">
-                  <SearchInput placeholder="Buscar" clearLabel="Limpar busca" containerStyle={{ width: 200 }} />
-                </div>
-                <IconButton label="Notificações" onClick={() => setToast('Você está em dia — nenhuma notificação.')}>
-                  <Bell size={18} strokeWidth={1.75} />
-                </IconButton>
-                <Avatar name="Ana Beatriz Ramos" size="sm" />
-              </>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                <NotificationsMenu onToast={setToast} />
+                <span style={{ width: 1, height: 24, background: 'var(--border-default)', margin: '0 var(--space-1)' }} />
+                <UserMenu onNavigate={setView} onToast={setToast} />
+              </div>
             }
           />
           <main className="dash-main" style={{ maxWidth: 'var(--container-app)' }}>

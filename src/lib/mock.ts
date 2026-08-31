@@ -176,6 +176,22 @@ export const DASHBOARD_STATS = [
   { label: 'Receita do mês', value: 'R$ 4.180', delta: '+12% vs. julho', tone: 'up' as const },
 ];
 
+export interface NotificationItem {
+  id: string;
+  kind: 'booking' | 'payment' | 'client' | 'alert';
+  title: string;
+  time: string;
+  unread: boolean;
+}
+
+export const NOTIFICATIONS: NotificationItem[] = [
+  { id: 'n1', kind: 'booking', title: 'Rafael e Bia confirmaram o horário de quarta, 26', time: 'há 12 min', unread: true },
+  { id: 'n2', kind: 'payment', title: 'Pagamento de R$ 180 recebido de Marina Alves', time: 'há 1 h', unread: true },
+  { id: 'n3', kind: 'client', title: 'Diego Martins agendou uma primeira consulta', time: 'há 3 h', unread: true },
+  { id: 'n4', kind: 'alert', title: 'Helena Costa faltou ao atendimento de 24 ago', time: 'ontem', unread: false },
+  { id: 'n5', kind: 'booking', title: 'Lembrete: você tem 5 atendimentos amanhã', time: 'ontem', unread: false },
+];
+
 export const DEFAULT_WEEK: WeekSchedule = {
   mon: { enabled: true, start: '09:00', end: '18:00' },
   tue: { enabled: true, start: '09:00', end: '18:00' },

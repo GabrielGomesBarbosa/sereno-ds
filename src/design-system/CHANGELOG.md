@@ -11,17 +11,19 @@ Version shown in the `/design-system` header. Source: `src/design-system/version
   - **Second level**: an item with `children` toggles a sub-list (one level
     deep) instead of navigating; the branch holding the active child opens on
     mount.
-  - **Collapsible** to a 72px icon rail — `collapsed` / `onCollapsedChange`
-    (uncontrolled via `defaultCollapsed`). Labels hide, group headings become
-    bare dividers, counts become a dot, the active parent carries the pill.
-    Clicking a parent while collapsed re-opens the sidebar on that submenu.
+  - **Collapsible** to a 72px icon rail via a round chevron button in the
+    header — `collapsed` / `onCollapsedChange` (uncontrolled via
+    `defaultCollapsed`), animated width. Labels hide, group headings become bare
+    dividers, counts become a dot, the active parent carries the pill. Clicking
+    a parent while collapsed re-opens the sidebar on that submenu.
   - `header` / `footer` slots (brand, user card); `labels` for the toggle.
   - New `.sereno-sidenav` host rules (thin scrollbar + focus ring on the plain
     `<button>` rows).
 - **`Dashboard` screen rebuilt** around it: a real app shell (fixed sidebar +
-  a single scrolling content column), a **`TopBar`** header (page title, search,
-  notifications, avatar), grouped nav with the Financeiro / Configurações
-  second level, and per-status appointment actions (Confirmar · Entrar ·
+  a single scrolling content column), a **`TopBar`** header — page title, a
+  **notifications** dropdown (unread badge, mark-all-read) and a **user menu**
+  (Configurações · Sair). Grouped nav with the Financeiro / Configurações
+  second level, per-status appointment actions (Confirmar · Entrar ·
   Reagendar). Agenda's Hoje/Semana/Mês tabs now switch real content; new
   "Próximo atendimento" card; "A receber" list under Financeiro.
 - Showcase `/design-system/navigation/sidebar-nav`: Groups and second level ·

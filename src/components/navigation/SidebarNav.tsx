@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ChevronsLeft, ChevronsRight, ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronLeft } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { useInteract } from '../core/Button';
 
@@ -119,6 +119,37 @@ export function SidebarNav({
     });
   };
 
+  const toggleBtn = collapsible ? (
+    <button
+      type="button"
+      className="sereno-sidenav-btn sereno-sidenav-toggle"
+      aria-label={collapsed ? labels?.expand ?? 'Expand' : labels?.collapse ?? 'Collapse'}
+      aria-pressed={collapsed}
+      title={collapsed ? labels?.expand ?? 'Expand' : labels?.collapse ?? 'Collapse'}
+      onClick={() => setCollapsed(!collapsed)}
+      style={sx({
+        flex: '0 0 auto',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 28,
+        height: 28,
+        borderRadius: 'var(--radius-control)',
+        border: 'var(--border-width-hairline) solid var(--border-default)',
+        background: 'var(--bg-surface)',
+        color: 'var(--text-secondary)',
+        cursor: 'pointer',
+        transition: 'var(--transition-control)',
+      })}
+    >
+      <ChevronLeft
+        size={16}
+        strokeWidth={2}
+        style={{ transition: 'transform var(--duration-normal) var(--ease-out)', transform: collapsed ? 'rotate(180deg)' : 'none' }}
+      />
+    </button>
+  ) : null;
+
   return (
     <nav
       {...rest}
@@ -130,20 +161,23 @@ export function SidebarNav({
         height: '100%',
         background: 'var(--bg-surface)',
         borderRight: 'var(--border-width-hairline) solid var(--border-default)',
+        transition: 'width var(--duration-normal) var(--ease-out)',
         ...style,
       })}
     >
-      {header !== undefined && (
+      {(header !== undefined || collapsible) && (
         <div
           style={sx({
             display: 'flex',
             alignItems: 'center',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            minHeight: 40,
-            padding: collapsed ? 'var(--space-4) 0 var(--space-2)' : 'var(--space-4) var(--space-4) var(--space-2)',
+            gap: 'var(--space-2)',
+            justifyContent: collapsed ? 'center' : 'space-between',
+            minHeight: 44,
+            padding: collapsed ? 'var(--space-3) 0 var(--space-2)' : 'var(--space-3) var(--space-3) var(--space-2) var(--space-4)',
           })}
         >
-          {header}
+          {!collapsed && header !== undefined && <div style={sx({ minWidth: 0, overflow: 'hidden' })}>{header}</div>}
+          {toggleBtn}
         </div>
       )}
 
@@ -186,24 +220,17 @@ export function SidebarNav({
         ))}
       </div>
 
-      {(footer || collapsible) && (
+      {footer && !collapsed && (
         <div
           style={sx({
             borderTop: 'var(--border-width-hairline) solid var(--border-subtle)',
-            padding: collapsed ? 'var(--space-2)' : 'var(--space-3)',
+            padding: 'var(--space-3)',
             display: 'flex',
             flexDirection: 'column',
             gap: 'var(--space-2)',
           })}
         >
-          {footer && !collapsed && footer}
-          {collapsible && (
-            <CollapseToggle
-              collapsed={collapsed}
-              label={collapsed ? labels?.expand ?? 'Expand' : labels?.collapse ?? 'Collapse'}
-              onClick={() => setCollapsed(!collapsed)}
-            />
-          )}
+          {footer}
         </div>
       )}
     </nav>
@@ -351,39 +378,3 @@ function SubRow({ sub, active, onSelect }: { sub: SidebarNavSubItem; active: boo
   );
 }
 
-function CollapseToggle({ collapsed, label, onClick }: { collapsed: boolean; label: string; onClick: () => void }) {
-  const st = useInteract(false);
-  return (
-    <button
-      type="button"
-      className="sereno-sidenav-btn"
-      aria-label={label}
-      title={collapsed ? label : undefined}
-      onClick={onClick}
-      {...st.handlers}
-      style={sx({
-        display: 'flex',
-        alignItems: 'center',
-        gap: 'var(--space-3)',
-        width: '100%',
-        height: 38,
-        padding: collapsed ? 0 : '0 var(--space-3)',
-        justifyContent: collapsed ? 'center' : 'flex-start',
-        border: 'none',
-        borderRadius: 'var(--radius-control)',
-        cursor: 'pointer',
-        fontFamily: 'var(--font-body)',
-        fontSize: 'var(--text-sm)',
-        fontWeight: 'var(--weight-medium)',
-        background: st.hover ? 'var(--interactive-ghost-hover)' : 'transparent',
-        color: 'var(--text-muted)',
-        transition: 'var(--transition-control)',
-      })}
-    >
-      <span style={sx({ flex: '0 0 auto', display: 'inline-flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center' })}>
-        {collapsed ? <ChevronsRight size={18} strokeWidth={2} /> : <ChevronsLeft size={18} strokeWidth={2} />}
-      </span>
-      {!collapsed && <span>{label}</span>}
-    </button>
-  );
-}
