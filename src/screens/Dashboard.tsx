@@ -26,6 +26,7 @@ import {
   EmptyState,
   IconButton,
   Input,
+  SearchInput,
   Select,
   ServiceCard,
   Switch,
@@ -301,30 +302,43 @@ function AgendaView({ onCancel }: { onCancel: () => void }) {
 }
 
 function ClientesView() {
+  const [query, setQuery] = React.useState('');
+  const q = query.trim().toLowerCase();
+  const rows = q ? CLIENTS.filter((c) => c.name.toLowerCase().includes(q)) : CLIENTS;
   return (
     <div style={vcol('var(--space-4)')}>
       <ViewHeader title="Clientes" action={<Button variant="secondary" iconLeft={<Download size={18} strokeWidth={1.75} />}>Exportar</Button>} />
       <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-        <Input placeholder="Buscar cliente" iconLeft={<Search size={18} strokeWidth={1.75} />} containerStyle={{ flex: 1, minWidth: 220, maxWidth: 340 }} />
+        <SearchInput
+          placeholder="Buscar cliente"
+          clearLabel="Limpar busca"
+          onSearch={setQuery}
+          onValueChange={setQuery}
+          containerStyle={{ flex: 1, minWidth: 220, maxWidth: 340 }}
+        />
         <Select defaultValue="all" options={[{ value: 'all', label: 'Todos os status' }, { value: 'ativo', label: 'Ativos' }]} containerStyle={{ width: 200 }} />
       </div>
-      <Card padding="none">
-        {CLIENTS.map((c, i) => (
-          <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', padding: 'var(--space-4)', borderTop: i ? '1px solid var(--border-subtle)' : 'none' }}>
-            <Avatar name={c.name} size="md" />
-            <div style={{ flex: 1, minWidth: 0, ...vcol('2px') }}>
-              <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>{c.name}</span>
-              <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
-                {c.sessions} · {c.last}
-              </span>
+      {rows.length === 0 ? (
+        <EmptyState icon={<Search size={22} strokeWidth={1.75} />} title="Nenhum cliente encontrado" description={`Nada para "${query.trim()}". Tente outro nome.`} />
+      ) : (
+        <Card padding="none">
+          {rows.map((c, i) => (
+            <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', padding: 'var(--space-4)', borderTop: i ? '1px solid var(--border-subtle)' : 'none' }}>
+              <Avatar name={c.name} size="md" />
+              <div style={{ flex: 1, minWidth: 0, ...vcol('2px') }}>
+                <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>{c.name}</span>
+                <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                  {c.sessions} · {c.last}
+                </span>
+              </div>
+              <Badge tone={c.status}>{CLIENT_STATUS_LABEL[c.status]}</Badge>
+              <IconButton label="Abrir">
+                <ChevronRight size={18} strokeWidth={1.75} />
+              </IconButton>
             </div>
-            <Badge tone={c.status}>{CLIENT_STATUS_LABEL[c.status]}</Badge>
-            <IconButton label="Abrir">
-              <ChevronRight size={18} strokeWidth={1.75} />
-            </IconButton>
-          </div>
-        ))}
-      </Card>
+          ))}
+        </Card>
+      )}
     </div>
   );
 }

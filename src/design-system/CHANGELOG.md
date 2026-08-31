@@ -2,6 +2,18 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.15.0 — SearchInput (SS-50)
+
+- New **`SearchInput`** primitive (28th; net-new). `Input` + a leading magnifier
+  + a clear (**×**) button that shows once there is text + a **debounced**
+  `onSearch` (default 250 ms). `Enter` fires the search immediately, `Esc`
+  clears. `onValueChange` gives the raw string on every keystroke.
+- `Dashboard` → Clients: the decorative search `Input` is now a real
+  `SearchInput` that **filters the client list**, with an `EmptyState` when a
+  query matches nothing.
+- Showcase `/design-system/forms/search-input`: Basic · Live results · Sizes ·
+  Disabled. `27 primitives` → 28 (42 routes).
+
 ## 0.14.0 — AvatarUpload (SS-146)
 
 - New **`AvatarUpload`** primitive (the 27th; net-new). The profile-photo case,
