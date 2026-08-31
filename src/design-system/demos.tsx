@@ -829,11 +829,30 @@ function WeekNaoControlado() {
   );
 }
 
-const framed: React.CSSProperties = { maxWidth: 520, border: '1px solid var(--border-default)', borderRadius: 'var(--radius-card)', overflow: 'hidden' };
+// A phone-screen frame — the bars sit flush to its edges, so their border reads
+// as an in-screen divider, not a broken frame edge.
+const phone: React.CSSProperties = { maxWidth: 420, border: '1px solid var(--border-default)', borderRadius: 'var(--radius-card)', overflow: 'hidden', display: 'flex', flexDirection: 'column' };
+const screenBody: React.CSSProperties = {
+  padding: 'var(--space-5)',
+  minHeight: 120,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 'var(--space-2)',
+  background: 'var(--bg-surface)',
+};
+function BodyLines() {
+  return (
+    <>
+      <span style={{ width: '70%', height: 10, borderRadius: 4, background: 'var(--bg-subtle)' }} />
+      <span style={{ width: '90%', height: 10, borderRadius: 4, background: 'var(--bg-subtle)' }} />
+      <span style={{ width: '55%', height: 10, borderRadius: 4, background: 'var(--bg-subtle)' }} />
+    </>
+  );
+}
 
 function TopBarBasico() {
   return (
-    <div style={framed}>
+    <div style={phone}>
       <TopBar
         title="Your details"
         sticky={false}
@@ -843,12 +862,15 @@ function TopBarBasico() {
           </IconButton>
         }
       />
+      <div style={screenBody}>
+        <BodyLines />
+      </div>
     </div>
   );
 }
 function TopBarCompleto() {
   return (
-    <div style={framed}>
+    <div style={phone}>
       <TopBar
         title="Pick a time"
         subtitle="Therapy session"
@@ -864,12 +886,15 @@ function TopBarCompleto() {
           </IconButton>
         }
       />
+      <div style={screenBody}>
+        <BodyLines />
+      </div>
     </div>
   );
 }
 function TopBarTransparente() {
   return (
-    <div style={{ ...framed, background: 'var(--bg-brand-soft)' }}>
+    <div style={{ ...phone, background: 'var(--bg-brand-soft)' }}>
       <TopBar
         transparent
         sticky={false}
@@ -880,6 +905,9 @@ function TopBarTransparente() {
           </IconButton>
         }
       />
+      <div style={{ ...screenBody, background: 'var(--bg-brand-soft)' }}>
+        <BodyLines />
+      </div>
     </div>
   );
 }
@@ -889,23 +917,40 @@ const TAB_ITEMS = [
   { value: 'clientes', label: 'Clients' },
   { value: 'servicos', label: 'Services' },
 ];
+const tabPanel: React.CSSProperties = {
+  marginTop: 'var(--space-4)',
+  padding: 'var(--space-4)',
+  border: '1px solid var(--border-subtle)',
+  borderRadius: 'var(--radius-md)',
+  background: 'var(--bg-subtle)',
+  fontFamily: 'var(--font-body)',
+  fontSize: 'var(--text-sm)',
+  color: 'var(--text-secondary)',
+};
+function labelOf(items: { value: string; label: string }[], v: string) {
+  return items.find((i) => i.value === v)?.label ?? v;
+}
 function TabsUnderline() {
   const [v, setV] = React.useState('agenda');
-  return <Tabs value={v} onChange={setV} items={TAB_ITEMS} />;
+  return (
+    <div>
+      <Tabs value={v} onChange={setV} items={TAB_ITEMS} />
+      <div style={tabPanel}>The “{labelOf(TAB_ITEMS, v)}” section — your screen renders this, keyed off the active value.</div>
+    </div>
+  );
 }
 function TabsPill() {
+  const items = [
+    { value: 'today', label: 'Today', count: 5 },
+    { value: 'semana', label: 'Week', count: 23 },
+    { value: 'mes', label: 'Month' },
+  ];
   const [v, setV] = React.useState('today');
   return (
-    <Tabs
-      variant="pill"
-      value={v}
-      onChange={setV}
-      items={[
-        { value: 'today', label: 'Today', count: 5 },
-        { value: 'semana', label: 'Week', count: 23 },
-        { value: 'mes', label: 'Month' },
-      ]}
-    />
+    <div>
+      <Tabs variant="pill" value={v} onChange={setV} items={items} />
+      <div style={tabPanel}>Showing: {labelOf(items, v)}</div>
+    </div>
   );
 }
 function TabsFullWidth() {
@@ -913,39 +958,61 @@ function TabsFullWidth() {
   return (
     <div style={{ maxWidth: 360 }}>
       <Tabs fullWidth value={v} onChange={setV} items={TAB_ITEMS} />
+      <div style={tabPanel}>{labelOf(TAB_ITEMS, v)}</div>
+    </div>
+  );
+}
+const MANY_TABS = [
+  { value: 'overview', label: 'Overview' },
+  { value: 'agenda', label: 'Calendar' },
+  { value: 'clientes', label: 'Clients' },
+  { value: 'servicos', label: 'Services' },
+  { value: 'financeiro', label: 'Billing' },
+  { value: 'relatorios', label: 'Reports' },
+  { value: 'integracoes', label: 'Integrations' },
+  { value: 'config', label: 'Settings' },
+];
+function TabsOverflow() {
+  const [v, setV] = React.useState('overview');
+  return (
+    <div style={{ maxWidth: 380 }}>
+      <Tabs value={v} onChange={setV} items={MANY_TABS} />
+      <div style={tabPanel}>{labelOf(MANY_TABS, v)}</div>
     </div>
   );
 }
 
 function BottomNavBasico() {
   const [tab, setTab] = React.useState('agenda');
+  const items = [
+    { value: 'agenda', label: 'Calendar', icon: <Calendar size={22} strokeWidth={1.75} /> },
+    { value: 'clientes', label: 'Clients', icon: <Users size={22} strokeWidth={1.75} /> },
+    { value: 'servicos', label: 'Services', icon: <Sparkles size={22} strokeWidth={1.75} /> },
+  ];
   return (
-    <div style={{ maxWidth: 420, border: '1px solid var(--border-default)', borderRadius: 'var(--radius-card)', overflow: 'hidden' }}>
-      <BottomNav
-        value={tab}
-        onChange={setTab}
-        items={[
-          { value: 'agenda', label: 'Calendar', icon: <Calendar size={22} strokeWidth={1.75} /> },
-          { value: 'clientes', label: 'Clients', icon: <Users size={22} strokeWidth={1.75} /> },
-          { value: 'servicos', label: 'Services', icon: <Sparkles size={22} strokeWidth={1.75} /> },
-        ]}
-      />
+    <div style={phone}>
+      <div style={{ ...screenBody, minHeight: 140 }}>
+        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)' }}>{labelOf(items, tab)}</span>
+        <BodyLines />
+      </div>
+      <BottomNav value={tab} onChange={setTab} items={items} />
     </div>
   );
 }
 function BottomNavBadge() {
   const [tab, setTab] = React.useState('agenda');
+  const items = [
+    { value: 'agenda', label: 'Calendar', icon: <Calendar size={22} strokeWidth={1.75} /> },
+    { value: 'clientes', label: 'Clients', icon: <Users size={22} strokeWidth={1.75} />, badge: true },
+    { value: 'search', label: 'Search', icon: <Search size={22} strokeWidth={1.75} /> },
+  ];
   return (
-    <div style={{ maxWidth: 420, border: '1px solid var(--border-default)', borderRadius: 'var(--radius-card)', overflow: 'hidden' }}>
-      <BottomNav
-        value={tab}
-        onChange={setTab}
-        items={[
-          { value: 'agenda', label: 'Calendar', icon: <Calendar size={22} strokeWidth={1.75} /> },
-          { value: 'clientes', label: 'Clients', icon: <Users size={22} strokeWidth={1.75} />, badge: true },
-          { value: 'search', label: 'Search', icon: <Search size={22} strokeWidth={1.75} /> },
-        ]}
-      />
+    <div style={phone}>
+      <div style={{ ...screenBody, minHeight: 140 }}>
+        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)' }}>{labelOf(items, tab)}</span>
+        <BodyLines />
+      </div>
+      <BottomNav value={tab} onChange={setTab} items={items} />
     </div>
   );
 }
@@ -1222,7 +1289,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   'appointment-card': { states: AppointmentCardEstados, 'with-actions': AppointmentCardComAcoes },
   'weekly-schedule-editor': { controlled: WeekControlado, uncontrolled: WeekNaoControlado },
   'top-bar': { basic: TopBarBasico, full: TopBarCompleto, transparent: TopBarTransparente },
-  tabs: { underline: TabsUnderline, pill: TabsPill, 'full-width': TabsFullWidth },
+  tabs: { underline: TabsUnderline, pill: TabsPill, 'full-width': TabsFullWidth, overflow: TabsOverflow },
   'bottom-nav': { basic: BottomNavBasico, 'with-badge': BottomNavBadge },
   stepper: { bar: StepperBar, dots: StepperDots, clickable: StepperClicavel },
   alert: { tones: AlertTons, 'with-action': AlertComAcao, dismissible: AlertDispensavel },

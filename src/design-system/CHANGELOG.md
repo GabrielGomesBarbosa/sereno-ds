@@ -2,6 +2,20 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.16.0 — Tabs scroll + navigation showcase (SS-51)
+
+- **`Tabs` scrolls when it overflows.** The strip is a horizontal scroll
+  container (no wrapping, no squishing); a **chevron** appears on whichever side
+  has more, and picking a tab scrolls it into view. New `.sereno-tab-scroll`
+  host rule hides the scrollbar. `style` / `className` now land on the outer
+  strip.
+- **Showcase demos:** `Tabs` gains a live content panel under each example (it's
+  a controlled switch — the screen renders the content) and an **Overflow**
+  example. `TopBar` / `BottomNav` demos now render inside a phone-screen frame
+  with body content, so their divider reaches the edges instead of looking cut
+  at the rounded corners.
+- Closes SS-51 (`Tabs` and `BottomNav` already shipped in 0.1.0).
+
 ## 0.15.0 — SearchInput (SS-50)
 
 - New **`SearchInput`** primitive (28th; net-new). `Input` + a leading magnifier

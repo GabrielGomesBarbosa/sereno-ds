@@ -1312,7 +1312,7 @@ const [buffer, setBuffer] = useState('10');
     slug: 'tabs',
     name: 'Tabs',
     category: 'navigation',
-    summary: 'Horizontal section switcher. `underline` for page-level sections, `pill` for filters inside a panel.',
+    summary: 'Horizontal section switcher. `underline` for page-level sections, `pill` for filters inside a panel. Renders only the strip — your screen renders the content, keyed off `value`.',
     props: [
       R('items', 'TabItem[]', 'List of { value, label, icon?, count? }.'),
       R('value / onChange', 'string / (value) => void', 'Active tab and callback.'),
@@ -1364,10 +1364,20 @@ const [buffer, setBuffer] = useState('10');
         description: '`fullWidth` distributes the tabs evenly — good for 2–3 sections in a narrow panel.',
         code: `<Tabs fullWidth value={v} onChange={setV} items={items} />`,
       },
+      {
+        id: 'overflow',
+        title: 'Overflow',
+        description: 'When the tabs are wider than the container the strip scrolls horizontally (no wrapping, no squishing) and a chevron appears on whichever side has more. Picking a tab scrolls it into view.',
+        code: `<Tabs value={v} onChange={setV} items={MANY_TABS} /> {/* the strip scrolls on its own */}`,
+      },
     ],
     guidelines: {
-      do: ['`underline` = page sections. `pill` = filters in a panel.', '`count` only when the number helps a decision.'],
-      dont: ['A stretched `pill` taking the full width (unless `fullWidth`).', 'More than ~5 tabs — becomes a `Select` or navigation.'],
+      do: [
+        '`underline` = page sections. `pill` = filters in a panel.',
+        '`count` only when the number helps a decision.',
+        'Let it scroll for a long strip — don’t wrap tabs onto two lines.',
+      ],
+      dont: ['A stretched `pill` taking the full width (unless `fullWidth`).', 'A dozen tabs where a `Select` or side navigation would read better.'],
     },
   },
   {
