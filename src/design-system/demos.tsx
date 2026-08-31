@@ -831,17 +831,27 @@ function WeekNaoControlado() {
 
 // A phone-screen frame — the bars sit flush to its edges, so their border reads
 // as an in-screen divider, not a broken frame edge.
-// box-shadow (not `border`) for the outline — a real border + border-radius +
-// overflow:hidden leaves a faint antialiased seam at the rounded corners.
-const phone: React.CSSProperties = {
-  maxWidth: 420,
-  borderRadius: 'var(--radius-card)',
-  overflow: 'hidden',
-  boxShadow: '0 0 0 1px var(--border-default)',
-  background: 'var(--bg-surface)',
-  display: 'flex',
-  flexDirection: 'column',
-};
+// A phone-screen frame. box-shadow for the outline (a real border + radius +
+// overflow:hidden seams at the corners); no overflow clip — instead the first
+// and last child are rounded to match, so an edge-to-edge bar's divider still
+// meets the outline cleanly.
+const R = 'var(--radius-card)';
+function PhoneFrame({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  const kids = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<{ style?: React.CSSProperties }>[];
+  return (
+    <div style={{ maxWidth: 420, borderRadius: R, boxShadow: '0 0 0 1px var(--border-default)', background: 'var(--bg-surface)', display: 'flex', flexDirection: 'column', ...style }}>
+      {kids.map((child, i) =>
+        React.cloneElement(child, {
+          style: {
+            ...(child.props.style || {}),
+            ...(i === 0 && { borderTopLeftRadius: R, borderTopRightRadius: R }),
+            ...(i === kids.length - 1 && { borderBottomLeftRadius: R, borderBottomRightRadius: R }),
+          },
+        }),
+      )}
+    </div>
+  );
+}
 const screenBody: React.CSSProperties = {
   padding: 'var(--space-5)',
   minHeight: 120,
@@ -862,7 +872,7 @@ function BodyLines() {
 
 function TopBarBasico() {
   return (
-    <div style={phone}>
+    <PhoneFrame>
       <TopBar
         title="Your details"
         sticky={false}
@@ -875,12 +885,12 @@ function TopBarBasico() {
       <div style={screenBody}>
         <BodyLines />
       </div>
-    </div>
+    </PhoneFrame>
   );
 }
 function TopBarCompleto() {
   return (
-    <div style={phone}>
+    <PhoneFrame>
       <TopBar
         title="Pick a time"
         subtitle="Therapy session"
@@ -899,12 +909,12 @@ function TopBarCompleto() {
       <div style={screenBody}>
         <BodyLines />
       </div>
-    </div>
+    </PhoneFrame>
   );
 }
 function TopBarTransparente() {
   return (
-    <div style={{ ...phone, background: 'var(--bg-brand-soft)' }}>
+    <PhoneFrame style={{ background: 'var(--bg-brand-soft)' }}>
       <TopBar
         transparent
         sticky={false}
@@ -918,7 +928,7 @@ function TopBarTransparente() {
       <div style={{ ...screenBody, background: 'var(--bg-brand-soft)' }}>
         <BodyLines />
       </div>
-    </div>
+    </PhoneFrame>
   );
 }
 
@@ -1000,13 +1010,13 @@ function BottomNavBasico() {
     { value: 'servicos', label: 'Services', icon: <Sparkles size={22} strokeWidth={1.75} /> },
   ];
   return (
-    <div style={phone}>
+    <PhoneFrame>
       <div style={{ ...screenBody, minHeight: 140 }}>
         <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)' }}>{labelOf(items, tab)}</span>
         <BodyLines />
       </div>
       <BottomNav value={tab} onChange={setTab} items={items} />
-    </div>
+    </PhoneFrame>
   );
 }
 function BottomNavBadge() {
@@ -1017,13 +1027,13 @@ function BottomNavBadge() {
     { value: 'search', label: 'Search', icon: <Search size={22} strokeWidth={1.75} /> },
   ];
   return (
-    <div style={phone}>
+    <PhoneFrame>
       <div style={{ ...screenBody, minHeight: 140 }}>
         <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)' }}>{labelOf(items, tab)}</span>
         <BodyLines />
       </div>
       <BottomNav value={tab} onChange={setTab} items={items} />
-    </div>
+    </PhoneFrame>
   );
 }
 
