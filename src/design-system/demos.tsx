@@ -712,7 +712,7 @@ function SearchInputTamanhos() {
 function SearchInputDesabilitado() {
   return (
     <div style={fieldCol}>
-      <SearchInput placeholder="Search" defaultValue="marina" disabled />
+      <SearchInput placeholder="Search" defaultValue="emma johnson" disabled />
     </div>
   );
 }

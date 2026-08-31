@@ -1044,7 +1044,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       {
         id: 'disabled',
         title: 'Disabled',
-        code: `<SearchInput placeholder="Search" defaultValue="marina" disabled />`,
+        code: `<SearchInput placeholder="Search" defaultValue="emma johnson" disabled />`,
       },
     ],
     guidelines: {
