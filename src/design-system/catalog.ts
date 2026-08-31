@@ -280,25 +280,32 @@ export const COMPONENTS: ComponentMeta[] = [
         id: 'padding',
         title: 'Padding',
         description: '`none` for list rows that own their own spacing; `sm`/`md`/`lg` for panels.',
-        code: `<Card padding="sm">sm</Card>
-<Card padding="md">md</Card>
-<Card padding="lg">lg</Card>`,
+        code: `<Card padding="sm">
+  <Badge tone="neutral" size="sm">padding sm</Badge>
+  <h4>Weekly summary</h4>
+  <p>You saw 18 clients this week…</p>
+</Card>
+<Card padding="md">…</Card>
+<Card padding="lg">…</Card>`,
       },
       {
         id: 'elevation',
         title: 'Elevation',
         description: 'Short, diffuse shadows. **Never stack two levels** — a card inside a card drops to `elevation="none"`.',
-        code: `<Card elevation="none">none</Card>
-<Card elevation="sm">sm</Card>
-<Card elevation="md">md</Card>
-<Card elevation="lg">lg</Card>`,
+        code: `<Card elevation="none">…</Card>
+<Card elevation="sm">…</Card>
+<Card elevation="md">…</Card>
+<Card elevation="lg">…</Card>`,
       },
       {
         id: 'interactive',
         title: 'Interactive and selected',
         description: '`interactive` adds hover lift + press scale. `selected` marks the choice with a brand ring on all four sides — never a left-edge stripe.',
-        code: `<Card interactive>Hover me</Card>
-<Card interactive selected>Selected</Card>`,
+        code: `<Card interactive selected={plan === 'year'} onClick={() => setPlan('year')}>
+  <h4>Yearly</h4>
+  <p>Billed once a year — two months free.</p>
+  <strong>R$ 39 / mo</strong>
+</Card>`,
       },
     ],
     guidelines: {
