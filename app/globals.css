@@ -55,6 +55,16 @@
   box-shadow: var(--focus-ring);
 }
 
+/* Tabs strip scrolls horizontally when it overflows — hide the scrollbar
+   (the chevrons are the affordance). */
+.sereno-tab-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.sereno-tab-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
 }

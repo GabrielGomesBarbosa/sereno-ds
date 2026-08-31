@@ -4,4 +4,4 @@
  *
  * pre-1.0: minor = feature/structure, patch = fix/tweak.
  */
-export const DS_VERSION = '0.15.0';
+export const DS_VERSION = '0.16.0';

@@ -265,12 +265,12 @@ export const COMPONENTS: ComponentMeta[] = [
     slug: 'card',
     name: 'Card',
     category: 'core',
-    summary: 'Neutral surface: 1px border + soft shadow + 14px radius. The base of every list row and panel.',
+    summary: 'Neutral surface: a crisp 1px ring + an optional soft lift + 14px radius. The base of every list row and panel.',
     props: [
       R('padding', "'none' | 'sm' | 'md' | 'lg'", 'Inner spacing.', "'md'"),
-      R('elevation', "'none' | 'sm' | 'md' | 'lg'", 'Shadow level. Never stack two.', "'sm'"),
+      R('elevation', "'none' | 'sm' | 'md' | 'lg'", 'Drop-shadow under the ring — `none` = ring only, `sm` a whisper. Never stack two.', "'sm'"),
       R('interactive', 'boolean', 'Adds hover lift, press scale and pointer cursor.', 'false'),
-      R('selected', 'boolean', 'Brand border + ring for a chosen option.', 'false'),
+      R('selected', 'boolean', 'Brand ring for a chosen option.', 'false'),
     ],
     code: `<Card interactive selected={picked} onClick={() => setPicked(true)}>
   Card content
@@ -280,25 +280,32 @@ export const COMPONENTS: ComponentMeta[] = [
         id: 'padding',
         title: 'Padding',
         description: '`none` for list rows that own their own spacing; `sm`/`md`/`lg` for panels.',
-        code: `<Card padding="sm">sm</Card>
-<Card padding="md">md</Card>
-<Card padding="lg">lg</Card>`,
+        code: `<Card padding="sm">
+  <Badge tone="neutral" size="sm">padding sm</Badge>
+  <h4>Weekly summary</h4>
+  <p>You saw 18 clients this week…</p>
+</Card>
+<Card padding="md">…</Card>
+<Card padding="lg">…</Card>`,
       },
       {
         id: 'elevation',
         title: 'Elevation',
         description: 'Short, diffuse shadows. **Never stack two levels** — a card inside a card drops to `elevation="none"`.',
-        code: `<Card elevation="none">none</Card>
-<Card elevation="sm">sm</Card>
-<Card elevation="md">md</Card>
-<Card elevation="lg">lg</Card>`,
+        code: `<Card elevation="none">…</Card>
+<Card elevation="sm">…</Card>
+<Card elevation="md">…</Card>
+<Card elevation="lg">…</Card>`,
       },
       {
         id: 'interactive',
         title: 'Interactive and selected',
-        description: '`interactive` adds hover lift + press scale. `selected` marks the choice with a brand border on all four sides + a ring — never a left-edge stripe.',
-        code: `<Card interactive>Hover me</Card>
-<Card interactive selected>Selected</Card>`,
+        description: '`interactive` adds hover lift + press scale. `selected` marks the choice with a brand ring on all four sides — never a left-edge stripe.',
+        code: `<Card interactive selected={plan === 'year'} onClick={() => setPlan('year')}>
+  <h4>Yearly</h4>
+  <p>Billed once a year — two months free.</p>
+  <strong>R$ 39 / mo</strong>
+</Card>`,
       },
     ],
     guidelines: {
@@ -1312,7 +1319,7 @@ const [buffer, setBuffer] = useState('10');
     slug: 'tabs',
     name: 'Tabs',
     category: 'navigation',
-    summary: 'Horizontal section switcher. `underline` for page-level sections, `pill` for filters inside a panel.',
+    summary: 'Horizontal section switcher. `underline` for page-level sections, `pill` for filters inside a panel. Renders only the strip — your screen renders the content, keyed off `value`.',
     props: [
       R('items', 'TabItem[]', 'List of { value, label, icon?, count? }.'),
       R('value / onChange', 'string / (value) => void', 'Active tab and callback.'),
@@ -1364,10 +1371,20 @@ const [buffer, setBuffer] = useState('10');
         description: '`fullWidth` distributes the tabs evenly — good for 2–3 sections in a narrow panel.',
         code: `<Tabs fullWidth value={v} onChange={setV} items={items} />`,
       },
+      {
+        id: 'overflow',
+        title: 'Overflow',
+        description: 'When the tabs are wider than the container the strip scrolls horizontally (no wrapping, no squishing) and a chevron appears on whichever side has more. Picking a tab scrolls it into view.',
+        code: `<Tabs value={v} onChange={setV} items={MANY_TABS} /> {/* the strip scrolls on its own */}`,
+      },
     ],
     guidelines: {
-      do: ['`underline` = page sections. `pill` = filters in a panel.', '`count` only when the number helps a decision.'],
-      dont: ['A stretched `pill` taking the full width (unless `fullWidth`).', 'More than ~5 tabs — becomes a `Select` or navigation.'],
+      do: [
+        '`underline` = page sections. `pill` = filters in a panel.',
+        '`count` only when the number helps a decision.',
+        'Let it scroll for a long strip — don’t wrap tabs onto two lines.',
+      ],
+      dont: ['A stretched `pill` taking the full width (unless `fullWidth`).', 'A dozen tabs where a `Select` or side navigation would read better.'],
     },
   },
   {
