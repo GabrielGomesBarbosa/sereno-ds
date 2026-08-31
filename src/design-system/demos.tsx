@@ -831,7 +831,17 @@ function WeekNaoControlado() {
 
 // A phone-screen frame — the bars sit flush to its edges, so their border reads
 // as an in-screen divider, not a broken frame edge.
-const phone: React.CSSProperties = { maxWidth: 420, border: '1px solid var(--border-default)', borderRadius: 'var(--radius-card)', overflow: 'hidden', display: 'flex', flexDirection: 'column' };
+// box-shadow (not `border`) for the outline — a real border + border-radius +
+// overflow:hidden leaves a faint antialiased seam at the rounded corners.
+const phone: React.CSSProperties = {
+  maxWidth: 420,
+  borderRadius: 'var(--radius-card)',
+  overflow: 'hidden',
+  boxShadow: '0 0 0 1px var(--border-default)',
+  background: 'var(--bg-surface)',
+  display: 'flex',
+  flexDirection: 'column',
+};
 const screenBody: React.CSSProperties = {
   padding: 'var(--space-5)',
   minHeight: 120,
