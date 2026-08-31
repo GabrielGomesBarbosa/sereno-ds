@@ -265,12 +265,12 @@ export const COMPONENTS: ComponentMeta[] = [
     slug: 'card',
     name: 'Card',
     category: 'core',
-    summary: 'Neutral surface: 1px border + soft shadow + 14px radius. The base of every list row and panel.',
+    summary: 'Neutral surface: a crisp 1px ring + an optional soft lift + 14px radius. The base of every list row and panel.',
     props: [
       R('padding', "'none' | 'sm' | 'md' | 'lg'", 'Inner spacing.', "'md'"),
-      R('elevation', "'none' | 'sm' | 'md' | 'lg'", 'Shadow level. Never stack two.', "'sm'"),
+      R('elevation', "'none' | 'sm' | 'md' | 'lg'", 'Drop-shadow under the ring — `none` = ring only, `sm` a whisper. Never stack two.', "'sm'"),
       R('interactive', 'boolean', 'Adds hover lift, press scale and pointer cursor.', 'false'),
-      R('selected', 'boolean', 'Brand border + ring for a chosen option.', 'false'),
+      R('selected', 'boolean', 'Brand ring for a chosen option.', 'false'),
     ],
     code: `<Card interactive selected={picked} onClick={() => setPicked(true)}>
   Card content
@@ -296,7 +296,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'interactive',
         title: 'Interactive and selected',
-        description: '`interactive` adds hover lift + press scale. `selected` marks the choice with a brand border on all four sides + a ring — never a left-edge stripe.',
+        description: '`interactive` adds hover lift + press scale. `selected` marks the choice with a brand ring on all four sides — never a left-edge stripe.',
         code: `<Card interactive>Hover me</Card>
 <Card interactive selected>Selected</Card>`,
       },

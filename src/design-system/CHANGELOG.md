@@ -14,6 +14,11 @@ Version shown in the `/design-system` header. Source: `src/design-system/version
   example. `TopBar` / `BottomNav` demos now render inside a phone-screen frame
   with body content, so their divider reaches the edges instead of looking cut
   at the rounded corners.
+- **`Card` refresh.** The edge is now a pixel-crisp `box-shadow` ring
+  (`--border-default`, `--border-strong` on hover, `--border-brand` at 1.5px when
+  `selected`) with the elevation drop-shadow layered beneath it — no more a real
+  `border` fighting the shadow and seaming at the rounded corners. Same props,
+  same API.
 - Closes SS-51 (`Tabs` and `BottomNav` already shipped in 0.1.0).
 
 ## 0.15.0 — SearchInput (SS-50)
