@@ -2,6 +2,31 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.14.0 — AvatarUpload (SS-146)
+
+- New **`AvatarUpload`** primitive (the 27th; net-new). The profile-photo case,
+  split out of `FileUpload`.
+  - An avatar disc (photo, or initials fallback) with a **pencil button** in the
+    corner → a menu: **Upload a photo** (library), **Take a photo** (a live
+    `getUserMedia` camera capture, with a graceful fallback message if the
+    camera is blocked), **Remove** (once set). The menu is portalled to
+    `<body>` so a clipped container can't hide it.
+  - Picking opens a **circular crop** — drag to frame, scroll / slider to zoom,
+    **Salvar** draws the circle region to a canvas at `outputSize` (512) and
+    `toBlob('image/jpeg', 0.85)`. So `onChange` hands back a **cropped +
+    downscaled** `File` — the "iPhone photo is 8 MB" problem handled for free.
+  - `value` also takes an existing URL string (shows straight away, no crop).
+  - **HEIC** picks are rejected with a message — no browser but Safari decodes
+    it; that conversion is a server job. Documented.
+  - Hand-rolled, no dependency. Crop modal locks body scroll, Esc closes.
+  - All UI strings (menu, crop dialog, messages) are **English by default**;
+    a `labels` prop overrides them. `Onboarding` passes the pt-BR set.
+- `Onboarding` step 1 now uses `AvatarUpload` (was `FileUpload shape="circle"`).
+- `FileUpload`'s circle example is reframed as a logo / round-crop thumbnail; a
+  Don't now points profile photos at `AvatarUpload`.
+- Showcase page (`/design-system/forms/avatar-upload`): Basic · With a photo ·
+  Sizes · Disabled. `26 primitives` → 27 (41 routes).
+
 ## 0.13.1 — Onboarding polish (SS-145)
 
 - `/onboarding` is now a **contained card** at ≥768px (surface, border,

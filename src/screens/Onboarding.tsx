@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Calendar, CheckCircle2, Link2, Share2, Sparkles, User } from 'lucide-react';
-import { Badge, Button, Card, FileUpload, Input, Select, ServiceCard, Stepper, WeeklyScheduleEditor, type WeekSchedule } from '@/components';
+import { AvatarUpload, Badge, Button, Card, Input, Select, ServiceCard, Stepper, WeeklyScheduleEditor, type WeekSchedule } from '@/components';
 import { DEFAULT_WEEK } from '@/lib/mock';
 
 const STEPS = [
@@ -126,13 +126,31 @@ function PerfilStep({ data, set }: { data: Data; set: (p: Partial<Data>) => void
   return (
     <div style={vcol('var(--space-5)')}>
       <StepHeader title="Vamos começar pelo seu perfil" description="É o que seus clientes veem antes de agendar. Você pode ajustar depois nas configurações." />
-      <FileUpload
+      <AvatarUpload
         label="Foto de perfil"
-        hint="JPG ou PNG, até 5 MB. Opcional."
-        shape="circle"
-        prompt="Adicionar foto"
+        hint="JPG ou PNG. Opcional — dá para ajustar o enquadramento."
+        name={data.name}
         value={data.photo}
         onChange={(f) => set({ photo: f })}
+        labels={{
+          trigger: 'Trocar foto',
+          upload: 'Enviar foto',
+          takePhoto: 'Tirar foto',
+          remove: 'Remover foto',
+          cropTitle: 'Ajustar a foto',
+          cropHint: 'Arraste para reposicionar · role para dar zoom.',
+          cameraTitle: 'Tirar foto',
+          cameraHint: 'Alinhe o rosto com o círculo.',
+          capture: 'Capturar',
+          cancel: 'Cancelar',
+          save: 'Salvar',
+          zoom: 'Zoom',
+          heicError: 'Esse formato (HEIC) não abre no navegador — envie JPG ou PNG.',
+          notImage: 'Escolha um arquivo de imagem.',
+          tooLarge: (mb) => `A imagem passa de ${mb} MB.`,
+          unreadable: 'Não foi possível ler essa imagem. Tente um JPG ou PNG.',
+          cameraError: 'Não foi possível abrir a câmera — envie uma foto da galeria.',
+        }}
       />
       <Input label="Nome completo" required size="lg" placeholder="Ana Beatriz Ramos" value={data.name} onChange={(e) => set({ name: e.currentTarget.value })} />
       <div className="onb-row">

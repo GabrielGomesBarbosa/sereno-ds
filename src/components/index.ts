@@ -1,7 +1,7 @@
 // Sereno Design System — public component surface.
-// 25 primitives ported 1:1 from the approved DS source, plus FileUpload (SS-49,
-// net-new). Icons are passed in as props (lucide-react), never imported here;
-// theming is 100% CSS custom properties.
+// 25 primitives ported 1:1 from the approved DS source, plus FileUpload (SS-49)
+// and AvatarUpload (SS-146) — both net-new. Icons are passed in as props
+// (lucide-react), never imported here; theming is 100% CSS custom properties.
 
 // core
 export { Button, type ButtonProps } from './core/Button';
@@ -19,6 +19,7 @@ export { Radio, type RadioProps } from './forms/Radio';
 export { Switch, type SwitchProps } from './forms/Switch';
 export { DateTimePicker, type DateTimePickerProps, type TimeSlot } from './forms/DateTimePicker';
 export { FileUpload, type FileUploadProps } from './forms/FileUpload';
+export { AvatarUpload, type AvatarUploadProps } from './forms/AvatarUpload';
 
 // domain
 export { ServiceCard, type ServiceCardProps } from './domain/ServiceCard';

@@ -1,5 +1,5 @@
-// Server-safe catalogue of the Design System primitives (25 ported + FileUpload).
-// Powers the sidebar,
+// Server-safe catalogue of the Design System primitives (25 ported + FileUpload
+// + AvatarUpload). Powers the sidebar,
 // the /design-system index and `generateStaticParams` for the per-component routes.
 // Prop rows are transcribed from each component's .d.ts contract.
 
@@ -893,9 +893,9 @@ export const COMPONENTS: ComponentMeta[] = [
       },
       {
         id: 'avatar',
-        title: 'Avatar (circle)',
-        description: '`shape="circle"` makes the preview a disc — the profile-photo case. Non-image files fall back to an extension chip.',
-        code: `<FileUpload label="Profile photo" hint="A square image works best." shape="circle" value={photo} onChange={setPhoto} />`,
+        title: 'Circle thumbnail',
+        description: '`shape="circle"` rounds the preview — a logo or a round-cropped asset where you do not need a crop step. For a person’s photo use `AvatarUpload` instead (pencil button + circular crop).',
+        code: `<FileUpload label="Logo" hint="Square PNG, transparent background." shape="circle" value={logo} onChange={setLogo} />`,
       },
       {
         id: 'multiple',
@@ -927,12 +927,74 @@ export const COMPONENTS: ComponentMeta[] = [
     guidelines: {
       do: [
         'Put the accepted types and the size limit in `hint`.',
-        '`shape="circle"` whenever the file is a person’s photo.',
-        '`multiple` for a gallery / attachment list; single (default) for one photo or document.',
+        '`multiple` for a gallery / attachment list; single (default) for one document.',
       ],
       dont: [
         'Expecting it to upload — it only hands you the `File`(s); the screen does the request.',
-        '`shape="circle"` with `multiple` — the disc is a single-photo affordance.',
+        'A profile photo — that is `AvatarUpload` (pencil button + circular crop).',
+      ],
+    },
+  },
+  {
+    slug: 'avatar-upload',
+    name: 'AvatarUpload',
+    category: 'forms',
+    summary: 'Profile-photo picker — an avatar disc with a pencil button, a library / camera / remove menu, and a circular crop. Hands back a cropped, downscaled JPEG.',
+    props: [
+      R('name', 'string', 'Full name — the initials fallback and the alt text.'),
+      R('value', 'File | string | null', 'The current photo — a `File` (freshly cropped) or an existing URL string.'),
+      R('onChange', '(file: File | null) => void', 'The cropped JPEG `File`, or `null` on remove.'),
+      R('size', 'number', 'Disc diameter in px.', '96'),
+      R('outputSize', 'number', 'The crop is drawn to this square size before export.', '512'),
+      R('maxSizeMB', 'number', 'Picks larger than this are rejected (before crop).', '8'),
+      R('labels', 'Partial<AvatarUploadLabels>', 'Override the English UI strings — menu, crop dialog, error messages.'),
+      R('label / hint / error / required / disabled', '—', 'Same label contract as Input.'),
+    ],
+    code: `<AvatarUpload
+  label="Profile photo"
+  name={data.name}
+  value={data.photo}
+  onChange={(f) => setData({ ...data, photo: f })}
+/>`,
+    examples: [
+      {
+        id: 'basic',
+        title: 'Basic',
+        description:
+          'The edit (pencil) button opens a menu: **Upload a photo** (library), **Take a photo** (a live camera capture via `getUserMedia` — falls back to a message if the camera is blocked), and **Remove** once a photo is set. Both routes end in a circular crop — drag to frame, scroll or the slider to zoom, **Save** exports. All strings are English by default; override with the `labels` prop.',
+        code: `<AvatarUpload name="Ana Beatriz Ramos" value={photo} onChange={setPhoto} />`,
+      },
+      {
+        id: 'existing',
+        title: 'With a photo',
+        description: 'Pass an existing URL string as `value` — it shows straight away, no crop. The menu then offers Replace / Remove.',
+        code: `<AvatarUpload name="Marcos Lima" value="/img/marcos.jpg" onChange={setPhoto} />`,
+      },
+      {
+        id: 'sizes',
+        title: 'Sizes',
+        description: '`size` sets the disc; the button and initials scale with it.',
+        code: `<AvatarUpload name="AB" size={64} />
+<AvatarUpload name="AB" size={96} />
+<AvatarUpload name="AB" size={128} />`,
+      },
+      {
+        id: 'disabled',
+        title: 'Disabled',
+        description: 'No edit button, no menu — an existing `value` still shows as a static disc.',
+        code: `<AvatarUpload name="Ana" value="/img/ana.jpg" disabled />`,
+      },
+    ],
+    guidelines: {
+      do: [
+        'Use for one person’s photo — profiles, team members, account settings.',
+        'Let the crop do the framing; store the returned `File` and upload it server-side.',
+        'Keep `hint` short — the affordance (the pencil button) speaks for itself.',
+      ],
+      dont: [
+        'Documents / attachments / multiple files — that is `FileUpload`.',
+        'Expecting HEIC to work — no browser but Safari decodes it; convert server-side. HEIC picks are rejected with a message.',
+        'Skipping the server round-trip — `onChange` only gives you the cropped `File`.',
       ],
     },
   },
