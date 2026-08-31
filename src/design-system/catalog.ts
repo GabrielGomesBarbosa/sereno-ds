@@ -1051,7 +1051,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       do: [
         'Put the query behind `onSearch` (debounced) — not `onValueChange`.',
         'Show an `EmptyState` when a non-empty query returns nothing.',
-        'A short, concrete placeholder — "Buscar cliente", not "Search".',
+        'A short, concrete placeholder — "Search clients", not just "Search".',
       ],
       dont: [
         'Running an expensive query on every keystroke — that is what the debounce is for.',

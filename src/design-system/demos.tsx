@@ -670,12 +670,12 @@ function AvatarUploadDesabilitado() {
   return <AvatarUpload label="Profile photo" name="Ana Beatriz Ramos" disabled />;
 }
 
-const PEOPLE = ['Marina Alves', 'Carlos Dias', 'Juliana Prado', 'Rafael Nunes', 'Helena Costa', 'Bruno Tavares'];
+const PEOPLE = ['Emma Johnson', 'James Smith', 'Olivia Brown', 'Michael Davis', 'Sophia Wilson', 'William Miller'];
 function SearchInputBasico() {
   const [last, setLast] = React.useState('');
   return (
     <div style={{ ...fieldCol, gap: 8 }}>
-      <SearchInput placeholder="Buscar cliente" clearLabel="Limpar busca" onSearch={setLast} />
+      <SearchInput placeholder="Search clients" onSearch={setLast} />
       <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>onSearch: {last ? `"${last}"` : '—'}</span>
     </div>
   );
@@ -685,9 +685,9 @@ function SearchInputLive() {
   const rows = q ? PEOPLE.filter((p) => p.toLowerCase().includes(q.toLowerCase())) : PEOPLE;
   return (
     <div style={{ ...fieldCol, gap: 12 }}>
-      <SearchInput placeholder="Filtrar nomes" onSearch={setQ} />
+      <SearchInput placeholder="Filter names" onSearch={setQ} />
       {rows.length === 0 ? (
-        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Nada para “{q}”.</span>
+        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Nothing for “{q}”.</span>
       ) : (
         <div style={col}>
           {rows.map((p) => (
