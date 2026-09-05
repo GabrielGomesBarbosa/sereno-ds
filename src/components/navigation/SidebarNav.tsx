@@ -200,6 +200,8 @@ export function SidebarNav({
   return (
     <nav
       {...rest}
+      className={['sereno-sidenav-root', rest.className].filter(Boolean).join(' ')}
+      data-collapsed={collapsed ? '' : undefined}
       style={sx({
         position: 'relative',
         display: 'flex',

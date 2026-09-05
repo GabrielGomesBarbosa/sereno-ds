@@ -3,89 +3,21 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  AlertTriangle,
-  AppWindow,
-  CalendarCheck,
-  CalendarClock,
-  CalendarRange,
-  CheckSquare,
-  ChevronsUpDown,
-  CircleDot,
-  CircleUserRound,
-  Contact,
-  ImageUp,
-  Inbox,
-  LayoutGrid,
-  ListOrdered,
-  Loader,
-  MessageSquare,
-  MousePointerClick,
-  Palette,
-  PanelBottom,
-  PanelLeft,
-  PanelTop,
-  Search,
-  Sparkles,
-  Square,
-  SquareMousePointer,
-  Tag,
-  TextCursorInput,
-  ToggleRight,
-  Upload,
-  WrapText,
-} from 'lucide-react';
 import { SidebarNav, type SidebarNavSection } from '@/components';
 import { CATEGORIES, COMPONENTS } from './catalog';
-
-const ic = (I: React.ComponentType<{ size?: number; strokeWidth?: number }>) => <I size={18} strokeWidth={1.75} />;
-
-const ICON: Record<string, React.ReactNode> = {
-  overview: ic(LayoutGrid),
-  tokens: ic(Palette),
-  button: ic(MousePointerClick),
-  'icon-button': ic(SquareMousePointer),
-  badge: ic(Tag),
-  card: ic(Square),
-  avatar: ic(CircleUserRound),
-  input: ic(TextCursorInput),
-  textarea: ic(WrapText),
-  select: ic(ChevronsUpDown),
-  checkbox: ic(CheckSquare),
-  radio: ic(CircleDot),
-  switch: ic(ToggleRight),
-  'date-time-picker': ic(CalendarClock),
-  'file-upload': ic(Upload),
-  'avatar-upload': ic(ImageUp),
-  'search-input': ic(Search),
-  'service-card': ic(Sparkles),
-  'professional-card': ic(Contact),
-  'appointment-card': ic(CalendarCheck),
-  'weekly-schedule-editor': ic(CalendarRange),
-  'top-bar': ic(PanelTop),
-  tabs: ic(AppWindow),
-  'bottom-nav': ic(PanelBottom),
-  'sidebar-nav': ic(PanelLeft),
-  stepper: ic(ListOrdered),
-  alert: ic(AlertTriangle),
-  toast: ic(MessageSquare),
-  dialog: ic(MessageSquare),
-  skeleton: ic(Loader),
-  'empty-state': ic(Inbox),
-};
 
 const SECTIONS: SidebarNavSection[] = [
   {
     items: [
-      { value: '/design-system', label: 'Overview', href: '/design-system', icon: ICON.overview },
-      { value: '/design-system/tokens', label: 'Tokens', href: '/design-system/tokens', icon: ICON.tokens },
+      { value: '/design-system', label: 'Overview', href: '/design-system' },
+      { value: '/design-system/tokens', label: 'Tokens', href: '/design-system/tokens' },
     ],
   },
   ...CATEGORIES.map((cat) => ({
     label: cat.label,
     items: COMPONENTS.filter((c) => c.category === cat.id).map((c) => {
       const href = `/design-system/${c.category}/${c.slug}`;
-      return { value: href, label: c.name, href, icon: ICON[c.slug] };
+      return { value: href, label: c.name, href };
     }),
   })),
 ];
@@ -107,28 +39,20 @@ function Mark({ size = 24 }: { size?: number }) {
 }
 
 /** The showcase's own left nav — the SidebarNav component, rendering real links. */
-export function Sidebar({ collapsed, onCollapsedChange }: { collapsed?: boolean; onCollapsedChange?: (c: boolean) => void }) {
+export function Sidebar() {
   const pathname = usePathname();
   const active = pathname.replace(/\/$/, '') || '/design-system';
-  const controlled = onCollapsedChange !== undefined;
   return (
     <SidebarNav
       sections={SECTIONS}
       value={active}
       linkComponent={Link}
-      collapsible={controlled}
-      collapsed={controlled ? collapsed : undefined}
-      onCollapsedChange={onCollapsedChange}
-      labels={{ expand: 'Expandir', collapse: 'Recolher' }}
+      collapsible={false}
       header={
-        collapsed ? (
-          <Mark size={26} />
-        ) : (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <Mark size={24} />
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-lg)', letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>
-          </span>
-        )
+        <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <Mark size={24} />
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-lg)', letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>
+        </span>
       }
       style={{ width: '100%', height: '100%' }}
     />

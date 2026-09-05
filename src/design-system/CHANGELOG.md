@@ -8,18 +8,19 @@ Version shown in the `/design-system` header. Source: `src/design-system/version
   wizard** — Back / Next controls, a step-content panel, clickable segments in
   the third. The component's counter line stopped running on: it's now
   "Passo N de M" + a dot separator + the step label.
-- **`SidebarNav`** gained `href` on items + a `linkComponent` prop — leaf items
-  with an `href` render through it (Next's `Link`) instead of a `<button>`, so
-  routing / new-tab / SSR-active all work. Group headings are lighter
-  (`--text-disabled`) and hug their list; the between-group divider is
-  `--border-default` (was near-invisible).
+- **`SidebarNav`**: `href` on items + a `linkComponent` prop — a leaf with an
+  `href` renders through it (Next's `Link`) instead of a `<button>`, so routing
+  / new-tab / SSR-active all work. Group headings are lighter (`--text-disabled`)
+  and hug their list; the between-group divider is `--border-default`. The
+  collapsed rail hides its scrollbar so the gutter can't shove the centred icons
+  off-axis from the header mark.
 - The **`/design-system` showcase now uses `SidebarNav`** for its own left nav —
-  desktop panel *and* the mobile drawer — kitted out exactly like the dashboard:
-  a per-item icon, the brand mark in the `header` slot, and the collapse toggle
-  (the shell tracks the state so the grid track follows). The page is a
-  **3-column MUI-style layout** — nav flush left, "On this page" flush right
-  with a divider, article centred at `--ds-content-max`. The bespoke `.ds-nav`
-  styles and the drawer's own header are gone.
+  desktop panel *and* the mobile drawer, with the brand mark in the `header`
+  slot. The shell matches the dashboard's: a **full-height sidebar** with the
+  **header only over the content column** (it starts after the sidebar). The
+  page is a **3-column MUI-style layout** — nav flush left, "On this page" flush
+  right with a divider, article centred at `--ds-content-max`. The bespoke
+  `.ds-nav` styles and the drawer's own header are gone.
 
 ## 0.17.0 — SidebarNav + dashboard rebuild (SS-52)
 
