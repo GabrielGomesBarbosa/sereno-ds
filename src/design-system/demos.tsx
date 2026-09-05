@@ -1199,31 +1199,51 @@ const STEP_ITEMS = [
   { value: 'perfil', label: 'Your profile' },
   { value: 'servico', label: 'First service' },
   { value: 'grade', label: 'Your schedule' },
+  { value: 'review', label: 'Review & finish' },
 ];
-function StepperBar() {
+function StepperWizard({ variant, clickable }: { variant?: 'bar' | 'dots'; clickable?: boolean }) {
+  const [step, setStep] = React.useState(0);
+  const last = STEP_ITEMS.length - 1;
   return (
-    <div style={{ maxWidth: 460 }}>
-      <Stepper steps={STEP_ITEMS} current={1} />
+    <div style={{ ...col, maxWidth: variant === 'dots' ? 340 : 460 }}>
+      <Stepper steps={STEP_ITEMS} current={step} variant={variant} onStepClick={clickable ? setStep : undefined} />
+      <div
+        style={{
+          marginTop: 'var(--space-1)',
+          padding: 'var(--space-4)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-md)',
+          background: 'var(--bg-subtle)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-2)',
+          minHeight: 92,
+        }}
+      >
+        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)' }}>
+          {STEP_ITEMS[step].label}
+        </span>
+        <BodyLines />
+      </div>
+      <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+        <Button size="sm" variant="secondary" disabled={step === 0} onClick={() => setStep((s) => Math.max(0, s - 1))}>
+          Back
+        </Button>
+        <Button size="sm" onClick={() => setStep((s) => (s === last ? 0 : s + 1))}>
+          {step === last ? 'Start over' : 'Next'}
+        </Button>
+      </div>
     </div>
   );
+}
+function StepperBar() {
+  return <StepperWizard variant="bar" />;
 }
 function StepperDots() {
-  return (
-    <div style={{ maxWidth: 460 }}>
-      <Stepper steps={STEP_ITEMS} current={1} variant="dots" />
-    </div>
-  );
+  return <StepperWizard variant="dots" />;
 }
 function StepperClicavel() {
-  const [step, setStep] = React.useState(2);
-  return (
-    <div style={{ ...col, maxWidth: 460 }}>
-      <Stepper steps={STEP_ITEMS} current={step} onStepClick={setStep} />
-      <Button size="sm" variant="secondary" onClick={() => setStep((s) => Math.min(2, s + 1))}>
-        Next
-      </Button>
-    </div>
-  );
+  return <StepperWizard variant="bar" clickable />;
 }
 
 function AlertTons() {

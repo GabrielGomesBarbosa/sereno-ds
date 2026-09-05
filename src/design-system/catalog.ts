@@ -1546,26 +1546,31 @@ const [buffer, setBuffer] = useState('10');
       {
         id: 'bar',
         title: 'Bar',
-        description: 'Full-width segments + the "Passo N de M · <label>" line. The default for desktop wizards.',
-        code: `<Stepper
-  current={1}
-  steps={[
-    { value: 'perfil', label: 'Your profile' },
-    { value: 'servico', label: 'First service' },
-    { value: 'grade', label: 'Your schedule' },
-  ]}
-/>`,
+        description:
+          'Full-width segments + the "Passo N de M · <label>" line. The default for desktop wizards. Drive it with `current` — **Back** / **Next** below walk a live 4-step flow.',
+        code: `const [step, setStep] = React.useState(0);
+const steps = [
+  { value: 'profile', label: 'Your profile' },
+  { value: 'service', label: 'First service' },
+  { value: 'schedule', label: 'Your schedule' },
+  { value: 'review', label: 'Review & finish' },
+];
+
+<Stepper current={step} steps={steps} />
+<Button onClick={() => setStep((s) => s - 1)}>Back</Button>
+<Button onClick={() => setStep((s) => s + 1)}>Next</Button>`,
       },
       {
         id: 'dots',
         title: 'Dots',
-        description: 'Compact pills — the current step stretches. For mobile.',
-        code: `<Stepper variant="dots" current={1} steps={steps} />`,
+        description: 'Compact pills — the current step stretches. For mobile. Same `current` contract; walk it with the buttons.',
+        code: `<Stepper variant="dots" current={step} steps={steps} />`,
       },
       {
         id: 'clickable',
         title: 'Clickable back',
-        description: 'With `onStepClick`, completed steps and the current one become buttons — back only; moving forward still needs the primary button.',
+        description:
+          'With `onStepClick`, completed steps and the current one become buttons — **back only**; the disabled forward segments still need the primary **Next**. Try clicking an earlier segment.',
         code: `<Stepper current={step} onStepClick={setStep} steps={steps} />`,
       },
     ],

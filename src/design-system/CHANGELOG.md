@@ -2,6 +2,12 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.17.1 — Stepper showcase is interactive (SS-53)
+
+- The `Stepper` examples (Bar · Dots · Clickable back) are now a **live 4-step
+  wizard** — Back / Next controls, a step-content panel, and the segments
+  themselves are clickable in the third example. No component change.
+
 ## 0.17.0 — SidebarNav + dashboard rebuild (SS-52)
 
 - New **`SidebarNav`** primitive (29th; net-new) — the desktop counterpart to
