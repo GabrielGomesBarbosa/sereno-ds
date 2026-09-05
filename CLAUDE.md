@@ -54,7 +54,7 @@ Full context and scope: Jira card **SS-39** (project SS). Read it before any lar
   `children`…). Never a CDN or `data-lucide`.
 - **Fonts:** `next/font/google` only. Never the Google Fonts CDN.
 - **Global keyframes / states** (`sereno-spin`, `sereno-pop`, `sereno-slide-up`,
-  `sereno-pulse`, `.sereno-check:checked` / `:indeterminate`, `.sereno-radio:checked`,
+  `sereno-pulse`, `sereno-flyout-in`, `.sereno-check:checked` / `:indeterminate`, `.sereno-radio:checked`,
   `.sereno-switch:focus-visible`, `.sereno-tab-scroll` (hides the scrollbar on the
   overflowing Tabs strip), `.sereno-sidenav` / `.sereno-sidenav-btn` (SidebarNav
   scrollbar + keyboard ring)) live in `app/globals.css` — components depend on them.

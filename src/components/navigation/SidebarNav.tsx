@@ -473,6 +473,7 @@ function ItemRow({
         <SubmenuPopover
           anchorRef={btnRef}
           parentLabel={item.label}
+          parentIcon={item.icon}
           items={item.children!}
           activeValue={activeValue}
           onSelect={onSelect}
@@ -488,6 +489,7 @@ function ItemRow({
 function SubmenuPopover({
   anchorRef,
   parentLabel,
+  parentIcon,
   items,
   activeValue,
   onSelect,
@@ -497,6 +499,7 @@ function SubmenuPopover({
 }: {
   anchorRef: React.RefObject<HTMLButtonElement | null>;
   parentLabel: string;
+  parentIcon?: React.ReactNode;
   items: SidebarNavSubItem[];
   activeValue?: string;
   onSelect?: (value: string) => void;
@@ -505,7 +508,7 @@ function SubmenuPopover({
   onMouseLeave?: () => void;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
-  const [pos, setPos] = React.useState<{ top: number; left: number } | null>(null);
+  const [pos, setPos] = React.useState<{ top: number; left: number; caret: number | null } | null>(null);
 
   React.useLayoutEffect(() => {
     const el = ref.current;
@@ -513,11 +516,16 @@ function SubmenuPopover({
     if (!el || !anchor) return;
     const a = anchor.getBoundingClientRect();
     const p = el.getBoundingClientRect();
-    let left = a.right + 8;
-    if (left + p.width > window.innerWidth - 8) left = Math.max(8, a.left - p.width - 8);
-    let top = a.top;
+    let left = a.right + 10;
+    let onRight = true;
+    if (left + p.width > window.innerWidth - 8) {
+      left = Math.max(8, a.left - p.width - 10);
+      onRight = false;
+    }
+    let top = a.top - 4;
     if (top + p.height > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 8 - p.height);
-    setPos({ top, left });
+    const caret = onRight ? a.top + a.height / 2 - top : null;
+    setPos({ top, left, caret });
   }, [anchorRef]);
 
   React.useEffect(() => {
@@ -549,37 +557,77 @@ function SubmenuPopover({
         position: 'fixed',
         top: pos ? pos.top : -9999,
         left: pos ? pos.left : -9999,
-        minWidth: 208,
-        padding: 'var(--space-1)',
+        minWidth: 196,
+        maxWidth: 264,
+        padding: 5,
         background: 'var(--bg-surface)',
-        borderRadius: 'var(--radius-lg)',
+        borderRadius: 'var(--radius-md)',
         boxShadow: '0 0 0 1px var(--border-default), var(--shadow-lg)',
         zIndex: 1000,
-        animation: 'sereno-fade-in var(--duration-fast) var(--ease-out)',
+        animation: 'sereno-flyout-in var(--duration-fast) var(--ease-out)',
       })}
     >
+      {pos?.caret != null && (
+        <span
+          aria-hidden
+          style={sx({
+            position: 'absolute',
+            left: -4,
+            top: pos.caret,
+            width: 8,
+            height: 8,
+            background: 'var(--bg-surface)',
+            borderLeft: 'var(--border-width-hairline) solid var(--border-default)',
+            borderBottom: 'var(--border-width-hairline) solid var(--border-default)',
+            transform: 'translateY(-50%) rotate(45deg)',
+            borderBottomLeftRadius: 2,
+          })}
+        />
+      )}
+
       <div
         style={sx({
-          padding: '6px var(--space-2) 4px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-2)',
+          padding: '5px 8px 8px',
+          marginBottom: 4,
+          borderBottom: 'var(--border-width-hairline) solid var(--border-subtle)',
           fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-2xs)',
-          fontWeight: 'var(--weight-bold)',
-          letterSpacing: '0.07em',
-          textTransform: 'uppercase',
-          color: 'var(--text-muted)',
+          fontSize: 'var(--text-sm)',
+          fontWeight: 'var(--weight-semibold)',
+          color: 'var(--text-primary)',
         })}
       >
-        {parentLabel}
+        {parentIcon && (
+          <span style={sx({ flex: '0 0 auto', display: 'inline-flex', width: 16, height: 16, alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' })}>
+            {parentIcon}
+          </span>
+        )}
+        <span style={sx({ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{parentLabel}</span>
       </div>
-      {items.map((sub) => (
-        <SubRow key={sub.value} sub={sub} active={activeValue === sub.value} onSelect={onSelect} />
-      ))}
+
+      <div style={sx({ display: 'flex', flexDirection: 'column', gap: 1 })}>
+        {items.map((sub) => (
+          <SubRow key={sub.value} sub={sub} active={activeValue === sub.value} onSelect={onSelect} inPopover />
+        ))}
+      </div>
     </div>,
     document.body,
   );
 }
 
-function SubRow({ sub, active, onSelect }: { sub: SidebarNavSubItem; active: boolean; onSelect?: (value: string) => void }) {
+function SubRow({
+  sub,
+  active,
+  onSelect,
+  inPopover = false,
+}: {
+  sub: SidebarNavSubItem;
+  active: boolean;
+  onSelect?: (value: string) => void;
+  inPopover?: boolean;
+}) {
   const st = useInteract(false);
   return (
     <button
@@ -593,7 +641,7 @@ function SubRow({ sub, active, onSelect }: { sub: SidebarNavSubItem; active: boo
         alignItems: 'center',
         gap: 'var(--space-2)',
         width: '100%',
-        height: 34,
+        height: inPopover ? 32 : 34,
         padding: '0 var(--space-2)',
         border: 'none',
         borderRadius: 'var(--radius-sm)',
@@ -607,6 +655,18 @@ function SubRow({ sub, active, onSelect }: { sub: SidebarNavSubItem; active: boo
         transition: 'var(--transition-control)',
       })}
     >
+      {inPopover && (
+        <span
+          aria-hidden
+          style={sx({
+            flex: '0 0 auto',
+            width: 5,
+            height: 5,
+            borderRadius: '999px',
+            background: active ? 'var(--interactive-primary)' : 'var(--border-strong)',
+          })}
+        />
+      )}
       <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{sub.label}</span>
       {sub.count !== undefined && <span style={countPill(active)}>{sub.count}</span>}
     </button>

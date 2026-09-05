@@ -10,8 +10,10 @@ Version shown in the `/design-system` header. Source: `src/design-system/version
     divider between each and an uppercase heading.
   - **Second level**: an item with `children` is not a destination. Expanded, it
     opens as an **inline accordion** (seeded open on the active branch);
-    collapsed, it opens as a **hover flyout** to the right of the icon
-    (portalled, with a close grace-delay). One open at a time.
+    collapsed, it opens as a **hover flyout** to the right of the icon — a
+    titled card (parent icon + label + divider), dotted rows, a caret pointing
+    back at the rail, and a slide-in. Portalled, close grace-delay, one open at
+    a time.
   - **Collapsible** to a 72px icon rail via a round toggle on the sidebar's
     right edge, vertically centred on the `header` — `collapsed` /
     `onCollapsedChange` (uncontrolled via `defaultCollapsed`), animated width.

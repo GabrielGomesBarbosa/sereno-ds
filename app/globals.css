@@ -18,6 +18,8 @@
 @keyframes sereno-pop { from { opacity: 0; transform: scale(0.96); } }
 @keyframes sereno-slide-up { from { opacity: 0; transform: translateY(10px); } }
 @keyframes sereno-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+/* SidebarNav rail flyout — emerges from the rail. */
+@keyframes sereno-flyout-in { from { opacity: 0; transform: translateX(-6px); } }
 
 /* ── Checked / indeterminate / focus states for Checkbox, Radio, Switch ───────
    The DS's Checkbox and Radio render bare <input>s, and Switch a role=switch
