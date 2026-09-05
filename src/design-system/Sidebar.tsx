@@ -3,39 +3,36 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SidebarNav, type SidebarNavSection } from '@/components';
 import { CATEGORIES, COMPONENTS } from './catalog';
 
-function NavLink({ href, label, guide = false }: { href: string; label: string; guide?: boolean }) {
-  const pathname = usePathname();
-  const active = pathname === href || pathname === href + '/';
-  return (
-    <Link href={href} aria-current={active ? 'page' : undefined} className={active ? 'ds-navlink ds-navlink--active' : 'ds-navlink'}>
-      {guide && active && <span className="ds-navlink-bar" aria-hidden="true" />}
-      {label}
-    </Link>
-  );
-}
+const SECTIONS: SidebarNavSection[] = [
+  {
+    items: [
+      { value: '/design-system', label: 'Overview', href: '/design-system' },
+      { value: '/design-system/tokens', label: 'Tokens', href: '/design-system/tokens' },
+    ],
+  },
+  ...CATEGORIES.map((cat) => ({
+    label: cat.label,
+    items: COMPONENTS.filter((c) => c.category === cat.id).map((c) => {
+      const href = `/design-system/${c.category}/${c.slug}`;
+      return { value: href, label: c.name, href };
+    }),
+  })),
+];
 
+/** The showcase's own left nav — the SidebarNav component, rendering real links. */
 export function Sidebar() {
+  const pathname = usePathname();
+  const active = pathname.replace(/\/$/, '') || '/design-system';
   return (
-    <nav className="ds-nav">
-      <div className="ds-navgroup">
-        <div className="ds-navgroup-items">
-          <NavLink href="/design-system" label="Overview" guide />
-          <NavLink href="/design-system/tokens" label="Tokens" guide />
-        </div>
-      </div>
-
-      {CATEGORIES.map((cat) => (
-        <div key={cat.id} className="ds-navgroup">
-          <span className="ds-navgroup-head">{cat.label}</span>
-          <div className="ds-navgroup-items">
-            {COMPONENTS.filter((c) => c.category === cat.id).map((c) => (
-              <NavLink key={c.slug} href={`/design-system/${c.category}/${c.slug}`} label={c.name} guide />
-            ))}
-          </div>
-        </div>
-      ))}
-    </nav>
+    <SidebarNav
+      sections={SECTIONS}
+      value={active}
+      collapsible={false}
+      linkComponent={Link}
+      style={{ width: '100%', height: '100%', border: 'none', background: 'transparent' }}
+    />
   );
 }

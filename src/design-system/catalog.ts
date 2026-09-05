@@ -1442,6 +1442,7 @@ const [buffer, setBuffer] = useState('10');
     props: [
       R('sections', 'SidebarNavSection[]', 'Groups of `{ label?, items }`. A hairline divider sits between groups; `label` is the uppercase heading above it.'),
       R('value / onChange', 'string / (value) => void', 'Active destination and callback. A parent with `children` is not a destination — it toggles its submenu.'),
+      R('linkComponent', 'React.ElementType', 'Items with an `href` render through this (e.g. Next `Link`) instead of a `<button>` — routing, new-tab, SSR-active.'),
       R('collapsed / onCollapsedChange', 'boolean / (c) => void', 'Rail state. Uncontrolled via `defaultCollapsed`.', 'false'),
       R('collapsible', 'boolean', 'Show the round collapse toggle on the sidebar’s right edge.', 'true'),
       R('header', 'React.ReactNode', 'Brand / logo slot at the top.'),

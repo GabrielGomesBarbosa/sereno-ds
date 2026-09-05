@@ -18,6 +18,8 @@ export interface SidebarNavItem {
   /** A Lucide icon passed as a node — sized by the caller. */
   icon?: React.ReactNode;
   count?: number;
+  /** Render this leaf as a real link (routing, new-tab, SSR-active) via `linkComponent`. */
+  href?: string;
   /** Second-level items. A parent with children toggles them; it is not a destination itself. */
   children?: SidebarNavSubItem[];
 }
@@ -43,6 +45,8 @@ export interface SidebarNavProps extends Omit<React.HTMLAttributes<HTMLElement>,
   /** Persistent slot pinned to the bottom (user card, plan nudge). Hidden while collapsed. */
   footer?: React.ReactNode;
   labels?: { expand?: string; collapse?: string };
+  /** Component used to render items that carry `href` (e.g. Next's `Link`). Defaults to `'a'`. */
+  linkComponent?: React.ElementType;
 }
 
 const EXPANDED = 248;
@@ -52,10 +56,11 @@ const groupHead = sx({
   fontFamily: 'var(--font-body)',
   fontSize: 'var(--text-2xs)',
   fontWeight: 'var(--weight-bold)',
-  letterSpacing: '0.07em',
+  letterSpacing: '0.09em',
   textTransform: 'uppercase',
-  color: 'var(--text-muted)',
-  padding: '10px var(--space-3) 4px',
+  color: 'var(--text-disabled)',
+  // No top padding: the section's own top gap is the section break; this hugs its items.
+  padding: '0 var(--space-3) var(--space-2)',
 });
 
 const countPill = (active: boolean) =>
@@ -90,6 +95,7 @@ export function SidebarNav({
   header,
   footer,
   labels,
+  linkComponent,
   style,
   ...rest
 }: SidebarNavProps) {
@@ -242,8 +248,8 @@ export function SidebarNav({
               display: 'flex',
               flexDirection: 'column',
               gap: 2,
-              marginTop: i ? 'var(--space-2)' : 0,
-              paddingTop: i ? 'var(--space-2)' : 0,
+              marginTop: i ? 'var(--space-3)' : 0,
+              paddingTop: i ? 'var(--space-3)' : 0,
               borderTop: i ? 'var(--border-width-hairline) solid var(--border-subtle)' : 'none',
             })}
           >
@@ -268,6 +274,7 @@ export function SidebarNav({
                 onSelect={handleSelect}
                 onTip={showTip}
                 onTipHide={hideTip}
+                linkComponent={linkComponent}
               />
             ))}
           </div>
@@ -346,6 +353,7 @@ function ItemRow({
   onSelect,
   onTip,
   onTipHide,
+  linkComponent,
 }: {
   item: SidebarNavItem;
   collapsed: boolean;
@@ -359,6 +367,7 @@ function ItemRow({
   onSelect?: (value: string) => void;
   onTip: (label: string, rect: DOMRect) => void;
   onTipHide: () => void;
+  linkComponent?: React.ElementType;
 }) {
   const st = useInteract(false);
   const btnRef = React.useRef<HTMLButtonElement>(null);
@@ -367,88 +376,120 @@ function ItemRow({
   const childActive = hasChildren && item.children!.some((c) => c.value === activeValue);
   const highlight = selfActive || (collapsed && childActive);
   const railFlyout = collapsed && hasChildren;
+  const asLink = !hasChildren && !!item.href && !!linkComponent;
+  const Link = linkComponent ?? 'a';
+
+  const rowStyle = sx({
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'var(--space-3)',
+    width: '100%',
+    height: 40,
+    padding: collapsed ? 0 : '0 var(--space-3)',
+    justifyContent: collapsed ? 'center' : 'flex-start',
+    border: 'none',
+    borderRadius: 'var(--radius-control)',
+    cursor: 'pointer',
+    textAlign: 'left',
+    textDecoration: 'none',
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-base)',
+    fontWeight: highlight || childActive ? 'var(--weight-semibold)' : 'var(--weight-medium)',
+    background: highlight ? 'var(--bg-brand-soft)' : open || st.hover ? 'var(--interactive-ghost-hover)' : 'transparent',
+    color: highlight || childActive ? 'var(--text-brand)' : 'var(--text-secondary)',
+    transition: 'var(--transition-control)',
+  });
+
+  const inner = (
+    <>
+      {item.icon && (
+        <span style={sx({ flex: '0 0 auto', display: 'inline-flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center' })}>
+          {item.icon}
+        </span>
+      )}
+      {collapsed && (item.count !== undefined || childActive) && (
+        <span
+          aria-hidden
+          style={sx({
+            position: 'absolute',
+            top: 7,
+            right: 12,
+            width: 6,
+            height: 6,
+            borderRadius: '999px',
+            background: 'var(--interactive-accent)',
+          })}
+        />
+      )}
+      {!collapsed && (
+        <>
+          <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{item.label}</span>
+          {item.count !== undefined && <span style={countPill(highlight)}>{item.count}</span>}
+          {hasChildren && (
+            <ChevronDown
+              size={16}
+              strokeWidth={2}
+              style={{ flex: '0 0 auto', transition: 'transform var(--duration-fast) var(--ease-standard)', transform: open ? 'rotate(180deg)' : 'none' }}
+            />
+          )}
+        </>
+      )}
+    </>
+  );
+
+  const hoverHandlers = {
+    ...st.handlers,
+    onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
+      st.handlers.onMouseEnter?.(e);
+      if (!collapsed) return;
+      if (railFlyout) onFlyoutEnter();
+      else onTip(item.label, e.currentTarget.getBoundingClientRect());
+    },
+    onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
+      st.handlers.onMouseLeave?.(e);
+      if (railFlyout) onFlyoutLeave();
+      else onTipHide();
+    },
+  };
 
   return (
     <div style={sx({ display: 'flex', flexDirection: 'column' })}>
-      <button
-        ref={btnRef}
-        type="button"
-        className="sereno-sidenav-btn"
-        aria-label={collapsed ? item.label : undefined}
-        aria-current={selfActive ? 'page' : undefined}
-        aria-haspopup={hasChildren ? 'menu' : undefined}
-        aria-expanded={hasChildren ? open : undefined}
-        onClick={() => {
-          onTipHide();
-          if (hasChildren) onToggle();
-          else onSelect?.(item.value);
-        }}
-        {...st.handlers}
-        onMouseEnter={(e) => {
-          st.handlers.onMouseEnter?.(e);
-          if (!collapsed) return;
-          if (railFlyout) onFlyoutEnter();
-          else onTip(item.label, e.currentTarget.getBoundingClientRect());
-        }}
-        onMouseLeave={(e) => {
-          st.handlers.onMouseLeave?.(e);
-          if (railFlyout) onFlyoutLeave();
-          else onTipHide();
-        }}
-        style={sx({
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-3)',
-          width: '100%',
-          height: 40,
-          padding: collapsed ? 0 : '0 var(--space-3)',
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          border: 'none',
-          borderRadius: 'var(--radius-control)',
-          cursor: 'pointer',
-          textAlign: 'left',
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-base)',
-          fontWeight: highlight || childActive ? 'var(--weight-semibold)' : 'var(--weight-medium)',
-          background: highlight ? 'var(--bg-brand-soft)' : open || st.hover ? 'var(--interactive-ghost-hover)' : 'transparent',
-          color: highlight || childActive ? 'var(--text-brand)' : 'var(--text-secondary)',
-          transition: 'var(--transition-control)',
-        })}
-      >
-        {item.icon && (
-          <span style={sx({ flex: '0 0 auto', display: 'inline-flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center' })}>
-            {item.icon}
-          </span>
-        )}
-        {collapsed && (item.count !== undefined || childActive) && (
-          <span
-            aria-hidden
-            style={sx({
-              position: 'absolute',
-              top: 7,
-              right: 12,
-              width: 6,
-              height: 6,
-              borderRadius: '999px',
-              background: 'var(--interactive-accent)',
-            })}
-          />
-        )}
-        {!collapsed && (
-          <>
-            <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{item.label}</span>
-            {item.count !== undefined && <span style={countPill(highlight)}>{item.count}</span>}
-            {hasChildren && (
-              <ChevronDown
-                size={16}
-                strokeWidth={2}
-                style={{ flex: '0 0 auto', transition: 'transform var(--duration-fast) var(--ease-standard)', transform: open ? 'rotate(180deg)' : 'none' }}
-              />
-            )}
-          </>
-        )}
-      </button>
+      {asLink ? (
+        <Link
+          href={item.href}
+          className="sereno-sidenav-btn"
+          aria-label={collapsed ? item.label : undefined}
+          aria-current={selfActive ? 'page' : undefined}
+          onClick={() => {
+            onTipHide();
+            onSelect?.(item.value);
+          }}
+          {...hoverHandlers}
+          style={rowStyle}
+        >
+          {inner}
+        </Link>
+      ) : (
+        <button
+          ref={btnRef}
+          type="button"
+          className="sereno-sidenav-btn"
+          aria-label={collapsed ? item.label : undefined}
+          aria-current={selfActive ? 'page' : undefined}
+          aria-haspopup={hasChildren ? 'menu' : undefined}
+          aria-expanded={hasChildren ? open : undefined}
+          onClick={() => {
+            onTipHide();
+            if (hasChildren) onToggle();
+            else onSelect?.(item.value);
+          }}
+          {...hoverHandlers}
+          style={rowStyle}
+        >
+          {inner}
+        </button>
+      )}
 
       {/* Expanded: inline accordion. */}
       {hasChildren && !collapsed && open && (

@@ -2,11 +2,21 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
-## 0.17.1 — Stepper showcase is interactive (SS-53)
+## 0.17.1 — Stepper showcase + design-system chrome on SidebarNav (SS-53)
 
-- The `Stepper` examples (Bar · Dots · Clickable back) are now a **live 4-step
-  wizard** — Back / Next controls, a step-content panel, and the segments
-  themselves are clickable in the third example. No component change.
+- **`Stepper`** examples (Bar · Dots · Clickable back) are now a **live 4-step
+  wizard** — Back / Next controls, a step-content panel, clickable segments in
+  the third. The component's counter line stopped running on: it's now
+  "Passo N de M" + a dot separator + the step label.
+- **`SidebarNav`** gained `href` on items + a `linkComponent` prop — leaf items
+  with an `href` render through it (Next's `Link`) instead of a `<button>`, so
+  routing / new-tab / SSR-active all work. Group headings are lighter
+  (`--text-disabled`) and hug their list, so the hierarchy reads even without
+  item icons.
+- The **`/design-system` showcase now uses `SidebarNav`** for its own left nav
+  (desktop panel and the mobile drawer), and the page is a **3-column MUI-style
+  layout** — nav flush left, "On this page" flush right with a divider, the
+  article centred at `--ds-content-max`. The bespoke `.ds-nav` styles are gone.
 
 ## 0.17.0 — SidebarNav + dashboard rebuild (SS-52)
 
