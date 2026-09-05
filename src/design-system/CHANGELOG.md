@@ -2,6 +2,47 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.17.0 — SidebarNav + dashboard rebuild (SS-52)
+
+- New **`SidebarNav`** primitive (29th; net-new) — the desktop counterpart to
+  `BottomNav`.
+  - **Grouped sections** (`sections: { label?, items }[]`) with a hairline
+    divider between each and an uppercase heading.
+  - **Second level**: an item with `children` is not a destination. Expanded, it
+    opens as an **inline accordion** (seeded open on the active branch);
+    collapsed, it opens as a **hover flyout** to the right of the icon — a
+    titled card (parent icon + label + divider), dotted rows, a caret pointing
+    back at the rail, and a slide-in. Portalled, close grace-delay, one open at
+    a time.
+  - **Collapsible** to a 72px icon rail via a round toggle on the sidebar's
+    right edge, vertically centred on the `header` — `collapsed` /
+    `onCollapsedChange` (uncontrolled via `defaultCollapsed`), animated width.
+    Labels hide, group headings become bare dividers, counts become a dot, the
+    active parent carries the pill, and each leaf icon gets a **portalled hover
+    tooltip** (not the native `title`). Header height follows
+    `--sidenav-header-h` (default 56px).
+  - `header` slot renders in both states (a brand mark on the rail); `footer`
+    slot (hidden on the rail); `labels` for the toggle.
+  - New `.sereno-sidenav` host rules (thin scrollbar + focus ring on the plain
+    `<button>` rows).
+- **`Dashboard` screen rebuilt** around it: a real app shell (fixed sidebar +
+  a centred scrolling content column), a **`TopBar`** header — page title, a
+  borderless theme toggle (`ThemeToggle` gained a `variant` prop), a
+  **notifications** dropdown (unread badge, mark-all-read) and a **user menu**
+  (Configurações · Sair). A full grouped nav — Atendimento /
+  Gestão / Marketing / Conta — with a placeholder brand mark, second levels
+  under Financeiro and Configurações, and a "— em breve" fallback for sections
+  the design system doesn't define yet. Per-status appointment actions
+  (Confirmar · Entrar · Reagendar); Agenda's Hoje/Semana/Mês tabs switch real
+  content; new "Próximo atendimento" card; "A receber" list under Financeiro.
+- **Responsive nav.** Under 900px the sidebar becomes an **off-canvas drawer**
+  (hamburger in the `TopBar`, brand mark beside it, slide in/out with a scrim,
+  Esc / scrim / select to close) holding the full `SidebarNav` — so every one
+  of the ~15 destinations stays reachable. The old 5-slot BottomNav is gone.
+  Agenda's date subtitle shortens to "Seg, 24 de agosto" on narrow screens.
+- Showcase `/design-system/navigation/sidebar-nav`: Groups and second level ·
+  Collapsible rail. `28 primitives` → 29 (43 routes).
+
 ## 0.16.0 — Tabs scroll + navigation showcase (SS-51)
 
 - **`Tabs` scrolls when it overflows.** The strip is a horizontal scroll

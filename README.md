@@ -20,8 +20,8 @@ navigable showcase and three real product screens — no backend, everything sta
 
 ## What's inside
 
-- **28 React primitives** in `src/components/` — 25 ported 1:1 from the approved
-  Design System, plus `FileUpload` (SS-49), `AvatarUpload` (SS-146) and `SearchInput` (SS-50), net-new. Token-driven (CSS custom
+- **29 React primitives** in `src/components/` — 25 ported 1:1 from the approved
+  Design System, plus `FileUpload` (SS-49), `AvatarUpload` (SS-146), `SearchInput` (SS-50) and `SidebarNav` (SS-52), net-new. Token-driven (CSS custom
   properties), inline styles, native dark mode. No Radix / MUI / Tailwind.
 - **Tokens** in `app/styles/tokens/*.css` — colours (light × dark), type scale,
   spacing, breakpoints, icon sizes, radii, elevation, motion.
@@ -44,7 +44,7 @@ navigable showcase and three real product screens — no backend, everything sta
 |---|---|
 | **core** (5) | `Avatar` · `Badge` · `Button` · `Card` · `IconButton` |
 | **forms** (7) | `Checkbox` · `DateTimePicker` · `Input` · `Radio` · `Select` · `Switch` · `Textarea` |
-| **navigation** (4) | `BottomNav` · `Stepper` · `Tabs` · `TopBar` |
+| **navigation** (5) | `BottomNav` · `SidebarNav` · `Stepper` · `Tabs` · `TopBar` |
 | **domain** (4) | `AppointmentCard` · `ProfessionalCard` · `ServiceCard` · `WeeklyScheduleEditor` |
 | **feedback** (5) | `Alert` · `Dialog` · `EmptyState` · `Skeleton` · `Toast` |
 
@@ -68,7 +68,7 @@ npm run build    # production build + static export to out/
 npm run lint     # ESLint
 ```
 
-`npm run build` must produce `out/` with no error — 42 routes: the 28 component
+`npm run build` must produce `out/` with no error — 43 routes: the 29 component
 pages, the tokens page, the 3 product screens (3 slugs for `/agendar`), plus
 `/`, `/demo`, `robots.txt`, `sitemap.xml`.
 
@@ -85,7 +85,7 @@ app/                       routes (App Router)
   demo/  page.tsx          the demo hub, the landing
   robots.ts  sitemap.ts    basic SEO
 src/
-  components/              28 .tsx primitives + index.ts (barrel) + _internal/ helpers
+  components/              29 .tsx primitives + index.ts (barrel) + _internal/ helpers
   screens/                 BookingFlow, Dashboard, Onboarding (client components)
   design-system/           catalog, demos, ComponentView, Sidebar, version.ts + CHANGELOG.md
   theme/                   ThemeProvider + ThemeToggle

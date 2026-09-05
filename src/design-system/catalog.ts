@@ -1,5 +1,5 @@
 // Server-safe catalogue of the Design System primitives (25 ported + FileUpload
-// + AvatarUpload + SearchInput). Powers the sidebar,
+// + AvatarUpload + SearchInput + SidebarNav). Powers the sidebar,
 // the /design-system index and `generateStaticParams` for the per-component routes.
 // Prop rows are transcribed from each component's .d.ts contract.
 
@@ -1432,6 +1432,94 @@ const [buffer, setBuffer] = useState('10');
     guidelines: {
       do: ['3 to 5 destinations.', 'The label always visible below the icon.'],
       dont: ['More than 5 items.', 'Using it on desktop — that is the sidebar’s job.'],
+    },
+  },
+  {
+    slug: 'sidebar-nav',
+    name: 'SidebarNav',
+    category: 'navigation',
+    summary: 'Desktop primary navigation — the counterpart to `BottomNav`. Grouped sections with dividers, an inline second level (a hover flyout on the rail), and an edge toggle that drops it to a 72px icon rail.',
+    props: [
+      R('sections', 'SidebarNavSection[]', 'Groups of `{ label?, items }`. A hairline divider sits between groups; `label` is the uppercase heading above it.'),
+      R('value / onChange', 'string / (value) => void', 'Active destination and callback. A parent with `children` is not a destination — it toggles its submenu.'),
+      R('collapsed / onCollapsedChange', 'boolean / (c) => void', 'Rail state. Uncontrolled via `defaultCollapsed`.', 'false'),
+      R('collapsible', 'boolean', 'Show the round collapse toggle on the sidebar’s right edge.', 'true'),
+      R('header', 'React.ReactNode', 'Brand / logo slot at the top.'),
+      R('footer', 'React.ReactNode', 'Slot pinned to the bottom (user card, plan nudge). Hidden while collapsed.'),
+      R('labels', '{ expand?, collapse? }', 'Text for the collapse toggle.'),
+    ],
+    code: `<SidebarNav
+  value={view}
+  onChange={setView}
+  header={<Wordmark />}
+  footer={<UserCard />}
+  sections={[
+    { label: 'Workspace', items: [
+      { value: 'agenda', label: 'Calendar', icon: <Calendar size={18} /> },
+      { value: 'clients', label: 'Clients', icon: <Users size={18} />, count: 12 },
+    ]},
+    { label: 'Management', items: [
+      { value: 'finance', label: 'Finance', icon: <Wallet size={18} />, children: [
+        { value: 'finance:incoming', label: 'Incoming' },
+        { value: 'finance:payouts', label: 'Payouts' },
+      ]},
+    ]},
+  ]}
+/>`,
+    examples: [
+      {
+        id: 'basic',
+        title: 'Groups and second level',
+        description:
+          'Each `section` is a divided block with an optional uppercase `label`. An item with `children` is not a destination — it opens an inline second level (the branch holding the active child starts open). On the collapsed rail the same list opens as a hover flyout instead.',
+        code: `<SidebarNav
+  value={view}
+  onChange={setView}
+  sections={[
+    { label: 'Workspace', items: [
+      { value: 'agenda', label: 'Calendar', icon: <Calendar size={18} /> },
+      { value: 'clients', label: 'Clients', icon: <Users size={18} />, count: 12 },
+      { value: 'services', label: 'Services', icon: <Sparkles size={18} /> },
+    ]},
+    { label: 'Management', items: [
+      { value: 'finance', label: 'Finance', icon: <Wallet size={18} />, children: [
+        { value: 'finance:incoming', label: 'Incoming' },
+        { value: 'finance:payouts', label: 'Payouts', count: 3 },
+      ]},
+      { value: 'reports', label: 'Reports', icon: <BarChart3 size={18} /> },
+    ]},
+    { label: 'Account', items: [
+      { value: 'settings', label: 'Settings', icon: <Settings size={18} /> },
+    ]},
+  ]}
+/>`,
+      },
+      {
+        id: 'collapsible',
+        title: 'Collapsible rail',
+        description:
+          'A round toggle on the sidebar’s right edge (level with the `header`) drops it to a 72px icon rail — labels hide, group headings become bare dividers, counts become a dot, and each icon gets a hover tooltip. A parent still opens its flyout from the rail. Pass `header` (a mark shows on the rail) / `footer` (hidden on the rail).',
+        code: `const [collapsed, setCollapsed] = React.useState(false);
+
+<SidebarNav
+  collapsed={collapsed}
+  onCollapsedChange={setCollapsed}
+  labels={{ expand: 'Expand', collapse: 'Collapse' }}
+  header={<Wordmark compact={collapsed} />}
+  footer={<UserCard />}
+  value={view}
+  onChange={setView}
+  sections={sections}
+/>`,
+      },
+    ],
+    guidelines: {
+      do: [
+        'Group into 2–4 labelled sections; keep each to ~6 items.',
+        'Second level only one deep — no grandchildren.',
+        'On mobile it hides; `BottomNav` takes over under 900px.',
+      ],
+      dont: ['A parent item that both navigates and has children.', 'More than two levels.', 'Using it as the mobile navigation.'],
     },
   },
   {

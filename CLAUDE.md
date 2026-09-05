@@ -33,8 +33,8 @@ Full context and scope: Jira card **SS-39** (project SS). Read it before any lar
 
 - **Next.js 16 App Router + TypeScript**, `output: 'export'` (static, deployed to
   Netlify). No SSR / Node server.
-- **No UI base library.** 25 of the 28 components in `src/components/` are ported
-  1:1 from the approved Design System (`FileUpload` SS-49, `AvatarUpload` SS-146 and `SearchInput` SS-50 are net-new) —
+- **No UI base library.** 25 of the 29 components in `src/components/` are ported
+  1:1 from the approved Design System (`FileUpload` SS-49, `AvatarUpload` SS-146, `SearchInput` SS-50 and `SidebarNav` SS-52 are net-new) —
   token-driven, inline styles reading CSS custom properties. When editing them,
   preserve behaviour; do not introduce
   Radix/MUI/Tailwind.
@@ -54,9 +54,10 @@ Full context and scope: Jira card **SS-39** (project SS). Read it before any lar
   `children`…). Never a CDN or `data-lucide`.
 - **Fonts:** `next/font/google` only. Never the Google Fonts CDN.
 - **Global keyframes / states** (`sereno-spin`, `sereno-pop`, `sereno-slide-up`,
-  `sereno-pulse`, `.sereno-check:checked` / `:indeterminate`, `.sereno-radio:checked`,
+  `sereno-pulse`, `sereno-flyout-in`, `.sereno-check:checked` / `:indeterminate`, `.sereno-radio:checked`,
   `.sereno-switch:focus-visible`, `.sereno-tab-scroll` (hides the scrollbar on the
-  overflowing Tabs strip)) live in `app/globals.css` — components depend on them.
+  overflowing Tabs strip), `.sereno-sidenav` / `.sereno-sidenav-btn` (SidebarNav
+  scrollbar + keyboard ring)) live in `app/globals.css` — components depend on them.
 - **Host-app (shell) concerns — not the library.** These live outside
   `src/components/**`:
   - `app/globals.css` `@media (pointer: coarse)` — forces text controls to 16px
@@ -81,5 +82,5 @@ Full context and scope: Jira card **SS-39** (project SS). Read it before any lar
 npm run lint && npm run build
 ```
 
-`npm run build` must produce `out/` with no error — the 28 component pages plus the
-3 product screens (42 routes total).
+`npm run build` must produce `out/` with no error — the 29 component pages plus the
+3 product screens (43 routes total).

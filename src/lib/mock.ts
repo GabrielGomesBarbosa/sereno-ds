@@ -100,6 +100,54 @@ export const TODAY_APPOINTMENTS: Appointment[] = [
   { time: '18:00', date: 'seg, 24', client: 'Helena Costa', service: 'Sessão de psicoterapia', channel: 'Online', status: 'cancelled' },
 ];
 
+export interface DayGroup {
+  key: string;
+  weekday: string;
+  date: string;
+  relative?: string;
+  items: Appointment[];
+}
+
+/** A working week for the agenda view. The first group reuses TODAY_APPOINTMENTS. */
+export const AGENDA_SCHEDULE: DayGroup[] = [
+  { key: 'seg', weekday: 'Segunda-feira', date: '24 de agosto', relative: 'Hoje', items: TODAY_APPOINTMENTS },
+  {
+    key: 'ter',
+    weekday: 'Terça-feira',
+    date: '25 de agosto',
+    relative: 'Amanhã',
+    items: [
+      { time: '09:00', date: 'ter, 25', client: 'Marina Alves', service: 'Sessão de psicoterapia', channel: 'Online', status: 'confirmed' },
+      { time: '10:00', date: 'ter, 25', client: 'Diego Martins', service: 'Primeira consulta', channel: 'Online', status: 'pending' },
+      { time: '15:00', date: 'ter, 25', client: 'Juliana Prado', service: 'Sessão de psicoterapia', channel: 'Presencial', status: 'confirmed' },
+    ],
+  },
+  {
+    key: 'qua',
+    weekday: 'Quarta-feira',
+    date: '26 de agosto',
+    items: [
+      { time: '09:00', date: 'qua, 26', client: 'Rafael e Bia', service: 'Terapia de casal', channel: 'Presencial', status: 'confirmed' },
+      { time: '14:30', date: 'qua, 26', client: 'Camila Rocha', service: 'Sessão de psicoterapia', channel: 'Online', status: 'confirmed' },
+    ],
+  },
+  {
+    key: 'qui',
+    weekday: 'Quinta-feira',
+    date: '27 de agosto',
+    items: [
+      { time: '11:00', date: 'qui, 27', client: 'Carlos Dias', service: 'Sessão de psicoterapia', channel: 'Presencial', status: 'confirmed' },
+      { time: '16:00', date: 'qui, 27', client: 'Beatriz Nunes', service: 'Sessão de psicoterapia', channel: 'Online', status: 'pending' },
+    ],
+  },
+  {
+    key: 'sex',
+    weekday: 'Sexta-feira',
+    date: '28 de agosto',
+    items: [{ time: '09:00', date: 'sex, 28', client: 'Juliana Prado', service: 'Sessão de psicoterapia', channel: 'Online', status: 'confirmed' }],
+  },
+];
+
 export interface ClientRow {
   name: string;
   sessions: string;
@@ -126,6 +174,22 @@ export const DASHBOARD_STATS = [
   { label: 'Esta semana', value: '23', delta: '+4 vs. semana passada', tone: 'up' as const },
   { label: 'Taxa de comparecimento', value: '94%', delta: 'Últimos 30 dias' },
   { label: 'Receita do mês', value: 'R$ 4.180', delta: '+12% vs. julho', tone: 'up' as const },
+];
+
+export interface NotificationItem {
+  id: string;
+  kind: 'booking' | 'payment' | 'client' | 'alert';
+  title: string;
+  time: string;
+  unread: boolean;
+}
+
+export const NOTIFICATIONS: NotificationItem[] = [
+  { id: 'n1', kind: 'booking', title: 'Rafael e Bia confirmaram o horário de quarta, 26', time: 'há 12 min', unread: true },
+  { id: 'n2', kind: 'payment', title: 'Pagamento de R$ 180 recebido de Marina Alves', time: 'há 1 h', unread: true },
+  { id: 'n3', kind: 'client', title: 'Diego Martins agendou uma primeira consulta', time: 'há 3 h', unread: true },
+  { id: 'n4', kind: 'alert', title: 'Helena Costa faltou ao atendimento de 24 ago', time: 'ontem', unread: false },
+  { id: 'n5', kind: 'booking', title: 'Lembrete: você tem 5 atendimentos amanhã', time: 'ontem', unread: false },
 ];
 
 export const DEFAULT_WEEK: WeekSchedule = {

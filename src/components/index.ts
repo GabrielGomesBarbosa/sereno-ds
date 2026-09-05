@@ -1,8 +1,8 @@
 // Sereno Design System — public component surface.
 // 25 primitives ported 1:1 from the approved DS source, plus FileUpload (SS-49),
-// AvatarUpload (SS-146) and SearchInput (SS-50) — all net-new. Icons are passed
-// in as props (lucide-react), never imported here; theming is 100% CSS custom
-// properties.
+// AvatarUpload (SS-146), SearchInput (SS-50) and SidebarNav (SS-52) — all
+// net-new. Icons are passed in as props (lucide-react), never imported here;
+// theming is 100% CSS custom properties.
 
 // core
 export { Button, type ButtonProps } from './core/Button';
@@ -39,6 +39,13 @@ export {
 export { TopBar, type TopBarProps } from './navigation/TopBar';
 export { Tabs, type TabsProps, type TabItem } from './navigation/Tabs';
 export { BottomNav, type BottomNavProps, type BottomNavItem } from './navigation/BottomNav';
+export {
+  SidebarNav,
+  type SidebarNavProps,
+  type SidebarNavSection,
+  type SidebarNavItem,
+  type SidebarNavSubItem,
+} from './navigation/SidebarNav';
 export { Stepper, type StepperProps, type StepperStep } from './navigation/Stepper';
 
 // feedback
