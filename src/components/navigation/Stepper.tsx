@@ -12,9 +12,9 @@ export interface StepperStep {
 
 /**
  * Progress indicator for a linear multi-step flow (onboarding, guided setup).
- * Renders the segment track, then a "Passo N de M" eyebrow above the current
- * step's label. Same visual language as the progress bar in the public booking
- * flow, but with a props contract.
+ * Renders the segment track plus a "Passo N de M · <label>" line (a dot
+ * separates the counter from the current step's label). Same visual language as
+ * the progress bar in the public booking flow, but with a props contract.
  */
 export interface StepperProps extends React.HTMLAttributes<HTMLDivElement> {
   steps: StepperStep[];
@@ -66,9 +66,10 @@ export function Stepper({ steps = [], current = 0, onStepClick, variant = 'bar',
         })}
       </div>
       {steps[current] && (
-        <div style={sx({ display: 'flex', flexDirection: 'column', gap: 2 })}>
+        <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', minWidth: 0 })}>
           <span
             style={sx({
+              flex: '0 0 auto',
               fontFamily: 'var(--font-body)',
               fontSize: 'var(--text-2xs)',
               fontWeight: 'var(--weight-bold)',
@@ -79,14 +80,17 @@ export function Stepper({ steps = [], current = 0, onStepClick, variant = 'bar',
           >
             Passo {current + 1} de {steps.length}
           </span>
+          <span aria-hidden style={sx({ flex: '0 0 auto', width: 3, height: 3, borderRadius: '999px', background: 'var(--border-strong)' })} />
           <span
             style={sx({
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-base)',
+              minWidth: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
               fontWeight: 'var(--weight-semibold)',
-              letterSpacing: 'var(--tracking-tight)',
               color: 'var(--text-primary)',
-              lineHeight: 1.25,
             })}
           >
             {steps[current].label}
