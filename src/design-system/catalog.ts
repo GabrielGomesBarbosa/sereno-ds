@@ -1438,12 +1438,12 @@ const [buffer, setBuffer] = useState('10');
     slug: 'sidebar-nav',
     name: 'SidebarNav',
     category: 'navigation',
-    summary: 'Desktop primary navigation — the counterpart to `BottomNav`. Grouped sections with dividers, an optional second level per item, and a collapse toggle that drops it to a 72px icon rail.',
+    summary: 'Desktop primary navigation — the counterpart to `BottomNav`. Grouped sections with dividers, an inline second level (a hover flyout on the rail), and an edge toggle that drops it to a 72px icon rail.',
     props: [
       R('sections', 'SidebarNavSection[]', 'Groups of `{ label?, items }`. A hairline divider sits between groups; `label` is the uppercase heading above it.'),
       R('value / onChange', 'string / (value) => void', 'Active destination and callback. A parent with `children` is not a destination — it toggles its submenu.'),
       R('collapsed / onCollapsedChange', 'boolean / (c) => void', 'Rail state. Uncontrolled via `defaultCollapsed`.', 'false'),
-      R('collapsible', 'boolean', 'Show the collapse toggle in the footer.', 'true'),
+      R('collapsible', 'boolean', 'Show the round collapse toggle on the sidebar’s right edge.', 'true'),
       R('header', 'React.ReactNode', 'Brand / logo slot at the top.'),
       R('footer', 'React.ReactNode', 'Slot pinned to the bottom (user card, plan nudge). Hidden while collapsed.'),
       R('labels', '{ expand?, collapse? }', 'Text for the collapse toggle.'),
@@ -1471,7 +1471,7 @@ const [buffer, setBuffer] = useState('10');
         id: 'basic',
         title: 'Groups and second level',
         description:
-          'Each `section` is a divided block with an optional uppercase `label`. An item with `children` toggles a second level instead of navigating — the branch holding the active child stays open.',
+          'Each `section` is a divided block with an optional uppercase `label`. An item with `children` is not a destination — it opens an inline second level (the branch holding the active child starts open). On the collapsed rail the same list opens as a hover flyout instead.',
         code: `<SidebarNav
   value={view}
   onChange={setView}
@@ -1498,7 +1498,7 @@ const [buffer, setBuffer] = useState('10');
         id: 'collapsible',
         title: 'Collapsible rail',
         description:
-          'The toggle drops the sidebar to a 72px icon rail — labels hide, group headings become bare dividers, counts become a dot. Clicking a parent while collapsed re-opens the sidebar on that submenu. Pass `header` / `footer` for the brand and user slots.',
+          'A round toggle on the sidebar’s right edge (level with the `header`) drops it to a 72px icon rail — labels hide, group headings become bare dividers, counts become a dot, and each icon gets a hover tooltip. A parent still opens its flyout from the rail. Pass `header` (a mark shows on the rail) / `footer` (hidden on the rail).',
         code: `const [collapsed, setCollapsed] = React.useState(false);
 
 <SidebarNav

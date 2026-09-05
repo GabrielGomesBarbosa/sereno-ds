@@ -8,24 +8,26 @@ Version shown in the `/design-system` header. Source: `src/design-system/version
   `BottomNav`.
   - **Grouped sections** (`sections: { label?, items }[]`) with a hairline
     divider between each and an uppercase heading.
-  - **Second level**: an item with `children` toggles a sub-list (one level
-    deep) instead of navigating; the branch holding the active child opens on
-    mount.
-  - **Collapsible** to a 72px icon rail via a round chevron button in the
-    header — `collapsed` / `onCollapsedChange` (uncontrolled via
-    `defaultCollapsed`), animated width. Labels hide, group headings become bare
-    dividers, counts become a dot, the active parent carries the pill. Clicking
-    a parent while collapsed re-opens the sidebar on that submenu. On the rail
-    each icon gets a **portalled hover tooltip** (not the native `title`).
-  - `header` slot renders in both states (a brand mark on the rail) and stacks
-    above the toggle when collapsed; `footer` slot (hidden on the rail);
-    `labels` for the toggle.
+  - **Second level**: an item with `children` is not a destination. Expanded, it
+    opens as an **inline accordion** (seeded open on the active branch);
+    collapsed, it opens as a **hover flyout** to the right of the icon
+    (portalled, with a close grace-delay). One open at a time.
+  - **Collapsible** to a 72px icon rail via a round toggle on the sidebar's
+    right edge, vertically centred on the `header` — `collapsed` /
+    `onCollapsedChange` (uncontrolled via `defaultCollapsed`), animated width.
+    Labels hide, group headings become bare dividers, counts become a dot, the
+    active parent carries the pill, and each leaf icon gets a **portalled hover
+    tooltip** (not the native `title`). Header height follows
+    `--sidenav-header-h` (default 56px).
+  - `header` slot renders in both states (a brand mark on the rail); `footer`
+    slot (hidden on the rail); `labels` for the toggle.
   - New `.sereno-sidenav` host rules (thin scrollbar + focus ring on the plain
     `<button>` rows).
 - **`Dashboard` screen rebuilt** around it: a real app shell (fixed sidebar +
   a centred scrolling content column), a **`TopBar`** header — page title, a
-  theme toggle, a **notifications** dropdown (unread badge, mark-all-read) and a
-  **user menu** (Configurações · Sair). A full grouped nav — Atendimento /
+  borderless theme toggle (`ThemeToggle` gained a `variant` prop), a
+  **notifications** dropdown (unread badge, mark-all-read) and a **user menu**
+  (Configurações · Sair). A full grouped nav — Atendimento /
   Gestão / Marketing / Conta — with a placeholder brand mark, second levels
   under Financeiro and Configurações, and a "— em breve" fallback for sections
   the design system doesn't define yet. Per-status appointment actions

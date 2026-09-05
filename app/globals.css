@@ -247,8 +247,9 @@ html, body { padding: 0; margin: 0; }
 
 /* ── Dashboard shell — fixed sidebar + scrolling content on desktop, BottomNav
       + document scroll under 900px ─────────────────────────────────────────── */
-.dash-shell { --dash-gutter: var(--gutter-desktop); display: grid; grid-template-columns: var(--dash-sb-w, 248px) minmax(0, 1fr); height: 100dvh; overflow: hidden; transition: grid-template-columns var(--duration-normal) var(--ease-out); }
-.dash-sidebar { width: var(--dash-sb-w, 248px); height: 100dvh; overflow: hidden; transition: width var(--duration-normal) var(--ease-out); }
+.dash-shell { --dash-gutter: var(--gutter-desktop); --dash-header-h: 74px; display: grid; grid-template-columns: var(--dash-sb-w, 248px) minmax(0, 1fr); height: 100dvh; overflow: hidden; transition: grid-template-columns var(--duration-normal) var(--ease-out); }
+/* overflow visible + z-index so the collapse control can straddle the right edge, above the TopBar */
+.dash-sidebar { position: relative; z-index: 30; width: var(--dash-sb-w, 248px); height: 100dvh; transition: width var(--duration-normal) var(--ease-out); }
 .dash-content { min-width: 0; height: 100dvh; overflow-y: auto; display: flex; flex-direction: column; }
 .dash-main { width: 100%; max-width: var(--container-app); margin-inline: auto; padding: var(--space-7) var(--dash-gutter); }
 .dash-bottomnav { display: none; }

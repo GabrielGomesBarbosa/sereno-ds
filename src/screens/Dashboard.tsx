@@ -409,6 +409,7 @@ export function Dashboard() {
             onCollapsedChange={setNavCollapsed}
             labels={{ expand: 'Expandir', collapse: 'Recolher' }}
             sections={SIDEBAR_SECTIONS}
+            style={{ ['--sidenav-header-h' as string]: 'var(--dash-header-h)' } as React.CSSProperties}
             header={
               navCollapsed ? (
                 <SerenoMark size={30} />
@@ -436,7 +437,8 @@ export function Dashboard() {
             title={pageTitle}
             subtitle={base === 'agenda' ? 'Segunda-feira, 24 de agosto' : undefined}
             style={{
-              height: 68,
+              height: 'var(--dash-header-h)',
+              flex: '0 0 auto',
               background: 'var(--bg-surface)',
               backdropFilter: 'none',
               // Align the bar's content to the centered .dash-main column (its
@@ -445,7 +447,7 @@ export function Dashboard() {
             }}
             actions={
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <ThemeToggle />
+                <ThemeToggle variant="ghost" />
                 <NotificationsMenu onToast={setToast} />
                 <span style={{ width: 1, height: 24, background: 'var(--border-default)', margin: '0 var(--space-1)' }} />
                 <UserMenu onNavigate={setView} onToast={setToast} />
