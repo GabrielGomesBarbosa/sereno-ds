@@ -11,12 +11,15 @@ Version shown in the `/design-system` header. Source: `src/design-system/version
 - **`SidebarNav`** gained `href` on items + a `linkComponent` prop — leaf items
   with an `href` render through it (Next's `Link`) instead of a `<button>`, so
   routing / new-tab / SSR-active all work. Group headings are lighter
-  (`--text-disabled`) and hug their list, so the hierarchy reads even without
-  item icons.
-- The **`/design-system` showcase now uses `SidebarNav`** for its own left nav
-  (desktop panel and the mobile drawer), and the page is a **3-column MUI-style
-  layout** — nav flush left, "On this page" flush right with a divider, the
-  article centred at `--ds-content-max`. The bespoke `.ds-nav` styles are gone.
+  (`--text-disabled`) and hug their list; the between-group divider is
+  `--border-default` (was near-invisible).
+- The **`/design-system` showcase now uses `SidebarNav`** for its own left nav —
+  desktop panel *and* the mobile drawer — kitted out exactly like the dashboard:
+  a per-item icon, the brand mark in the `header` slot, and the collapse toggle
+  (the shell tracks the state so the grid track follows). The page is a
+  **3-column MUI-style layout** — nav flush left, "On this page" flush right
+  with a divider, article centred at `--ds-content-max`. The bespoke `.ds-nav`
+  styles and the drawer's own header are gone.
 
 ## 0.17.0 — SidebarNav + dashboard rebuild (SS-52)
 

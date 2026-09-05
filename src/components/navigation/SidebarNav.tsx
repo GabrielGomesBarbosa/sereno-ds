@@ -250,7 +250,7 @@ export function SidebarNav({
               gap: 2,
               marginTop: i ? 'var(--space-3)' : 0,
               paddingTop: i ? 'var(--space-3)' : 0,
-              borderTop: i ? 'var(--border-width-hairline) solid var(--border-subtle)' : 'none',
+              borderTop: i ? 'var(--border-width-hairline) solid var(--border-default)' : 'none',
             })}
           >
             {section.label && !collapsed && <span style={groupHead}>{section.label}</span>}

@@ -151,7 +151,7 @@ html, body { padding: 0; margin: 0; }
 .ds-header {
   flex: 0 0 auto;
   display: grid;
-  grid-template-columns: var(--ds-sidebar) minmax(0, 1fr);
+  grid-template-columns: var(--ds-sidebar, 236px) minmax(0, 1fr);
   align-items: center;
   height: var(--topbar-height);
   border-bottom: 1px solid var(--border-default);
@@ -163,9 +163,11 @@ html, body { padding: 0; margin: 0; }
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: var(--ds-sidebar) minmax(0, 1fr);
+  grid-template-columns: var(--ds-sidebar, 236px) minmax(0, 1fr);
 }
 .ds-aside {
+  position: relative;
+  z-index: 2; /* the collapse toggle straddles into the content column */
   height: 100%;
   min-height: 0;
   display: flex;
@@ -231,14 +233,13 @@ html, body { padding: 0; margin: 0; }
     box-shadow: var(--shadow-lg);
     animation: sereno-drawer-in var(--duration-normal) var(--ease-out);
   }
-  .ds-drawer-head {
-    flex: 0 0 auto;
+  .ds-drawer-close {
+    position: absolute;
+    top: calc(var(--sidenav-header-h, 56px) / 2);
+    right: 8px;
+    transform: translateY(-50%);
+    z-index: 2;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: var(--topbar-height);
-    padding-inline: var(--space-4);
-    border-bottom: 1px solid var(--border-default);
   }
   .ds-drawer-body { flex: 1; min-height: 0; display: flex; }
 }

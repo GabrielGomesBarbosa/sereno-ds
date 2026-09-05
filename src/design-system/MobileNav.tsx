@@ -45,14 +45,11 @@ export function MobileNav() {
         <>
           <div className="ds-drawer-scrim" onClick={() => setOpen(false)} />
           <div className="ds-drawer" role="dialog" aria-modal="true" aria-label="Design System navigation">
-            <div className="ds-drawer-head">
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-md)', letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>
-                Sereno
-              </span>
-              <IconButton label="Close menu" onClick={() => setOpen(false)}>
+            <span className="ds-drawer-close">
+              <IconButton label="Close menu" variant="ghost" onClick={() => setOpen(false)}>
                 <X size={20} strokeWidth={1.75} />
               </IconButton>
-            </div>
+            </span>
             <div className="ds-drawer-body">
               <Sidebar />
             </div>
