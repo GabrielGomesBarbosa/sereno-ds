@@ -45,6 +45,7 @@ import {
   TopBar,
   WeeklyScheduleEditor,
 } from '@/components';
+import { ThemeToggle } from '@/theme/ThemeToggle';
 import {
   AGENDA_SCHEDULE,
   CLIENTS,
@@ -416,6 +417,7 @@ export function Dashboard() {
             }}
             actions={
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                <ThemeToggle />
                 <NotificationsMenu onToast={setToast} />
                 <span style={{ width: 1, height: 24, background: 'var(--border-default)', margin: '0 var(--space-1)' }} />
                 <UserMenu onNavigate={setView} onToast={setToast} />
