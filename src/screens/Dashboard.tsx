@@ -436,6 +436,11 @@ export function Dashboard() {
           <TopBar
             title={pageTitle}
             subtitle={base === 'agenda' ? 'Segunda-feira, 24 de agosto' : undefined}
+            leading={
+              <span className="dash-topbar-logo" style={{ marginRight: 'var(--space-2)' }}>
+                <SerenoMark size={26} />
+              </span>
+            }
             style={{
               height: 'var(--dash-header-h)',
               flex: '0 0 auto',

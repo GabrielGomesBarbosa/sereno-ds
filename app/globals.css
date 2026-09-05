@@ -255,6 +255,7 @@ html, body { padding: 0; margin: 0; }
 .dash-content { min-width: 0; height: 100dvh; overflow-y: auto; display: flex; flex-direction: column; }
 .dash-main { width: 100%; max-width: var(--container-app); margin-inline: auto; padding: var(--space-7) var(--dash-gutter); }
 .dash-bottomnav { display: none; }
+.dash-topbar-logo { display: none; }
 .dash-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); }
 
 @media (max-width: 1080px) {
@@ -267,8 +268,10 @@ html, body { padding: 0; margin: 0; }
   .dash-shell { --dash-gutter: var(--gutter-mobile); grid-template-columns: minmax(0, 1fr); height: auto; overflow: visible; }
   .dash-sidebar { display: none; }
   .dash-content { height: auto; overflow: visible; }
-  .dash-bottomnav { display: block; position: sticky; bottom: 0; z-index: 30; }
-  .dash-main { padding: var(--space-6) var(--dash-gutter) var(--space-10); }
+  .dash-topbar-logo { display: inline-flex; align-items: center; }
+  /* fixed to the viewport bottom — sticky floats mid-page when the content is short */
+  .dash-bottomnav { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; }
+  .dash-main { padding: var(--space-6) var(--dash-gutter) calc(var(--bottom-nav-height) + var(--space-5)); }
 }
 @media (max-width: 620px) {
   .dash-agenda-aside { flex-direction: column !important; }
