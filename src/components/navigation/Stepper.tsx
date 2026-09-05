@@ -12,8 +12,9 @@ export interface StepperStep {
 
 /**
  * Progress indicator for a linear multi-step flow (onboarding, guided setup).
- * Renders the segment track plus a "Passo N de M · <label>" line. Same visual
- * language as the progress bar in the public booking flow, but with a props contract.
+ * Renders the segment track, then a "Passo N de M" eyebrow above the current
+ * step's label. Same visual language as the progress bar in the public booking
+ * flow, but with a props contract.
  */
 export interface StepperProps extends React.HTMLAttributes<HTMLDivElement> {
   steps: StepperStep[];
@@ -65,7 +66,7 @@ export function Stepper({ steps = [], current = 0, onStepClick, variant = 'bar',
         })}
       </div>
       {steps[current] && (
-        <div style={sx({ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)' })}>
+        <div style={sx({ display: 'flex', flexDirection: 'column', gap: 2 })}>
           <span
             style={sx({
               fontFamily: 'var(--font-body)',
@@ -78,7 +79,16 @@ export function Stepper({ steps = [], current = 0, onStepClick, variant = 'bar',
           >
             Passo {current + 1} de {steps.length}
           </span>
-          <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)' })}>
+          <span
+            style={sx({
+              fontFamily: 'var(--font-display)',
+              fontSize: 'var(--text-base)',
+              fontWeight: 'var(--weight-semibold)',
+              letterSpacing: 'var(--tracking-tight)',
+              color: 'var(--text-primary)',
+              lineHeight: 1.25,
+            })}
+          >
             {steps[current].label}
           </span>
         </div>

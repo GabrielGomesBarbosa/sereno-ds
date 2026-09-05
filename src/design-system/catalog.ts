@@ -1547,7 +1547,7 @@ const [buffer, setBuffer] = useState('10');
         id: 'bar',
         title: 'Bar',
         description:
-          'Full-width segments + the "Passo N de M · <label>" line. The default for desktop wizards. Drive it with `current` — **Back** / **Next** below walk a live 4-step flow.',
+          'Full-width segments, then a "Passo N de M" eyebrow above the step label. The default for desktop wizards. Drive it with `current` — **Back** / **Next** below walk a live 4-step flow.',
         code: `const [step, setStep] = React.useState(0);
 const steps = [
   { value: 'profile', label: 'Your profile' },
