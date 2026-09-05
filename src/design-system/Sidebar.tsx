@@ -26,13 +26,5 @@ const SECTIONS: SidebarNavSection[] = [
 export function Sidebar() {
   const pathname = usePathname();
   const active = pathname.replace(/\/$/, '') || '/design-system';
-  return (
-    <SidebarNav
-      sections={SECTIONS}
-      value={active}
-      collapsible={false}
-      linkComponent={Link}
-      style={{ width: '100%', height: '100%', border: 'none', background: 'transparent' }}
-    />
-  );
+  return <SidebarNav sections={SECTIONS} value={active} collapsible={false} linkComponent={Link} style={{ width: '100%', height: '100%' }} />;
 }
