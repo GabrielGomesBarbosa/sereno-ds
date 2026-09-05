@@ -247,11 +247,10 @@ html, body { padding: 0; margin: 0; }
 
 /* ── Dashboard shell — fixed sidebar + scrolling content on desktop, BottomNav
       + document scroll under 900px ─────────────────────────────────────────── */
-.dash-shell { display: grid; grid-template-columns: var(--dash-sb-w, 248px) minmax(0, 1fr); height: 100dvh; overflow: hidden; transition: grid-template-columns var(--duration-normal) var(--ease-out); }
+.dash-shell { --dash-gutter: var(--gutter-desktop); display: grid; grid-template-columns: var(--dash-sb-w, 248px) minmax(0, 1fr); height: 100dvh; overflow: hidden; transition: grid-template-columns var(--duration-normal) var(--ease-out); }
 .dash-sidebar { width: var(--dash-sb-w, 248px); height: 100dvh; overflow: hidden; transition: width var(--duration-normal) var(--ease-out); }
 .dash-content { min-width: 0; height: 100dvh; overflow-y: auto; display: flex; flex-direction: column; }
-.dash-content > header { padding-inline: var(--gutter-desktop); }
-.dash-main { padding: var(--space-7) var(--gutter-desktop); }
+.dash-main { width: 100%; max-width: var(--container-app); margin-inline: auto; padding: var(--space-7) var(--dash-gutter); }
 .dash-bottomnav { display: none; }
 .dash-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); }
 
@@ -262,12 +261,11 @@ html, body { padding: 0; margin: 0; }
   .dash-agenda-aside > * { flex: 1 1 280px; }
 }
 @media (max-width: 900px) {
-  .dash-shell { grid-template-columns: minmax(0, 1fr); height: auto; overflow: visible; }
+  .dash-shell { --dash-gutter: var(--gutter-mobile); grid-template-columns: minmax(0, 1fr); height: auto; overflow: visible; }
   .dash-sidebar { display: none; }
   .dash-content { height: auto; overflow: visible; }
-  .dash-content > header { padding-inline: var(--gutter-mobile); }
   .dash-bottomnav { display: block; position: sticky; bottom: 0; z-index: 30; }
-  .dash-main { padding: var(--space-6) var(--gutter-mobile) var(--space-10); }
+  .dash-main { padding: var(--space-6) var(--dash-gutter) var(--space-10); }
 }
 @media (max-width: 620px) {
   .dash-agenda-aside { flex-direction: column !important; }

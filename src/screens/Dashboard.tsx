@@ -406,7 +406,14 @@ export function Dashboard() {
           <TopBar
             title={pageTitle}
             subtitle={base === 'agenda' ? 'Segunda-feira, 24 de agosto' : undefined}
-            style={{ height: 68, background: 'var(--bg-surface)', backdropFilter: 'none' }}
+            style={{
+              height: 68,
+              background: 'var(--bg-surface)',
+              backdropFilter: 'none',
+              // Align the bar's content to the centered .dash-main column (its
+              // max-width gutter + its own inner padding).
+              paddingInline: 'max(var(--dash-gutter), calc((100% - var(--container-app)) / 2 + var(--dash-gutter)))',
+            }}
             actions={
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                 <NotificationsMenu onToast={setToast} />
@@ -415,7 +422,7 @@ export function Dashboard() {
               </div>
             }
           />
-          <main className="dash-main" style={{ maxWidth: 'var(--container-app)' }}>
+          <main className="dash-main">
             {base === 'agenda' && <AgendaView onCancel={() => setDialogOpen(true)} onToast={setToast} />}
             {base === 'clientes' && <ClientesView />}
             {base === 'servicos' && <ServicosView />}
