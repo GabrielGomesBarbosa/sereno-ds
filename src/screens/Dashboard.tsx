@@ -150,18 +150,32 @@ function titleForView(v: string): string {
 
 /** Placeholder brand mark — swap for the real asset when there is one. */
 function SerenoMark({ size = 28 }: { size?: number }) {
+  // Unique per instance: a shared gradient id breaks when the first holder is display:none.
+  const gid = React.useId();
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" role="img" aria-label="Sereno" style={{ display: 'block', flex: '0 0 auto' }}>
       <defs>
-        <linearGradient id="sereno-mark" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+        <linearGradient id={gid} x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#7d8bdf" />
           <stop offset="1" stopColor="#4f46e5" />
         </linearGradient>
       </defs>
-      <rect width="32" height="32" rx="9" fill="url(#sereno-mark)" />
+      <rect width="32" height="32" rx="9" fill={`url(#${gid})`} />
       <path d="M10.5 16.5l3.7 3.7L22 12" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
+}
+
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = React.useState(false);
+  React.useEffect(() => {
+    const m = window.matchMedia(query);
+    const sync = () => setMatches(m.matches);
+    sync();
+    m.addEventListener('change', sync);
+    return () => m.removeEventListener('change', sync);
+  }, [query]);
+  return matches;
 }
 
 const cardTitle: React.CSSProperties = { fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' };
@@ -388,6 +402,7 @@ export function Dashboard() {
   const [navCollapsed, setNavCollapsed] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [toast, setToast] = React.useState<string | null>(null);
+  const isNarrow = useMediaQuery('(max-width: 900px)');
 
   React.useEffect(() => {
     if (!toast) return;
@@ -435,7 +450,7 @@ export function Dashboard() {
         <div className="dash-content">
           <TopBar
             title={pageTitle}
-            subtitle={base === 'agenda' ? 'Segunda-feira, 24 de agosto' : undefined}
+            subtitle={base === 'agenda' ? (isNarrow ? 'Seg, 24 de agosto' : 'Segunda-feira, 24 de agosto') : undefined}
             leading={
               <span className="dash-topbar-logo" style={{ marginRight: 'var(--space-2)' }}>
                 <SerenoMark size={26} />
