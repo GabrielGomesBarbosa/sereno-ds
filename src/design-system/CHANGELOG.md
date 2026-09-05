@@ -11,16 +11,26 @@ Version shown in the `/design-system` header. Source: `src/design-system/version
 - **`SidebarNav`**: `href` on items + a `linkComponent` prop — a leaf with an
   `href` renders through it (Next's `Link`) instead of a `<button>`, so routing
   / new-tab / SSR-active all work. Group headings are lighter (`--text-disabled`)
-  and hug their list; the between-group divider is `--border-default`. The
-  collapsed rail hides its scrollbar so the gutter can't shove the centred icons
-  off-axis from the header mark.
+  and hug their list; the between-group divider is `--border-default`. When
+  collapsed the rail hides its own scrollbar so the gutter can't shove the
+  centred icons off-axis from the header mark.
 - The **`/design-system` showcase now uses `SidebarNav`** for its own left nav —
   desktop panel *and* the mobile drawer, with the brand mark in the `header`
   slot. The shell matches the dashboard's: a **full-height sidebar** with the
-  **header only over the content column** (it starts after the sidebar). The
-  page is a **3-column MUI-style layout** — nav flush left, "On this page" flush
-  right with a divider, article centred at `--ds-content-max`. The bespoke
-  `.ds-nav` styles and the drawer's own header are gone.
+  **header only over the content column** (it starts after the sidebar). No
+  collapse toggle here — this catalogue has no per-item icons, so a collapsed
+  icon rail would have nothing to show.
+- **Every showcase page is now the same 3-column MUI-style layout** — nav flush
+  left, article centred at `--ds-content-max`, a sticky **"On this page"** index
+  flush right. Overview and Tokens moved onto the shared `DocPage` shell so they
+  carry the index too. The bespoke `.ds-nav` styles and the drawer's own header
+  are gone.
+- **Hairline fix (new antipattern doc).** `--border-subtle` is *lighter* than
+  `--bg-canvas`, so every `--border-subtle` divider sitting on the plain canvas
+  (the "On this page" rule, the Tokens type-scale rows and contrast table, the
+  Props table) was reading as a stray white line. All bumped to
+  `--border-default`; `guidelines-draft.md` gets an "Evite / Faça" section —
+  `--border-subtle` only over `--bg-surface`, never the canvas.
 
 ## 0.17.0 — SidebarNav + dashboard rebuild (SS-52)
 

@@ -38,7 +38,11 @@ function Mark({ size = 24 }: { size?: number }) {
   );
 }
 
-/** The showcase's own left nav — the SidebarNav component, rendering real links. */
+/**
+ * The showcase's own left nav — the SidebarNav component rendering real links.
+ * No collapse toggle here: this catalogue has no per-item icons, so a collapsed
+ * icon rail would have nothing to show.
+ */
 export function Sidebar() {
   const pathname = usePathname();
   const active = pathname.replace(/\/$/, '') || '/design-system';

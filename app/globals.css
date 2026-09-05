@@ -160,7 +160,7 @@ html, body { padding: 0; margin: 0; }
 }
 .ds-aside {
   position: relative;
-  z-index: 3; /* the collapse toggle straddles into the content column, above the header */
+  z-index: 3; /* keeps the rail's own flyouts / tooltips above the header */
   height: 100dvh;
   min-height: 0;
   display: flex;
@@ -188,6 +188,9 @@ html, body { padding: 0; margin: 0; }
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Reserve the scrollbar on both edges so centred content (Overview, Tokens)
+     stays symmetric rather than shifting left by the scrollbar's width. */
+  scrollbar-gutter: stable both-edges;
   padding: var(--space-7) var(--gutter-desktop) var(--space-10);
 }
 /* Component pages own their own 3-column padding — the shell backs off. */
@@ -312,7 +315,9 @@ html, body { padding: 0; margin: 0; }
   position: sticky;
   top: 0;
   align-self: start;
-  border-left: 1px solid var(--border-subtle);
+  /* --border-default, never --border-subtle: --subtle is lighter than the plain
+     canvas, so it reads as a stray white line rather than a divider. */
+  border-left: 1px solid var(--border-default);
   padding: calc(var(--space-8) + 2px) var(--gutter-desktop) var(--space-10) var(--space-6);
 }
 .cv-guidelines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }

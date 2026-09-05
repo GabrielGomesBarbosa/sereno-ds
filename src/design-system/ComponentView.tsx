@@ -90,7 +90,7 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
                   </thead>
                   <tbody>
                     {meta.props.map((p) => (
-                      <tr key={p.name} style={{ borderTop: '1px solid var(--border-subtle)' }}>
+                      <tr key={p.name} style={{ borderTop: '1px solid var(--border-default)' }}>
                         <td style={{ ...td, whiteSpace: 'nowrap', color: 'var(--text-primary)', fontWeight: 600 }}>{p.name}</td>
                         <td style={{ ...td, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-brand)' }}>{p.type}</td>
                         <td style={{ ...td, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
