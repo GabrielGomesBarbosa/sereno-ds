@@ -1,10 +1,19 @@
 import type { Metadata } from 'next';
 import { CalendarClock } from 'lucide-react';
+import { DocPage, docSectionAnchor } from '@/design-system/DocPage';
 
 export const metadata: Metadata = {
   title: 'Tokens · Design System',
   robots: { index: false, follow: false },
 };
+
+const TOC = [
+  { id: 'colours', label: 'Colours' },
+  { id: 'type-scale', label: 'Type scale' },
+  { id: 'spacing-scale', label: 'Spacing scale' },
+  { id: 'grid', label: 'Grid & iconography' },
+  { id: 'contrast', label: 'Contrast' },
+];
 
 const SURFACES = [
   ['--bg-canvas', 'Canvas'],
@@ -233,18 +242,17 @@ function ThemePanel({ theme }: { theme: 'light' | 'dark' }) {
 
 export default function TokensPage() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)', maxWidth: 980 }}>
-      <header style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: 0 }}>
-          Tokens
-        </h1>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-md)', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0, maxWidth: 620 }}>
+    <DocPage
+      title="Tokens"
+      toc={TOC}
+      intro={
+        <p style={{ margin: 0 }}>
           Semantic aliases in both themes, the type scale (ratio ~1.22, 15px base) and the spacing scale (4px base). Every component
           reads only these tokens.
         </p>
-      </header>
-
-      <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+      }
+    >
+      <section id="colours" style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
         <h2 style={label}>Colours — light × dark</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4)' }}>
           <ThemePanel theme="light" />
@@ -252,11 +260,11 @@ export default function TokensPage() {
         </div>
       </section>
 
-      <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+      <section id="type-scale" style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
         <h2 style={label}>Type scale</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', borderTop: '1px solid var(--border-subtle)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', borderTop: '1px solid var(--border-default)' }}>
           {TYPE_SCALE.map(([v, px]) => (
-            <div key={v} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 'var(--space-2) var(--space-4)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 'var(--space-3)' }}>
+            <div key={v} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 'var(--space-2) var(--space-4)', borderBottom: '1px solid var(--border-default)', paddingBottom: 'var(--space-3)' }}>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', width: 132, flex: '0 0 auto', whiteSpace: 'nowrap' }}>
                 {v} · {px}px
               </span>
@@ -268,7 +276,7 @@ export default function TokensPage() {
         </div>
       </section>
 
-      <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+      <section id="spacing-scale" style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
         <h2 style={label}>Spacing scale</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
           {SPACE_SCALE.map(([v, px]) => (
@@ -282,7 +290,7 @@ export default function TokensPage() {
         </div>
       </section>
 
-      <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+      <section id="grid" style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
         <h2 style={label}>Grid &amp; iconography</h2>
         <p style={note}>
           There is no column-grid system: layout is flex / CSS grid, kept within one of three max content widths. The
@@ -345,7 +353,7 @@ export default function TokensPage() {
         </div>
       </section>
 
-      <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+      <section id="contrast" style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
         <h2 style={label}>Contrast (WCAG 2.1 AA)</h2>
         <p style={note}>
           Worst-case ratio per group, light × dark. Body text needs <code style={mono}>4.5:1</code>, large text and non-text UI
@@ -364,7 +372,7 @@ export default function TokensPage() {
             </thead>
             <tbody>
               {CONTRAST.map((r) => (
-                <tr key={r.pair} style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
+                <tr key={r.pair} style={{ borderTop: '1px solid var(--border-default)', color: 'var(--text-primary)' }}>
                   <td style={{ padding: '6px 16px 6px 0' }}>{r.pair}</td>
                   <td style={{ padding: '6px 16px 6px 0', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{r.need}</td>
                   <td style={{ padding: '6px 16px 6px 0', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)' }}>{r.light}:1</td>
@@ -383,6 +391,6 @@ export default function TokensPage() {
           lands ~4.2:1 → large text only; use <code style={mono}>--text-secondary</code> there for body copy.
         </p>
       </section>
-    </div>
+    </DocPage>
   );
 }

@@ -79,6 +79,14 @@
   background: var(--border-default);
   border-radius: 999px;
 }
+/* Collapsed rail: hide the scrollbar so a scrollbar gutter can't push the
+   centred icons off-axis from the header mark. */
+.sereno-sidenav-root[data-collapsed] .sereno-sidenav {
+  scrollbar-width: none;
+}
+.sereno-sidenav-root[data-collapsed] .sereno-sidenav::-webkit-scrollbar {
+  display: none;
+}
 .sereno-sidenav-btn {
   outline: none;
 }
@@ -139,14 +147,30 @@ html, body { padding: 0; margin: 0; }
    The header never scrolls; the sidebar and the content are two independent
    scroll panels, each 100% height, so the divider runs edge to edge and there is
    no dangling space under the sidebar. */
-:root { --ds-sidebar: 232px; --ds-content-max: 1080px; }
+:root { --ds-sidebar: 236px; --ds-toc: 232px; --ds-content-max: 860px; }
 
+/* Same shell as the dashboard: full-height sidebar on the left, the header only
+   spans the content column (it "starts after the sidebar"). */
 .ds-root {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: var(--ds-sidebar, 236px) minmax(0, 1fr);
+  background: var(--bg-canvas);
+  overflow: hidden;
+}
+.ds-aside {
+  position: relative;
+  z-index: 3; /* keeps the rail's own flyouts / tooltips above the header */
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  /* border-right + background come from the SidebarNav component. */
+}
+.ds-content {
+  min-width: 0;
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: var(--bg-canvas);
-  overflow: hidden;
 }
 .ds-header {
   flex: 0 0 auto;
@@ -159,27 +183,18 @@ html, body { padding: 0; margin: 0; }
   border-bottom: 1px solid var(--border-default);
   background: var(--bg-surface);
 }
-.ds-body {
+.ds-main {
   flex: 1;
   min-height: 0;
-  display: grid;
-  grid-template-columns: var(--ds-sidebar) minmax(0, 1fr);
-}
-.ds-aside {
-  height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
-  border-right: 1px solid var(--border-default);
-  padding: var(--space-5) var(--space-4);
-  background: var(--bg-surface);
-}
-.ds-main {
-  height: 100%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  /* Reserve the scrollbar on both edges so centred content (Overview, Tokens)
+     stays symmetric rather than shifting left by the scrollbar's width. */
+  scrollbar-gutter: stable both-edges;
   padding: var(--space-7) var(--gutter-desktop) var(--space-10);
 }
+/* Component pages own their own 3-column padding — the shell backs off. */
+.ds-main:has(> .cv-layout) { padding: 0; }
 
 /* Mobile-only drawer nav (hidden / no-op on desktop) */
 .ds-menu-btn { display: none; }
@@ -191,8 +206,8 @@ html, body { padding: 0; margin: 0; }
   /* The document scrolls on mobile — not a nested panel. iOS / Brave then reveal
      a focused field above the software keyboard natively (same as /onboarding).
      Do not reintroduce a nested overflow:auto scroller here. */
-  .ds-root { height: auto; overflow: visible; }
-  .ds-body { display: block; min-height: 0; }
+  .ds-root { display: block; height: auto; overflow: visible; }
+  .ds-content { display: block; height: auto; }
   .ds-main {
     height: auto;
     overflow: visible;
@@ -229,20 +244,18 @@ html, body { padding: 0; margin: 0; }
     z-index: 51;
     width: min(84vw, 300px);
     background: var(--bg-surface);
-    border-right: 1px solid var(--border-default);
     box-shadow: var(--shadow-lg);
     animation: sereno-drawer-in var(--duration-normal) var(--ease-out);
   }
-  .ds-drawer-head {
-    flex: 0 0 auto;
+  .ds-drawer-close {
+    position: absolute;
+    top: calc(var(--sidenav-header-h, 56px) / 2);
+    right: 8px;
+    transform: translateY(-50%);
+    z-index: 2;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: var(--topbar-height);
-    padding-inline: var(--space-4);
-    border-bottom: 1px solid var(--border-default);
   }
-  .ds-drawer-body { flex: 1; overflow-y: auto; padding: var(--space-5) var(--space-4); }
+  .ds-drawer-body { flex: 1; min-height: 0; display: flex; }
 }
 @keyframes sereno-fade-in { from { opacity: 0; } }
 @keyframes sereno-drawer-in { from { transform: translateX(-100%); } }
@@ -292,77 +305,31 @@ html, body { padding: 0; margin: 0; }
   .sereno-week-times { flex-wrap: wrap; }
 }
 
-/* ── Design System sidebar (MUI-style) ───────────────────────────────────────
-   Quiet: a thin guide line per group, a subtle fill + a 2px accent bar on the
-   active item, blue text. The colour comes from the text and the bar, not a
-   loud pill. */
-.ds-nav { display: flex; flex-direction: column; gap: var(--space-6); font-family: var(--font-body); }
-.ds-navgroup { display: flex; flex-direction: column; }
-.ds-navgroup-head {
-  padding: 0 var(--space-3);
-  margin-bottom: 6px;
-  font-size: var(--text-2xs);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-/* 2px gap so an active fill and an adjacent hover fill never touch. */
-.ds-navgroup-items { display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--border-default); }
+/* The Design System's own left nav is the SidebarNav component now
+   (src/design-system/Sidebar.tsx) — no bespoke .ds-nav styles. */
 
-.ds-navlink {
-  position: relative;
-  display: block;
-  padding: 6px var(--space-3);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  line-height: 1.5;
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
-}
-/* Flush to the guide line: no left margin (was leaving a 1px white sliver), square left edge. */
-.ds-navgroup-items .ds-navlink { margin-left: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; }
-.ds-navlink,
-.ds-navlink:hover,
-.ds-navlink:focus,
-.ds-navlink.ds-navlink--active { text-decoration: none; }
-.ds-navlink:focus { outline: none; }
-.ds-navlink:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
-/* Hover (inactive only): a plain neutral wash. */
-.ds-navlink:not(.ds-navlink--active):hover { background: var(--bg-subtle); color: var(--text-primary); }
-/* Active: brand-tinted wash + blue bar + blue label — unmistakably different from hover,
-   and hovering the active item does not stack the grey on top. */
-.ds-navlink--active,
-.ds-navlink--active:hover {
-  background: color-mix(in srgb, var(--interactive-primary) 10%, transparent);
-  color: var(--text-brand);
-  font-weight: 600;
-}
-.ds-navlink-bar {
-  position: absolute;
-  left: -1px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--interactive-primary);
-}
-
-/* ── Component page (MUI-style) — article + right "on this page" rail ───────── */
-.cv-layout { display: flex; gap: var(--space-7); align-items: flex-start; }
-.cv-article { flex: 1; min-width: 0; max-width: 920px; }
+/* ── Component page (MUI-style) — nav flush left, TOC flush right, article centred ── */
+.cv-layout { display: grid; grid-template-columns: minmax(0, 1fr) var(--ds-toc); align-items: start; min-height: 100%; }
+.cv-article { min-width: 0; width: 100%; max-width: var(--ds-content-max); margin-inline: auto; padding: var(--space-8) var(--space-9) var(--space-10); }
 .cv-toc {
-  flex: 0 0 152px;
   position: sticky;
   top: 0;
-  align-self: flex-start;
-  padding-top: 2px;
+  align-self: start;
+  /* --border-default, never --border-subtle: --subtle is lighter than the plain
+     canvas, so it reads as a stray white line rather than a divider. */
+  border-left: 1px solid var(--border-default);
+  padding: calc(var(--space-8) + 2px) var(--gutter-desktop) var(--space-10) var(--space-6);
 }
 .cv-guidelines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
 .cv-prevnext { display: flex; justify-content: space-between; gap: var(--space-4); margin-top: var(--space-10); }
 .cv-prevnext > * { flex: 1 1 0; }
-@media (max-width: 1180px) { .cv-toc { display: none; } }
+@media (max-width: 1180px) {
+  .cv-layout { grid-template-columns: minmax(0, 1fr); }
+  .cv-toc { display: none; }
+}
+@media (max-width: 900px) {
+  .cv-article { padding: var(--space-6) var(--gutter-mobile) var(--space-10); }
+}
 @media (max-width: 640px) {
   .cv-guidelines { grid-template-columns: minmax(0, 1fr); }
   .cv-prevnext { flex-direction: column; }

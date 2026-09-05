@@ -15,6 +15,23 @@ somem. Regra geral: em superfície tingida, prefira variantes que se autodefinem
 | `Badge` `neutral` | fundo `--bg-subtle` some sobre brand-soft | já ajustado: neutral virou chip **outline** (surface + borda), lê em qualquer fundo |
 | `Avatar` (fallback) | preenchimento era `--bg-brand-soft` = igual ao header | já ajustado: tom de marca próprio (`color-mix`) + anel |
 
+## Hairlines / divisórias — nunca `--border-subtle` sobre o canvas
+
+**Antipadrão.** `--border-subtle` é *mais claro* que `--bg-canvas`. Uma hairline
+desse token direto sobre o canvas (lista, tabela, borda de índice) não lê como
+divisória — lê como **um risco branco solto** sobre o fundo, e fica estranho.
+`--border-subtle` só funciona sobre `--bg-surface` (branco / elevado): cartão,
+painel, cabeçalho de tabela com `--bg-subtle`.
+
+| Onde | Evite | Faça |
+|---|---|---|
+| Divisória de linha em lista/tabela **sobre o canvas** (ex.: type scale, tabela de contraste, índice "On this page") | `1px solid var(--border-subtle)` | `1px solid var(--border-default)` — cinza real, sempre mais escuro que o canvas |
+| Hairline **dentro de um cartão** (`--bg-surface`) | — | `--border-subtle` está ok aqui |
+| Divisória que precisa saltar (separar dois blocos densos) | `--border-subtle` / `--border-default` somem | `--border-strong` |
+
+Regra rápida: **a divisória tem que ser mais escura que a superfície atrás dela.**
+Sobre o canvas isso já exclui `--border-subtle`.
+
 ## Vocabulário de tons (0.6.0)
 
 - **Cinco tons semânticos, mesma palavra em todo lugar** (`Badge`, `Alert`, `Toast`):
