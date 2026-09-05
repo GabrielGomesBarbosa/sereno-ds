@@ -655,18 +655,6 @@ function SubRow({
         transition: 'var(--transition-control)',
       })}
     >
-      {inPopover && (
-        <span
-          aria-hidden
-          style={sx({
-            flex: '0 0 auto',
-            width: 5,
-            height: 5,
-            borderRadius: '999px',
-            background: active ? 'var(--interactive-primary)' : 'var(--border-strong)',
-          })}
-        />
-      )}
       <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{sub.label}</span>
       {sub.count !== undefined && <span style={countPill(active)}>{sub.count}</span>}
     </button>
