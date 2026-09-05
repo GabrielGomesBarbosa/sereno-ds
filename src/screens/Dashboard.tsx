@@ -16,6 +16,7 @@ import {
   Link2,
   LogOut,
   Megaphone,
+  Menu,
   MessageSquare,
   Plus,
   Search,
@@ -122,14 +123,6 @@ const SIDEBAR_SECTIONS: SidebarNavSection[] = [
       { value: 'ajuda', label: 'Ajuda e suporte', icon: si(<LifeBuoy size={18} strokeWidth={1.75} />) },
     ],
   },
-];
-
-const BOTTOM_NAV: { id: string; label: string; icon: React.ReactNode }[] = [
-  { id: 'agenda', label: 'Agenda', icon: <Calendar size={22} strokeWidth={1.75} /> },
-  { id: 'clientes', label: 'Clientes', icon: <Users size={22} strokeWidth={1.75} /> },
-  { id: 'servicos', label: 'Serviços', icon: <Sparkles size={22} strokeWidth={1.75} /> },
-  { id: 'financeiro:resumo', label: 'Financeiro', icon: <Wallet size={22} strokeWidth={1.75} /> },
-  { id: 'config:perfil', label: 'Ajustes', icon: <Settings size={22} strokeWidth={1.75} /> },
 ];
 
 const KNOWN_BASES = new Set(['agenda', 'clientes', 'servicos', 'financeiro', 'relatorios', 'config']);
@@ -402,7 +395,13 @@ export function Dashboard() {
   const [navCollapsed, setNavCollapsed] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [toast, setToast] = React.useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [drawerRender, setDrawerRender] = React.useState(false);
   const isNarrow = useMediaQuery('(max-width: 900px)');
+  const openDrawer = () => {
+    setDrawerRender(true);
+    setDrawerOpen(true);
+  };
 
   React.useEffect(() => {
     if (!toast) return;
@@ -410,11 +409,60 @@ export function Dashboard() {
     return () => clearTimeout(t);
   }, [toast]);
 
+  // Nav drawer (mobile/tablet): lock scroll + Esc to close; auto-close on desktop.
+  React.useEffect(() => {
+    if (!drawerOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setDrawerOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [drawerOpen]);
+  React.useEffect(() => {
+    // the persistent sidebar is back — drop the drawer with no exit animation
+    const resetDrawer = () => {
+      setDrawerOpen(false);
+      setDrawerRender(false);
+    };
+    if (!isNarrow) resetDrawer();
+  }, [isNarrow]);
+  React.useEffect(() => {
+    // unmount after the slide-out animation
+    if (drawerOpen || !drawerRender) return;
+    const unmount = () => setDrawerRender(false);
+    const t = window.setTimeout(unmount, 260);
+    return () => window.clearTimeout(t);
+  }, [drawerOpen, drawerRender]);
+
+  const go = (v: string) => {
+    setView(v);
+    setDrawerOpen(false);
+  };
+
   const [base, sub] = view.split(':') as [string, string | undefined];
   const pageTitle = titleForView(view);
 
+  const brandFull = (
+    <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+      <SerenoMark size={24} />
+      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>
+    </span>
+  );
+  const planFooter = (
+    <Card padding="sm" elevation="none" style={{ background: 'var(--bg-accent-soft)', ...vcol('6px') }}>
+      <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Plano gratuito</span>
+      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.4 }}>18 de 20 agendamentos usados este mês.</span>
+      <Button variant="accent" size="sm" fullWidth style={{ marginTop: 4 }} onClick={() => setToast('Redirecionando para os planos…')}>
+        Assinar agora
+      </Button>
+    </Card>
+  );
+
   return (
-    <div style={{ background: 'var(--bg-canvas)', minHeight: '100dvh' }}>
+    <div style={{ background: 'var(--bg-canvas)', minHeight: '100dvh', ['--dash-header-h' as string]: '74px' } as React.CSSProperties}>
       <div className="dash-shell" style={{ '--dash-sb-w': navCollapsed ? '72px' : '248px' } as React.CSSProperties}>
         <div className="dash-sidebar">
           <SidebarNav
@@ -425,25 +473,8 @@ export function Dashboard() {
             labels={{ expand: 'Expandir', collapse: 'Recolher' }}
             sections={SIDEBAR_SECTIONS}
             style={{ ['--sidenav-header-h' as string]: 'var(--dash-header-h)' } as React.CSSProperties}
-            header={
-              navCollapsed ? (
-                <SerenoMark size={30} />
-              ) : (
-                <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                  <SerenoMark size={24} />
-                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>
-                </span>
-              )
-            }
-            footer={
-              <Card padding="sm" elevation="none" style={{ background: 'var(--bg-accent-soft)', ...vcol('6px') }}>
-                <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Plano gratuito</span>
-                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.4 }}>18 de 20 agendamentos usados este mês.</span>
-                <Button variant="accent" size="sm" fullWidth style={{ marginTop: 4 }} onClick={() => setToast('Redirecionando para os planos…')}>
-                  Assinar agora
-                </Button>
-              </Card>
-            }
+            header={navCollapsed ? <SerenoMark size={30} /> : brandFull}
+            footer={planFooter}
           />
         </div>
 
@@ -452,7 +483,10 @@ export function Dashboard() {
             title={pageTitle}
             subtitle={base === 'agenda' ? (isNarrow ? 'Seg, 24 de agosto' : 'Segunda-feira, 24 de agosto') : undefined}
             leading={
-              <span className="dash-topbar-logo" style={{ marginRight: 'var(--space-2)' }}>
+              <span className="dash-topbar-lead">
+                <IconButton label="Abrir menu" variant="ghost" onClick={openDrawer}>
+                  <Menu size={20} strokeWidth={1.75} />
+                </IconButton>
                 <SerenoMark size={26} />
               </span>
             }
@@ -486,42 +520,27 @@ export function Dashboard() {
         </div>
       </div>
 
-      <div className="dash-bottomnav">
-        <nav
-          style={{
-            display: 'flex',
-            height: 'var(--bottom-nav-height)',
-            background: 'color-mix(in srgb, var(--bg-surface) 92%, transparent)',
-            backdropFilter: 'blur(12px)',
-            borderTop: '1px solid var(--border-default)',
-          }}
-        >
-          {BOTTOM_NAV.map((n) => {
-            const on = base === n.id.split(':')[0];
-            return (
-              <button
-                key={n.id}
-                onClick={() => setView(n.id)}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 4,
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  color: on ? 'var(--text-brand)' : 'var(--text-muted)',
-                }}
-              >
-                {n.icon}
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-2xs)', fontWeight: on ? 600 : 500 }}>{n.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </div>
+      {isNarrow && drawerRender && (
+        <>
+          <div className="dash-drawer-scrim" data-closing={!drawerOpen || undefined} onClick={() => setDrawerOpen(false)} />
+          <aside className="dash-drawer" aria-label="Menu" data-closing={!drawerOpen || undefined}>
+            <span className="dash-drawer-close">
+              <IconButton label="Fechar menu" variant="ghost" onClick={() => setDrawerOpen(false)}>
+                <X size={20} strokeWidth={1.75} />
+              </IconButton>
+            </span>
+            <SidebarNav
+              collapsible={false}
+              value={view}
+              onChange={go}
+              sections={SIDEBAR_SECTIONS}
+              header={brandFull}
+              footer={planFooter}
+              style={{ width: '100%', borderRight: 'none', ['--sidenav-header-h' as string]: 'var(--dash-header-h)' } as React.CSSProperties}
+            />
+          </aside>
+        </>
+      )}
 
       {dialogOpen && (
         <Dialog

@@ -35,6 +35,11 @@ Version shown in the `/design-system` header. Source: `src/design-system/version
   the design system doesn't define yet. Per-status appointment actions
   (Confirmar · Entrar · Reagendar); Agenda's Hoje/Semana/Mês tabs switch real
   content; new "Próximo atendimento" card; "A receber" list under Financeiro.
+- **Responsive nav.** Under 900px the sidebar becomes an **off-canvas drawer**
+  (hamburger in the `TopBar`, brand mark beside it, slide in/out with a scrim,
+  Esc / scrim / select to close) holding the full `SidebarNav` — so every one
+  of the ~15 destinations stays reachable. The old 5-slot BottomNav is gone.
+  Agenda's date subtitle shortens to "Seg, 24 de agosto" on narrow screens.
 - Showcase `/design-system/navigation/sidebar-nav`: Groups and second level ·
   Collapsible rail. `28 primitives` → 29 (43 routes).
 

@@ -249,13 +249,21 @@ html, body { padding: 0; margin: 0; }
 
 /* ── Dashboard shell — fixed sidebar + scrolling content on desktop, BottomNav
       + document scroll under 900px ─────────────────────────────────────────── */
-.dash-shell { --dash-gutter: var(--gutter-desktop); --dash-header-h: 74px; display: grid; grid-template-columns: var(--dash-sb-w, 248px) minmax(0, 1fr); height: 100dvh; overflow: hidden; transition: grid-template-columns var(--duration-normal) var(--ease-out); }
+.dash-shell { --dash-gutter: var(--gutter-desktop); display: grid; grid-template-columns: var(--dash-sb-w, 248px) minmax(0, 1fr); height: 100dvh; overflow: hidden; transition: grid-template-columns var(--duration-normal) var(--ease-out); }
 /* overflow visible + z-index so the collapse control can straddle the right edge, above the TopBar */
 .dash-sidebar { position: relative; z-index: 30; width: var(--dash-sb-w, 248px); height: 100dvh; transition: width var(--duration-normal) var(--ease-out); }
 .dash-content { min-width: 0; height: 100dvh; overflow-y: auto; display: flex; flex-direction: column; }
 .dash-main { width: 100%; max-width: var(--container-app); margin-inline: auto; padding: var(--space-7) var(--dash-gutter); }
-.dash-bottomnav { display: none; }
-.dash-topbar-logo { display: none; }
+.dash-topbar-lead { display: none; }
+
+/* ── Mobile nav drawer (the persistent sidebar off-canvas under 900px) ──────── */
+.dash-drawer-scrim { position: fixed; inset: 0; z-index: 60; background: rgba(15, 18, 24, 0.45); animation: sereno-fade-in var(--duration-fast) var(--ease-out); }
+.dash-drawer-scrim[data-closing] { animation: sereno-fade-out var(--duration-normal) var(--ease-in) forwards; }
+.dash-drawer { position: fixed; left: 0; top: 0; bottom: 0; z-index: 61; width: min(300px, 86vw); display: flex; background: var(--bg-surface); box-shadow: var(--shadow-lg); animation: sereno-drawer-in var(--duration-normal) var(--ease-out); }
+.dash-drawer[data-closing] { animation: sereno-drawer-out var(--duration-normal) var(--ease-in) forwards; }
+.dash-drawer-close { position: absolute; top: calc(var(--dash-header-h, 74px) / 2); right: 8px; transform: translateY(-50%); z-index: 2; display: flex; }
+@keyframes sereno-drawer-out { to { transform: translateX(-100%); } }
+@keyframes sereno-fade-out { to { opacity: 0; } }
 .dash-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); }
 
 @media (max-width: 1080px) {
@@ -268,10 +276,8 @@ html, body { padding: 0; margin: 0; }
   .dash-shell { --dash-gutter: var(--gutter-mobile); grid-template-columns: minmax(0, 1fr); height: auto; overflow: visible; }
   .dash-sidebar { display: none; }
   .dash-content { height: auto; overflow: visible; }
-  .dash-topbar-logo { display: inline-flex; align-items: center; }
-  /* fixed to the viewport bottom — sticky floats mid-page when the content is short */
-  .dash-bottomnav { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; }
-  .dash-main { padding: var(--space-6) var(--dash-gutter) calc(var(--bottom-nav-height) + var(--space-5)); }
+  .dash-topbar-lead { display: inline-flex; align-items: center; gap: var(--space-1); }
+  .dash-main { padding: var(--space-6) var(--dash-gutter) var(--space-9); }
 }
 @media (max-width: 620px) {
   .dash-agenda-aside { flex-direction: column !important; }
