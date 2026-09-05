@@ -15,17 +15,22 @@ Version shown in the `/design-system` header. Source: `src/design-system/version
     header — `collapsed` / `onCollapsedChange` (uncontrolled via
     `defaultCollapsed`), animated width. Labels hide, group headings become bare
     dividers, counts become a dot, the active parent carries the pill. Clicking
-    a parent while collapsed re-opens the sidebar on that submenu.
-  - `header` / `footer` slots (brand, user card); `labels` for the toggle.
+    a parent while collapsed re-opens the sidebar on that submenu. On the rail
+    each icon gets a **portalled hover tooltip** (not the native `title`).
+  - `header` slot renders in both states (a brand mark on the rail) and stacks
+    above the toggle when collapsed; `footer` slot (hidden on the rail);
+    `labels` for the toggle.
   - New `.sereno-sidenav` host rules (thin scrollbar + focus ring on the plain
     `<button>` rows).
 - **`Dashboard` screen rebuilt** around it: a real app shell (fixed sidebar +
-  a single scrolling content column), a **`TopBar`** header — page title, a
-  **notifications** dropdown (unread badge, mark-all-read) and a **user menu**
-  (Configurações · Sair). Grouped nav with the Financeiro / Configurações
-  second level, per-status appointment actions (Confirmar · Entrar ·
-  Reagendar). Agenda's Hoje/Semana/Mês tabs now switch real content; new
-  "Próximo atendimento" card; "A receber" list under Financeiro.
+  a centred scrolling content column), a **`TopBar`** header — page title, a
+  theme toggle, a **notifications** dropdown (unread badge, mark-all-read) and a
+  **user menu** (Configurações · Sair). A full grouped nav — Atendimento /
+  Gestão / Marketing / Conta — with a placeholder brand mark, second levels
+  under Financeiro and Configurações, and a "— em breve" fallback for sections
+  the design system doesn't define yet. Per-status appointment actions
+  (Confirmar · Entrar · Reagendar); Agenda's Hoje/Semana/Mês tabs switch real
+  content; new "Próximo atendimento" card; "A receber" list under Financeiro.
 - Showcase `/design-system/navigation/sidebar-nav`: Groups and second level ·
   Collapsible rail. `28 primitives` → 29 (43 routes).
 

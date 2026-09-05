@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, ChevronLeft } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { useInteract } from '../core/Button';
@@ -97,6 +98,19 @@ export function SidebarNav({
     onCollapsedChange?.(c);
   };
 
+  // Custom hover tooltip for the collapsed rail — portalled so the rail's own
+  // overflow clipping can't hide it.
+  const [mounted, setMounted] = React.useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target is client-only
+  React.useEffect(() => setMounted(true), []);
+  const [tip, setTip] = React.useState<{ label: string; top: number; left: number } | null>(null);
+  React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- drop a stale tip when the rail expands
+    if (!collapsed) setTip(null);
+  }, [collapsed]);
+  const showTip = (label: string, r: DOMRect) => setTip({ label, top: r.top + r.height / 2, left: r.right + 10 });
+  const hideTip = () => setTip(null);
+
   // Seed the open branch from the initial active value; toggling is user-driven after that.
   const [openSet, setOpenSet] = React.useState<Set<string>>(() => {
     const parent = sections.flatMap((s) => s.items).find((it) => it.children?.some((c) => c.value === value))?.value;
@@ -169,14 +183,15 @@ export function SidebarNav({
         <div
           style={sx({
             display: 'flex',
+            flexDirection: collapsed ? 'column' : 'row',
             alignItems: 'center',
             gap: 'var(--space-2)',
             justifyContent: collapsed ? 'center' : 'space-between',
             minHeight: 44,
-            padding: collapsed ? 'var(--space-3) 0 var(--space-2)' : 'var(--space-3) var(--space-3) var(--space-2) var(--space-4)',
+            padding: collapsed ? 'var(--space-3) 0' : 'var(--space-3) var(--space-3) var(--space-2) var(--space-4)',
           })}
         >
-          {!collapsed && header !== undefined && <div style={sx({ minWidth: 0, overflow: 'hidden' })}>{header}</div>}
+          {header !== undefined && <div style={sx({ minWidth: 0, overflow: 'hidden', display: 'flex', alignItems: 'center' })}>{header}</div>}
           {toggleBtn}
         </div>
       )}
@@ -214,6 +229,8 @@ export function SidebarNav({
                 open={isOpen(item.value)}
                 onSelect={onChange}
                 onToggle={() => toggleGroup(item.value)}
+                onTip={showTip}
+                onTipHide={hideTip}
               />
             ))}
           </div>
@@ -233,6 +250,49 @@ export function SidebarNav({
           {footer}
         </div>
       )}
+
+      {mounted &&
+        tip &&
+        createPortal(
+          <div
+            role="tooltip"
+            style={sx({
+              position: 'fixed',
+              top: tip.top,
+              left: tip.left,
+              transform: 'translateY(-50%)',
+              padding: '5px 9px',
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--bg-inverse)',
+              color: 'var(--text-inverse)',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-xs)',
+              fontWeight: 'var(--weight-medium)',
+              lineHeight: 1,
+              whiteSpace: 'nowrap',
+              boxShadow: 'var(--shadow-md)',
+              pointerEvents: 'none',
+              zIndex: 1000,
+              animation: 'sereno-fade-in var(--duration-fast) var(--ease-out)',
+            })}
+          >
+            <span
+              aria-hidden
+              style={sx({
+                position: 'absolute',
+                left: -3,
+                top: '50%',
+                width: 6,
+                height: 6,
+                background: 'var(--bg-inverse)',
+                transform: 'translateY(-50%) rotate(45deg)',
+                borderRadius: 1,
+              })}
+            />
+            {tip.label}
+          </div>,
+          document.body,
+        )}
     </nav>
   );
 }
@@ -244,6 +304,8 @@ function ItemRow({
   open,
   onSelect,
   onToggle,
+  onTip,
+  onTipHide,
 }: {
   item: SidebarNavItem;
   collapsed: boolean;
@@ -251,6 +313,8 @@ function ItemRow({
   open: boolean;
   onSelect?: (value: string) => void;
   onToggle: () => void;
+  onTip: (label: string, rect: DOMRect) => void;
+  onTipHide: () => void;
 }) {
   const st = useInteract(false);
   const hasChildren = !!item.children?.length;
@@ -264,11 +328,23 @@ function ItemRow({
       <button
         type="button"
         className="sereno-sidenav-btn"
-        title={collapsed ? item.label : undefined}
+        aria-label={collapsed ? item.label : undefined}
         aria-current={selfActive ? 'page' : undefined}
         aria-expanded={hasChildren && !collapsed ? open : undefined}
-        onClick={() => (hasChildren ? onToggle() : onSelect?.(item.value))}
+        onClick={() => {
+          onTipHide();
+          if (hasChildren) onToggle();
+          else onSelect?.(item.value);
+        }}
         {...st.handlers}
+        onMouseEnter={(e) => {
+          st.handlers.onMouseEnter?.(e);
+          if (collapsed) onTip(item.label, e.currentTarget.getBoundingClientRect());
+        }}
+        onMouseLeave={(e) => {
+          st.handlers.onMouseLeave?.(e);
+          onTipHide();
+        }}
         style={sx({
           position: 'relative',
           display: 'flex',

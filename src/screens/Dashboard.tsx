@@ -7,15 +7,22 @@ import {
   Bell,
   Calendar,
   CalendarCheck,
+  CalendarOff,
   ChevronDown,
   ChevronRight,
   Copy,
   Download,
+  LifeBuoy,
+  Link2,
   LogOut,
+  Megaphone,
+  MessageSquare,
   Plus,
   Search,
   Settings,
   Sparkles,
+  Star,
+  Ticket,
   UserPlus,
   Users,
   Video,
@@ -58,17 +65,16 @@ import {
   type Appointment,
 } from '@/lib/mock';
 
-type View = 'agenda' | 'clientes' | 'servicos' | 'financeiro' | 'relatorios' | 'config';
-type ConfigSection = 'perfil' | 'grade' | 'lembretes';
-
-const ni = (icon: React.ReactNode) => icon;
+const si = (icon: React.ReactNode) => icon;
 const SIDEBAR_SECTIONS: SidebarNavSection[] = [
   {
     label: 'Atendimento',
     items: [
-      { value: 'agenda', label: 'Agenda', icon: ni(<Calendar size={18} strokeWidth={1.75} />) },
-      { value: 'clientes', label: 'Clientes', icon: ni(<Users size={18} strokeWidth={1.75} />), count: 128 },
-      { value: 'servicos', label: 'Serviços', icon: ni(<Sparkles size={18} strokeWidth={1.75} />) },
+      { value: 'agenda', label: 'Agenda', icon: si(<Calendar size={18} strokeWidth={1.75} />) },
+      { value: 'clientes', label: 'Clientes', icon: si(<Users size={18} strokeWidth={1.75} />), count: 128 },
+      { value: 'servicos', label: 'Serviços', icon: si(<Sparkles size={18} strokeWidth={1.75} />) },
+      { value: 'mensagens', label: 'Mensagens', icon: si(<MessageSquare size={18} strokeWidth={1.75} />), count: 3 },
+      { value: 'bloqueios', label: 'Bloqueios', icon: si(<CalendarOff size={18} strokeWidth={1.75} />) },
     ],
   },
   {
@@ -77,13 +83,24 @@ const SIDEBAR_SECTIONS: SidebarNavSection[] = [
       {
         value: 'financeiro',
         label: 'Financeiro',
-        icon: ni(<Wallet size={18} strokeWidth={1.75} />),
+        icon: si(<Wallet size={18} strokeWidth={1.75} />),
         children: [
           { value: 'financeiro:resumo', label: 'Resumo do mês' },
           { value: 'financeiro:receber', label: 'A receber', count: 4 },
+          { value: 'financeiro:pagamentos', label: 'Pagamentos' },
+          { value: 'financeiro:repasses', label: 'Repasses' },
         ],
       },
-      { value: 'relatorios', label: 'Relatórios', icon: ni(<BarChart3 size={18} strokeWidth={1.75} />) },
+      { value: 'relatorios', label: 'Relatórios', icon: si(<BarChart3 size={18} strokeWidth={1.75} />) },
+      { value: 'avaliacoes', label: 'Avaliações', icon: si(<Star size={18} strokeWidth={1.75} />), count: 12 },
+    ],
+  },
+  {
+    label: 'Marketing',
+    items: [
+      { value: 'link-publico', label: 'Link público', icon: si(<Link2 size={18} strokeWidth={1.75} />) },
+      { value: 'campanhas', label: 'Campanhas', icon: si(<Megaphone size={18} strokeWidth={1.75} />) },
+      { value: 'cupons', label: 'Cupons', icon: si(<Ticket size={18} strokeWidth={1.75} />) },
     ],
   },
   {
@@ -92,13 +109,17 @@ const SIDEBAR_SECTIONS: SidebarNavSection[] = [
       {
         value: 'config',
         label: 'Configurações',
-        icon: ni(<Settings size={18} strokeWidth={1.75} />),
+        icon: si(<Settings size={18} strokeWidth={1.75} />),
         children: [
           { value: 'config:perfil', label: 'Perfil público' },
           { value: 'config:grade', label: 'Grade horária' },
           { value: 'config:lembretes', label: 'Lembretes' },
+          { value: 'config:notificacoes', label: 'Notificações' },
+          { value: 'config:integracoes', label: 'Integrações' },
+          { value: 'config:cobranca', label: 'Plano e cobrança' },
         ],
       },
+      { value: 'ajuda', label: 'Ajuda e suporte', icon: si(<LifeBuoy size={18} strokeWidth={1.75} />) },
     ],
   },
 ];
@@ -111,19 +132,37 @@ const BOTTOM_NAV: { id: string; label: string; icon: React.ReactNode }[] = [
   { id: 'config:perfil', label: 'Ajustes', icon: <Settings size={22} strokeWidth={1.75} /> },
 ];
 
-const VIEW_TITLE: Record<View, string> = {
-  agenda: 'Agenda',
-  clientes: 'Clientes',
-  servicos: 'Serviços',
-  financeiro: 'Financeiro',
-  relatorios: 'Relatórios',
-  config: 'Configurações',
-};
-const CONFIG_LABEL: Record<ConfigSection, string> = {
-  perfil: 'Perfil público',
-  grade: 'Grade horária',
-  lembretes: 'Lembretes',
-};
+const KNOWN_BASES = new Set(['agenda', 'clientes', 'servicos', 'financeiro', 'relatorios', 'config']);
+const KNOWN_CONFIG = new Set(['perfil', 'grade', 'lembretes']);
+const KNOWN_FINANCE = new Set(['resumo', 'receber']);
+
+/** Page title from the nav data: leaf → its label, child → `Parent · Child`. */
+function titleForView(v: string): string {
+  for (const s of SIDEBAR_SECTIONS) {
+    for (const it of s.items) {
+      if (it.value === v) return it.label;
+      const c = it.children?.find((ch) => ch.value === v);
+      if (c) return `${it.label} · ${c.label}`;
+    }
+  }
+  return 'Sereno';
+}
+
+/** Placeholder brand mark — swap for the real asset when there is one. */
+function SerenoMark({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" role="img" aria-label="Sereno" style={{ display: 'block', flex: '0 0 auto' }}>
+      <defs>
+        <linearGradient id="sereno-mark" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#7d8bdf" />
+          <stop offset="1" stopColor="#4f46e5" />
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="9" fill="url(#sereno-mark)" />
+      <path d="M10.5 16.5l3.7 3.7L22 12" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 const cardTitle: React.CSSProperties = { fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' };
 const vcol = (gap: string): React.CSSProperties => ({ display: 'flex', flexDirection: 'column', gap });
@@ -356,15 +395,8 @@ export function Dashboard() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const [base, sub] = view.split(':') as [View, string | undefined];
-  const pageTitle =
-    base === 'financeiro'
-      ? sub === 'receber'
-        ? 'Financeiro · A receber'
-        : 'Financeiro'
-      : base === 'config'
-        ? `Configurações · ${CONFIG_LABEL[(sub as ConfigSection) ?? 'perfil']}`
-        : VIEW_TITLE[base];
+  const [base, sub] = view.split(':') as [string, string | undefined];
+  const pageTitle = titleForView(view);
 
   return (
     <div style={{ background: 'var(--bg-canvas)', minHeight: '100dvh' }}>
@@ -378,27 +410,23 @@ export function Dashboard() {
             labels={{ expand: 'Expandir', collapse: 'Recolher' }}
             sections={SIDEBAR_SECTIONS}
             header={
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>
-                {navCollapsed ? 'S' : 'Sereno'}
-              </span>
+              navCollapsed ? (
+                <SerenoMark size={30} />
+              ) : (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                  <SerenoMark size={24} />
+                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>
+                </span>
+              )
             }
             footer={
-              <>
-                <Card padding="sm" elevation="none" style={{ background: 'var(--bg-accent-soft)', ...vcol('6px') }}>
-                  <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Plano gratuito</span>
-                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.4 }}>18 de 20 agendamentos usados este mês.</span>
-                  <Button variant="accent" size="sm" fullWidth style={{ marginTop: 4 }} onClick={() => setToast('Redirecionando para os planos…')}>
-                    Assinar agora
-                  </Button>
-                </Card>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: '0 var(--space-1)' }}>
-                  <Avatar name="Ana Beatriz Ramos" size="sm" />
-                  <div style={{ ...vcol('0'), minWidth: 0 }}>
-                    <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Ana Beatriz</span>
-                    <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>Psicóloga clínica</span>
-                  </div>
-                </div>
-              </>
+              <Card padding="sm" elevation="none" style={{ background: 'var(--bg-accent-soft)', ...vcol('6px') }}>
+                <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Plano gratuito</span>
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.4 }}>18 de 20 agendamentos usados este mês.</span>
+                <Button variant="accent" size="sm" fullWidth style={{ marginTop: 4 }} onClick={() => setToast('Redirecionando para os planos…')}>
+                  Assinar agora
+                </Button>
+              </Card>
             }
           />
         </div>
@@ -428,9 +456,10 @@ export function Dashboard() {
             {base === 'agenda' && <AgendaView onCancel={() => setDialogOpen(true)} onToast={setToast} />}
             {base === 'clientes' && <ClientesView />}
             {base === 'servicos' && <ServicosView />}
-            {base === 'financeiro' && <FinanceiroView section={sub === 'receber' ? 'receber' : 'resumo'} />}
+            {base === 'financeiro' && <FinanceiroView section={sub ?? 'resumo'} title={pageTitle} />}
             {base === 'relatorios' && <RelatoriosView />}
-            {base === 'config' && <ConfigView section={(sub as ConfigSection) ?? 'perfil'} />}
+            {base === 'config' && <ConfigView section={sub ?? 'perfil'} title={pageTitle} />}
+            {!KNOWN_BASES.has(base) && <ComingSoonView title={pageTitle} />}
           </main>
         </div>
       </div>
@@ -735,7 +764,26 @@ const PENDING_PAYMENTS = CLIENTS.slice(0, 4).map((c, i) => ({
   late: i === 3,
 }));
 
-function FinanceiroView({ section }: { section: 'resumo' | 'receber' }) {
+function ComingSoon({ label }: { label: string }) {
+  return (
+    <Card padding="none">
+      <EmptyState
+        icon={<Sparkles size={22} strokeWidth={1.75} />}
+        title={`${label} — em breve`}
+        description="Esta área ainda não faz parte deste design system; entra quando o fluxo for definido."
+      />
+    </Card>
+  );
+}
+function ComingSoonView({ title }: { title: string }) {
+  return (
+    <div style={{ ...vcol('var(--space-5)'), maxWidth: 760 }}>
+      <ComingSoon label={title} />
+    </div>
+  );
+}
+
+function FinanceiroView({ section, title }: { section: string; title: string }) {
   return (
     <div style={{ ...vcol('var(--space-5)'), maxWidth: 760 }}>
       <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
@@ -743,7 +791,9 @@ function FinanceiroView({ section }: { section: 'resumo' | 'receber' }) {
         <Stat label="A receber" value="R$ 860" delta="4 atendimentos" />
         <Stat label="Ticket médio" value="R$ 196" />
       </div>
-      {section === 'resumo' ? (
+      {!KNOWN_FINANCE.has(section) ? (
+        <ComingSoon label={title} />
+      ) : section === 'resumo' ? (
         <Card padding="none">
           <EmptyState
             icon={<BarChart3 size={22} strokeWidth={1.75} />}
@@ -797,12 +847,20 @@ function RelatoriosView() {
   );
 }
 
-function ConfigView({ section }: { section: ConfigSection }) {
+function ConfigView({ section, title }: { section: string; title: string }) {
   const [week, setWeek] = React.useState(DEFAULT_WEEK);
   const [buffer, setBuffer] = React.useState('10');
   const [r24, setR24] = React.useState(true);
   const [r1, setR1] = React.useState(true);
   const [daily, setDaily] = React.useState(false);
+
+  if (!KNOWN_CONFIG.has(section)) {
+    return (
+      <div style={{ ...vcol('var(--space-4)'), maxWidth: 600 }}>
+        <ComingSoon label={title} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ ...vcol('var(--space-4)'), maxWidth: 600 }}>
