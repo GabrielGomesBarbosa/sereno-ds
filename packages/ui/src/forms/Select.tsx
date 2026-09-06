@@ -210,8 +210,9 @@ function CustomSelect({
   // Drop down by default; flip up only when there isn't room. Re-checked on
   // scroll/resize — but this only ever *toggles a direction*, it never
   // repositions per frame (that's what made the panel jitter). Between the rare
-  // flips the panel is plain `position: absolute` and rides along for free. If
-  // the field scrolls out of view entirely, close.
+  // flips the panel is plain `position: absolute` and rides along for free.
+  // Scrolling the field off-screen doesn't close the menu (matches MUI) — the
+  // panel just scrolls away with it and comes back on scroll-back.
   useIsoLayoutEffect(() => {
     if (!open) return;
     const t = triggerRef.current;
@@ -222,10 +223,6 @@ function CustomSelect({
       const vh = window.innerHeight || document.documentElement.clientHeight || 0;
       if (!vh) return;
       const r = t.getBoundingClientRect();
-      if (r.bottom <= 0 || r.top >= vh) {
-        setOpen(false);
-        return;
-      }
       const spaceBelow = vh - r.bottom;
       const wantAbove = spaceBelow < panelH + 16 && r.top - 16 > spaceBelow;
       setPlaceAbove((prev) => (prev === wantAbove ? prev : wantAbove));
