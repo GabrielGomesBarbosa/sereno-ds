@@ -186,21 +186,8 @@ html, body { padding: 0; margin: 0; }
   }
   .booking-chrome { display: none; }              /* rail replaces the hero / TopBar */
   .booking-step-title { display: block; }
-  .booking-backbtn {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    align-self: flex-start;
-    margin: var(--space-5) var(--gutter-desktop) 0;
-    padding: 4px 6px 4px 2px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    color: var(--text-secondary);
-    font-family: var(--font-body);
-    font-size: var(--text-sm);
-  }
-  .booking-backbtn:hover { color: var(--text-primary); }
+  /* A @sereno/ui ghost Button; the class only positions it in the step column. */
+  .booking-backbtn { display: inline-flex; align-self: flex-start; margin: var(--space-5) var(--gutter-desktop) 0; }
   .booking-scroll { padding-inline: var(--gutter-desktop); }
   .booking-footer { padding-inline: var(--gutter-desktop); }
 }

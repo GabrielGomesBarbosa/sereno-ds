@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Calendar, CalendarPlus, CheckCircle2, ChevronLeft, CreditCard, Info, Mail, Phone, Share2, User, Video } from 'lucide-react';
-import { Badge, Button, Card, Checkbox, DateTimePicker, IconButton, Input, Textarea, TopBar } from '@sereno/ui';
+import { Badge, Brand, Button, Card, Checkbox, DateTimePicker, IconButton, Input, Textarea, TopBar } from '@sereno/ui';
 import { ServiceCard } from '@/domain/ServiceCard';
 import { ProfessionalCard } from '@/domain/ProfessionalCard';
 import type { Professional, Service } from '@/lib/mock';
@@ -27,8 +27,6 @@ const railLabel: React.CSSProperties = {
   textTransform: 'uppercase',
   color: 'var(--text-muted)',
 };
-const wordmark: React.CSSProperties = { fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.03em', color: 'var(--text-brand)' };
-
 function Progress({ step }: { step: number }) {
   return (
     <div style={{ display: 'flex', gap: 6, padding: '0 var(--gutter-mobile) var(--space-3)' }}>
@@ -53,7 +51,7 @@ function Hero({ professional }: { professional: Professional }) {
   return (
     <div style={{ background: 'var(--bg-brand-soft)', padding: 'var(--space-6) var(--gutter-mobile) var(--space-5)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-4)' }}>
-        <span style={wordmark}>Sereno</span>
+        <Brand variant="lockup" size={22} />
         <IconButton label="Compartilhar" variant="secondary">
           <Share2 size={20} strokeWidth={1.75} />
         </IconButton>
@@ -79,7 +77,7 @@ function Hero({ professional }: { professional: Professional }) {
 function Rail({ professional, service, day, time }: { professional: Professional; service: Service | null; day: number | null; time: string | null }) {
   return (
     <>
-      <span style={wordmark}>Sereno</span>
+      <Brand variant="lockup" size={22} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
         <ProfessionalCard
           name={professional.name}
@@ -166,16 +164,21 @@ export function BookingFlow({ professional, services }: { professional: Professi
           )}
           {step === 'confirmed' && (
             <div className="booking-chrome">
-              <TopBar leading={<span style={wordmark}>Sereno</span>} />
+              <TopBar leading={<Brand variant="lockup" size={22} />} />
             </div>
           )}
 
           {/* Desktop back link for inner steps */}
           {(step === 'schedule' || step === 'details') && (
-            <button className="booking-backbtn" onClick={() => setStep(step === 'schedule' ? 'profile' : 'schedule')}>
-              <ChevronLeft size={16} strokeWidth={1.75} />
+            <Button
+              className="booking-backbtn"
+              variant="ghost"
+              size="sm"
+              iconLeft={<ChevronLeft size={16} strokeWidth={1.75} />}
+              onClick={() => setStep(step === 'schedule' ? 'profile' : 'schedule')}
+            >
               Voltar
-            </button>
+            </Button>
           )}
 
           {step === 'profile' && (
@@ -226,15 +229,18 @@ export function BookingFlow({ professional, services }: { professional: Professi
               <span className="booking-step-title" style={{ ...display('var(--text-xl)'), marginBottom: 'var(--space-2)' }}>
                 Seus dados
               </span>
-              <Card padding="md" style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', background: 'var(--bg-brand-soft)', border: '1px solid transparent' }}>
-                <Calendar size={20} strokeWidth={1.75} />
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--text-primary)' }}>{service.name}</span>
-                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
-                    {day ?? 14} de agosto · {time} · {service.duration}
-                  </span>
-                </div>
-              </Card>
+              {/* Recap of the choice so far — the desktop rail already shows it, so mobile/tablet only. */}
+              <div className="booking-chrome">
+                <Card padding="md" style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', background: 'var(--bg-brand-soft)', border: '1px solid transparent' }}>
+                  <Calendar size={20} strokeWidth={1.75} />
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--text-primary)' }}>{service.name}</span>
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                      {day ?? 14} de agosto · {time} · {service.duration}
+                    </span>
+                  </div>
+                </Card>
+              </div>
               <Input label="Nome completo" required size="lg" placeholder="Marina Alves" iconLeft={<User size={16} strokeWidth={1.75} />} />
               <Input
                 label="WhatsApp"

@@ -54,22 +54,25 @@ export function ServiceCard({ name, duration, price, description, tag, selected 
             {description}
           </span>
         )}
-        {duration && (
-          <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--weight-medium)' })}>{duration}</span>
-        )}
       </div>
-      {price && (
-        <span
-          style={sx({
-            fontFamily: 'var(--font-display)',
-            fontSize: 'var(--text-md)',
-            fontWeight: 'var(--weight-bold)',
-            color: 'var(--text-primary)',
-            whiteSpace: 'nowrap',
-          })}
-        >
-          {price}
-        </span>
+      {(price || duration) && (
+        <div style={sx({ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2, whiteSpace: 'nowrap' })}>
+          {price && (
+            <span
+              style={sx({
+                fontFamily: 'var(--font-display)',
+                fontSize: 'var(--text-md)',
+                fontWeight: 'var(--weight-bold)',
+                color: 'var(--text-primary)',
+              })}
+            >
+              {price}
+            </span>
+          )}
+          {duration && (
+            <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--weight-medium)' })}>{duration}</span>
+          )}
+        </div>
       )}
     </Card>
   );

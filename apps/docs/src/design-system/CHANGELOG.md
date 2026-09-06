@@ -18,6 +18,11 @@ Version shown in the `/design-system` header. Source: `apps/docs/src/design-syst
 - `ProfessionalCard` (previously only in the showcase) now renders the
   professional's identity at the top of the booking flow — mobile hero and
   desktop rail — replacing the hand-rolled `Avatar` + text.
+- Booking flow polish: the plain "Sereno" wordmark is now the `Brand` lockup
+  (drop + wordmark); the desktop "Voltar" link is a real `@sereno/ui` ghost
+  `Button`; the in-step service/time recap card is hidden on desktop (the rail
+  already shows it); `ServiceCard` moves the duration under the price,
+  right-aligned. (`Brand` in the dashboard / onboarding screens is still SS-180.)
 - No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, packages at
   `0.0.0`, no changeset).
 - Drive-by: the `Brand` lockup in the `/design-system` sidebar header is now a
