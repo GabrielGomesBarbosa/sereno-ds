@@ -1,9 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { sx } from '../_internal/style';
-import { Card } from '../core/Card';
-import { Badge } from '../core/Badge';
+import { Card, Badge } from '@sereno/ui';
+import { sx } from './sx';
 
 /**
  * One bookable service in the public flow and in the professional's catalogue.

@@ -42,7 +42,6 @@ import {
 } from 'lucide-react';
 import {
   Alert,
-  AppointmentCard,
   Avatar,
   Badge,
   Button,
@@ -54,16 +53,17 @@ import {
   Input,
   SearchInput,
   Select,
-  ServiceCard,
   SidebarNav,
   type SidebarNavSection,
   Switch,
   Tabs,
   Toast,
   TopBar,
-  WeeklyScheduleEditor,
 } from '@sereno/ui';
 import { ThemeToggle } from '@sereno/ui';
+import { AppointmentCard } from '@/domain/AppointmentCard';
+import { ServiceCard } from '@/domain/ServiceCard';
+import { WeeklyScheduleEditor } from '@/domain/WeeklyScheduleEditor';
 import {
   AGENDA_SCHEDULE,
   CLIENTS,

@@ -2,7 +2,9 @@
 
 import * as React from 'react';
 import { Calendar, CheckCircle2, Link2, Share2, Sparkles, User } from 'lucide-react';
-import { AvatarUpload, Badge, Button, Card, Input, Select, ServiceCard, Stepper, WeeklyScheduleEditor, type WeekSchedule } from '@sereno/ui';
+import { AvatarUpload, Badge, Button, Card, Input, Select, Stepper } from '@sereno/ui';
+import { ServiceCard } from '@/domain/ServiceCard';
+import { WeeklyScheduleEditor, type WeekSchedule } from '@/domain/WeeklyScheduleEditor';
 import { DEFAULT_WEEK } from '@/lib/mock';
 
 const STEPS = [

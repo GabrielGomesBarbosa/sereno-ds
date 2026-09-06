@@ -2,7 +2,7 @@
 // every screen reads from here. Copy tuned to the DS content rules: sentence case,
 // 24h times, "R$ 180" with a non-breaking space, closed status vocabulary.
 
-import type { WeekSchedule } from '@sereno/ui';
+import type { WeekSchedule } from '@/domain/WeeklyScheduleEditor';
 
 export interface Professional {
   slug: string;

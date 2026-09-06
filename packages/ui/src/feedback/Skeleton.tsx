@@ -10,7 +10,7 @@ import { sx } from '../_internal/style';
 export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * `text` = stacked lines (last one short). `card` = avatar + three lines + trailing
-   * pill, matching `AppointmentCard`/`ServiceCard`. `avatar` = single circle sized to
+   * pill — a typical list-row card. `avatar` = single circle sized to
    * `Avatar`. `block` = one rectangle for images, charts, calendars.
    */
   variant?: 'text' | 'card' | 'avatar' | 'block';

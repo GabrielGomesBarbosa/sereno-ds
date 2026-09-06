@@ -1,10 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { sx } from '../_internal/style';
-import { Card } from '../core/Card';
-import { Badge } from '../core/Badge';
-import { Avatar } from '../core/Avatar';
+import { Card, Badge, Avatar } from '@sereno/ui';
+import { sx } from './sx';
 
 /**
  * A booking in the professional's agenda: time block, client, service, lifecycle badge.

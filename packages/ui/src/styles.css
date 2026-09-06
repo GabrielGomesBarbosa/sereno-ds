@@ -130,14 +130,6 @@
 .ds-affix-btn:focus { outline: none; }
 .ds-affix-btn:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 
-/* ── WeeklyScheduleEditor ────────────────────────────────────────────────────
-   The day rows are an inline grid; this is the only breakpoint where they
-   reflow to a single column. */
-@media (max-width: 560px) {
-  .sereno-week-row { grid-template-columns: minmax(0, 1fr) !important; gap: var(--space-2) !important; }
-  .sereno-week-times { flex-wrap: wrap; }
-}
-
 /* ── Reduced motion ──────────────────────────────────────────────────────────
    The token layer already zeroes `--duration-*`, but Button's spinner and
    Skeleton's pulse use fixed loop durations — damp every animation so the

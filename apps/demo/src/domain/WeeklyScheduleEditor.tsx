@@ -1,9 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { sx } from '../_internal/style';
-import { Switch } from '../forms/Switch';
-import { Select } from '../forms/Select';
+import { Switch, Select } from '@sereno/ui';
+import { sx } from './sx';
 
 export interface DaySchedule {
   enabled: boolean;

@@ -13,9 +13,9 @@ npm workspaces + Turborepo. Four workspaces:
 | Path | Name | What |
 |---|---|---|
 | `packages/tokens` | `@sereno/tokens` | the token CSS (`*.css` + a `tokens.css` barrel) |
-| `packages/ui` | `@sereno/ui` | the 31 primitives + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) |
+| `packages/ui` | `@sereno/ui` | the 27 primitives + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) |
 | `apps/docs` | `docs` | the `/design-system` showcase (Next 16, `output: 'export'`) |
-| `apps/demo` | `demo` | `/demo` hub + `/agendar/[slug]` + `/dashboard` + `/onboarding` + `src/screens/` + `src/lib/mock.ts` |
+| `apps/demo` | `demo` | landing at `/` + `/agendar/[slug]` + `/dashboard` + `/onboarding` + `src/screens/` + `src/domain/` (product cards on `@sereno/ui`) + `src/lib/mock.ts` |
 
 - Apps import from `@sereno/ui` / `@sereno/tokens` (workspace symlink +
   `transpilePackages: ['@sereno/ui']` — the package is TS source until it's built
@@ -122,7 +122,7 @@ previews (test locally + on the branch).
 
 - **Two Next.js 16 App Router apps** under `apps/`, both `output: 'export'`
   (static). No SSR / Node server.
-- **No UI base library.** The 31 primitives in `packages/ui/src/` are token-driven
+- **No UI base library.** The 27 primitives in `packages/ui/src/` are token-driven
   inline styles reading CSS custom properties. When editing them, preserve
   behaviour; do not introduce Radix / MUI / Tailwind.
 - **Tokens** live in `packages/tokens/*.css`. Adjustments are made and documented
@@ -142,11 +142,12 @@ previews (test locally + on the branch).
 - **Component keyframes / pseudo-class rules** (`sereno-spin`, `-pop`, `-slide-up`,
   `-pulse`, `-flyout-in`, `-fade-in`; `.sereno-check` / `.sereno-radio` /
   `.sereno-switch` states; `.sereno-tab-scroll` and `.sereno-sidenav*` scrollbar
-  rules; the in-field `.ds-affix-btn`; `WeeklyScheduleEditor`'s 560px reflow) live
-  in **`packages/ui/src/styles.css`** — they ship with the components. Each app's
-  `globals.css` only `@import`s it. Edit the rule where it lives.
-  App-shell drawer keyframes (`sereno-drawer-in/out`, `sereno-fade-out`) live in
-  the app `globals.css` files — no component uses them.
+  rules; the in-field `.ds-affix-btn`) live in **`packages/ui/src/styles.css`** —
+  they ship with the components. Each app's `globals.css` only `@import`s it. Edit
+  the rule where it lives.
+  App-shell drawer keyframes (`sereno-drawer-in/out`, `sereno-fade-out`) and the
+  `WeeklyScheduleEditor` 560px reflow (a product card, now in `apps/demo/src/domain/`)
+  live in the app `globals.css` files — no `@sereno/ui` component uses them.
 - **Host-app (shell) concerns — not the library.** These live in the app
   `globals.css` files, not `packages/ui`:
   - `@media (pointer: coarse)` — forces text controls to 16px so iOS / WebKit

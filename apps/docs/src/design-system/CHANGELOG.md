@@ -2,6 +2,22 @@
 
 Version shown in the `/design-system` header. Source: `apps/docs/src/design-system/version.ts`.
 
+## 0.21.0 — Domain cards out of the DS (SS-212)
+
+- **The `domain` category is gone from `@sereno/ui`.** `ServiceCard`,
+  `ProfessionalCard`, `AppointmentCard` and `WeeklyScheduleEditor` encoded
+  Sereno's product domain, not reusable UI — a published DS should not ship
+  them. They moved to `apps/demo/src/domain/` as a reference for building product
+  components on top of the DS (compose primitives, local `sx` helper). The real
+  app (SS-104) builds its own.
+- **Showcase:** the Domain section and its four component pages are removed;
+  `CategoryId` drops `'domain'`. Catalogue is now **27 primitives** across core /
+  forms / navigation / feedback / theme.
+- `WeeklyScheduleEditor`'s 560px reflow rule moved from `@sereno/ui/styles.css`
+  to `apps/demo/app/globals.css` with the component.
+- No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, packages at
+  `0.0.0`, no changeset).
+
 ## 0.20.0 — Demo app front door (SS-206)
 
 - **`apps/demo` hub moved from `/demo` to `/`.** The client redirect

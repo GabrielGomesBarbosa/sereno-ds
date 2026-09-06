@@ -3,7 +3,7 @@
 // the /design-system index and `generateStaticParams` for the per-component routes.
 // Prop rows are transcribed from each component's .d.ts contract.
 
-export type CategoryId = 'core' | 'forms' | 'domain' | 'navigation' | 'feedback';
+export type CategoryId = 'core' | 'forms' | 'navigation' | 'feedback';
 
 export interface PropRow {
   name: string;
@@ -41,7 +41,6 @@ export interface ComponentMeta {
 export const CATEGORIES: { id: CategoryId; label: string; blurb: string }[] = [
   { id: 'core', label: 'Core', blurb: 'Actions, status pills and identity.' },
   { id: 'forms', label: 'Forms', blurb: 'Fields, selects, toggles and the calendar.' },
-  { id: 'domain', label: 'Domain', blurb: 'Cards for the scheduling domain.' },
   { id: 'navigation', label: 'Navigation', blurb: 'Headers, tabs and progress.' },
   { id: 'feedback', label: 'Feedback', blurb: 'Notices, confirmations and loading.' },
 ];
@@ -619,7 +618,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'sizes',
         title: 'Sizes',
-        description: '`sm` is used inside the `WeeklyScheduleEditor`.',
+        description: '`sm` fits dense rows — inline filters, a time-range picker.',
         code: `<Select label="Field" size="sm" options={opts} />
 <Select label="Field" size="md" options={opts} />
 <Select label="Field" size="lg" options={opts} />`,
@@ -1107,204 +1106,6 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
         'Running an expensive query on every keystroke — that is what the debounce is for.',
         'A search field with no clear affordance — the × is part of the contract.',
       ],
-    },
-  },
-
-  // ── domain ────────────────────────────────────────────────────────────────
-  {
-    slug: 'service-card',
-    name: 'ServiceCard',
-    category: 'domain',
-    summary: 'One bookable service, in the public flow and in the professional’s catalogue.',
-    props: [
-      R('name', 'string', 'Service name.'),
-      R('duration', 'string', 'Human duration, e.g. "50 min".'),
-      R('price', 'string', 'Pre-formatted BRL string, e.g. "R$ 180".'),
-      R('description', 'string', 'Short description.'),
-      R('tag', 'string', 'Info badge, e.g. "Online".'),
-      R('selected / onSelect', 'boolean / () => void', 'Makes the card selectable.'),
-    ],
-    code: `<ServiceCard
-  name="Therapy session"
-  duration="50 min"
-  price="R$ 180"
-  tag="Online"
-  selected={picked}
-  onSelect={() => setPicked(true)}
-/>`,
-    examples: [
-      {
-        id: 'basic',
-        title: 'Basic',
-        description: '`price` is an already-formatted string ("R$ 180" — no cents in UI). `tag` becomes an info `Badge` ("Online", "In person").',
-        code: `<ServiceCard
-  name="Therapy session"
-  duration="50 min"
-  price="R$ 180"
-  tag="Online"
-  description="One-on-one session by video."
-/>`,
-      },
-      {
-        id: 'selectable',
-        title: 'Selectable',
-        description: 'Passing `onSelect` makes the card interactive; `selected` marks the choice (it inherits the `Card` `selected` state).',
-        code: `<ServiceCard name="Therapy session" duration="50 min" price="R$ 180"
-  selected={id === 'psi'} onSelect={() => setId('psi')} />
-<ServiceCard name="First consultation" duration="1h" price="R$ 220"
-  selected={id === 'aval'} onSelect={() => setId('aval')} />`,
-      },
-    ],
-    guidelines: {
-      do: ['Pre-formatted `price`: "R$ 180", "R$ 1.200".', 'Human duration: "50 min", "1h", "1h30".'],
-      dont: ['"R$ 180,00" in the UI (cents only in receipts).', 'A selectable card without `onSelect` (`selected` alone is not clickable).'],
-    },
-  },
-  {
-    slug: 'professional-card',
-    name: 'ProfessionalCard',
-    category: 'domain',
-    summary: 'A professional’s identity card — public directory, booking header, team lists.',
-    props: [
-      R('name', 'string', 'Professional’s name.'),
-      R('specialty', 'string', 'e.g. "Clinical psychologist".'),
-      R('credential', 'string', 'Professional registration, e.g. "CRP 06/123456".'),
-      R('location / rating', 'string', 'City and pre-formatted rating.'),
-      R('photo', 'string', 'Photo URL (falls back to initials).'),
-      R('action', 'React.ReactNode', 'Trailing element, usually a Button.'),
-    ],
-    code: `<ProfessionalCard
-  name="Ana Beatriz Ramos"
-  specialty="Clinical psychologist"
-  credential="CRP 06/123456"
-  location="São Paulo"
-/>`,
-    examples: [
-      {
-        id: 'basic',
-        title: 'Basic',
-        description: 'The credential (CRP/CRN/CRM) shows whenever it exists — it is a trust signal, not a detail.',
-        code: `<ProfessionalCard
-  name="Ana Beatriz Ramos"
-  specialty="Clinical psychologist"
-  credential="CRP 06/123456"
-  location="São Paulo"
-  rating="4,9 (128)"
-/>`,
-      },
-      {
-        id: 'with-action',
-        title: 'With action',
-        description: '`action` is a trailing element — usually a `Button size="sm"`.',
-        code: `<ProfessionalCard
-  name="Ana Beatriz Ramos"
-  specialty="Clinical psychologist"
-  credential="CRP 06/123456"
-  action={<Button size="sm">View calendar</Button>}
-/>`,
-      },
-    ],
-    guidelines: {
-      do: ['Always show `credential` when it exists.', 'Pre-formatted rating: "4,9 (128)".'],
-      dont: ['`action` and `onSelect` together on the same card — pick one behaviour.'],
-    },
-  },
-  {
-    slug: 'appointment-card',
-    name: 'AppointmentCard',
-    category: 'domain',
-    summary: 'A booking in the professional’s agenda: time block, client, service and a lifecycle badge.',
-    props: [
-      R('client', 'string', 'Client name.'),
-      R('service', 'string', 'Booked service.'),
-      R('time', 'string', '"14:30" — large, in the brand-soft time block.'),
-      R('date', 'string', 'Short date under the time, e.g. "Mon, 24".'),
-      R('status', "'confirmed' | 'pending' | 'cancelled' | 'completed'", 'Booking lifecycle. Mapped to a semantic Badge tone internally.', "'confirmed'"),
-      R('channel', 'string', '"Online" / "In person".'),
-      R('actions', 'React.ReactNode', 'Trailing controls, usually IconButtons.'),
-    ],
-    code: `<AppointmentCard
-  time="14:30"
-  date="Mon, 24"
-  client="Juliana Prado"
-  service="Therapy session"
-  channel="Online"
-  status="confirmed"
-/>`,
-    examples: [
-      {
-        id: 'states',
-        title: 'States',
-        description: '`status` is a domain concept (confirmed / pending / cancelled / completed); the card maps it to the semantic `Badge` tone. At narrow widths the card reflows — the badge and actions drop to a second line.',
-        code: `<AppointmentCard time="09:00" date="Mon, 24" client="Marina Alves"
-  service="Therapy session" channel="Online" status="completed" />
-<AppointmentCard time="11:00" date="Mon, 24" client="Carlos Dias"
-  service="First consultation" channel="In person" status="confirmed" />
-<AppointmentCard time="16:00" date="Mon, 24" client="Rafael & Bia"
-  service="Couples therapy" channel="In person" status="pending" />`,
-      },
-      {
-        id: 'with-actions',
-        title: 'With actions',
-        description: '`actions` are trailing controls — usually `IconButton`s, plus a confirm `Button` when `status="pending"`.',
-        code: `<AppointmentCard
-  time="16:00" date="Mon, 24" client="Rafael & Bia"
-  service="Couples therapy" status="pending"
-  actions={<>
-    <Button size="sm">Confirm</Button>
-    <IconButton label="More"><MoreVertical size={18} /></IconButton>
-  </>}
-/>`,
-      },
-    ],
-    guidelines: {
-      do: ['Keep `status` domain-named — the card handles the tone mapping.', 'Time always 24h with a leading zero: "09:00".'],
-      dont: ['More than two controls in `actions` — that becomes a menu.'],
-    },
-  },
-  {
-    slug: 'weekly-schedule-editor',
-    name: 'WeeklyScheduleEditor',
-    category: 'domain',
-    summary: 'Recurring weekly availability editor: one row per day with a Switch, start/end Selects, a buffer and a plain-language recap.',
-    props: [
-      R('value / defaultValue', 'WeekSchedule', 'Controlled via value/onChange, or uncontrolled from defaultValue.'),
-      R('onChange', '(next: WeekSchedule) => void', 'Fired on every day/time change.'),
-      R('buffer / defaultBuffer', "string ('0'|'5'|'10'|'15'|'30')", 'Buffer between appointments, in minutes.', "'10'"),
-      R('onBufferChange', '(minutes: string) => void', 'Fired on buffer change.'),
-      R('showSummary', 'boolean', 'Shows the pt-BR recap line ("Você atende Seg, Ter…").', 'true'),
-    ],
-    code: `<WeeklyScheduleEditor
-  value={week}
-  buffer={buffer}
-  onChange={setWeek}
-  onBufferChange={setBuffer}
-/>`,
-    examples: [
-      {
-        id: 'controlled',
-        title: 'Controlled',
-        description: 'The host owns the week and buffer state (`value` + `onChange`, `buffer` + `onBufferChange`). Each row stacks on narrow screens. The grid is on the 30-minute mark, 07:00 to 21:00.',
-        code: `const [week, setWeek] = useState(DEFAULT_WEEK);
-const [buffer, setBuffer] = useState('10');
-
-<WeeklyScheduleEditor
-  value={week}
-  buffer={buffer}
-  onChange={setWeek}
-  onBufferChange={setBuffer}
-/>`,
-      },
-      {
-        id: 'uncontrolled',
-        title: 'Uncontrolled',
-        description: 'Without `value`, the editor holds its own state from `defaultValue` / `defaultBuffer`. `showSummary={false}` hides the pt-BR recap line ("Você atende Seg, Ter…").',
-        code: `<WeeklyScheduleEditor defaultBuffer="15" showSummary={false} />`,
-      },
-    ],
-    guidelines: {
-      do: ['Prefer the controlled mode in the onboarding wizard (the wizard needs the state).', 'Keep the plain-language recap on in the professional’s flow.'],
-      dont: ['Mixing `value` and `defaultValue`.'],
     },
   },
 
@@ -1808,7 +1609,7 @@ const steps = [
       {
         id: 'variants',
         title: 'Variants',
-        description: '`text` = stacked lines (last one shorter). `card` = avatar + 3 lines + pill (matches `AppointmentCard`/`ServiceCard`). `avatar` = circle. `block` = a rectangle for an image/chart/calendar.',
+        description: '`text` = stacked lines (last one shorter). `card` = avatar + 3 lines + pill (a typical list-row card). `avatar` = circle. `block` = a rectangle for an image/chart/calendar.',
         code: `<Skeleton variant="text" />
 <Skeleton variant="card" />
 <Skeleton variant="avatar" />
