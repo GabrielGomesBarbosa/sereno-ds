@@ -594,10 +594,10 @@ export function Dashboard() {
             position: 'fixed',
             left: 'var(--space-4)',
             right: 'var(--space-4)',
-            top: 'calc(var(--dash-header-h, var(--topbar-height)) + var(--space-3))',
+            top: 'var(--space-4)',
             display: 'flex',
             justifyContent: 'flex-end',
-            zIndex: 90,
+            zIndex: 100, // above the screen header — a toast overlays everything
             pointerEvents: 'none', // wrapper spans the width but must not block clicks
           }}
         >
