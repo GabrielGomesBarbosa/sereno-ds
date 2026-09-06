@@ -24,18 +24,6 @@ export { FileUpload, type FileUploadProps } from './forms/FileUpload';
 export { AvatarUpload, type AvatarUploadProps } from './forms/AvatarUpload';
 export { SearchInput, type SearchInputProps } from './forms/SearchInput';
 
-// domain
-export { ServiceCard, type ServiceCardProps } from './domain/ServiceCard';
-export { ProfessionalCard, type ProfessionalCardProps } from './domain/ProfessionalCard';
-export { AppointmentCard, type AppointmentCardProps } from './domain/AppointmentCard';
-export {
-  WeeklyScheduleEditor,
-  type WeeklyScheduleEditorProps,
-  type WeekSchedule,
-  type DaySchedule,
-  type DayKey,
-} from './domain/WeeklyScheduleEditor';
-
 // navigation
 export { TopBar, type TopBarProps } from './navigation/TopBar';
 export { Tabs, type TabsProps, type TabItem } from './navigation/Tabs';

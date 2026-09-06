@@ -13,7 +13,6 @@ import {
   Flag,
   Lock,
   Mail,
-  MoreVertical,
   Phone,
   Plus,
   Search,
@@ -26,7 +25,6 @@ import {
 } from 'lucide-react';
 import {
   Alert,
-  AppointmentCard,
   Avatar,
   AvatarUpload,
   Badge,
@@ -41,10 +39,8 @@ import {
   FileUpload,
   IconButton,
   Input,
-  ProfessionalCard,
   Radio,
   SearchInput,
-  ServiceCard,
   Select,
   SidebarNav,
   type SidebarNavSection,
@@ -55,21 +51,7 @@ import {
   Textarea,
   Toast,
   TopBar,
-  WeeklyScheduleEditor,
-  type WeekSchedule,
 } from '@sereno/ui';
-
-// Local fixture for the WeeklyScheduleEditor demo (the showcase does not depend
-// on the demo app's mock data).
-const DEFAULT_WEEK: WeekSchedule = {
-  mon: { enabled: true, start: '09:00', end: '18:00' },
-  tue: { enabled: true, start: '09:00', end: '18:00' },
-  wed: { enabled: true, start: '09:00', end: '18:00' },
-  thu: { enabled: true, start: '09:00', end: '18:00' },
-  fri: { enabled: true, start: '09:00', end: '17:00' },
-  sat: { enabled: false, start: '09:00', end: '13:00' },
-  sun: { enabled: false, start: '09:00', end: '13:00' },
-};
 
 const row: React.CSSProperties = { display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' };
 const col: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 12 };
@@ -835,91 +817,6 @@ function DateTimeComHorarios() {
   );
 }
 
-function ServiceCardBasico() {
-  return (
-    <div style={{ maxWidth: 460 }}>
-      <ServiceCard name="Therapy session" duration="50 min" price="R$ 180" tag="Online" description="One-on-one session by video." />
-    </div>
-  );
-}
-function ServiceCardSelectable() {
-  const [id, setId] = React.useState('psi');
-  return (
-    <div style={{ ...col, maxWidth: 460 }}>
-      <ServiceCard name="Therapy session" duration="50 min" price="R$ 180" selected={id === 'psi'} onSelect={() => setId('psi')} />
-      <ServiceCard name="First consultation" duration="1h" price="R$ 220" selected={id === 'aval'} onSelect={() => setId('aval')} />
-    </div>
-  );
-}
-
-function ProfessionalCardBasico() {
-  return (
-    <div style={{ maxWidth: 480 }}>
-      <ProfessionalCard name="Ana Beatriz Ramos" specialty="Clinical psychologist" credential="CRP 06/123456" location="São Paulo" rating="4,9 (128)" />
-    </div>
-  );
-}
-function ProfessionalCardComAcao() {
-  return (
-    <div style={{ maxWidth: 480 }}>
-      <ProfessionalCard
-        name="Ana Beatriz Ramos"
-        specialty="Clinical psychologist"
-        credential="CRP 06/123456"
-        action={<Button size="sm">View calendar</Button>}
-      />
-    </div>
-  );
-}
-
-function AppointmentCardEstados() {
-  return (
-    <div style={{ ...col, maxWidth: 520 }}>
-      <AppointmentCard time="09:00" date="Mon, 24" client="Marina Alves" service="Therapy session" channel="Online" status="completed" />
-      <AppointmentCard time="11:00" date="Mon, 24" client="Carlos Dias" service="First consultation" channel="In person" status="confirmed" />
-      <AppointmentCard time="16:00" date="Mon, 24" client="Rafael & Bia" service="Couples therapy" channel="In person" status="pending" />
-    </div>
-  );
-}
-function AppointmentCardComAcoes() {
-  return (
-    <div style={{ maxWidth: 520 }}>
-      <AppointmentCard
-        time="16:00"
-        date="Mon, 24"
-        client="Rafael & Bia"
-        service="Couples therapy"
-        status="pending"
-        actions={
-          <>
-            <Button size="sm">Confirm</Button>
-            <IconButton label="More">
-              <MoreVertical size={18} strokeWidth={1.75} />
-            </IconButton>
-          </>
-        }
-      />
-    </div>
-  );
-}
-
-function WeekControlado() {
-  const [week, setWeek] = React.useState<WeekSchedule>(DEFAULT_WEEK);
-  const [buffer, setBuffer] = React.useState('10');
-  return (
-    <div style={{ maxWidth: 640 }}>
-      <WeeklyScheduleEditor value={week} buffer={buffer} onChange={setWeek} onBufferChange={setBuffer} />
-    </div>
-  );
-}
-function WeekNaoControlado() {
-  return (
-    <div style={{ maxWidth: 640 }}>
-      <WeeklyScheduleEditor defaultBuffer="15" showSummary={false} />
-    </div>
-  );
-}
-
 // A phone-screen frame — the bars sit flush to its edges, so their border reads
 // as an in-screen divider, not a broken frame edge.
 // A phone-screen frame. box-shadow for the outline (a real border + radius +
@@ -1529,10 +1426,6 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     disabled: SearchInputDesabilitado,
   },
   'date-time-picker': { calendar: DateTimeCalendario, 'with-times': DateTimeComHorarios },
-  'service-card': { basic: ServiceCardBasico, selectable: ServiceCardSelectable },
-  'professional-card': { basic: ProfessionalCardBasico, 'with-action': ProfessionalCardComAcao },
-  'appointment-card': { states: AppointmentCardEstados, 'with-actions': AppointmentCardComAcoes },
-  'weekly-schedule-editor': { controlled: WeekControlado, uncontrolled: WeekNaoControlado },
   'top-bar': { basic: TopBarBasico, full: TopBarCompleto, transparent: TopBarTransparente },
   tabs: { underline: TabsUnderline, pill: TabsPill, 'full-width': TabsFullWidth, overflow: TabsOverflow },
   'bottom-nav': { basic: BottomNavBasico, 'with-badge': BottomNavBadge },

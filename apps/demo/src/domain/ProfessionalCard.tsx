@@ -1,9 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { sx } from '../_internal/style';
-import { Card } from '../core/Card';
-import { Avatar } from '../core/Avatar';
+import { Card, Avatar } from '@sereno/ui';
+import { sx } from './sx';
 
 /** Identity card for a professional — public directory, booking header, team lists. */
 export interface ProfessionalCardProps extends React.HTMLAttributes<HTMLDivElement> {

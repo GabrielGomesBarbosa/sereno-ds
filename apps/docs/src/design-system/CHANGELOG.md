@@ -2,6 +2,35 @@
 
 Version shown in the `/design-system` header. Source: `apps/docs/src/design-system/version.ts`.
 
+## 0.21.0 — Domain cards out of the DS (SS-212)
+
+- **The `domain` category is gone from `@sereno/ui`.** `ServiceCard`,
+  `ProfessionalCard`, `AppointmentCard` and `WeeklyScheduleEditor` encoded
+  Sereno's product domain, not reusable UI — a published DS should not ship
+  them. They moved to `apps/demo/src/domain/` as a reference for building product
+  components on top of the DS (compose primitives, local `sx` helper). The real
+  app (SS-104) builds its own.
+- **Showcase:** the Domain section and its four component pages are removed;
+  `CategoryId` drops `'domain'`. Catalogue is now **27 primitives** across core /
+  forms / navigation / feedback / theme.
+- `WeeklyScheduleEditor`'s 560px reflow rule moved from `@sereno/ui/styles.css`
+  to `apps/demo/app/globals.css` with the component.
+- `ProfessionalCard` (previously only in the showcase) now renders the
+  professional's identity at the top of the booking flow — mobile hero and
+  desktop rail — replacing the hand-rolled `Avatar` + text.
+- Booking flow polish: the plain "Sereno" wordmark is now the `Brand` lockup
+  (drop + wordmark); the desktop "Voltar" link is a real `@sereno/ui` ghost
+  `Button`; the in-step service/time recap card is hidden on desktop (the rail
+  already shows it); `ServiceCard` moves the duration under the price,
+  right-aligned. (`Brand` in the dashboard / onboarding screens is still SS-180.)
+- Onboarding "first service" step gains an optional **Descrição** `Textarea`,
+  fed into the "como o cliente vai ver" `ServiceCard` preview — it was missing
+  the description line that real services show in the booking flow.
+- No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, packages at
+  `0.0.0`, no changeset).
+- Drive-by: the `Brand` lockup in the `/design-system` sidebar header is now a
+  link back to the docs landing (`/`).
+
 ## 0.20.0 — Demo app front door (SS-206)
 
 - **`apps/demo` hub moved from `/demo` to `/`.** The client redirect

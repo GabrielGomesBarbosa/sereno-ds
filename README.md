@@ -18,7 +18,7 @@ npm workspaces + Turborepo.
 | Path | Name | What |
 |---|---|---|
 | `packages/tokens` | `@sereno/tokens` | the token layer — `*.css` (light × dark) + a `tokens.css` barrel |
-| `packages/ui` | `@sereno/ui` | **31 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) — token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
+| `packages/ui` | `@sereno/ui` | **27 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) — token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
 | `apps/docs` | `docs` | the `/design-system` showcase (Next 16, `output: 'export'`) — MUI-doc-style page per component: live preview, "show code", Do / Don't, "on this page" rail, prev/next, versioned header |
 | `apps/demo` | `demo` | `/demo` hub + `/agendar/[slug]` (public booking) + `/dashboard` + `/onboarding` + `src/screens/` + `src/lib/mock.ts` — fully responsive, components reflow |
 
@@ -40,9 +40,13 @@ npm workspaces + Turborepo.
 | **core** (5) | `Avatar` · `Badge` · `Button` · `Card` · `IconButton` |
 | **forms** (10) | `AvatarUpload` · `Checkbox` · `DateTimePicker` · `FileUpload` · `Input` · `Radio` · `SearchInput` · `Select` · `Switch` · `Textarea` |
 | **navigation** (5) | `BottomNav` · `SidebarNav` · `Stepper` · `Tabs` · `TopBar` |
-| **domain** (4) | `AppointmentCard` · `ProfessionalCard` · `ServiceCard` · `WeeklyScheduleEditor` |
 | **feedback** (5) | `Alert` · `Dialog` · `EmptyState` · `Skeleton` · `Toast` |
 | **theme** (2) | `ThemeProvider` · `ThemeToggle` |
+
+Product-domain cards (`ServiceCard`, `ProfessionalCard`, `AppointmentCard`,
+`WeeklyScheduleEditor`) are **not** in `@sereno/ui` — they encode Sereno's
+domain, not reusable UI. They live in `apps/demo/src/domain/` as a reference for
+building product components on top of the DS.
 
 ## Getting started
 
@@ -54,7 +58,7 @@ npm run lint         # turbo run lint
 npm run typecheck    # turbo run typecheck
 ```
 
-`npm run build` must be green: **docs ≈ 36 routes** (29 component pages + tokens +
+`npm run build` must be green: **docs ≈ 32 routes** (25 component pages + tokens +
 overview + robots) and **demo ≈ 12 routes** (hub + 3 `/agendar` slugs + dashboard
 + onboarding + robots + sitemap).
 
@@ -66,7 +70,7 @@ packages/
   ui/
     src/
       index.ts            the barrel
-      core/ forms/ navigation/ feedback/ domain/   the 31 primitives
+      core/ forms/ navigation/ feedback/   the 27 primitives
       _internal/           Field, CharCount, mask, style helpers
       theme/               ThemeProvider + ThemeToggle
       styles.css           keyframes + :checked / scrollbar / reflow rules
@@ -75,8 +79,9 @@ apps/
     app/                   layout.tsx (fonts + ThemeProvider), globals.css, design-system/**, page.tsx (landing), robots.ts
     src/design-system/     catalog, demos, ComponentView, DocPage, Sidebar, Shell, version.ts + CHANGELOG.md
   demo/
-    app/                   layout.tsx, globals.css, demo/, agendar/[slug]/, dashboard/, onboarding/, robots.ts, sitemap.ts
+    app/                   layout.tsx, globals.css, agendar/[slug]/, dashboard/, onboarding/, robots.ts, sitemap.ts
     src/screens/           BookingFlow, Dashboard, Onboarding
+    src/domain/            ServiceCard, ProfessionalCard, AppointmentCard, WeeklyScheduleEditor — product cards built on @sereno/ui
     src/lib/mock.ts        mocked data for the 3 screens
 turbo.json                 build / lint / typecheck / dev tasks
 tsconfig.base.json         shared compiler options (each workspace extends it)

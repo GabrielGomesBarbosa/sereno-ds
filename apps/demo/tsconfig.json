@@ -4,6 +4,7 @@
     "plugins": [{ "name": "next" }],
     "paths": {
       "@/screens/*": ["./src/screens/*"],
+      "@/domain/*": ["./src/domain/*"],
       "@/lib/*": ["./src/lib/*"],
       "@/*": ["./*"]
     }
