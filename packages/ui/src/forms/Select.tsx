@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
@@ -183,7 +182,12 @@ function CustomSelect({
 
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState(-1);
-  const [coords, setCoords] = React.useState<{ top: number; left: number; width: number } | null>(null);
+  // The panel opens below the trigger; flip above only when there isn't room.
+  // Decided once per open with a single layout read — after that the panel is a
+  // plain absolutely-positioned child, so the browser keeps it glued to the
+  // field through any scroll with zero JS (this is why MUI's disablePortal
+  // popper stays perfectly smooth).
+  const [placeAbove, setPlaceAbove] = React.useState(false);
 
   const selectedIndex = options.findIndex((o) => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
@@ -203,79 +207,20 @@ function CustomSelect({
     return from;
   };
 
-  // Position the portalled panel against the trigger. Writes `transform`
-  // straight to the node rather than through React state: on scroll this runs
-  // per frame, and a `setState` round-trip lands a frame late so the panel
-  // visibly trails the field ("sambando"). `coords` is still set so a later
-  // React render (keyboard nav) doesn't snap back to a stale position.
-  const position = React.useCallback(() => {
+  // One layout read when the menu opens: is there room to drop down, or should
+  // it flip up? After this the panel just rides along with the field.
+  useIsoLayoutEffect(() => {
+    if (!open) return;
     const t = triggerRef.current;
     const p = panelRef.current;
     if (!t || !p) return;
-    const vh = window.innerHeight || document.documentElement.clientHeight;
-    if (!vh) return; // hidden / detached viewport — nothing sensible to compute
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    if (!vh) return;
     const r = t.getBoundingClientRect();
-    // Trigger scrolled out of view — close rather than leave a stray panel.
-    if (r.bottom <= 0 || r.top >= vh) {
-      setOpen(false);
-      return;
-    }
     const panelH = p.offsetHeight || 240;
-    const gap = 6;
     const spaceBelow = vh - r.bottom;
-    const placeAbove = spaceBelow < panelH + gap + 8 && r.top - gap - 8 > spaceBelow;
-    const top = placeAbove ? Math.max(8, r.top - gap - panelH) : r.bottom + gap;
-    const left = r.left;
-    const width = r.width;
-    p.style.transform = `translate3d(${Math.round(left)}px, ${Math.round(top)}px, 0)`;
-    p.style.width = `${width}px`;
-    p.style.visibility = 'visible';
-    setCoords({ top, left, width });
-  }, []);
-
-  useIsoLayoutEffect(() => {
-    if (!open) {
-      setCoords(null);
-      return;
-    }
-    position();
-
-    const inPanel = (n: EventTarget | null) => !!panelRef.current?.contains(n as Node);
-    // The page stays free to scroll while the menu is open (like MUI's popper,
-    // not a native <select>); the panel tracks the trigger frame-for-frame,
-    // coalesced to one update per frame.
-    let raf = 0;
-    const schedule = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        position();
-      });
-    };
-    const onScroll = (e: Event) => {
-      if (inPanel(e.target)) return; // the list's own overflow scroll
-      schedule();
-    };
-    // Arrow / PageUp-Down / Home / End / Space drive the listbox from the
-    // focused trigger, which preventDefaults them — this only guards anything
-    // that reaches the document while the trigger isn't the key target.
-    const SCROLL_KEYS = new Set(['PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown', ' ', 'Spacebar']);
-    const blockKeys = (e: KeyboardEvent) => {
-      if (SCROLL_KEYS.has(e.key) && !inPanel(e.target) && !triggerRef.current?.contains(e.target as Node)) {
-        e.preventDefault();
-      }
-    };
-    // `scroll` doesn't bubble — capture phase catches a scroll on any ancestor.
-    window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', schedule);
-    document.addEventListener('keydown', blockKeys, true);
-    return () => {
-      if (raf) cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', schedule);
-      document.removeEventListener('keydown', blockKeys, true);
-    };
-  }, [open, position]);
+    setPlaceAbove(spaceBelow < panelH + 16 && r.top - 16 > spaceBelow);
+  }, [open]);
 
   // Close on outside pointerdown.
   React.useEffect(() => {
@@ -370,7 +315,7 @@ function CustomSelect({
   const rowPadY = OPTION_PAD_Y[size];
 
   return (
-    <>
+    <div style={sx({ position: 'relative', width: '100%' })}>
       <button
         ref={triggerRef}
         type="button"
@@ -383,8 +328,7 @@ function CustomSelect({
         aria-disabled={disabled || undefined}
         disabled={disabled}
         onMouseDown={(e) => {
-          // Take focus without the browser scrolling us into view (which would
-          // trip the close-on-scroll handler the instant the menu opens).
+          // Take focus without the browser scrolling us into view.
           e.preventDefault();
           triggerRef.current?.focus({ preventScroll: true });
         }}
@@ -418,23 +362,17 @@ function CustomSelect({
         </span>
       </button>
 
-      {open && typeof document !== 'undefined'
-        ? createPortal(
+      {open && (
             <ul
               ref={panelRef}
               id={listboxId}
               role="listbox"
               tabIndex={-1}
               style={sx({
-                position: 'fixed',
-                top: 0,
+                position: 'absolute',
                 left: 0,
-                transform: coords
-                  ? `translate3d(${Math.round(coords.left)}px, ${Math.round(coords.top)}px, 0)`
-                  : 'translate3d(0, -9999px, 0)',
-                willChange: 'transform',
-                width: coords ? coords.width : 220,
-                visibility: coords ? 'visible' : 'hidden',
+                right: 0,
+                ...(placeAbove ? { bottom: 'calc(100% + 6px)' } : { top: 'calc(100% + 6px)' }),
                 minWidth: 160,
                 maxHeight: 288,
                 overflowY: 'auto',
@@ -445,7 +383,7 @@ function CustomSelect({
                 border: 'var(--border-width-hairline) solid var(--border-default)',
                 borderRadius: 'var(--radius-md)',
                 boxShadow: 'var(--shadow-lg)',
-                zIndex: 1000,
+                zIndex: 100,
                 fontFamily: 'var(--font-body)',
                 fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)',
               })}
@@ -484,11 +422,9 @@ function CustomSelect({
                   </li>
                 );
               })}
-            </ul>,
-            document.body,
-          )
-        : null}
-    </>
+            </ul>
+      )}
+    </div>
   );
 }
 
