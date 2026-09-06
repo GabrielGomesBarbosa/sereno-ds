@@ -32,9 +32,9 @@ is the floor.
    when idle and wakes on the next request, a few seconds of cold start). Fine
    for a showcase/demo and keeps usage well under the included $5.
 
-## Step 2 — Service `sereno-ds` (the docs / showcase)
+## Step 2 — Service `docs` (the showcase)
 
-Rename the auto-created service to `sereno-ds` (**Settings → Service Name**), then
+Railway auto-detects the monorepo and stages a `docs` service. Open it →
 **Settings**:
 
 | Field | Value | Why |
@@ -45,13 +45,13 @@ Rename the auto-created service to `sereno-ds` (**Settings → Service Name**), 
 | **Healthcheck Path** | `/` | Confirm it returns 200 before moving on. |
 | **Watch Paths** (optional) | `apps/docs/**`, `packages/**`, `turbo.json`, `package*.json` | So a demo-only change doesn't rebuild docs. |
 
-Then **Settings → Networking → Generate Domain**. You get something like
-`sereno-ds-production.up.railway.app`, HTTPS automatic. Note this URL.
+Then **Settings → Networking → Generate Domain** (e.g.
+`docs-production-xxxx.up.railway.app`, HTTPS automatic). Note this URL.
 
-## Step 3 — Service `sereno-demo` (the demo app)
+## Step 3 — Service `demo` (the demo app)
 
-In the **same project**: **+ New → GitHub Repo** → same repo. Rename it
-`sereno-demo`, then **Settings**:
+The monorepo detection stages a `demo` service in the same project (or add it
+with **+ New → GitHub Repo** → same repo). Open it → **Settings**:
 
 | Field | Value |
 |---|---|
@@ -63,46 +63,49 @@ In the **same project**: **+ New → GitHub Repo** → same repo. Rename it
 
 **Networking → Generate Domain**. Note this URL too.
 
-## Step 4 — Cross-app URLs (build-time env vars)
+## Step 4 — Origins (build-time env vars)
 
-The landing links between the two apps via `NEXT_PUBLIC_DS_URL` /
-`NEXT_PUBLIC_DEMO_URL` (SS-156). `NEXT_PUBLIC_*` is **baked into the client
-bundle at `next build`** — with Nixpacks a plain **service variable set before
-the deploy** is enough (the Dockerfile `ARG` dance the general guide mentions
-does not apply here).
+Each app reads its **own** public origin for `metadataBase`, `sitemap.xml` and
+`robots.txt`, and the **other** app's origin for the cross-app links. All four are
+`NEXT_PUBLIC_*`, **baked into the bundle at `next build`** — with Nixpacks a plain
+service variable set before the deploy is enough (no Dockerfile `ARG`). Reference
+the generated domains directly:
 
 | Service | Variable | Value |
 |---|---|---|
-| `sereno-ds` | `NEXT_PUBLIC_DEMO_URL` | the `sereno-demo` public URL (with `https://`, no trailing slash) |
-| `sereno-demo` | `NEXT_PUBLIC_DS_URL` | the `sereno-ds` public URL |
+| `docs` | `NEXT_PUBLIC_DS_URL` | `https://${{RAILWAY_PUBLIC_DOMAIN}}` — its own origin (metadata, sitemap) |
+| `docs` | `NEXT_PUBLIC_DEMO_URL` | `https://${{demo.RAILWAY_PUBLIC_DOMAIN}}` — the demo, for "See the app" |
+| `demo` | `NEXT_PUBLIC_DEMO_URL` | `https://${{RAILWAY_PUBLIC_DOMAIN}}` — its own origin (metadata, sitemap, robots) |
+| `demo` | `NEXT_PUBLIC_DS_URL` | `https://${{docs.RAILWAY_PUBLIC_DOMAIN}}` — the showcase, for "Design System" |
 
-Order: both services exist → both domains generated → set each variable →
-**Redeploy both** (so the new values get baked in). Without them the links fall
-back to `http://localhost:3000` / `:3001`.
+Order: both services exist → both domains generated → set the four variables →
+**Redeploy both** (values bake in at build). Without them everything falls back to
+`http://localhost:3000` / `:3001`.
 
-Nothing else carries over from Netlify — `NODE_VERSION` isn't needed (Railway's
-Node 20+ is fine).
+No `NODE_VERSION` pin is needed — Railway's Node 20+ is fine.
 
-## Step 5 — Verify (before the Netlify cutover)
+## Step 5 — Verify
 
 For each service, once the deploy is green:
 
 - `GET /` → 200
-- `sereno-ds`: `/design-system/`, `/design-system/core/button/`, `/robots.txt`,
+- `docs`: `/design-system/`, `/design-system/core/button/`, `/robots.txt`,
   `/icon.svg`, `/apple-icon.png`, `/opengraph-image.png` → 200
-- `sereno-demo`: `/`, `/agendar/ana-ramos/`, `/dashboard/`, `/onboarding/`,
-  `/robots.txt`, `/sitemap.xml` → 200
+- `demo`: `/`, `/agendar/ana-ramos/`, `/dashboard/`, `/onboarding/`,
+  `/robots.txt`, `/sitemap.xml` → 200 — and `sitemap.xml` / `robots.txt` must
+  carry the **Railway** origin, not `localhost` or a stale host
 - an unknown path → 404
 - toggle dark mode; check the cross-app "See the app" / "Design System" buttons
   open the other service.
 
 This is SS-186. When both pass, tell me the two URLs.
 
-## Step 6 — Netlify cutover (SS-185, I do this)
+## Step 6 — Netlify cutover (SS-185, done)
 
-Once Railway is confirmed green: remove `netlify.toml`, delete the Netlify site,
-swap the README status badge, drop Netlify mentions from `README.md` /
-`CLAUDE.md`. `netlify.toml` stays until then as the stopgap.
+`netlify.toml` and every Netlify reference (`README.md`, `CLAUDE.md`,
+`.gitignore`, `eslint.config`, plus the repo description / homepage / topics on
+GitHub) were removed once both Railway services were green. Deleting the Netlify
+**site** itself is a manual step in the Netlify dashboard.
 
 ## Gotchas
 

@@ -102,6 +102,8 @@ in SS-199 — for now they track the showcase version.
 
 ## Deploy
 
-**Stopgap until SS-158 (Railway).** `netlify.toml` builds and publishes
-**`apps/docs` only** (`npm run build -- --filter=docs`, `publish = apps/docs/out`).
-`apps/demo` is not deployed anywhere in the meantime — run it locally.
+**Railway**, static. Both apps ship as `output: 'export'` and are served with
+`serve` — two services (`docs`, `demo`) from this repo, build `npm run build:docs`
+/ `build:demo`, start `npm run serve:docs` / `serve:demo`. One domain per service,
+deployed from `main`; no per-PR previews. Setup and route checklist in
+[`docs/deploy.md`](./docs/deploy.md).

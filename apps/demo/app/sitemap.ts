@@ -3,7 +3,7 @@ import { PROFESSIONALS } from '@/lib/mock';
 
 export const dynamic = 'force-static';
 
-const SITE = 'https://sereno-ds.netlify.app';
+const SITE = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3001';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
