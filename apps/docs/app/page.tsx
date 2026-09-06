@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
-import { Accessibility, ArrowRight, Ban, Feather, Layers, MoonStar, Palette } from 'lucide-react';
+import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, MoonStar, Palette } from 'lucide-react';
 import { Brand, Card, ThemeToggle } from '@sereno/ui';
 import { DS_VERSION } from '@/design-system/version';
 import { ComponentGallery } from '@/home/ComponentGallery';
@@ -9,6 +9,10 @@ import { HeroPreview } from '@/home/HeroPreview';
 import { GithubMark, NextMark, ReactMark } from '@/home/tech';
 
 const REPO = 'https://github.com/GabrielGomesBarbosa/sereno-ds';
+
+// The demo is a separate app (apps/demo). SS-158 sets NEXT_PUBLIC_DEMO_URL for
+// the deployed build; locally it runs on :3001.
+const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3001';
 
 const pageTitle = 'Sereno Design System';
 const pageDescription =
@@ -38,6 +42,20 @@ const eyebrow: CSSProperties = {
   textTransform: 'uppercase',
   color: 'var(--text-muted)',
 };
+
+const code: CSSProperties = {
+  fontFamily: 'var(--font-mono)',
+  fontSize: '0.85em',
+  padding: '0.12em 0.4em',
+  borderRadius: 'var(--radius-sm)',
+  background: 'var(--bg-subtle)',
+  color: 'var(--text-primary)',
+};
+
+/** Renders `backtick` spans in a plain string as styled <code>. */
+function withCode(text: string): ReactNode[] {
+  return text.split(/`([^`]+)`/).map((part, i) => (i % 2 ? <code key={i} style={code}>{part}</code> : part));
+}
 
 const cta = (primary: boolean): CSSProperties => ({
   display: 'inline-flex',
@@ -71,8 +89,12 @@ export default function Home() {
     <main
       style={{
         minHeight: '100dvh',
-        background:
-          'radial-gradient(60rem 32rem at 50% -8rem, color-mix(in srgb, var(--interactive-primary) 16%, transparent), transparent 70%), var(--bg-canvas)',
+        background: [
+          'radial-gradient(72rem 38rem at 50% -14rem, color-mix(in srgb, var(--interactive-primary) 24%, transparent), transparent 64%)',
+          'radial-gradient(46rem 34rem at 104% 2%, color-mix(in srgb, var(--interactive-primary) 13%, transparent), transparent 58%)',
+          'radial-gradient(42rem 32rem at -6% 26%, color-mix(in srgb, var(--interactive-primary) 10%, transparent), transparent 60%)',
+          'var(--bg-canvas)',
+        ].join(', '),
       }}
     >
       <div
@@ -155,9 +177,9 @@ export default function Home() {
               <Link href="/design-system" style={cta(true)}>
                 Open the Design System <ArrowRight size={18} strokeWidth={2} />
               </Link>
-              <Link href="/demo" style={cta(false)}>
-                See the app
-              </Link>
+              <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" style={cta(false)}>
+                See the app <ExternalLink size={16} strokeWidth={2} />
+              </a>
             </div>
             <pre
               style={{
@@ -188,7 +210,7 @@ export default function Home() {
               <div key={f.title} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 'var(--radius-md)', background: 'var(--bg-brand-soft)', color: 'var(--text-brand)' }}>{f.icon}</span>
                 <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--text-primary)', margin: 'var(--space-1) 0 0' }}>{f.title}</h2>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: 1.55, color: 'var(--text-secondary)', margin: 0 }}>{f.body}</p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: 1.55, color: 'var(--text-secondary)', margin: 0 }}>{withCode(f.body)}</p>
               </div>
             ))}
           </div>
@@ -214,15 +236,17 @@ export default function Home() {
               </p>
             </Card>
           </Link>
-          <Link href="/demo" style={{ textDecoration: 'none' }}>
+          <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
             <Card padding="lg" interactive style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
               <span style={eyebrow}>Product</span>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>See the app</h2>
+              <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                See the app <ExternalLink size={15} strokeWidth={2} style={{ color: 'var(--text-muted)' }} />
+              </h2>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: 1.55, color: 'var(--text-secondary)', margin: 0 }}>
                 The three real screens — public booking flow, professional dashboard and onboarding — built from these primitives, on mocked data.
               </p>
             </Card>
-          </Link>
+          </a>
         </section>
 
         <footer style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-3)', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)' }}>
