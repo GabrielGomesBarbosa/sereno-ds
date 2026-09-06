@@ -17,6 +17,8 @@ Version shown in the `/design-system` header. Source: `apps/docs/src/design-syst
   to `apps/demo/app/globals.css` with the component.
 - No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, packages at
   `0.0.0`, no changeset).
+- Drive-by: the `Brand` lockup in the `/design-system` sidebar header is now a
+  link back to the docs landing (`/`).
 
 ## 0.20.0 — Demo app front door (SS-206)
 

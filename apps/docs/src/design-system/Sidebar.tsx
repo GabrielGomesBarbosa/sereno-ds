@@ -35,7 +35,11 @@ export function Sidebar() {
       value={active}
       linkComponent={Link}
       collapsible={false}
-      header={<Brand variant="lockup" size={28} />}
+      header={
+        <Link href="/" aria-label="Sereno — home" style={{ display: 'inline-flex', textDecoration: 'none' }}>
+          <Brand variant="lockup" size={28} />
+        </Link>
+      }
       style={{ width: '100%', height: '100%' }}
     />
   );
