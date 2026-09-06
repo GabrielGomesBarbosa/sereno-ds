@@ -125,6 +125,13 @@ previews (test locally + on the branch).
 - **No UI base library.** The 27 primitives in `packages/ui/src/` are token-driven
   inline styles reading CSS custom properties. When editing them, preserve
   behaviour; do not introduce Radix / MUI / Tailwind.
+- **Field adornments must share the control's text metrics.** An `Input` /
+  `Select` `prefix` / `suffix` (and any inline text next to an `<input>`) uses the
+  same `size`-driven `font-size` **and** `line-height: 1.2` as the control, and
+  the `<input>` itself resets `padding` / `margin` to `0`. The field row is
+  `align-items: center`, which centres *boxes*, not baselines — unequal line
+  boxes make the affix drift off the value's baseline (this bit us in SS-215:
+  `prefix` was hard-coded to `--text-sm` and inherited the body's `line-height`).
 - **Tokens** live in `packages/tokens/*.css`. Adjustments are made and documented
   in the file itself:
   - `typography.css` points the font families at the `--font-*` variables the
