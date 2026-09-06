@@ -109,9 +109,16 @@ repo-meta (`CLAUDE.md`, `.gitignore`, `.github/`, `netlify.toml`, `eslint.config
 
 ## Deploy
 
-Stopgap until SS-158. `netlify.toml` builds and publishes **`apps/docs` only**
-(`npm run build -- --filter=docs`, `publish = apps/docs/out`). `apps/demo` is not
-deployed anywhere until the Railway migration (SS-158).
+Moving to **Railway**, static (SS-158) — full setup in [`docs/deploy.md`](docs/deploy.md).
+Both apps are `output: 'export'`; Railway serves the built `out/` with `serve`
+(a root `dependency`). Two services in one project, monorepo Root Directory `/`,
+differing only in command: `npm run build:docs` / `serve:docs` and the `demo`
+pair. Cross-app links use build-time `NEXT_PUBLIC_DS_URL` / `NEXT_PUBLIC_DEMO_URL`.
+No per-PR previews (test locally + on the branch).
+
+`netlify.toml` stays as the stopgap (builds `apps/docs` only) until both Railway
+services are green (SS-186), then it's removed and the Netlify site deleted
+(SS-185).
 
 ## Repo rules
 

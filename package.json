@@ -12,7 +12,11 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "dev": "turbo run dev",
-    "gen:brand-images": "node scripts/generate-brand-images.mjs"
+    "gen:brand-images": "node scripts/generate-brand-images.mjs",
+    "build:docs": "turbo run build --filter=docs",
+    "build:demo": "turbo run build --filter=demo",
+    "serve:docs": "serve apps/docs/out -l ${PORT:-3000} --no-clipboard --no-port-switching",
+    "serve:demo": "serve apps/demo/out -l ${PORT:-3000} --no-clipboard --no-port-switching"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -22,5 +26,8 @@
     "eslint-config-next": "16.3.3",
     "turbo": "^2.5.8",
     "typescript": "^5"
+  },
+  "dependencies": {
+    "serve": "^14.2.6"
   }
 }
