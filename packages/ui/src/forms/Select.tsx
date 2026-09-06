@@ -207,19 +207,40 @@ function CustomSelect({
     return from;
   };
 
-  // One layout read when the menu opens: is there room to drop down, or should
-  // it flip up? After this the panel just rides along with the field.
+  // Drop down by default; flip up only when there isn't room. Re-checked on
+  // scroll/resize — but this only ever *toggles a direction*, it never
+  // repositions per frame (that's what made the panel jitter). Between the rare
+  // flips the panel is plain `position: absolute` and rides along for free. If
+  // the field scrolls out of view entirely, close.
   useIsoLayoutEffect(() => {
     if (!open) return;
     const t = triggerRef.current;
     const p = panelRef.current;
     if (!t || !p) return;
-    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-    if (!vh) return;
-    const r = t.getBoundingClientRect();
     const panelH = p.offsetHeight || 240;
-    const spaceBelow = vh - r.bottom;
-    setPlaceAbove(spaceBelow < panelH + 16 && r.top - 16 > spaceBelow);
+    const evaluate = () => {
+      const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+      if (!vh) return;
+      const r = t.getBoundingClientRect();
+      if (r.bottom <= 0 || r.top >= vh) {
+        setOpen(false);
+        return;
+      }
+      const spaceBelow = vh - r.bottom;
+      const wantAbove = spaceBelow < panelH + 16 && r.top - 16 > spaceBelow;
+      setPlaceAbove((prev) => (prev === wantAbove ? prev : wantAbove));
+    };
+    evaluate();
+    const onScroll = (e: Event) => {
+      if (p.contains(e.target as Node)) return; // the list's own scroll
+      evaluate();
+    };
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', evaluate);
+    return () => {
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', evaluate);
+    };
   }, [open]);
 
   // Close on outside pointerdown.
