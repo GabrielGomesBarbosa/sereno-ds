@@ -14,6 +14,10 @@ Version shown in the `/design-system` header. Source: `apps/docs/src/design-syst
   the product screens stay pt-BR.
 - **`Brand` in the demo hub header** (replaces the plain-text "Sereno · App").
   The dashboard / onboarding / booking screens keep `SerenoMark` until SS-180.
+- **`DemoNav`** — a fixed bottom-center pill on the three screens (not the hub):
+  the mark links back to the hub, plus Booking / Dashboard / Onboarding with the
+  current one marked. Demo-harness chrome, mounted from each route's `page.tsx`,
+  not from `src/screens/`.
 - Cross-app links now consistent: the demo links to the DS and the
   `/design-system` shell's "See the app" both open the other app in a new tab
   with an `ExternalLink` icon, via `NEXT_PUBLIC_DS_URL` / `NEXT_PUBLIC_DEMO_URL`

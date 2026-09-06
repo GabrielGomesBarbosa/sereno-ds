@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Onboarding } from '@/screens/Onboarding';
+import { DemoNav } from '@/src/DemoNav';
 
 const title = 'Onboarding do profissional';
 const description =
@@ -13,5 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default function OnboardingPage() {
-  return <Onboarding />;
+  return (
+    <>
+      <Onboarding />
+      <DemoNav />
+    </>
+  );
 }
