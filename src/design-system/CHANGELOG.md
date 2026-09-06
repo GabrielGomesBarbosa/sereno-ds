@@ -2,6 +2,26 @@
 
 Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
 
+## 0.18.0 — Component stylesheet split out of the app (SS-154)
+
+- **The CSS the components can't inline now lives with the components**, in
+  `src/components/styles.css`: the `@keyframes` (`sereno-spin`, `-pop`,
+  `-slide-up`, `-pulse`, `-flyout-in`, `-fade-in`), the `:checked` / `:indeterminate`
+  / `:focus-visible` rules for `Checkbox` / `Radio` / `Switch`, the
+  `::-webkit-scrollbar` rules for `Tabs` and `SidebarNav`, the in-field
+  `.ds-affix-btn`, `WeeklyScheduleEditor`'s one narrow-screen reflow, and a
+  `prefers-reduced-motion` damp. Before this they were scattered through
+  `app/globals.css` — a component installed on its own rendered wrong.
+- **`app/globals.css` now just `@import`s that file** (one line, right after the
+  tokens). What stays in the app is genuinely host-only: the `pointer: coarse`
+  16px bump, the `html/body` reset, and every `.ds-*` / `.cv-*` / `.dash-*` /
+  `.onb-*` shell rule. The app renders identically.
+- **New consumer contract:** load the component stylesheet once at the app root.
+  Today that's the `@import` above; once the library is packaged it becomes
+  `import '@sereno/ui/styles.css'`.
+- No component API or visual change — first step of the "@sereno/ui as a
+  publishable package" epic (SS-153).
+
 ## 0.17.1 — Stepper showcase + design-system chrome on SidebarNav (SS-53)
 
 - **`Stepper`** examples (Bar · Dots · Clickable back) are now a **live 4-step

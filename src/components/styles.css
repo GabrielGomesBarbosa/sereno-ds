@@ -1,0 +1,147 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   @sereno/ui — component stylesheet.
+
+   The Sereno components are token-driven inline styles, but a handful of things
+   can't live in an inline `style`: @keyframes, pseudo-classes (:checked,
+   :focus-visible), pseudo-elements (::-webkit-scrollbar) and one narrow
+   responsive reflow. Those rules live here and MUST be loaded once, at the app
+   root, for the components to render correctly:
+
+       import '@sereno/ui/styles.css';   // (today: this file, via app/globals.css)
+
+   Depends on the design tokens (custom properties) being defined — see
+   app/styles/tokens/*.css (future @sereno/tokens).
+
+   Not included here (host-app concerns, not the library):
+   - the token layer itself
+   - `@media (pointer: coarse)` 16px font bump (stops iOS focus zoom)
+   - the app shell / screen classes (`.ds-*`, `.cv-*`, `.dash-*`, `.onb-*`)
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* ── Keyframes ───────────────────────────────────────────────────────────────
+   Button's spinner, Dialog/Toast entrances, Skeleton pulse, SidebarNav's rail
+   flyout + collapsed-rail tooltip. */
+@keyframes sereno-spin { to { transform: rotate(360deg); } }
+@keyframes sereno-pop { from { opacity: 0; transform: scale(0.96); } }
+@keyframes sereno-slide-up { from { opacity: 0; transform: translateY(10px); } }
+@keyframes sereno-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@keyframes sereno-flyout-in { from { opacity: 0; transform: translateX(-6px); } }
+@keyframes sereno-fade-in { from { opacity: 0; } }
+
+/* ── Checkbox / Radio / Switch ───────────────────────────────────────────────
+   Checkbox and Radio render bare <input>s; Switch is a role="switch" <span>.
+   All three need these host rules for their checked / focus states. */
+.sereno-check:checked,
+.sereno-check:indeterminate {
+  /* `background-color`, not the `background` shorthand — the shorthand would
+     reset `background-size` and the glyph would stop scaling with the box. */
+  background-color: var(--interactive-primary) !important;
+  border-color: var(--interactive-primary) !important;
+  background-size: 68%; /* scales with the box: ~14px at md (20), ~11px at sm (16) */
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.sereno-check:checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") !important;
+}
+.sereno-check:indeterminate {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round'%3E%3Cline x1='5' y1='12' x2='19' y2='12'/%3E%3C/svg%3E") !important;
+}
+.sereno-radio:checked {
+  background-color: var(--interactive-primary) !important;
+  border-color: var(--interactive-primary) !important;
+  box-shadow: inset 0 0 0 3.5px var(--bg-surface) !important;
+}
+.sereno-radio[data-size='sm']:checked {
+  box-shadow: inset 0 0 0 3px var(--bg-surface) !important;
+}
+/* Switch is a role=switch <span>, not an input — give it a keyboard focus ring. */
+.sereno-switch {
+  outline: none;
+}
+.sereno-switch:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+/* ── Tabs ────────────────────────────────────────────────────────────────────
+   The strip scrolls horizontally when it overflows — hide the scrollbar
+   (the chevrons are the affordance). */
+.sereno-tab-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.sereno-tab-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── SidebarNav ──────────────────────────────────────────────────────────────
+   Thin scroll area, a keyboard ring on its plain <button> rows, and — when
+   collapsed — a hidden scrollbar so a scrollbar gutter can't push the centred
+   icons off-axis from the header mark. */
+.sereno-sidenav {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) transparent;
+}
+.sereno-sidenav::-webkit-scrollbar {
+  width: 6px;
+}
+.sereno-sidenav::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 999px;
+}
+.sereno-sidenav-root[data-collapsed] .sereno-sidenav {
+  scrollbar-width: none;
+}
+.sereno-sidenav-root[data-collapsed] .sereno-sidenav::-webkit-scrollbar {
+  display: none;
+}
+.sereno-sidenav-btn {
+  outline: none;
+}
+.sereno-sidenav-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+.sereno-sidenav-toggle:hover {
+  background: var(--interactive-secondary-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+/* ── In-field affix button ───────────────────────────────────────────────────
+   A bare icon button that sits inside the field frame (Input's password reveal,
+   SearchInput's clear, FileUpload / AvatarUpload actions). NOTE: the class is
+   `ds-affix-btn` for historical reasons — rename to `sereno-affix-btn` is a
+   breaking class-contract change, deferred. */
+.ds-affix-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.ds-affix-btn:hover { color: var(--text-secondary); }
+.ds-affix-btn:focus { outline: none; }
+.ds-affix-btn:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+/* ── WeeklyScheduleEditor ────────────────────────────────────────────────────
+   The day rows are an inline grid; this is the only breakpoint where they
+   reflow to a single column. */
+@media (max-width: 560px) {
+  .sereno-week-row { grid-template-columns: minmax(0, 1fr) !important; gap: var(--space-2) !important; }
+  .sereno-week-times { flex-wrap: wrap; }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────────
+   The token layer already zeroes `--duration-*`, but Button's spinner and
+   Skeleton's pulse use fixed loop durations — damp every animation so the
+   library honours the preference on its own. */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+}

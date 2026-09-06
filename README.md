@@ -23,6 +23,10 @@ navigable showcase and three real product screens — no backend, everything sta
 - **29 React primitives** in `src/components/` — 25 ported 1:1 from the approved
   Design System, plus `FileUpload` (SS-49), `AvatarUpload` (SS-146), `SearchInput` (SS-50) and `SidebarNav` (SS-52), net-new. Token-driven (CSS custom
   properties), inline styles, native dark mode. No Radix / MUI / Tailwind.
+- **Component stylesheet** `src/components/styles.css` — the few things a component
+  can't put in an inline `style` (`@keyframes`, `:checked` / `:focus-visible`,
+  `::-webkit-scrollbar`, one responsive reflow). **Load it once at the app root**
+  (`app/globals.css` `@import`s it today; `import '@sereno/ui/styles.css'` once packaged).
 - **Tokens** in `app/styles/tokens/*.css` — colours (light × dark), type scale,
   spacing, breakpoints, icon sizes, radii, elevation, motion.
 - **Navigable showcase** (`/design-system`) — MUI-doc-style page per component:
@@ -77,7 +81,7 @@ pages, the tokens page, the 3 product screens (3 slugs for `/agendar`), plus
 ```
 app/                       routes (App Router)
   layout.tsx               fonts, ThemeProvider, base metadata / OG
-  globals.css              imports tokens + keyframes + .sereno-check/.sereno-radio rules
+  globals.css              @imports the tokens + the component stylesheet; then app-shell rules
   styles/tokens/*.css      Design System tokens (values untouched)
   design-system/           showcase — sidebar layout, [category]/[slug], tokens (noindex)
   agendar/[slug]/          public booking flow (generateStaticParams from the mocks)
@@ -85,7 +89,7 @@ app/                       routes (App Router)
   demo/  page.tsx          the demo hub, the landing
   robots.ts  sitemap.ts    basic SEO
 src/
-  components/              29 .tsx primitives + index.ts (barrel) + _internal/ helpers
+  components/              29 .tsx primitives + index.ts (barrel) + styles.css + _internal/ helpers
   screens/                 BookingFlow, Dashboard, Onboarding (client components)
   design-system/           catalog, demos, ComponentView, Sidebar, version.ts + CHANGELOG.md
   theme/                   ThemeProvider + ThemeToggle

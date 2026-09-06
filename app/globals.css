@@ -11,121 +11,14 @@
 @import url("./styles/tokens/motion.css");
 @import url("./styles/tokens/base.css");
 
-/* ── Keyframes the components rely on ─────────────────────────────────────────
-   Defined outside the components in the DS reference (card HTML / bundle).
-   Ported verbatim so Button's spinner, Dialog/Toast entrances and Skeleton pulse. */
-@keyframes sereno-spin { to { transform: rotate(360deg); } }
-@keyframes sereno-pop { from { opacity: 0; transform: scale(0.96); } }
-@keyframes sereno-slide-up { from { opacity: 0; transform: translateY(10px); } }
-@keyframes sereno-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
-/* SidebarNav rail flyout — emerges from the rail. */
-@keyframes sereno-flyout-in { from { opacity: 0; transform: translateX(-6px); } }
-
-/* ── Checked / indeterminate / focus states for Checkbox, Radio, Switch ───────
-   The DS's Checkbox and Radio render bare <input>s, and Switch a role=switch
-   <span>; all three require the host to supply these rules (documented in each
-   .d.ts and the card HTML). */
-.sereno-check:checked,
-.sereno-check:indeterminate {
-  /* `background-color`, not the `background` shorthand — the shorthand would
-     reset `background-size` and the glyph would stop scaling with the box. */
-  background-color: var(--interactive-primary) !important;
-  border-color: var(--interactive-primary) !important;
-  background-size: 68%; /* scales with the box: ~14px at md (20), ~11px at sm (16) */
-  background-position: center;
-  background-repeat: no-repeat;
-}
-.sereno-check:checked {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") !important;
-}
-.sereno-check:indeterminate {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round'%3E%3Cline x1='5' y1='12' x2='19' y2='12'/%3E%3C/svg%3E") !important;
-}
-.sereno-radio:checked {
-  background-color: var(--interactive-primary) !important;
-  border-color: var(--interactive-primary) !important;
-  box-shadow: inset 0 0 0 3.5px var(--bg-surface) !important;
-}
-.sereno-radio[data-size='sm']:checked {
-  box-shadow: inset 0 0 0 3px var(--bg-surface) !important;
-}
-/* Switch is a role=switch <span>, not an input — give it a keyboard focus ring. */
-.sereno-switch {
-  outline: none;
-}
-.sereno-switch:focus-visible {
-  box-shadow: var(--focus-ring);
-}
-
-/* Tabs strip scrolls horizontally when it overflows — hide the scrollbar
-   (the chevrons are the affordance). */
-.sereno-tab-scroll {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.sereno-tab-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-/* SidebarNav — thin scroll area, and a keyboard ring on its plain <button> rows. */
-.sereno-sidenav {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-default) transparent;
-}
-.sereno-sidenav::-webkit-scrollbar {
-  width: 6px;
-}
-.sereno-sidenav::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 999px;
-}
-/* Collapsed rail: hide the scrollbar so a scrollbar gutter can't push the
-   centred icons off-axis from the header mark. */
-.sereno-sidenav-root[data-collapsed] .sereno-sidenav {
-  scrollbar-width: none;
-}
-.sereno-sidenav-root[data-collapsed] .sereno-sidenav::-webkit-scrollbar {
-  display: none;
-}
-.sereno-sidenav-btn {
-  outline: none;
-}
-.sereno-sidenav-btn:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: -2px;
-}
-.sereno-sidenav-toggle:hover {
-  background: var(--interactive-secondary-hover);
-  color: var(--text-primary);
-  border-color: var(--border-strong);
-}
+/* Component stylesheet — @keyframes + pseudo-class / pseudo-element rules the
+   Sereno components need. Lives with the components (future @sereno/ui); the app
+   only re-exports it here. See src/components/styles.css. */
+@import url("../src/components/styles.css");
 
 /* Dashboard TopBar dropdown rows */
 .dash-menu-btn { transition: background-color var(--duration-fast) var(--ease-standard); }
 .dash-menu-btn:hover { background: var(--bg-subtle) !important; }
-
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
-}
-
-/* ── In-field affix button (Input's password reveal toggle) ───────────────────
-   A bare icon button that sits inside the field frame, aligned like suffix text. */
-.ds-affix-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  padding: 0;
-  margin: 0;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-}
-.ds-affix-btn:hover { color: var(--text-secondary); }
-.ds-affix-btn:focus { outline: none; }
-.ds-affix-btn:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 
 /* ── iOS / WebKit: stop the focus auto-zoom on small controls ─────────────────
    Mobile Safari (and Brave / other WebKit shells) zoom the viewport in when a
@@ -257,7 +150,7 @@ html, body { padding: 0; margin: 0; }
   }
   .ds-drawer-body { flex: 1; min-height: 0; display: flex; }
 }
-@keyframes sereno-fade-in { from { opacity: 0; } }
+/* sereno-fade-in comes from the component stylesheet (imported at the top). */
 @keyframes sereno-drawer-in { from { transform: translateX(-100%); } }
 
 /* ── Dashboard shell — fixed sidebar + scrolling content on desktop, BottomNav
@@ -299,11 +192,8 @@ html, body { padding: 0; margin: 0; }
   .dash-user-name { display: none; }
 }
 
-/* ── WeeklyScheduleEditor — stack each day row on narrow screens ────────────── */
-@media (max-width: 560px) {
-  .sereno-week-row { grid-template-columns: minmax(0, 1fr) !important; gap: var(--space-2) !important; }
-  .sereno-week-times { flex-wrap: wrap; }
-}
+/* WeeklyScheduleEditor's narrow-screen reflow moved to the component stylesheet
+   (src/components/styles.css). */
 
 /* The Design System's own left nav is the SidebarNav component now
    (src/design-system/Sidebar.tsx) — no bespoke .ds-nav styles. */
