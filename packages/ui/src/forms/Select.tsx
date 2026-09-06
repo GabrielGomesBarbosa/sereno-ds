@@ -203,29 +203,34 @@ function CustomSelect({
     return from;
   };
 
-  const reposition = React.useCallback(() => {
+  // Position the portalled panel against the trigger. Writes `transform`
+  // straight to the node rather than through React state: on scroll this runs
+  // per frame, and a `setState` round-trip lands a frame late so the panel
+  // visibly trails the field ("sambando"). `coords` is still set so a later
+  // React render (keyboard nav) doesn't snap back to a stale position.
+  const position = React.useCallback(() => {
     const t = triggerRef.current;
-    if (!t) return;
+    const p = panelRef.current;
+    if (!t || !p) return;
     const vh = window.innerHeight || document.documentElement.clientHeight;
     if (!vh) return; // hidden / detached viewport — nothing sensible to compute
     const r = t.getBoundingClientRect();
-    // If the page scrolled the trigger out of view, close rather than leave the
-    // panel floating detached (the scroll block below can be leaked past — a
-    // scrollbar drag, trackpad inertia, a programmatic scroll elsewhere).
+    // Trigger scrolled out of view — close rather than leave a stray panel.
     if (r.bottom <= 0 || r.top >= vh) {
       setOpen(false);
       return;
     }
-    // The panel is mounted (hidden) before this runs, so offsetHeight is real.
-    const panelH = panelRef.current?.offsetHeight || 240;
+    const panelH = p.offsetHeight || 240;
     const gap = 6;
     const spaceBelow = vh - r.bottom;
     const placeAbove = spaceBelow < panelH + gap + 8 && r.top - gap - 8 > spaceBelow;
-    setCoords({
-      top: placeAbove ? Math.max(8, r.top - gap - panelH) : r.bottom + gap,
-      left: r.left,
-      width: r.width,
-    });
+    const top = placeAbove ? Math.max(8, r.top - gap - panelH) : r.bottom + gap;
+    const left = r.left;
+    const width = r.width;
+    p.style.transform = `translate3d(${Math.round(left)}px, ${Math.round(top)}px, 0)`;
+    p.style.width = `${width}px`;
+    p.style.visibility = 'visible';
+    setCoords({ top, left, width });
   }, []);
 
   useIsoLayoutEffect(() => {
@@ -233,44 +238,44 @@ function CustomSelect({
       setCoords(null);
       return;
     }
-    reposition();
+    position();
 
-    // Dampen page scrolling while the menu is open (the native-select / Radix /
-    // MUI convention): the list's own overflow still scrolls; wheel/touch/scroll
-    // keys elsewhere are swallowed. This is best-effort, not a guarantee — a
-    // scrollbar drag, trackpad inertia or a programmatic scroll can still get
-    // through — so `reflow` below keeps the fixed panel pinned to the trigger
-    // (or closes it) whenever the page does move.
-    const inPanel = (t: EventTarget | null) => !!panelRef.current?.contains(t as Node);
-    const blockWheel = (e: Event) => {
-      if (!inPanel(e.target)) e.preventDefault();
+    const inPanel = (n: EventTarget | null) => !!panelRef.current?.contains(n as Node);
+    // The page stays free to scroll while the menu is open (like MUI's popper,
+    // not a native <select>); the panel tracks the trigger frame-for-frame,
+    // coalesced to one update per frame.
+    let raf = 0;
+    const schedule = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        position();
+      });
     };
+    const onScroll = (e: Event) => {
+      if (inPanel(e.target)) return; // the list's own overflow scroll
+      schedule();
+    };
+    // Arrow / PageUp-Down / Home / End / Space drive the listbox from the
+    // focused trigger, which preventDefaults them — this only guards anything
+    // that reaches the document while the trigger isn't the key target.
     const SCROLL_KEYS = new Set(['PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown', ' ', 'Spacebar']);
     const blockKeys = (e: KeyboardEvent) => {
       if (SCROLL_KEYS.has(e.key) && !inPanel(e.target) && !triggerRef.current?.contains(e.target as Node)) {
         e.preventDefault();
       }
     };
-    // `scroll` doesn't bubble — listen in the capture phase so a scroll on any
-    // ancestor (a nested scroller, the document) reflows the panel too. Ignore
-    // scrolls inside the panel's own option list.
-    const reflow = (e?: Event) => {
-      if (e && inPanel(e.target)) return;
-      reposition();
-    };
-    document.addEventListener('wheel', blockWheel, { passive: false, capture: true });
-    document.addEventListener('touchmove', blockWheel, { passive: false, capture: true });
+    // `scroll` doesn't bubble — capture phase catches a scroll on any ancestor.
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', schedule);
     document.addEventListener('keydown', blockKeys, true);
-    window.addEventListener('resize', reflow);
-    window.addEventListener('scroll', reflow, true);
     return () => {
-      document.removeEventListener('wheel', blockWheel, { capture: true });
-      document.removeEventListener('touchmove', blockWheel, { capture: true });
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', schedule);
       document.removeEventListener('keydown', blockKeys, true);
-      window.removeEventListener('resize', reflow);
-      window.removeEventListener('scroll', reflow, true);
     };
-  }, [open, reposition]);
+  }, [open, position]);
 
   // Close on outside pointerdown.
   React.useEffect(() => {
@@ -422,8 +427,12 @@ function CustomSelect({
               tabIndex={-1}
               style={sx({
                 position: 'fixed',
-                top: coords ? coords.top : -9999,
-                left: coords ? coords.left : 0,
+                top: 0,
+                left: 0,
+                transform: coords
+                  ? `translate3d(${Math.round(coords.left)}px, ${Math.round(coords.top)}px, 0)`
+                  : 'translate3d(0, -9999px, 0)',
+                willChange: 'transform',
                 width: coords ? coords.width : 220,
                 visibility: coords ? 'visible' : 'hidden',
                 minWidth: 160,
