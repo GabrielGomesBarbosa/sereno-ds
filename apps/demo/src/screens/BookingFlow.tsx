@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 import { Calendar, CalendarPlus, CheckCircle2, ChevronLeft, CreditCard, Info, Mail, Phone, Share2, User, Video } from 'lucide-react';
-import { Avatar, Badge, Button, Card, Checkbox, DateTimePicker, IconButton, Input, Textarea, TopBar } from '@sereno/ui';
+import { Badge, Button, Card, Checkbox, DateTimePicker, IconButton, Input, Textarea, TopBar } from '@sereno/ui';
 import { ServiceCard } from '@/domain/ServiceCard';
+import { ProfessionalCard } from '@/domain/ProfessionalCard';
 import type { Professional, Service } from '@/lib/mock';
 import { BOOKING_MONTH, TIME_SLOTS, UNAVAILABLE_DAYS } from '@/lib/mock';
 
@@ -57,24 +58,18 @@ function Hero({ professional }: { professional: Professional }) {
           <Share2 size={20} strokeWidth={1.75} />
         </IconButton>
       </div>
-      <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
-        <Avatar name={professional.name} size="xl" />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <span style={{ ...display('var(--text-2xl)'), lineHeight: 1.1 }}>{professional.name}</span>
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
-            {professional.specialty} · {professional.credential}
-          </span>
-          <div style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
-            {professional.channels.map((c) => (
-              <Badge key={c} tone="info" dot={false}>
-                {c}
-              </Badge>
-            ))}
-            <Badge tone="neutral" dot={false}>
-              {professional.location}
-            </Badge>
-          </div>
-        </div>
+      <ProfessionalCard
+        name={professional.name}
+        specialty={professional.specialty}
+        credential={professional.credential}
+        location={professional.location}
+      />
+      <div style={{ display: 'flex', gap: 8, marginTop: 'var(--space-3)', flexWrap: 'wrap' }}>
+        {professional.channels.map((c) => (
+          <Badge key={c} tone="info" dot={false}>
+            {c}
+          </Badge>
+        ))}
       </div>
     </div>
   );
@@ -86,21 +81,18 @@ function Rail({ professional, service, day, time }: { professional: Professional
     <>
       <span style={wordmark}>Sereno</span>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-        <Avatar name={professional.name} size="xl" />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <span style={display('var(--text-xl)')}>{professional.name}</span>
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>{professional.specialty}</span>
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{professional.credential}</span>
-        </div>
+        <ProfessionalCard
+          name={professional.name}
+          specialty={professional.specialty}
+          credential={professional.credential}
+          location={professional.location}
+        />
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {professional.channels.map((c) => (
             <Badge key={c} tone="info" dot={false}>
               {c}
             </Badge>
           ))}
-          <Badge tone="neutral" dot={false}>
-            {professional.location}
-          </Badge>
         </div>
       </div>
 

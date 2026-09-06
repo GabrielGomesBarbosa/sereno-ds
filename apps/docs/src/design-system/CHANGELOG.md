@@ -15,6 +15,9 @@ Version shown in the `/design-system` header. Source: `apps/docs/src/design-syst
   forms / navigation / feedback / theme.
 - `WeeklyScheduleEditor`'s 560px reflow rule moved from `@sereno/ui/styles.css`
   to `apps/demo/app/globals.css` with the component.
+- `ProfessionalCard` (previously only in the showcase) now renders the
+  professional's identity at the top of the booking flow — mobile hero and
+  desktop rail — replacing the hand-rolled `Avatar` + text.
 - No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, packages at
   `0.0.0`, no changeset).
 - Drive-by: the `Brand` lockup in the `/design-system` sidebar header is now a
