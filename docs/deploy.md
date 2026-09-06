@@ -106,6 +106,10 @@ swap the README status badge, drop Netlify mentions from `README.md` /
 
 ## Gotchas
 
+- **The Hobby $5 credit is workspace-wide, not per project.** An idle project
+  still burns it if a service stays online — e.g. an always-on Postgres in
+  another project can be $3–5/mo on its own. Pause what you're not using, or set
+  the usage limit knowing the Sereno services share the pool.
 - **502 "Application failed to respond"** with the deploy otherwise "successful":
   check the **service logs first** — it's almost always a boot error (a missing
   env var, wrong start command), not networking.
