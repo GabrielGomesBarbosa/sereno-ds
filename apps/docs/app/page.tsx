@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Accessibility, ArrowRight, Ban, Feather, Layers, MoonStar, Palette } from 'lucide-react';
 import { Brand, Card, ThemeToggle } from '@sereno/ui';
 import { DS_VERSION } from '@/design-system/version';
+import { ComponentGallery } from '@/home/ComponentGallery';
 import { HeroPreview } from '@/home/HeroPreview';
 import { GithubMark, NextMark, ReactMark } from '@/home/tech';
 
@@ -191,6 +192,16 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </section>
+
+        <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
+            <span style={eyebrow}>The primitives</span>
+            <Link href="/design-system" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-brand)', textDecoration: 'none' }}>
+              Browse all 30 <ArrowRight size={16} strokeWidth={2} />
+            </Link>
+          </div>
+          <ComponentGallery />
         </section>
 
         <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--space-4)' }}>
