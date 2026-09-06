@@ -112,9 +112,9 @@ await render(AppleIcon(), ICON, join(ROOT, 'apps/docs/app/apple-icon.png'));
 
 await render(
   OpenGraph({
-    kicker: 'Agendamento online',
-    tagline: 'Link público pro cliente marcar horário · dashboard pro profissional gerir a agenda',
-    footer: 'sereno-ds.netlify.app',
+    kicker: 'Design System · Demo',
+    tagline: 'Booking flow, dashboard and onboarding — product screens built with @sereno/ui',
+    footer: 'github.com/GabrielGomesBarbosa/sereno-ds',
   }),
   OG,
   join(ROOT, 'apps/demo/app/opengraph-image.png'),
