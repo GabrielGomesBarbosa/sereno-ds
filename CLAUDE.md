@@ -64,6 +64,15 @@ npm workspaces + Turborepo. Four workspaces:
    git checkout main && git pull
    gh release create vX.Y.Z --title "vX.Y.Z" --notes "<the CHANGELOG section>"
    ```
+   **Tag namespaces — two independent release streams in this repo, never
+   conflated:**
+   - `vX.Y.Z` → the **showcase**. Manual `gh release` as above. Notes = the
+     `apps/docs/src/design-system/CHANGELOG.md` section.
+   - `@sereno/ui@X.Y.Z` / `@sereno/tokens@X.Y.Z` → the **published packages**.
+     Created by Changesets (SS-161), not by hand; notes = that package's own
+     `CHANGELOG.md`. The git tag always equals the npm version. It does **not**
+     have to line up with the current `vX.Y.Z` — first package release is
+     `@sereno/ui@0.1.0-beta.0` regardless of where the showcase sits.
 7. **PRs that don't touch `apps/docs` or `apps/demo`** — pure repo-meta
    (`CLAUDE.md`, `AGENTS.md`, `.gitignore`, `.github/`, `netlify.toml`,
    `eslint.config`, `turbo.json`, `tsconfig.base.json`) **and `packages/**`-only
