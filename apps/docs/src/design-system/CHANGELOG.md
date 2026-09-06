@@ -7,14 +7,19 @@ Version shown in the `/design-system` header. Source: `apps/docs/src/design-syst
 - `apps/docs/app/page.tsx` is no longer a placeholder. A proper DS home:
   - **Split hero** — copy (eyebrow, big headline, sub, React / Next.js marks, two
     CTAs, an `import { Button, Card } from '@sereno/ui'` code block) next to a
-    **live preview panel** that wires up real primitives (Avatar, Badge, Stepper,
-    Switch, Button) — proof, not a screenshot. A soft indigo radial glow behind it.
+    **live preview panel** (`HeroPreview`) that wires up real primitives — a
+    booking card with Avatar, Badge, Tabs, Switch, Buttons and a floating
+    success Alert. Proof, not a screenshot. A soft indigo radial glow behind it.
   - **Feature grid** — six points with Lucide icons in brand-soft tiles.
+  - **"The primitives"** — a live `ComponentGallery`: six cards, one per
+    category (Actions, Status, Forms, Navigation, Feedback, Loading), wiring up
+    ~15 interactive primitives, next to a "Browse all 30" link.
   - **Path cards** to `/design-system` and `/demo`, plus a footer with the mono
     mark and a GitHub link.
+- All landing copy in **English** (product screens stay pt-BR).
 - Built from `@sereno/ui` + tokens only — no external images, responsive, light +
-  dark. New `apps/docs/src/home/` (HeroPreview + mono React / Next.js / GitHub
-  marks); `@/home/*` tsconfig path added.
+  dark. New `apps/docs/src/home/` (`HeroPreview`, `ComponentGallery`, mono
+  React / Next.js / GitHub marks); `@/home/*` tsconfig path added.
 
 ## 0.19.0 — `Brand` component + the water-drop mark (SS-202)
 
