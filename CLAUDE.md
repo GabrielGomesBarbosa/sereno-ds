@@ -2,88 +2,111 @@
 
 # Sereno DS — notes for Claude
 
-Full context and scope: Jira card **SS-39** (project SS). Read it before any large change.
+Full context and scope: Jira card **SS-39** (project SS). The DS is being turned
+into a publishable package — Epic **SS-153**. Read the relevant card before any
+large change.
+
+## Monorepo layout
+
+npm workspaces + Turborepo. Four workspaces:
+
+| Path | Name | What |
+|---|---|---|
+| `packages/tokens` | `@sereno/tokens` | the token CSS (`*.css` + a `tokens.css` barrel) |
+| `packages/ui` | `@sereno/ui` | the 31 primitives + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) |
+| `apps/docs` | `docs` | the `/design-system` showcase (Next 16, `output: 'export'`) |
+| `apps/demo` | `demo` | `/demo` hub + `/agendar/[slug]` + `/dashboard` + `/onboarding` + `src/screens/` + `src/lib/mock.ts` |
+
+- Apps import from `@sereno/ui` / `@sereno/tokens` (workspace symlink +
+  `transpilePackages: ['@sereno/ui']` — the package is TS source until it's built
+  in SS-156). **There is no `@/components` alias** — each app keeps only its own
+  (`@/design-system/*` in docs; `@/screens/*` / `@/lib/*` in demo).
+- Each app's `app/globals.css` `@import`s `@sereno/tokens/tokens.css` then
+  `@sereno/ui/styles.css`, then only its own shell rules (`.ds-*` / `.cv-*` in
+  docs; `.dash-*` / `.onb-*` / `.booking-*` in demo).
+- `turbo run build | lint | typecheck | dev` from the root. Dev ports: docs 3000,
+  demo 3001 (`.claude/launch.json`).
 
 ## Workflow (required)
 
 1. **Every change starts from a Jira task** (project SS). No task, no work.
 2. **Ad-hoc tweak asked for in chat** → ask whether to create a new Jira task
    before touching code.
-3. **One task at a time → one branch → one PR.** The branch name carries the ID:
-   `feat|fix|chore|docs|refactor/SS-<id>-<slug>` (e.g. `fix/SS-123-select-scroll`).
+3. **One task → one branch → one PR.** Branch name carries the ID:
+   `feat|fix|chore|docs|refactor/SS-<id>-<slug>`. Note which workspace(s) the
+   change is in, in the PR body.
 4. **Never push or merge straight to `main`.** Everything goes through a PR whose
    body says what it contains (summary + how to test). `npm run lint && npm run build`
-   must be green first. Merge with **squash**.
-5. **Every PR that touches `app/`, `src/` or `app/styles/` bumps the version:**
-   edit `src/design-system/version.ts` and add an entry to
-   `src/design-system/CHANGELOG.md`. Pre-1.0 → `patch` = fix/tweak, `minor` =
-   feature / structure / breaking (`major` is reserved for 1.0+).
+   (both proxy `turbo run …` across every workspace) must be green first. Merge
+   with **squash**.
+5. **Every PR that touches `packages/` or `apps/` bumps the showcase version:**
+   edit `apps/docs/src/design-system/version.ts` and add an entry to
+   `apps/docs/src/design-system/CHANGELOG.md`. Pre-1.0 → `patch` = fix/tweak,
+   `minor` = feature / structure / breaking. (The `@sereno/ui` /
+   `@sereno/tokens` package versions get their own line via changesets in
+   SS-199 — for now they track the showcase version.)
 6. **After the merge:**
    ```bash
    git checkout main && git pull
-   gh release create vX.Y.Z --title "vX.Y.Z — <summary>" --notes "<the CHANGELOG section>"
+   gh release create vX.Y.Z --title "vX.Y.Z" --notes "<the CHANGELOG section>"
    ```
-   The tag is created with the release. This is what keeps the version history.
 7. **Pure repo-meta PRs** (`CLAUDE.md`, `AGENTS.md`, `.gitignore`, `.github/`,
-   `netlify.toml`, `eslint.config`) still need a task + PR, but **no version
-   bump and no release**.
-8. Merge to `main` → automatic Netlify deploy (once the repo is connected).
+   `netlify.toml`, `eslint.config`, `turbo.json`, `tsconfig.base.json`) still
+   need a task + PR, but **no version bump and no release**.
+8. **Deploy is a stopgap until SS-158.** `netlify.toml` builds and publishes
+   **`apps/docs` only** (`npm run build -- --filter=docs`, `publish = apps/docs/out`).
+   `apps/demo` is not deployed anywhere until the Railway migration (SS-158).
 
 ## Repo rules
 
-- **Next.js 16 App Router + TypeScript**, `output: 'export'` (static, deployed to
-  Netlify). No SSR / Node server.
-- **No UI base library.** 25 of the 29 components in `src/components/` are ported
-  1:1 from the approved Design System (`FileUpload` SS-49, `AvatarUpload` SS-146, `SearchInput` SS-50 and `SidebarNav` SS-52 are net-new) —
-  token-driven, inline styles reading CSS custom properties. When editing them,
-  preserve behaviour; do not introduce
-  Radix/MUI/Tailwind.
-- **Tokens** live in `app/styles/tokens/*.css`. Adjustments are made and documented
+- **Two Next.js 16 App Router apps** under `apps/`, both `output: 'export'`
+  (static). No SSR / Node server.
+- **No UI base library.** The 31 primitives in `packages/ui/src/` are token-driven
+  inline styles reading CSS custom properties. When editing them, preserve
+  behaviour; do not introduce Radix / MUI / Tailwind.
+- **Tokens** live in `packages/tokens/*.css`. Adjustments are made and documented
   in the file itself:
-  - `typography.css` points the font families at the `next/font` variables.
-  - `colors.css`: the `:root` selector is widened to `:root, [data-theme="light"]`
-    (theme islands on the tokens page).
-  - `colors.css`: **the light-theme background scale was revised** (product owner
-    decision, 2026-08-29) — the old canvas (`#F5F7FA`) sat too close to the white
-    surface and to brand-soft; now `--bg-canvas:#E8ECF3`, `--bg-subtle:#DFE4EC`,
-    `--bg-sunken:#D9DFE9`, `--bg-brand-soft:brand-100`, `--bg-accent-soft:accent-100`,
-    and the low-emphasis fills (`--interactive-secondary-hover/active`,
-    `--interactive-ghost-hover`, `--interactive-disabled-bg`) were bumped a step.
-    Text / brand / status hues untouched. Dark mode untouched.
-- **Icons:** always `lucide-react` passed as a prop (`iconLeft`, `icon`,
-  `children`…). Never a CDN or `data-lucide`.
-- **Fonts:** `next/font/google` only. Never the Google Fonts CDN.
+  - `typography.css` points the font families at the `--font-*` variables the
+    consumer defines (via `next/font` in each app's `layout.tsx`).
+  - `colors.css`: `:root` is widened to `:root, [data-theme="light"]` (theme
+    islands on the tokens page).
+  - `colors.css`: **the light-theme background scale was revised** (PO decision,
+    2026-08-29) — `--bg-canvas:#E8ECF3`, `--bg-subtle:#DFE4EC`,
+    `--bg-sunken:#D9DFE9`, plus a step on the low-emphasis fills. Text / brand /
+    status hues + dark mode untouched.
+- **Icons:** always `lucide-react` passed as a prop. `@sereno/ui` lists it as a
+  `peerDependency` (only `ThemeToggle` imports it directly). Never a CDN.
+- **Fonts:** `next/font/google` only, per app. The `--font-inter` /
+  `--font-manrope` / `--font-jetbrains-mono` vars are the `@sereno/ui` contract.
 - **Component keyframes / pseudo-class rules** (`sereno-spin`, `-pop`, `-slide-up`,
   `-pulse`, `-flyout-in`, `-fade-in`; `.sereno-check` / `.sereno-radio` /
   `.sereno-switch` states; `.sereno-tab-scroll` and `.sereno-sidenav*` scrollbar
   rules; the in-field `.ds-affix-btn`; `WeeklyScheduleEditor`'s 560px reflow) live
-  in **`src/components/styles.css`** — they ship with the components. `app/globals.css`
-  only `@import`s that file. Edit the rule where it lives, not in `globals.css`.
-  App-shell drawer keyframes (`sereno-drawer-in/out`, `sereno-fade-out`) stay in
-  `globals.css` — no component uses them.
-- **Host-app (shell) concerns — not the library.** These live outside
-  `src/components/**`:
-  - `app/globals.css` `@media (pointer: coarse)` — forces text controls to 16px
-    so iOS / WebKit don't zoom on focus.
+  in **`packages/ui/src/styles.css`** — they ship with the components. Each app's
+  `globals.css` only `@import`s it. Edit the rule where it lives.
+  App-shell drawer keyframes (`sereno-drawer-in/out`, `sereno-fade-out`) live in
+  the app `globals.css` files — no component uses them.
+- **Host-app (shell) concerns — not the library.** These live in the app
+  `globals.css` files, not `packages/ui`:
+  - `@media (pointer: coarse)` — forces text controls to 16px so iOS / WebKit
+    don't zoom on focus.
   - **Mobile shells scroll the document, not a nested `overflow:auto` panel.**
     `/design-system` uses a fixed app-shell (nested scroller) only at ≥900px; on
     mobile `.ds-root` / `.ds-main` go back to normal flow and `.ds-header` is
-    `position: sticky`. This is what lets iOS / Brave reveal a focused field
-    above the keyboard natively (document-scrolled pages like `/onboarding`
-    always worked). Don't reintroduce a nested mobile scroller. `/agendar` still
-    has one — same fix pending.
-- Dynamic routes need `generateStaticParams` (static export). `robots.ts` /
-  `sitemap.ts` need `export const dynamic = 'force-static'`.
-- `/design-system/**` is `noindex` and stays out of the sitemap.
-- Showcase / navigation pages (`/`, `/demo`, `/design-system`) are in English;
-  the product screens (`/agendar`, `/dashboard`, `/onboarding`) keep their pt-BR
-  copy.
+    `position: sticky`. Don't reintroduce a nested mobile scroller. `/agendar`
+    still has one — same fix pending.
+- Dynamic routes need `generateStaticParams`. `robots.ts` / `sitemap.ts` need
+  `export const dynamic = 'force-static'`.
+- The **docs app is `noindex` in full** (`apps/docs/app/robots.ts` disallows `/`).
+- Showcase pages are in English; the product screens (`/agendar`, `/dashboard`,
+  `/onboarding`) keep their pt-BR copy.
 
 ## Check before commit
 
 ```bash
-npm run lint && npm run build
+npm run lint && npm run build   # = turbo run lint / turbo run build, all workspaces
 ```
 
-`npm run build` must produce `out/` with no error — the 29 component pages plus the
-3 product screens (43 routes total).
+`turbo run build` must be green: **docs ≈ 36 routes** (29 component pages + tokens
++ overview + robots) and **demo ≈ 12 routes** (hub + 3 slugs + dashboard +
+onboarding + robots + sitemap), each producing its own `out/`.

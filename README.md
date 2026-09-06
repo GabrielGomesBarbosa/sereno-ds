@@ -1,120 +1,107 @@
-# Sereno — Design System + showcase
+# Sereno — Design System monorepo
 
 ![Next.js 16](https://img.shields.io/badge/Next.js-16-000?logo=nextdotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
-![output: export](https://img.shields.io/badge/output-export%20(static)-555)
+![Turborepo](https://img.shields.io/badge/monorepo-Turborepo-EF4444?logo=turborepo&logoColor=white)
 ![No UI base lib](https://img.shields.io/badge/UI%20base-none-8B5CF6)
-[![Live on Netlify](https://img.shields.io/badge/live-Netlify-00C7B7?logo=netlify&logoColor=white)](https://sereno-ds.netlify.app)
 
 The visual / front-end layer of **Sereno**, a scheduling platform for independent
-health & beauty professionals in Brazil. This repo is the Design System plus a
-navigable showcase and three real product screens — no backend, everything static.
+health & beauty professionals in Brazil: the Design System, a navigable showcase,
+and three real product screens on mocked data — no backend, everything static.
 
-## ▶ Live
+Being turned into a publishable package — Epic **SS-153**.
 
-| | |
-|---|---|
-| **Showcase** | <https://sereno-ds.netlify.app/design-system/> |
-| Tokens (light × dark) | <https://sereno-ds.netlify.app/design-system/tokens/> |
-| Product screens | <https://sereno-ds.netlify.app/demo/> |
+## Workspaces
 
-## What's inside
+npm workspaces + Turborepo.
 
-- **29 React primitives** in `src/components/` — 25 ported 1:1 from the approved
-  Design System, plus `FileUpload` (SS-49), `AvatarUpload` (SS-146), `SearchInput` (SS-50) and `SidebarNav` (SS-52), net-new. Token-driven (CSS custom
-  properties), inline styles, native dark mode. No Radix / MUI / Tailwind.
-- **Component stylesheet** `src/components/styles.css` — the few things a component
-  can't put in an inline `style` (`@keyframes`, `:checked` / `:focus-visible`,
-  `::-webkit-scrollbar`, one responsive reflow). **Load it once at the app root**
-  (`app/globals.css` `@import`s it today; `import '@sereno/ui/styles.css'` once packaged).
-- **Tokens** in `app/styles/tokens/*.css` — colours (light × dark), type scale,
-  spacing, breakpoints, icon sizes, radii, elevation, motion.
-- **Navigable showcase** (`/design-system`) — MUI-doc-style page per component:
-  live preview, named examples with "show code", a Do / Don't block, an
-  "on this page" rail, prev/next nav, and a versioned header.
-- **3 product screens** on mocked data — `/agendar/[slug]` (public booking flow,
-  mobile-first), `/dashboard` (professional dashboard), `/onboarding` (3-step
-  wizard). Fully responsive; components reflow.
-- Fonts via `next/font/google` (self-hosted), icons via `lucide-react` as props —
-  no CDNs. Basic SEO (`robots`, `sitemap`, per-route metadata); `/design-system`
-  is `noindex`.
+| Path | Name | What |
+|---|---|---|
+| `packages/tokens` | `@sereno/tokens` | the token layer — `*.css` (light × dark) + a `tokens.css` barrel |
+| `packages/ui` | `@sereno/ui` | **31 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) — token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
+| `apps/docs` | `docs` | the `/design-system` showcase (Next 16, `output: 'export'`) — MUI-doc-style page per component: live preview, "show code", Do / Don't, "on this page" rail, prev/next, versioned header |
+| `apps/demo` | `demo` | `/demo` hub + `/agendar/[slug]` (public booking) + `/dashboard` + `/onboarding` + `src/screens/` + `src/lib/mock.ts` — fully responsive, components reflow |
 
-> Showcase / navigation pages (`/`, `/demo`, `/design-system`) are in English;
-> the product screens keep their pt-BR copy.
+- **`@sereno/ui` / `@sereno/tokens` are consumed as source** through the workspace
+  link (`transpilePackages`) — a real package build lands in SS-156.
+- The component stylesheet (`@keyframes`, `:checked` / `:focus-visible`,
+  `::-webkit-scrollbar`, one responsive reflow) is
+  **`packages/ui/src/styles.css`** — load it once at the app root. Each app's
+  `globals.css` does `@import "@sereno/tokens/tokens.css"` then
+  `@import "@sereno/ui/styles.css"`, then only its own shell rules.
+- Icons: `lucide-react` passed to components as props (a `peerDependency`).
+- Fonts: `next/font/google` per app; the `--font-*` CSS vars are the `@sereno/ui`
+  contract.
 
 ## Components
 
 | Category | Components |
 |---|---|
 | **core** (5) | `Avatar` · `Badge` · `Button` · `Card` · `IconButton` |
-| **forms** (7) | `Checkbox` · `DateTimePicker` · `Input` · `Radio` · `Select` · `Switch` · `Textarea` |
+| **forms** (10) | `AvatarUpload` · `Checkbox` · `DateTimePicker` · `FileUpload` · `Input` · `Radio` · `SearchInput` · `Select` · `Switch` · `Textarea` |
 | **navigation** (5) | `BottomNav` · `SidebarNav` · `Stepper` · `Tabs` · `TopBar` |
 | **domain** (4) | `AppointmentCard` · `ProfessionalCard` · `ServiceCard` · `WeeklyScheduleEditor` |
 | **feedback** (5) | `Alert` · `Dialog` · `EmptyState` · `Skeleton` · `Toast` |
-
-## Stack
-
-| | |
-|---|---|
-| Framework | Next.js 16 (App Router), TypeScript |
-| Output | `output: 'export'` (static) → deployed to Netlify (`out/`) |
-| Fonts | Inter + Manrope via `next/font/google` (self-hosted, no CDN) |
-| Icons | `lucide-react` (passed to components as props) |
-| Theme | `next-themes` writing `data-theme` on `<html>` |
-| UI base | none — components are built from scratch |
+| **theme** (2) | `ThemeProvider` · `ThemeToggle` |
 
 ## Getting started
 
 ```bash
 npm install
-npm run dev      # dev server on http://localhost:3000
-npm run build    # production build + static export to out/
-npm run lint     # ESLint
+npm run dev          # turbo run dev — docs on :3000, demo on :3001
+npm run build        # turbo run build — each app writes its own out/
+npm run lint         # turbo run lint
+npm run typecheck    # turbo run typecheck
 ```
 
-`npm run build` must produce `out/` with no error — 43 routes: the 29 component
-pages, the tokens page, the 3 product screens (3 slugs for `/agendar`), plus
-`/`, `/demo`, `robots.txt`, `sitemap.xml`.
+`npm run build` must be green: **docs ≈ 36 routes** (29 component pages + tokens +
+overview + robots) and **demo ≈ 12 routes** (hub + 3 `/agendar` slugs + dashboard
++ onboarding + robots + sitemap).
 
-## Project layout
+## Layout
 
 ```
-app/                       routes (App Router)
-  layout.tsx               fonts, ThemeProvider, base metadata / OG
-  globals.css              @imports the tokens + the component stylesheet; then app-shell rules
-  styles/tokens/*.css      Design System tokens (values untouched)
-  design-system/           showcase — sidebar layout, [category]/[slug], tokens (noindex)
-  agendar/[slug]/          public booking flow (generateStaticParams from the mocks)
-  dashboard/ onboarding/   product screens
-  demo/  page.tsx          the demo hub, the landing
-  robots.ts  sitemap.ts    basic SEO
-src/
-  components/              29 .tsx primitives + index.ts (barrel) + styles.css + _internal/ helpers
-  screens/                 BookingFlow, Dashboard, Onboarding (client components)
-  design-system/           catalog, demos, ComponentView, Sidebar, version.ts + CHANGELOG.md
-  theme/                   ThemeProvider + ThemeToggle
-  lib/mock.ts              mocked data for the 3 screens
+packages/
+  tokens/   *.css + tokens.css barrel + package.json (exports the .css)
+  ui/
+    src/
+      index.ts            the barrel
+      core/ forms/ navigation/ feedback/ domain/   the 31 primitives
+      _internal/           Field, CharCount, mask, style helpers
+      theme/               ThemeProvider + ThemeToggle
+      styles.css           keyframes + :checked / scrollbar / reflow rules
+apps/
+  docs/
+    app/                   layout.tsx (fonts + ThemeProvider), globals.css, design-system/**, page.tsx (landing), robots.ts
+    src/design-system/     catalog, demos, ComponentView, DocPage, Sidebar, Shell, version.ts + CHANGELOG.md
+  demo/
+    app/                   layout.tsx, globals.css, demo/, agendar/[slug]/, dashboard/, onboarding/, robots.ts, sitemap.ts
+    src/screens/           BookingFlow, Dashboard, Onboarding
+    src/lib/mock.ts        mocked data for the 3 screens
+turbo.json                 build / lint / typecheck / dev tasks
+tsconfig.base.json         shared compiler options (each workspace extends it)
 ```
 
 ## Contributing
 
 The full workflow (Jira task per change, branch naming, PR + squash merge,
-version bump rules, tag + release) is in [`CLAUDE.md`](./CLAUDE.md) under
-**Workflow (required)**. In short: no direct push to `main` — every change goes
-through a PR.
+version bump rules, tag + release) is in [`CLAUDE.md`](./CLAUDE.md). In short: no
+direct push to `main` — every change goes through a PR, and `npm run lint && npm run build`
+must be green.
 
 ## Versioning & releases
 
-The DS version lives in `src/design-system/version.ts` and shows in the top bar of
-`/` and `/design-system`. Every PR that touches `app/`, `src/` or `app/styles/`
-bumps it and adds a `src/design-system/CHANGELOG.md` entry (pre-1.0: `patch` =
-fix/tweak, `minor` = feature / structure / breaking). After each merge a GitHub
-release `vX.Y.Z` is cut from that CHANGELOG section — see
+The **showcase** version lives in `apps/docs/src/design-system/version.ts` and
+shows in the `/design-system` header. Every PR that touches `packages/` or `apps/`
+bumps it and adds an `apps/docs/src/design-system/CHANGELOG.md` entry (pre-1.0:
+`patch` = fix/tweak, `minor` = feature / structure / breaking). After each merge a
+GitHub release `vX.Y.Z` is cut — see
 [Releases](https://github.com/GabrielGomesBarbosa/sereno-ds/releases).
+The `@sereno/ui` / `@sereno/tokens` package versions get their own line (changesets)
+in SS-199 — for now they track the showcase version.
 
-## Deploy (Netlify)
+## Deploy
 
-`netlify.toml` sets `command = "npm run build"` and `publish = "out"`. Connect the
-repo in Netlify (free plan): every push to `main` deploys, pull requests get a
-preview. It is a static export — if Netlify offers the **Next.js Runtime** plugin,
-decline it.
+**Stopgap until SS-158 (Railway).** `netlify.toml` builds and publishes
+**`apps/docs` only** (`npm run build -- --filter=docs`, `publish = apps/docs/out`).
+`apps/demo` is not deployed anywhere in the meantime — run it locally.
