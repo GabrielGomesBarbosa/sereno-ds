@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
@@ -183,7 +182,12 @@ function CustomSelect({
 
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState(-1);
-  const [coords, setCoords] = React.useState<{ top: number; left: number; width: number } | null>(null);
+  // The panel opens below the trigger; flip above only when there isn't room.
+  // Decided once per open with a single layout read — after that the panel is a
+  // plain absolutely-positioned child, so the browser keeps it glued to the
+  // field through any scroll with zero JS (this is why MUI's disablePortal
+  // popper stays perfectly smooth).
+  const [placeAbove, setPlaceAbove] = React.useState(false);
 
   const selectedIndex = options.findIndex((o) => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
@@ -203,74 +207,38 @@ function CustomSelect({
     return from;
   };
 
-  const reposition = React.useCallback(() => {
-    const t = triggerRef.current;
-    if (!t) return;
-    const vh = window.innerHeight || document.documentElement.clientHeight;
-    if (!vh) return; // hidden / detached viewport — nothing sensible to compute
-    const r = t.getBoundingClientRect();
-    // If the page scrolled the trigger out of view, close rather than leave the
-    // panel floating detached (the scroll block below can be leaked past — a
-    // scrollbar drag, trackpad inertia, a programmatic scroll elsewhere).
-    if (r.bottom <= 0 || r.top >= vh) {
-      setOpen(false);
-      return;
-    }
-    // The panel is mounted (hidden) before this runs, so offsetHeight is real.
-    const panelH = panelRef.current?.offsetHeight || 240;
-    const gap = 6;
-    const spaceBelow = vh - r.bottom;
-    const placeAbove = spaceBelow < panelH + gap + 8 && r.top - gap - 8 > spaceBelow;
-    setCoords({
-      top: placeAbove ? Math.max(8, r.top - gap - panelH) : r.bottom + gap,
-      left: r.left,
-      width: r.width,
-    });
-  }, []);
-
+  // Drop down by default; flip up only when there isn't room. Re-checked on
+  // scroll/resize — but this only ever *toggles a direction*, it never
+  // repositions per frame (that's what made the panel jitter). Between the rare
+  // flips the panel is plain `position: absolute` and rides along for free.
+  // Scrolling the field off-screen doesn't close the menu (matches MUI) — the
+  // panel just scrolls away with it and comes back on scroll-back.
   useIsoLayoutEffect(() => {
-    if (!open) {
-      setCoords(null);
-      return;
-    }
-    reposition();
-
-    // Dampen page scrolling while the menu is open (the native-select / Radix /
-    // MUI convention): the list's own overflow still scrolls; wheel/touch/scroll
-    // keys elsewhere are swallowed. This is best-effort, not a guarantee — a
-    // scrollbar drag, trackpad inertia or a programmatic scroll can still get
-    // through — so `reflow` below keeps the fixed panel pinned to the trigger
-    // (or closes it) whenever the page does move.
-    const inPanel = (t: EventTarget | null) => !!panelRef.current?.contains(t as Node);
-    const blockWheel = (e: Event) => {
-      if (!inPanel(e.target)) e.preventDefault();
+    if (!open) return;
+    const t = triggerRef.current;
+    const p = panelRef.current;
+    if (!t || !p) return;
+    const panelH = p.offsetHeight || 240;
+    const evaluate = () => {
+      const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+      if (!vh) return;
+      const r = t.getBoundingClientRect();
+      const spaceBelow = vh - r.bottom;
+      const wantAbove = spaceBelow < panelH + 16 && r.top - 16 > spaceBelow;
+      setPlaceAbove((prev) => (prev === wantAbove ? prev : wantAbove));
     };
-    const SCROLL_KEYS = new Set(['PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown', ' ', 'Spacebar']);
-    const blockKeys = (e: KeyboardEvent) => {
-      if (SCROLL_KEYS.has(e.key) && !inPanel(e.target) && !triggerRef.current?.contains(e.target as Node)) {
-        e.preventDefault();
-      }
+    evaluate();
+    const onScroll = (e: Event) => {
+      if (p.contains(e.target as Node)) return; // the list's own scroll
+      evaluate();
     };
-    // `scroll` doesn't bubble — listen in the capture phase so a scroll on any
-    // ancestor (a nested scroller, the document) reflows the panel too. Ignore
-    // scrolls inside the panel's own option list.
-    const reflow = (e?: Event) => {
-      if (e && inPanel(e.target)) return;
-      reposition();
-    };
-    document.addEventListener('wheel', blockWheel, { passive: false, capture: true });
-    document.addEventListener('touchmove', blockWheel, { passive: false, capture: true });
-    document.addEventListener('keydown', blockKeys, true);
-    window.addEventListener('resize', reflow);
-    window.addEventListener('scroll', reflow, true);
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', evaluate);
     return () => {
-      document.removeEventListener('wheel', blockWheel, { capture: true });
-      document.removeEventListener('touchmove', blockWheel, { capture: true });
-      document.removeEventListener('keydown', blockKeys, true);
-      window.removeEventListener('resize', reflow);
-      window.removeEventListener('scroll', reflow, true);
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', evaluate);
     };
-  }, [open, reposition]);
+  }, [open]);
 
   // Close on outside pointerdown.
   React.useEffect(() => {
@@ -365,7 +333,7 @@ function CustomSelect({
   const rowPadY = OPTION_PAD_Y[size];
 
   return (
-    <>
+    <div style={sx({ position: 'relative', width: '100%' })}>
       <button
         ref={triggerRef}
         type="button"
@@ -378,8 +346,7 @@ function CustomSelect({
         aria-disabled={disabled || undefined}
         disabled={disabled}
         onMouseDown={(e) => {
-          // Take focus without the browser scrolling us into view (which would
-          // trip the close-on-scroll handler the instant the menu opens).
+          // Take focus without the browser scrolling us into view.
           e.preventDefault();
           triggerRef.current?.focus({ preventScroll: true });
         }}
@@ -413,19 +380,17 @@ function CustomSelect({
         </span>
       </button>
 
-      {open && typeof document !== 'undefined'
-        ? createPortal(
+      {open && (
             <ul
               ref={panelRef}
               id={listboxId}
               role="listbox"
               tabIndex={-1}
               style={sx({
-                position: 'fixed',
-                top: coords ? coords.top : -9999,
-                left: coords ? coords.left : 0,
-                width: coords ? coords.width : 220,
-                visibility: coords ? 'visible' : 'hidden',
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                ...(placeAbove ? { bottom: 'calc(100% + 6px)' } : { top: 'calc(100% + 6px)' }),
                 minWidth: 160,
                 maxHeight: 288,
                 overflowY: 'auto',
@@ -436,7 +401,7 @@ function CustomSelect({
                 border: 'var(--border-width-hairline) solid var(--border-default)',
                 borderRadius: 'var(--radius-md)',
                 boxShadow: 'var(--shadow-lg)',
-                zIndex: 1000,
+                zIndex: 100,
                 fontFamily: 'var(--font-body)',
                 fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)',
               })}
@@ -475,11 +440,9 @@ function CustomSelect({
                   </li>
                 );
               })}
-            </ul>,
-            document.body,
-          )
-        : null}
-    </>
+            </ul>
+      )}
+    </div>
   );
 }
 
