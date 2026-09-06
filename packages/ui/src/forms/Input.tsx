@@ -124,7 +124,7 @@ export function Input({
       >
         {iconLeft && <span style={sx({ display: 'flex', color: 'var(--text-muted)', flex: '0 0 auto' })}>{iconLeft}</span>}
         {prefix && (
-          <span style={sx({ display: 'flex', color: 'var(--text-muted)', fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)', flex: '0 0 auto' })}>{prefix}</span>
+          <span style={sx({ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)', lineHeight: 1.2, flex: '0 0 auto' })}>{prefix}</span>
         )}
         <input
           id={rid}
@@ -141,11 +141,14 @@ export function Input({
           style={sx({
             flex: 1,
             minWidth: 0,
+            margin: 0,
+            padding: 0, // reset the UA input padding — the row's own padding insets it
             border: 'none',
             outline: 'none',
             background: 'transparent',
             fontFamily: 'var(--font-body)',
             fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)',
+            lineHeight: 1.2, // match the prefix/suffix line box so baselines align
             color: disabled ? 'var(--text-disabled)' : 'var(--text-primary)',
             ...style,
           })}
@@ -165,7 +168,7 @@ export function Input({
           </button>
         ) : (
           suffix && (
-            <span style={sx({ display: 'flex', color: 'var(--text-muted)', fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)', flex: '0 0 auto' })}>{suffix}</span>
+            <span style={sx({ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)', lineHeight: 1.2, flex: '0 0 auto' })}>{suffix}</span>
           )
         )}
       </div>
