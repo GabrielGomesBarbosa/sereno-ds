@@ -9,8 +9,8 @@ const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], 
 const manrope = Manrope({ subsets: ['latin'], weight: ['500', '600', '700', '800'], variable: '--font-manrope', display: 'swap' });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-jetbrains-mono', display: 'swap' });
 
-// Both apps currently deploy to this host; SS-158 (Railway) splits them.
-const SITE = 'https://sereno-ds.netlify.app';
+// Canonical origin for metadata / OG — set per Railway service (SS-158).
+const SITE = process.env.NEXT_PUBLIC_DS_URL ?? 'http://localhost:3000';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),

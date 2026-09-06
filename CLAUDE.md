@@ -93,7 +93,7 @@ it touches.
 
 So: a demo/showcase-only PR bumps `version.ts` and stops; a `packages/**` PR is
 what reaches npm. **PRs that touch neither `apps/docs` nor `apps/demo`** — pure
-repo-meta (`CLAUDE.md`, `.gitignore`, `.github/`, `netlify.toml`, `eslint.config`,
+repo-meta (`CLAUDE.md`, `.gitignore`, `.github/`, `eslint.config`,
 `turbo.json`, `tsconfig.base.json`) and `packages/**`-only PRs — get **no
 `version.ts` bump and no `gh release`**.
 
@@ -109,16 +109,14 @@ repo-meta (`CLAUDE.md`, `.gitignore`, `.github/`, `netlify.toml`, `eslint.config
 
 ## Deploy
 
-Moving to **Railway**, static (SS-158) — full setup in [`docs/deploy.md`](docs/deploy.md).
+**Railway**, static (SS-158) — full setup in [`docs/deploy.md`](docs/deploy.md).
 Both apps are `output: 'export'`; Railway serves the built `out/` with `serve`
-(a root `dependency`). Two services in one project, monorepo Root Directory `/`,
-differing only in command: `npm run build:docs` / `serve:docs` and the `demo`
-pair. Cross-app links use build-time `NEXT_PUBLIC_DS_URL` / `NEXT_PUBLIC_DEMO_URL`.
-No per-PR previews (test locally + on the branch).
-
-`netlify.toml` stays as the stopgap (builds `apps/docs` only) until both Railway
-services are green (SS-186), then it's removed and the Netlify site deleted
-(SS-185).
+(a root `dependency`). Two services (`docs`, `demo`) in one project, monorepo
+Root Directory `/`, differing only in command: `npm run build:docs` / `serve:docs`
+and the `demo` pair. Each service's own origin comes from build-time
+`NEXT_PUBLIC_DS_URL` / `NEXT_PUBLIC_DEMO_URL` — used for metadata, sitemap/robots,
+and the cross-app links. One domain per service, deployed from `main`; no per-PR
+previews (test locally + on the branch).
 
 ## Repo rules
 

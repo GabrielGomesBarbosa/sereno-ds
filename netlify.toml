@@ -1,9 +1,0 @@
-# Netlify — static export of the Sereno Design System showcase (apps/docs).
-# Stopgap until SS-158 moves both apps to Railway. The demo app (apps/demo) is
-# NOT deployed here in the meantime.
-[build]
-  command = "npm run build -- --filter=docs"
-  publish = "apps/docs/out"
-
-[build.environment]
-  NODE_VERSION = "20"
