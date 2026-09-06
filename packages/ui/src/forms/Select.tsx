@@ -209,6 +209,13 @@ function CustomSelect({
     const vh = window.innerHeight || document.documentElement.clientHeight;
     if (!vh) return; // hidden / detached viewport — nothing sensible to compute
     const r = t.getBoundingClientRect();
+    // If the page scrolled the trigger out of view, close rather than leave the
+    // panel floating detached (the scroll block below can be leaked past — a
+    // scrollbar drag, trackpad inertia, a programmatic scroll elsewhere).
+    if (r.bottom <= 0 || r.top >= vh) {
+      setOpen(false);
+      return;
+    }
     // The panel is mounted (hidden) before this runs, so offsetHeight is real.
     const panelH = panelRef.current?.offsetHeight || 240;
     const gap = 6;
@@ -228,10 +235,12 @@ function CustomSelect({
     }
     reposition();
 
-    // Lock page scrolling while the menu is open (the same convention as a native
-    // select popup and Radix/MUI Select). With nothing scrolling, the fixed panel
-    // never has to chase the trigger or decide whether to close. The list's own
-    // overflow still scrolls; wheel/touch/scroll-keys elsewhere are swallowed.
+    // Dampen page scrolling while the menu is open (the native-select / Radix /
+    // MUI convention): the list's own overflow still scrolls; wheel/touch/scroll
+    // keys elsewhere are swallowed. This is best-effort, not a guarantee — a
+    // scrollbar drag, trackpad inertia or a programmatic scroll can still get
+    // through — so `reflow` below keeps the fixed panel pinned to the trigger
+    // (or closes it) whenever the page does move.
     const inPanel = (t: EventTarget | null) => !!panelRef.current?.contains(t as Node);
     const blockWheel = (e: Event) => {
       if (!inPanel(e.target)) e.preventDefault();
@@ -242,16 +251,24 @@ function CustomSelect({
         e.preventDefault();
       }
     };
-    const onResize = () => reposition();
+    // `scroll` doesn't bubble — listen in the capture phase so a scroll on any
+    // ancestor (a nested scroller, the document) reflows the panel too. Ignore
+    // scrolls inside the panel's own option list.
+    const reflow = (e?: Event) => {
+      if (e && inPanel(e.target)) return;
+      reposition();
+    };
     document.addEventListener('wheel', blockWheel, { passive: false, capture: true });
     document.addEventListener('touchmove', blockWheel, { passive: false, capture: true });
     document.addEventListener('keydown', blockKeys, true);
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', reflow);
+    window.addEventListener('scroll', reflow, true);
     return () => {
       document.removeEventListener('wheel', blockWheel, { capture: true });
       document.removeEventListener('touchmove', blockWheel, { capture: true });
       document.removeEventListener('keydown', blockKeys, true);
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener('resize', reflow);
+      window.removeEventListener('scroll', reflow, true);
     };
   }, [open, reposition]);
 
