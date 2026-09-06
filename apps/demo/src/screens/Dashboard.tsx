@@ -589,7 +589,7 @@ export function Dashboard() {
       )}
 
       {toast && (
-        <div style={{ position: 'fixed', left: 0, right: 0, bottom: 'var(--space-6)', display: 'flex', justifyContent: 'center', zIndex: 80, padding: '0 var(--space-4)' }}>
+        <div style={{ position: 'fixed', left: 0, right: 0, top: 'calc(var(--dash-header-h, var(--topbar-height)) + var(--space-3))', display: 'flex', justifyContent: 'center', zIndex: 80, padding: '0 var(--space-4)' }}>
           <Toast tone="success" title={toast} onClose={() => setToast(null)} />
         </div>
       )}

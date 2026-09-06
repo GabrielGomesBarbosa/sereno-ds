@@ -28,9 +28,8 @@ export function DemoNav() {
       aria-label="Demo screens"
       style={{
         position: 'fixed',
-        left: '50%',
+        right: 'var(--space-4)',
         bottom: 'var(--space-4)',
-        transform: 'translateX(-50%)',
         zIndex: 200,
         display: 'flex',
         alignItems: 'center',
