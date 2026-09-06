@@ -44,21 +44,28 @@ at a time**. Columns: `To Do` → `In Progress` → `In Review` → `To Test` �
    human before moving it. Then move it to **`In Progress`** (only if that
    column is empty).
 2. **AI does the work** — one branch off `main`
-   (`feat|fix|chore|docs|refactor/SS-<id>-<slug>`), the card's subtasks, one or
-   more PRs. `npm run lint && npm run build` (both proxy `turbo run …`) green
+   (`feat|fix|chore|docs|refactor/SS-<id>-<slug>`), one or more PRs. Only the
+   **parent** rides the columns; **subtasks are the parent's checklist** — the
+   AI moves each subtask straight to **`Done`** as its chunk lands in a PR, one
+   by one. `npm run lint && npm run build` (both proxy `turbo run …`) green
    first. Never push or merge straight to `main`.
-3. **AI moves the card to `In Review`** and does a real self code-review of
+3. **AI moves the parent to `In Review`** and does a real self code-review of
    every open PR for it — post findings as PR comments, don't rubber-stamp.
-   - Found something worth fixing → move back to **`In Progress`**, fix, repeat.
-   - Clean → move to **`To Test`**.
+   - Found something worth fixing → move the parent back to **`In Progress`**
+     (and re-open whatever subtask the fix belongs to), fix, repeat.
+   - Clean → move the parent to **`To Test`** — **only once every subtask is
+     already `Done`.** The human must never be handed a parent whose sub-work
+     isn't finished.
 4. **The human drags `To Test` → `Testing`** and tests locally.
    - Pass → the human tells the AI, naming the parent (e.g. "SS-156 está
-     certo"). The AI then **squash-merges** the PR(s), and moves the parent
-     **and all its subtasks** to **`Done`**.
-   - Fail → back to **`In Progress`**; same loop.
-5. **A parent card only reaches `Done` when every subtask is `Done`.** The AI
-   never drags a card to `Done` on its own initiative — only after the human's
-   pass on `Testing`.
+     certo"). The AI **squash-merges** the PR(s) and moves the **parent** to
+     **`Done`** (the subtasks are already there).
+   - Fail → the AI moves the parent back to **`In Progress`** (re-opening the
+     affected subtask); same loop.
+5. **A parent reaches `Done` only when every subtask is `Done`** — which, by
+   step 3, is already true before it ever enters `To Test`. The AI never drags
+   a parent to `Done` on its own initiative — only after the human's pass on
+   `Testing`.
 
 Also: every change starts from a Jira task (project SS) — no task, no work. An
 ad-hoc tweak asked for in chat → ask whether to create a task before touching
