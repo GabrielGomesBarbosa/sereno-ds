@@ -4,12 +4,17 @@ Version shown in the `/design-system` header. Source: `apps/docs/src/design-syst
 
 ## 0.19.1 — Landing page rebuilt (SS-203)
 
-- `apps/docs/app/page.tsx` is no longer a placeholder: a centred hero (the
-  `<Brand>` symbol + headline + sub + two CTAs), a stats strip (30 primitives ·
-  5 categories · light × dark · 0 UI deps), three "what it is" pillar cards, the
-  two path cards (Design System / See the app), and a footer with the mono mark.
-- Built entirely from `@sereno/ui` (`Brand`, `Card`) and the tokens — no external
-  images, responsive, light + dark.
+- `apps/docs/app/page.tsx` is no longer a placeholder. A proper DS home:
+  - **Split hero** — copy (eyebrow, big headline, sub, React / Next.js marks, two
+    CTAs, an `import { Button, Card } from '@sereno/ui'` code block) next to a
+    **live preview panel** that wires up real primitives (Avatar, Badge, Stepper,
+    Switch, Button) — proof, not a screenshot. A soft indigo radial glow behind it.
+  - **Feature grid** — six points with Lucide icons in brand-soft tiles.
+  - **Path cards** to `/design-system` and `/demo`, plus a footer with the mono
+    mark and a GitHub link.
+- Built from `@sereno/ui` + tokens only — no external images, responsive, light +
+  dark. New `apps/docs/src/home/` (HeroPreview + mono React / Next.js / GitHub
+  marks); `@/home/*` tsconfig path added.
 
 ## 0.19.0 — `Brand` component + the water-drop mark (SS-202)
 

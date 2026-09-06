@@ -4,6 +4,7 @@
     "plugins": [{ "name": "next" }],
     "paths": {
       "@/design-system/*": ["./src/design-system/*"],
+      "@/home/*": ["./src/home/*"],
       "@/*": ["./*"]
     }
   },
