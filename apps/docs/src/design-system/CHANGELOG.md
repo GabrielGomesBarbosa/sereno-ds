@@ -2,6 +2,15 @@
 
 Version shown in the `/design-system` header. Source: `apps/docs/src/design-system/version.ts`.
 
+## 0.19.1 — Landing page rebuilt (SS-203)
+
+- `apps/docs/app/page.tsx` is no longer a placeholder: a centred hero (the
+  `<Brand>` symbol + headline + sub + two CTAs), a stats strip (30 primitives ·
+  5 categories · light × dark · 0 UI deps), three "what it is" pillar cards, the
+  two path cards (Design System / See the app), and a footer with the mono mark.
+- Built entirely from `@sereno/ui` (`Brand`, `Card`) and the tokens — no external
+  images, responsive, light + dark.
+
 ## 0.19.0 — `Brand` component + the water-drop mark (SS-202)
 
 - **New `Brand` primitive** (`@sereno/ui`, core) — the Sereno mark: an indigo
