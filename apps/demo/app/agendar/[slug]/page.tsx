@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BookingFlow } from '@/screens/BookingFlow';
+import { DemoNav } from '@/src/DemoNav';
 import { PROFESSIONALS, getProfessional, getServices } from '@/lib/mock';
 
 export function generateStaticParams() {
@@ -25,5 +26,10 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const professional = getProfessional(slug);
   if (!professional) notFound();
-  return <BookingFlow professional={professional} services={getServices(slug)} />;
+  return (
+    <>
+      <BookingFlow professional={professional} services={getServices(slug)} />
+      <DemoNav />
+    </>
+  );
 }

@@ -1,9 +1,13 @@
-import Link from 'next/link';
+import { ExternalLink } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { ScrollPanel } from './ScrollPanel';
 import { MobileNav } from './MobileNav';
 import { DS_VERSION } from './version';
 import { ThemeToggle } from '@sereno/ui';
+
+// The demo is a separate app (apps/demo). SS-158 sets NEXT_PUBLIC_DEMO_URL for
+// the deployed build; locally it runs on :3001.
+const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3001';
 
 /**
  * Shell — same structure as the dashboard: a full-height sidebar on the left,
@@ -40,11 +44,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            <Link
-              href="/demo"
+            <a
+              href={DEMO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
+                gap: 6,
                 height: 'var(--control-height-sm)',
                 padding: '0 var(--space-4)',
                 borderRadius: 'var(--radius-control)',
@@ -56,8 +63,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 textDecoration: 'none',
               }}
             >
-              View app
-            </Link>
+              See the app <ExternalLink size={14} strokeWidth={2} />
+            </a>
             <ThemeToggle variant="ghost" />
           </div>
         </header>

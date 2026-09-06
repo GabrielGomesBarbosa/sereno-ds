@@ -2,6 +2,30 @@
 
 Version shown in the `/design-system` header. Source: `apps/docs/src/design-system/version.ts`.
 
+## 0.20.0 — Demo app front door (SS-206)
+
+- **`apps/demo` hub moved from `/demo` to `/`.** The client redirect
+  (`apps/demo/app/page.tsx`) and the `app/demo/` route are gone —
+  `http://localhost:3001/` is the hub directly. `sitemap.ts` / `canonical`
+  updated.
+- **New demo landing** (lean): `Brand` lockup header, hero ("The Sereno app,
+  built on the Design System"), two CTAs, the three screens as `Card`s, a
+  footer. Same three-bloom indigo background as the docs landing. English copy;
+  the product screens stay pt-BR.
+- **`Brand` in the demo hub header** (replaces the plain-text "Sereno · App").
+  The dashboard / onboarding / booking screens keep `SerenoMark` until SS-180.
+- **`DemoNav`** — a fixed bottom-center pill on the three screens (not the hub):
+  the mark links back to the hub, plus Booking / Dashboard / Onboarding with the
+  current one marked. Demo-harness chrome, mounted from each route's `page.tsx`,
+  not from `src/screens/`.
+- Dashboard toast moved to the **top-right corner**, floating over the header
+  (standard notification position). Its full-width wrapper is
+  `pointer-events: none` so it no longer blocks clicks across that strip.
+- Cross-app links now consistent: the demo links to the DS and the
+  `/design-system` shell's "See the app" both open the other app in a new tab
+  with an `ExternalLink` icon, via `NEXT_PUBLIC_DS_URL` / `NEXT_PUBLIC_DEMO_URL`
+  (SS-158 sets them; fallbacks `:3000` / `:3001`).
+
 ## 0.19.3 — Landing polish + deterministic dev ports (no ticket)
 
 - **"See the app"** (hero CTA + path card) now opens the demo app in a new tab

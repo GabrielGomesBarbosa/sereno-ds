@@ -7,7 +7,7 @@ const SITE = 'https://sereno-ds.netlify.app';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
-  const staticRoutes = ['', '/demo', '/dashboard', '/onboarding'].map((path) => ({
+  const staticRoutes = ['', '/dashboard', '/onboarding'].map((path) => ({
     url: `${SITE}${path}`,
     lastModified: now,
     changeFrequency: 'monthly' as const,

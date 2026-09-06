@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Dashboard } from '@/screens/Dashboard';
+import { DemoNav } from '@/src/DemoNav';
 
 const title = 'Dashboard do profissional';
 const description =
@@ -13,5 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardPage() {
-  return <Dashboard />;
+  return (
+    <>
+      <Dashboard />
+      <DemoNav />
+    </>
+  );
 }
