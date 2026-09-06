@@ -123,7 +123,9 @@ export function Input({
         })}
       >
         {iconLeft && <span style={sx({ display: 'flex', color: 'var(--text-muted)', flex: '0 0 auto' })}>{iconLeft}</span>}
-        {prefix && <span style={sx({ display: 'flex', color: 'var(--text-muted)', fontSize: 'var(--text-sm)', flex: '0 0 auto' })}>{prefix}</span>}
+        {prefix && (
+          <span style={sx({ display: 'flex', color: 'var(--text-muted)', fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)', flex: '0 0 auto' })}>{prefix}</span>
+        )}
         <input
           id={rid}
           ref={inputRef}
@@ -162,7 +164,9 @@ export function Input({
             {reveal ? <EyeOff size={16} strokeWidth={1.75} /> : <Eye size={16} strokeWidth={1.75} />}
           </button>
         ) : (
-          suffix && <span style={sx({ display: 'flex', color: 'var(--text-muted)', fontSize: 'var(--text-sm)', flex: '0 0 auto' })}>{suffix}</span>
+          suffix && (
+            <span style={sx({ display: 'flex', color: 'var(--text-muted)', fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)', flex: '0 0 auto' })}>{suffix}</span>
+          )
         )}
       </div>
     </Field>
