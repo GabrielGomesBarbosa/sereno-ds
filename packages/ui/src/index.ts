@@ -10,6 +10,7 @@ export { IconButton, type IconButtonProps } from './core/IconButton';
 export { Badge, type BadgeProps } from './core/Badge';
 export { Card, type CardProps } from './core/Card';
 export { Avatar, type AvatarProps } from './core/Avatar';
+export { Brand, type BrandProps } from './core/Brand';
 
 // forms
 export { Input, type InputProps } from './forms/Input';

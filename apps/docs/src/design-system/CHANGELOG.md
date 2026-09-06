@@ -2,6 +2,21 @@
 
 Version shown in the `/design-system` header. Source: `apps/docs/src/design-system/version.ts`.
 
+## 0.19.0 — `Brand` component + the water-drop mark (SS-202)
+
+- **New `Brand` primitive** (`@sereno/ui`, core) — the Sereno mark: an indigo
+  water-drop symbol (`#7d8bdf` → `#4f46e5` gradient), optionally locked up with
+  the lowercase `sereno` wordmark (`--font-display` at 500). `variant`
+  (`symbol` / `lockup` / `lockup-vertical`), `size` (px), `mono` (drops the
+  gradient, paints in `currentColor`). SVG inline, gradient id via `useId`.
+- **The mark replaces the placeholder square-and-check** in the showcase: the
+  `/design-system` sidebar header and the landing header now render `<Brand>`.
+  The product screens (`apps/demo`: dashboard, booking, onboarding) keep the old
+  `SerenoMark` until SS-180 decides whether the drop is the product's mark too.
+- **Favicons** — `apps/docs/app/icon.svg` and `apps/demo/app/icon.svg` are the
+  drop; downloadable SVGs in `apps/docs/public/brand/`.
+- Showcase page for `Brand` (catalogue + examples: variants, monochrome, sizes).
+
 ## 0.18.1 — Monorepo (npm workspaces + Turborepo) (SS-155)
 
 - The repo is now four workspaces: **`packages/tokens`** (`@sereno/tokens`),

@@ -45,3 +45,7 @@ next-env.d.ts
 
 # Local Netlify folder
 .netlify
+
+# Next.js writes these per-app; the repo-root AGENTS.md / CLAUDE.md are the ones we keep
+apps/*/AGENTS.md
+apps/*/CLAUDE.md
