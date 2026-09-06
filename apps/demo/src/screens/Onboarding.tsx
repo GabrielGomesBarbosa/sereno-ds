@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Calendar, CheckCircle2, Link2, Share2, Sparkles, User } from 'lucide-react';
-import { AvatarUpload, Badge, Button, Card, Input, Select, Stepper } from '@sereno/ui';
+import { AvatarUpload, Badge, Button, Card, Input, Select, Stepper, Textarea } from '@sereno/ui';
 import { ServiceCard } from '@/domain/ServiceCard';
 import { WeeklyScheduleEditor, type WeekSchedule } from '@/domain/WeeklyScheduleEditor';
 import { DEFAULT_WEEK } from '@/lib/mock';
@@ -31,6 +31,7 @@ interface Data {
   council: string;
   credential: string;
   svcName: string;
+  svcDesc: string;
   duration: string;
   price: string;
   mode: string;
@@ -56,6 +57,7 @@ export function Onboarding() {
     council: 'crp',
     credential: '',
     svcName: '',
+    svcDesc: '',
     duration: '50 min',
     price: '',
     mode: 'Online',
@@ -187,6 +189,14 @@ function ServicoStep({ data, set }: { data: Data; set: (p: Partial<Data>) => voi
     <div style={vcol('var(--space-5)')}>
       <StepHeader title="Cadastre seu primeiro serviço" description="Um serviço é o que o cliente escolhe ao agendar. Cadastre mais depois, quando quiser." />
       <Input label="Nome do serviço" required size="lg" placeholder="Sessão de psicoterapia" value={data.svcName} onChange={(e) => set({ svcName: e.currentTarget.value })} />
+      <Textarea
+        label="Descrição"
+        rows={2}
+        placeholder="Atendimento individual por vídeo, com foco em ansiedade e carreira."
+        hint="Aparece no card que o cliente vê ao agendar. Opcional."
+        value={data.svcDesc}
+        onChange={(e) => set({ svcDesc: e.currentTarget.value })}
+      />
       <div className="onb-row-2">
         <Select
           label="Duração"
@@ -226,7 +236,13 @@ function ServicoStep({ data, set }: { data: Data; set: (p: Partial<Data>) => voi
         <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-2xs)', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
           Como o cliente vai ver
         </span>
-        <ServiceCard name={data.svcName || 'Nome do serviço'} duration={data.duration} price={data.price ? 'R$ ' + data.price : 'R$ —'} tag={data.mode} />
+        <ServiceCard
+          name={data.svcName || 'Nome do serviço'}
+          description={data.svcDesc || undefined}
+          duration={data.duration}
+          price={data.price ? 'R$ ' + data.price : 'R$ —'}
+          tag={data.mode}
+        />
       </div>
     </div>
   );

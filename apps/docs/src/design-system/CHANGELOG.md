@@ -23,6 +23,9 @@ Version shown in the `/design-system` header. Source: `apps/docs/src/design-syst
   `Button`; the in-step service/time recap card is hidden on desktop (the rail
   already shows it); `ServiceCard` moves the duration under the price,
   right-aligned. (`Brand` in the dashboard / onboarding screens is still SS-180.)
+- Onboarding "first service" step gains an optional **Descrição** `Textarea`,
+  fed into the "como o cliente vai ver" `ServiceCard` preview — it was missing
+  the description line that real services show in the booking flow.
 - No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, packages at
   `0.0.0`, no changeset).
 - Drive-by: the `Brand` lockup in the `/design-system` sidebar header is now a
