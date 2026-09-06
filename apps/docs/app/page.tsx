@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ThemeToggle } from '@sereno/ui';
+import { Brand, ThemeToggle } from '@sereno/ui';
 import { DS_VERSION } from '@/design-system/version';
 
 const pageTitle = 'Sereno — Design System & product showcase';
@@ -35,7 +35,7 @@ export default function Home() {
       <div style={{ width: '100%', maxWidth: 'var(--container-content)', margin: '0 auto', padding: '0 var(--gutter-desktop)', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 'var(--topbar-height)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-lg)', letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>
+            <Brand variant="lockup" size={26} />
             <span
               title="Design System version"
               style={{

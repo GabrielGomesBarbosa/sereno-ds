@@ -30,6 +30,7 @@ import {
   Avatar,
   AvatarUpload,
   Badge,
+  Brand,
   BottomNav,
   Button,
   Card,
@@ -341,6 +342,40 @@ function AvatarStatus() {
       <Avatar name="Carlos Dias" size="lg" status="confirmed" />
       <Avatar name="Rafael & Bia" size="lg" status="pending" />
       <Avatar name="Helena Costa" size="lg" status="cancelled" />
+    </div>
+  );
+}
+
+function BrandVariantes() {
+  return (
+    <div style={{ ...row, gap: 32 }}>
+      <Brand variant="symbol" size={40} />
+      <Brand variant="lockup" size={28} />
+      <Brand variant="lockup-vertical" size={40} />
+    </div>
+  );
+}
+
+function BrandMono() {
+  return (
+    <div style={{ ...row, gap: 32 }}>
+      <span style={{ color: 'var(--text-primary)' }}>
+        <Brand variant="lockup" size={28} mono />
+      </span>
+      <span style={{ color: 'var(--text-muted)' }}>
+        <Brand variant="lockup" size={28} mono />
+      </span>
+    </div>
+  );
+}
+
+function BrandTamanhos() {
+  return (
+    <div style={{ ...row, alignItems: 'flex-end', gap: 24 }}>
+      <Brand variant="symbol" size={16} />
+      <Brand variant="symbol" size={24} />
+      <Brand variant="symbol" size={32} />
+      <Brand variant="symbol" size={48} />
     </div>
   );
 }
@@ -1453,6 +1488,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   badge: { tones: BadgeCiclo, labels: BadgeGenericos, sizes: BadgeTamanhos },
   card: { padding: CardPadding, elevation: CardElevacao, interactive: CardInterativo },
   avatar: { sizes: AvatarTamanhos, 'initials-photo': AvatarIniciais, status: AvatarStatus },
+  brand: { variants: BrandVariantes, mono: BrandMono, sizes: BrandTamanhos },
   input: {
     basic: InputBasico,
     'icon-suffix': InputIconeSufixo,
