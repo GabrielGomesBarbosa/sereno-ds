@@ -593,8 +593,8 @@ export function Dashboard() {
           style={{
             position: 'fixed',
             left: 'var(--space-4)',
-            right: 'var(--space-4)',
-            top: 'var(--space-4)',
+            right: 'var(--space-6)',
+            top: 'var(--space-6)',
             display: 'flex',
             justifyContent: 'flex-end',
             zIndex: 100, // above the screen header — a toast overlays everything
