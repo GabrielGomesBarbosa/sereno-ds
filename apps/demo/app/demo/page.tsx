@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
   alternates: { canonical: '/demo' },
-  openGraph: { title: pageTitle, description: pageDescription, url: '/demo' },
+  openGraph: { title: pageTitle, description: pageDescription, url: '/demo', images: ['/opengraph-image.png'] },
 };
 
 const SCREENS = [

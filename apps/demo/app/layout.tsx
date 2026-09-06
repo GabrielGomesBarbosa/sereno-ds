@@ -10,23 +10,30 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'
 
 const SITE = 'https://sereno-ds.netlify.app';
 
+// This app is the Design System's demo, not a standalone scheduling product —
+// the screens render pt-BR mock content, but the app identity is the DS.
+const TITLE = 'Sereno Design System — demo';
+const DESCRIPTION =
+  'Demo screens of the Sereno Design System: the booking flow, professional dashboard and onboarding, built with @sereno/ui and navigable on mocked data.';
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: {
-    default: 'Sereno — agendamento online para profissionais de saúde e beleza',
-    template: '%s · Sereno',
-  },
-  description:
-    'Plataforma de agendamento online para profissionais autônomos de saúde e beleza no Brasil. Link público para o cliente marcar horário e um dashboard para o profissional gerir a agenda.',
-  applicationName: 'Sereno',
+  title: { default: TITLE, template: '%s · Sereno DS' },
+  description: DESCRIPTION,
+  applicationName: 'Sereno Design System',
   openGraph: {
     type: 'website',
-    locale: 'pt_BR',
-    siteName: 'Sereno',
+    siteName: 'Sereno Design System',
     url: SITE,
-    title: 'Sereno — agendamento online para profissionais de saúde e beleza',
-    description:
-      'Link público de agendamento, mobile-first e sem cadastro obrigatório, e um dashboard completo para o profissional.',
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ['/opengraph-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ['/opengraph-image.png'],
   },
 };
 

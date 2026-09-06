@@ -9,10 +9,26 @@ const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], 
 const manrope = Manrope({ subsets: ['latin'], weight: ['500', '600', '700', '800'], variable: '--font-manrope', display: 'swap' });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-jetbrains-mono', display: 'swap' });
 
+// Both apps currently deploy to this host; SS-158 (Railway) splits them.
+const SITE = 'https://sereno-ds.netlify.app';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE),
   title: { default: 'Sereno Design System', template: '%s · Sereno' },
   description: 'The Sereno Design System — token-driven React primitives with a navigable live showcase.',
   robots: { index: false, follow: false },
+  openGraph: {
+    type: 'website',
+    siteName: 'Sereno Design System',
+    url: SITE,
+    title: 'Sereno Design System',
+    description: '30 token-driven React primitives — native dark mode, no UI base library, built for React and Next.js.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sereno Design System',
+    description: '30 token-driven React primitives — native dark mode, no UI base library, built for React and Next.js.',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
