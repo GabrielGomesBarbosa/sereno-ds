@@ -1,0 +1,23 @@
+{
+  "name": "@sereno/tokens",
+  "version": "0.18.0",
+  "private": true,
+  "description": "Sereno Design System — the token layer (CSS custom properties, light × dark).",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": "./tokens.css",
+    "./tokens.css": "./tokens.css",
+    "./colors.css": "./colors.css",
+    "./typography.css": "./typography.css",
+    "./spacing.css": "./spacing.css",
+    "./radii.css": "./radii.css",
+    "./elevation.css": "./elevation.css",
+    "./motion.css": "./motion.css",
+    "./base.css": "./base.css"
+  },
+  "files": [
+    "*.css"
+  ]
+}

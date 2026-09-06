@@ -1,0 +1,162 @@
+/* apps/docs — the showcase shell. Component-level CSS comes from the packages;
+   what's here is host-app: the token layer, the reset, and the `.ds-*` / `.cv-*`
+   layout that only the showcase uses. */
+@import url("@sereno/tokens/tokens.css");
+@import url("@sereno/ui/styles.css");
+
+html, body { padding: 0; margin: 0; }
+
+/* iOS / WebKit: stop the focus auto-zoom on small controls (font-size < 16px).
+   Host-app concern, not the component lib. */
+@media (pointer: coarse), (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* ── Design System showcase — fixed app-shell ─────────────────────────────────
+   The whole DS lives in one contained column that is exactly the viewport tall.
+   The header never scrolls; the sidebar and the content are two independent
+   scroll panels, each 100% height, so the divider runs edge to edge and there is
+   no dangling space under the sidebar. */
+:root { --ds-sidebar: 236px; --ds-toc: 232px; --ds-content-max: 860px; }
+
+/* Same shell as the dashboard: full-height sidebar on the left, the header only
+   spans the content column (it "starts after the sidebar"). */
+.ds-root {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: var(--ds-sidebar, 236px) minmax(0, 1fr);
+  background: var(--bg-canvas);
+  overflow: hidden;
+}
+.ds-aside {
+  position: relative;
+  z-index: 3; /* keeps the rail's own flyouts / tooltips above the header */
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  /* border-right + background come from the SidebarNav component. */
+}
+.ds-content {
+  min-width: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.ds-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: var(--topbar-height);
+  padding-inline: var(--gutter-desktop);
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-surface);
+}
+.ds-main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Reserve the scrollbar on both edges so centred content (Overview, Tokens)
+     stays symmetric rather than shifting left by the scrollbar's width. */
+  scrollbar-gutter: stable both-edges;
+  padding: var(--space-7) var(--gutter-desktop) var(--space-10);
+}
+/* Component pages own their own 3-column padding — the shell backs off. */
+.ds-main:has(> .cv-layout) { padding: 0; }
+
+/* Mobile-only drawer nav (hidden / no-op on desktop) */
+.ds-menu-btn { display: none; }
+.ds-drawer-scrim,
+.ds-drawer { display: none; }
+
+/* Mobile: keep the app-shell, collapse the sidebar into a hamburger + drawer. */
+@media (max-width: 900px) {
+  /* The document scrolls on mobile — not a nested panel. iOS / Brave then reveal
+     a focused field above the software keyboard natively (same as /onboarding).
+     Do not reintroduce a nested overflow:auto scroller here. */
+  .ds-root { display: block; height: auto; overflow: visible; }
+  .ds-content { display: block; height: auto; }
+  .ds-main {
+    height: auto;
+    overflow: visible;
+    overscroll-behavior: auto;
+    padding-inline: var(--gutter-mobile);
+  }
+  .ds-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding-inline: var(--gutter-mobile);
+  }
+  html { scroll-padding-top: var(--topbar-height); }
+  /* Drop the "Design System" sub-label to save room, but keep the version chip. */
+  .ds-header-sub { display: none; }
+  .ds-aside { display: none; }
+
+  .ds-menu-btn { display: inline-flex; }
+  .ds-drawer-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: var(--bg-overlay);
+    backdrop-filter: blur(2px);
+    animation: sereno-fade-in var(--duration-fast) var(--ease-out);
+  }
+  .ds-drawer {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 51;
+    width: min(84vw, 300px);
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-lg);
+    animation: sereno-drawer-in var(--duration-normal) var(--ease-out);
+  }
+  .ds-drawer-close {
+    position: absolute;
+    top: calc(var(--sidenav-header-h, 56px) / 2);
+    right: 8px;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: flex;
+  }
+  .ds-drawer-body { flex: 1; min-height: 0; display: flex; }
+}
+/* sereno-fade-in comes from @sereno/ui/styles.css. */
+@keyframes sereno-drawer-in { from { transform: translateX(-100%); } }
+
+/* ── Component page (MUI-style) — nav flush left, TOC flush right, article centred ── */
+.cv-layout { display: grid; grid-template-columns: minmax(0, 1fr) var(--ds-toc); align-items: start; min-height: 100%; }
+.cv-article { min-width: 0; width: 100%; max-width: var(--ds-content-max); margin-inline: auto; padding: var(--space-8) var(--space-9) var(--space-10); }
+.cv-toc {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  /* --border-default, never --border-subtle: --subtle is lighter than the plain
+     canvas, so it reads as a stray white line rather than a divider. */
+  border-left: 1px solid var(--border-default);
+  padding: calc(var(--space-8) + 2px) var(--gutter-desktop) var(--space-10) var(--space-6);
+}
+.cv-guidelines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.cv-prevnext { display: flex; justify-content: space-between; gap: var(--space-4); margin-top: var(--space-10); }
+.cv-prevnext > * { flex: 1 1 0; }
+@media (max-width: 1180px) {
+  .cv-layout { grid-template-columns: minmax(0, 1fr); }
+  .cv-toc { display: none; }
+}
+@media (max-width: 900px) {
+  .cv-article { padding: var(--space-6) var(--gutter-mobile) var(--space-10); }
+}
+@media (max-width: 640px) {
+  .cv-guidelines { grid-template-columns: minmax(0, 1fr); }
+  .cv-prevnext { flex-direction: column; }
+}

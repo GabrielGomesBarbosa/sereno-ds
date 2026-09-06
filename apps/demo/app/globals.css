@@ -1,0 +1,198 @@
+/* apps/demo — the product screens shell. Component-level CSS comes from the
+   packages; what's here is host-app: the token layer, the reset, and the
+   `.dash-*` / `.onb-*` / `.booking-*` layout the three screens use. */
+@import url("@sereno/tokens/tokens.css");
+@import url("@sereno/ui/styles.css");
+
+html, body { padding: 0; margin: 0; }
+
+/* iOS / WebKit: stop the focus auto-zoom on small controls (font-size < 16px).
+   Host-app concern, not the component lib. */
+@media (pointer: coarse), (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Dashboard TopBar dropdown rows (hand-built menu — becomes a Menu primitive in SS-157). */
+.dash-menu-btn { transition: background-color var(--duration-fast) var(--ease-standard); }
+.dash-menu-btn:hover { background: var(--bg-subtle) !important; }
+
+/* ── Dashboard shell — fixed sidebar + scrolling content on desktop, drawer under 900px ── */
+.dash-shell { --dash-gutter: var(--gutter-desktop); display: grid; grid-template-columns: var(--dash-sb-w, 248px) minmax(0, 1fr); height: 100dvh; overflow: hidden; transition: grid-template-columns var(--duration-normal) var(--ease-out); }
+/* overflow visible + z-index so the collapse control can straddle the right edge, above the TopBar */
+.dash-sidebar { position: relative; z-index: 30; width: var(--dash-sb-w, 248px); height: 100dvh; transition: width var(--duration-normal) var(--ease-out); }
+.dash-content { min-width: 0; height: 100dvh; overflow-y: auto; display: flex; flex-direction: column; }
+.dash-main { width: 100%; max-width: var(--container-app); margin-inline: auto; padding: var(--space-7) var(--dash-gutter); }
+.dash-topbar-lead { display: none; }
+
+/* ── Mobile nav drawer (the persistent sidebar off-canvas under 900px) ──────── */
+.dash-drawer-scrim { position: fixed; inset: 0; z-index: 60; background: rgba(15, 18, 24, 0.45); animation: sereno-fade-in var(--duration-fast) var(--ease-out); }
+.dash-drawer-scrim[data-closing] { animation: sereno-fade-out var(--duration-normal) var(--ease-in) forwards; }
+.dash-drawer { position: fixed; left: 0; top: 0; bottom: 0; z-index: 61; width: min(300px, 86vw); display: flex; background: var(--bg-surface); box-shadow: var(--shadow-lg); animation: sereno-drawer-in var(--duration-normal) var(--ease-out); }
+.dash-drawer[data-closing] { animation: sereno-drawer-out var(--duration-normal) var(--ease-in) forwards; }
+.dash-drawer-close { position: absolute; top: calc(var(--dash-header-h, 74px) / 2); right: 8px; transform: translateY(-50%); z-index: 2; display: flex; }
+/* sereno-fade-in / -fade-out come from @sereno/ui/styles.css. */
+@keyframes sereno-drawer-in { from { transform: translateX(-100%); } }
+@keyframes sereno-drawer-out { to { transform: translateX(-100%); } }
+@keyframes sereno-fade-out { to { opacity: 0; } }
+.dash-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); }
+
+@media (max-width: 1080px) {
+  .dash-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dash-agenda-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .dash-agenda-aside { flex-direction: row !important; flex-wrap: wrap; }
+  .dash-agenda-aside > * { flex: 1 1 280px; }
+}
+@media (max-width: 900px) {
+  .dash-shell { --dash-gutter: var(--gutter-mobile); grid-template-columns: minmax(0, 1fr); height: auto; overflow: visible; }
+  .dash-sidebar { display: none; }
+  .dash-content { height: auto; overflow: visible; }
+  .dash-topbar-lead { display: inline-flex; align-items: center; gap: var(--space-1); }
+  .dash-main { padding: var(--space-6) var(--dash-gutter) var(--space-9); }
+}
+@media (max-width: 620px) {
+  .dash-agenda-aside { flex-direction: column !important; }
+}
+@media (max-width: 560px) {
+  .dash-user-name { display: none; }
+}
+
+/* ── Onboarding wizard ───────────────────────────────────────────────────────
+   Mobile: full-bleed column on the canvas. ≥768: a contained card, the same
+   shape as the booking flow's tablet layout. */
+.onb-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-canvas);
+  padding: var(--space-6) var(--gutter-mobile) var(--space-9);
+}
+.onb-card {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+@media (min-width: 768px) {
+  .onb-shell { padding: var(--space-10) var(--space-6); }
+  .onb-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-8);
+  }
+}
+
+.onb-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+.onb-skip {
+  align-self: center;
+  padding: var(--space-2);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.onb-skip:hover { color: var(--text-secondary); }
+
+.onb-row { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: var(--space-3); }
+.onb-row-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+@media (max-width: 520px) {
+  .onb-row, .onb-row-2 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── Public booking flow ──────────────────────────────────────────────────────
+   Mobile (<768): full-bleed single column, sticky action footer.
+   Tablet (768–1023): a contained single-column card.
+   Desktop (≥1024): a two-column card — a persistent identity/summary rail on the
+   left, the current step on the right. */
+.booking-shell { min-height: 100dvh; background: var(--bg-canvas); }
+.booking-card {
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+}
+.booking-rail { display: none; }
+.booking-stepcol { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.booking-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding-inline: var(--gutter-mobile); }
+.booking-scroll--center { align-items: center; }
+.booking-step-title { display: none; }
+.booking-backbtn { display: none; }
+.booking-footer {
+  position: sticky;
+  bottom: 0;
+  padding: var(--space-4) var(--gutter-mobile);
+  background: color-mix(in srgb, var(--bg-surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border-default);
+}
+
+@media (min-width: 768px) {
+  .booking-shell {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: var(--space-9) var(--space-6) var(--space-10);
+  }
+  .booking-card {
+    max-width: 560px;
+    min-height: 0;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+  .booking-scroll { flex: none; overflow: visible; }
+  .booking-footer { position: static; background: var(--bg-surface); backdrop-filter: none; }
+}
+
+@media (min-width: 1024px) {
+  .booking-shell { padding-block: var(--space-10); }
+  .booking-card { max-width: 940px; flex-direction: row; align-items: stretch; }
+  .booking-rail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    width: 320px;
+    flex: 0 0 320px;
+    padding: var(--space-7) var(--space-6);
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-default);
+  }
+  .booking-chrome { display: none; }              /* rail replaces the hero / TopBar */
+  .booking-step-title { display: block; }
+  .booking-backbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    align-self: flex-start;
+    margin: var(--space-5) var(--gutter-desktop) 0;
+    padding: 4px 6px 4px 2px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+  }
+  .booking-backbtn:hover { color: var(--text-primary); }
+  .booking-scroll { padding-inline: var(--gutter-desktop); }
+  .booking-footer { padding-inline: var(--gutter-desktop); }
+}
