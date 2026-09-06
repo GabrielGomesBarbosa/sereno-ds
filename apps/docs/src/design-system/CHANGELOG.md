@@ -2,6 +2,21 @@
 
 Version shown in the `/design-system` header. Source: `apps/docs/src/design-system/version.ts`.
 
+## 0.19.3 — Landing polish + deterministic dev ports (no ticket)
+
+- **"See the app"** (hero CTA + path card) now opens the demo app in a new tab
+  with an `ExternalLink` icon — it's a separate app. URL from
+  `NEXT_PUBLIC_DEMO_URL` (SS-158 sets it for the deployed build; falls back to
+  `http://localhost:3001`).
+- Feature grid: `` `data-theme` ``, `` `:focus-visible` ``, `` `var(--token)` ``
+  now render as styled `<code>` instead of literal backticks (`withCode` helper).
+- Richer landing background — three layered indigo blooms over `--bg-canvas`
+  (top-center, top-right, mid-left), still one hue (keeps clear of the
+  `accent × success` rule).
+- Dev ports pinned: `apps/docs` → `next dev -p 3000`, `apps/demo` →
+  `next dev -p 3001` (`.claude/launch.json` `autoPort: false`). No more
+  race for port 3000 — the DS is always `:3000`.
+
 ## 0.19.2 — Open Graph images + apple-touch-icons (SS-204)
 
 - **`opengraph-image.png` (1200×630) + `apple-icon.png` (180×180)** for both
