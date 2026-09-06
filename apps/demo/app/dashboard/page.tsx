@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title,
   description,
   alternates: { canonical: '/dashboard' },
-  openGraph: { title, description, url: '/dashboard' },
+  openGraph: { title, description, url: '/dashboard', images: ['/opengraph-image.png'] },
 };
 
 export default function DashboardPage() {

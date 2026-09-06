@@ -27,6 +27,14 @@ export const metadata: Metadata = {
     title: 'Sereno — agendamento online para profissionais de saúde e beleza',
     description:
       'Link público de agendamento, mobile-first e sem cadastro obrigatório, e um dashboard completo para o profissional.',
+    images: ['/opengraph-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sereno — agendamento online para profissionais de saúde e beleza',
+    description:
+      'Link público de agendamento, mobile-first e sem cadastro obrigatório, e um dashboard completo para o profissional.',
+    images: ['/opengraph-image.png'],
   },
 };
 

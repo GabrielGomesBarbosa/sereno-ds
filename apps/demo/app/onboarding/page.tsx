@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title,
   description,
   alternates: { canonical: '/onboarding' },
-  openGraph: { title, description, url: '/onboarding' },
+  openGraph: { title, description, url: '/onboarding', images: ['/opengraph-image.png'] },
 };
 
 export default function OnboardingPage() {
