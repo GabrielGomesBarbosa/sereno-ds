@@ -1,8 +1,22 @@
 {
   "name": "@sereno/tokens",
-  "version": "0.18.0",
-  "private": true,
+  "version": "0.0.0",
   "description": "Sereno Design System — the token layer (CSS custom properties, light × dark).",
+  "license": "MIT",
+  "author": "Sereno",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GabrielGomesBarbosa/sereno-ds.git",
+    "directory": "packages/tokens"
+  },
+  "homepage": "https://github.com/GabrielGomesBarbosa/sereno-ds/tree/main/packages/tokens#readme",
+  "bugs": "https://github.com/GabrielGomesBarbosa/sereno-ds/issues",
+  "keywords": [
+    "design-tokens",
+    "css-variables",
+    "design-system",
+    "sereno"
+  ],
   "sideEffects": [
     "*.css"
   ],
@@ -15,9 +29,15 @@
     "./radii.css": "./radii.css",
     "./elevation.css": "./elevation.css",
     "./motion.css": "./motion.css",
-    "./base.css": "./base.css"
+    "./base.css": "./base.css",
+    "./package.json": "./package.json"
   },
   "files": [
-    "*.css"
-  ]
+    "*.css",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

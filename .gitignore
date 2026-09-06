@@ -20,6 +20,10 @@ out/
 # turborepo
 .turbo
 
+# package build output
+packages/*/dist/
+*.tgz
+
 # production
 /build
 

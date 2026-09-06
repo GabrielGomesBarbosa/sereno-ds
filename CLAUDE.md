@@ -45,20 +45,30 @@ npm workspaces + Turborepo. Four workspaces:
    body says what it contains (summary + how to test). `npm run lint && npm run build`
    (both proxy `turbo run …` across every workspace) must be green first. Merge
    with **squash**.
-5. **Every PR that touches `packages/` or `apps/` bumps the showcase version:**
-   edit `apps/docs/src/design-system/version.ts` and add an entry to
-   `apps/docs/src/design-system/CHANGELOG.md`. Pre-1.0 → `patch` = fix/tweak,
-   `minor` = feature / structure / breaking. (The `@sereno/ui` /
-   `@sereno/tokens` package versions get their own line via changesets in
-   SS-199 — for now they track the showcase version.)
+5. **Two versions, decoupled — never conflate them:**
+   - **Showcase version** — `apps/docs/src/design-system/version.ts` + a
+     `apps/docs/src/design-system/CHANGELOG.md` entry. It's the number in the
+     `/design-system` header. Bump it when a PR changes **`apps/docs`** (or
+     `apps/demo`) in a user-visible way. Pre-1.0 → `patch` = fix/tweak, `minor`
+     = feature / structure / breaking. It is **never published anywhere**.
+   - **Library version** — `packages/ui` + `packages/tokens` `package.json`.
+     Independent. Changed **only when `packages/**` actually changes**, via
+     **Changesets** (SS-161): a PR touching those packages adds a
+     `.changeset/*.md`; a PR that doesn't touch `packages/**` bumps nothing and
+     **triggers no npm publish**. Until SS-161 lands, `packages/*` sit at
+     `0.0.0` (first published version is SS-160's `0.1.0-beta`) and get no
+     changeset. So: a demo/showcase-only PR bumps `version.ts` and stops; a
+     `packages/**` PR is what reaches npm.
 6. **After the merge:**
    ```bash
    git checkout main && git pull
    gh release create vX.Y.Z --title "vX.Y.Z" --notes "<the CHANGELOG section>"
    ```
-7. **Pure repo-meta PRs** (`CLAUDE.md`, `AGENTS.md`, `.gitignore`, `.github/`,
-   `netlify.toml`, `eslint.config`, `turbo.json`, `tsconfig.base.json`) still
-   need a task + PR, but **no version bump and no release**.
+7. **PRs that don't touch `apps/docs` or `apps/demo`** — pure repo-meta
+   (`CLAUDE.md`, `AGENTS.md`, `.gitignore`, `.github/`, `netlify.toml`,
+   `eslint.config`, `turbo.json`, `tsconfig.base.json`) **and `packages/**`-only
+   PRs** — still need a task + PR, but **no `version.ts` bump and no
+   `gh release`**. A `packages/**` PR carries its own changeset instead (SS-161).
 8. **Deploy is a stopgap until SS-158.** `netlify.toml` builds and publishes
    **`apps/docs` only** (`npm run build -- --filter=docs`, `publish = apps/docs/out`).
    `apps/demo` is not deployed anywhere until the Railway migration (SS-158).
