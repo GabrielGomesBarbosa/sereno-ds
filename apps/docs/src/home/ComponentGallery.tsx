@@ -97,13 +97,10 @@ export function ComponentGallery() {
       <Card padding="lg" style={cell}>
         <span style={tag}>Loading</span>
         <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
-          <Skeleton style={{ width: 40, height: 40, borderRadius: '999px' }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
-            <Skeleton style={{ height: 10, width: '70%' }} />
-            <Skeleton style={{ height: 10, width: '45%' }} />
-          </div>
+          <Skeleton variant="avatar" />
+          <Skeleton variant="text" lines={2} style={{ flex: 1 }} />
         </div>
-        <Skeleton style={{ height: 10, width: '90%' }} />
+        <Skeleton variant="block" height={72} />
       </Card>
     </div>
   );
