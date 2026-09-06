@@ -1,6 +1,20 @@
 # Sereno DS — changelog
 
-Version shown in the `/design-system` header. Source: `src/design-system/version.ts`.
+Version shown in the `/design-system` header. Source: `apps/docs/src/design-system/version.ts`.
+
+## 0.18.1 — Monorepo (npm workspaces + Turborepo) (SS-155)
+
+- The repo is now four workspaces: **`packages/tokens`** (`@sereno/tokens`),
+  **`packages/ui`** (`@sereno/ui` — the 31 primitives + `styles.css` + `theme`),
+  **`apps/docs`** (this showcase) and **`apps/demo`** (the 3 product screens).
+- Both apps consume `@sereno/ui` / `@sereno/tokens` through the workspace link;
+  the `@/components` / `@/theme` tsconfig aliases are gone. Each app's
+  `globals.css` `@import`s `@sereno/tokens/tokens.css` + `@sereno/ui/styles.css`
+  and then only its own shell rules.
+- `turbo run build | lint | typecheck` from the root. No component API or visual
+  change — plumbing only. Deploy is a stopgap on `apps/docs` until SS-158.
+- `CLAUDE.md` / `AGENTS.md` / `README.md` are rewritten for the new layout in
+  SS-171.
 
 ## 0.18.0 — Component stylesheet split out of the app (SS-154)
 
