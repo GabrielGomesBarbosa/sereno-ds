@@ -12,14 +12,25 @@ General Railway reference: <https://docs.google.com/document/d/1LnXLinMpm6XKu_Vz
 
 ---
 
-## Step 1 — Project + spend cap
+## Step 1 — Plan, project + spend cap
+
+**Plan — Hobby ($5/mo) is enough.** It includes $5 of monthly usage credit. Both
+services are tiny static file servers (`serve` on a built `out/`) — low RAM,
+~zero CPU when idle — so they fit inside that credit. Pro (team seats, huge
+per-service limits, 30-day logs, higher SLA) is for the real runtime product
+later (SS-104), not this. After the trial expires there's no free tier, so Hobby
+is the floor.
 
 1. Railway → **New Project → Deploy from GitHub repo** → authorize Railway on the
    GitHub account → pick `GabrielGomesBarbosa/sereno-ds`, branch `main`. This
    creates the first service.
 2. Workspace/account **Billing → set a monthly spend cap** now (Railway bills by
    CPU/memory/network usage, not a flat fee). Do this before deploying — avoids a
-   surprise invoice.
+   surprise invoice. On Hobby, set the **usage limit** so it hard-stops instead
+   of billing overage.
+3. Optional: flip each service to **Serverless** (service Settings — it sleeps
+   when idle and wakes on the next request, a few seconds of cold start). Fine
+   for a showcase/demo and keeps usage well under the included $5.
 
 ## Step 2 — Service `sereno-ds` (the docs / showcase)
 
