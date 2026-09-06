@@ -33,54 +33,78 @@ npm workspaces + Turborepo. Four workspaces:
   (`scripts/generate-brand-images.mjs`). Favicon is `app/icon.svg`. The drop mark
   itself lives in `@sereno/ui`'s `Brand`.
 
-## Workflow (required)
+## Board flow (required)
 
-1. **Every change starts from a Jira task** (project SS). No task, no work.
-2. **Ad-hoc tweak asked for in chat** → ask whether to create a new Jira task
-   before touching code.
-3. **One task → one branch → one PR.** Branch name carries the ID:
-   `feat|fix|chore|docs|refactor/SS-<id>-<slug>`. Note which workspace(s) the
-   change is in, in the PR body.
-4. **Never push or merge straight to `main`.** Everything goes through a PR whose
-   body says what it contains (summary + how to test). `npm run lint && npm run build`
-   (both proxy `turbo run …` across every workspace) must be green first. Merge
-   with **squash**.
-5. **Two versions, decoupled — never conflate them:**
-   - **Showcase version** — `apps/docs/src/design-system/version.ts` + a
-     `apps/docs/src/design-system/CHANGELOG.md` entry. It's the number in the
-     `/design-system` header. Bump it when a PR changes **`apps/docs`** (or
-     `apps/demo`) in a user-visible way. Pre-1.0 → `patch` = fix/tweak, `minor`
-     = feature / structure / breaking. It is **never published anywhere**.
-   - **Library version** — `packages/ui` + `packages/tokens` `package.json`.
-     Independent. Changed **only when `packages/**` actually changes**, via
-     **Changesets** (SS-161): a PR touching those packages adds a
-     `.changeset/*.md`; a PR that doesn't touch `packages/**` bumps nothing and
-     **triggers no npm publish**. Until SS-161 lands, `packages/*` sit at
-     `0.0.0` (first published version is SS-160's `0.1.0-beta`) and get no
-     changeset. So: a demo/showcase-only PR bumps `version.ts` and stops; a
-     `packages/**` PR is what reaches npm.
-6. **After the merge:**
-   ```bash
-   git checkout main && git pull
-   gh release create vX.Y.Z --title "vX.Y.Z" --notes "<the CHANGELOG section>"
-   ```
-   **Tag namespaces — two independent release streams in this repo, never
-   conflated:**
-   - `vX.Y.Z` → the **showcase**. Manual `gh release` as above. Notes = the
-     `apps/docs/src/design-system/CHANGELOG.md` section.
-   - `@sereno/ui@X.Y.Z` / `@sereno/tokens@X.Y.Z` → the **published packages**.
-     Created by Changesets (SS-161), not by hand; notes = that package's own
-     `CHANGELOG.md`. The git tag always equals the npm version. It does **not**
-     have to line up with the current `vX.Y.Z` — first package release is
-     `@sereno/ui@0.1.0-beta.0` regardless of where the showcase sits.
-7. **PRs that don't touch `apps/docs` or `apps/demo`** — pure repo-meta
-   (`CLAUDE.md`, `AGENTS.md`, `.gitignore`, `.github/`, `netlify.toml`,
-   `eslint.config`, `turbo.json`, `tsconfig.base.json`) **and `packages/**`-only
-   PRs** — still need a task + PR, but **no `version.ts` bump and no
-   `gh release`**. A `packages/**` PR carries its own changeset instead (SS-161).
-8. **Deploy is a stopgap until SS-158.** `netlify.toml` builds and publishes
-   **`apps/docs` only** (`npm run build -- --filter=docs`, `publish = apps/docs/out`).
-   `apps/demo` is not deployed anywhere until the Railway migration (SS-158).
+One human, one AI agent — so **the `In Progress` column holds exactly one card
+at a time**. Columns: `To Do` → `In Progress` → `In Review` → `To Test` →
+`Testing` → `Done`.
+
+1. **AI picks a card from `To Do`.** First check the card is fully clear
+   (scope, acceptance criteria, decisions). If anything is ambiguous, ask the
+   human before moving it. Then move it to **`In Progress`** (only if that
+   column is empty).
+2. **AI does the work** — one branch off `main`
+   (`feat|fix|chore|docs|refactor/SS-<id>-<slug>`), the card's subtasks, one or
+   more PRs. `npm run lint && npm run build` (both proxy `turbo run …`) green
+   first. Never push or merge straight to `main`.
+3. **AI moves the card to `In Review`** and does a real self code-review of
+   every open PR for it — post findings as PR comments, don't rubber-stamp.
+   - Found something worth fixing → move back to **`In Progress`**, fix, repeat.
+   - Clean → move to **`To Test`**.
+4. **The human drags `To Test` → `Testing`** and tests locally.
+   - Pass → the human tells the AI, naming the parent (e.g. "SS-156 está
+     certo"). The AI then **squash-merges** the PR(s), and moves the parent
+     **and all its subtasks** to **`Done`**.
+   - Fail → back to **`In Progress`**; same loop.
+5. **A parent card only reaches `Done` when every subtask is `Done`.** The AI
+   never drags a card to `Done` on its own initiative — only after the human's
+   pass on `Testing`.
+
+Also: every change starts from a Jira task (project SS) — no task, no work. An
+ad-hoc tweak asked for in chat → ask whether to create a task before touching
+code. Branch names carry the ID: `feat|fix|chore|docs|refactor/SS-<id>-<slug>`.
+The PR body says what it contains and how to test, and notes which workspace(s)
+it touches.
+
+## Versioning & releases
+
+**Two versions, decoupled — never conflate them:**
+
+- **Showcase version** — `apps/docs/src/design-system/version.ts` + a
+  `apps/docs/src/design-system/CHANGELOG.md` entry. It's the number in the
+  `/design-system` header. Bump it when a PR changes **`apps/docs`** (or
+  `apps/demo`) in a user-visible way. Pre-1.0 → `patch` = fix/tweak, `minor` =
+  feature / structure / breaking. It is **never published anywhere**. After the
+  merge: `git checkout main && git pull` then
+  `gh release create vX.Y.Z --title "vX.Y.Z" --notes "<the CHANGELOG section>"`.
+- **Library version** — `packages/ui` + `packages/tokens` `package.json`.
+  Independent. Changed **only when `packages/**` actually changes**, via
+  **Changesets** (SS-161): a PR touching those packages adds a `.changeset/*.md`;
+  a PR that doesn't touch `packages/**` bumps nothing and **triggers no npm
+  publish**. Until SS-161 lands, `packages/*` sit at `0.0.0` (first published
+  version is SS-160's `0.1.0-beta`) and get no changeset.
+
+So: a demo/showcase-only PR bumps `version.ts` and stops; a `packages/**` PR is
+what reaches npm. **PRs that touch neither `apps/docs` nor `apps/demo`** — pure
+repo-meta (`CLAUDE.md`, `.gitignore`, `.github/`, `netlify.toml`, `eslint.config`,
+`turbo.json`, `tsconfig.base.json`) and `packages/**`-only PRs — get **no
+`version.ts` bump and no `gh release`**.
+
+**Tag namespaces — two independent release streams, never conflated:**
+
+- `vX.Y.Z` → the **showcase**. Manual `gh release`; notes = the
+  `apps/docs/src/design-system/CHANGELOG.md` section.
+- `@sereno/ui@X.Y.Z` / `@sereno/tokens@X.Y.Z` → the **published packages**.
+  Created by Changesets (SS-161), not by hand; notes = that package's own
+  `CHANGELOG.md`. The git tag always equals the npm version. It does **not**
+  have to line up with the current `vX.Y.Z` — the first package release is
+  `@sereno/ui@0.1.0-beta.0` regardless of where the showcase sits.
+
+## Deploy
+
+Stopgap until SS-158. `netlify.toml` builds and publishes **`apps/docs` only**
+(`npm run build -- --filter=docs`, `publish = apps/docs/out`). `apps/demo` is not
+deployed anywhere until the Railway migration (SS-158).
 
 ## Repo rules
 
