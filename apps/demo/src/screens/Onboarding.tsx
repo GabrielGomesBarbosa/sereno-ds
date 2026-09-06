@@ -229,7 +229,7 @@ function ServicoStep({ data, set }: { data: Data; set: (p: Partial<Data>) => voi
         options={[
           { value: 'Online', label: 'Online' },
           { value: 'Presencial', label: 'Presencial' },
-          { value: 'Ambos', label: 'Online e presencial' },
+          { value: 'Presencial/Online', label: 'Online e presencial' },
         ]}
       />
       <div style={vcol('var(--space-2)')}>

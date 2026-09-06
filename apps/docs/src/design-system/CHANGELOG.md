@@ -2,6 +2,12 @@
 
 Version shown in the `/design-system` header. Source: `apps/docs/src/design-system/version.ts`.
 
+## 0.21.1 — Onboarding "Formato" fix (no ticket)
+
+- Onboarding "first service" step: the "Online e presencial" option carried the
+  value `Ambos`, which leaked verbatim into the `ServiceCard` preview badge. It's
+  now `Presencial/Online`.
+
 ## 0.21.0 — Domain cards out of the DS (SS-212)
 
 - **The `domain` category is gone from `@sereno/ui`.** `ServiceCard`,
