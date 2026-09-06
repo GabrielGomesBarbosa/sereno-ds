@@ -18,9 +18,9 @@ Version shown in the `/design-system` header. Source: `apps/docs/src/design-syst
   the mark links back to the hub, plus Booking / Dashboard / Onboarding with the
   current one marked. Demo-harness chrome, mounted from each route's `page.tsx`,
   not from `src/screens/`.
-- Dashboard toast moved to the **top-right** (standard notification position),
-  below the header. Its full-width wrapper is `pointer-events: none` so it no
-  longer blocks clicks across that strip.
+- Dashboard toast moved to the **top-right corner**, floating over the header
+  (standard notification position). Its full-width wrapper is
+  `pointer-events: none` so it no longer blocks clicks across that strip.
 - Cross-app links now consistent: the demo links to the DS and the
   `/design-system` shell's "See the app" both open the other app in a new tab
   with an `ExternalLink` icon, via `NEXT_PUBLIC_DS_URL` / `NEXT_PUBLIC_DEMO_URL`
