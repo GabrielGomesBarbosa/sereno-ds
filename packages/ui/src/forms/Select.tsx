@@ -180,6 +180,10 @@ function CustomSelect({
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const panelRef = React.useRef<HTMLUListElement>(null);
   const typeahead = React.useRef<{ str: string; timer: number }>({ str: '', timer: 0 });
+  // A <label htmlFor> forwards a fully-trusted click here that's indistinguishable
+  // from a direct one by the event alone — but its *pointerdown* landed on the
+  // label, not this button. So we only toggle when the press started on the box.
+  const pressedAt = React.useRef(0);
 
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState(-1);
@@ -349,16 +353,20 @@ function CustomSelect({
         aria-activedescendant={open && activeIndex >= 0 ? `${rid}-opt-${activeIndex}` : undefined}
         aria-disabled={disabled || undefined}
         disabled={disabled}
+        onPointerDown={() => {
+          pressedAt.current = Date.now();
+        }}
         onMouseDown={(e) => {
           // Take focus without the browser scrolling us into view.
           e.preventDefault();
           triggerRef.current?.focus({ preventScroll: true });
         }}
-        onClick={(e) => {
-          // Ignore clicks the <label> forwards here (detail === 0) — clicking the
-          // field label shouldn't open the menu, only clicking the box should.
-          // Keyboard activation is handled in onKeyDown.
-          if (e.detail === 0) return;
+        onClick={() => {
+          // Only toggle when the press started on this button — a click forwarded
+          // from the field <label>, or synthesised by the keyboard, never set
+          // pressedAt (keyboard is handled in onKeyDown).
+          if (Date.now() - pressedAt.current > 500) return;
+          pressedAt.current = 0;
           if (open) closeMenu(false);
           else openMenu();
         }}
