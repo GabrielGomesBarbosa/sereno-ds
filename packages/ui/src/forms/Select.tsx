@@ -213,36 +213,54 @@ function CustomSelect({
     return from;
   };
 
-  // Position the portalled listbox from the trigger's rect. Drops down by
-  // default; flips above only when there isn't room. Kept glued on scroll/resize
-  // (rAF-throttled). Scrolling the field off-screen doesn't close it (matches
-  // MUI) — it just tracks along and comes back.
+  // Full placement pass: picks a side (above/below) and a max-height from the
+  // room available, and writes React state (first paint + on resize). The
+  // above/below choice is frozen for the lifetime of the open menu — re-deciding
+  // it mid-scroll is what makes a tracked popover jump around.
+  const sideRef = React.useRef(false);
+  const GAP = 6;
   const place = React.useCallback(() => {
     const t = triggerRef.current;
     if (!t) return;
     const r = t.getBoundingClientRect();
     const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-    const gap = 6;
     const spaceBelow = vh - r.bottom - 8;
     const spaceAbove = r.top - 8;
-    const above = spaceBelow < Math.min(288, 200) && spaceAbove > spaceBelow;
-    const maxH = Math.max(120, Math.min(288, (above ? spaceAbove : spaceBelow) - gap));
-    setPos({ left: r.left, width: r.width, top: above ? r.top - gap : r.bottom + gap, above, maxH });
+    const above = spaceBelow < 200 && spaceAbove > spaceBelow;
+    const maxH = Math.max(120, Math.min(288, (above ? spaceAbove : spaceBelow) - GAP));
+    sideRef.current = above;
+    setPos({ left: r.left, width: r.width, top: above ? r.top - GAP : r.bottom + GAP, above, maxH });
   }, []);
 
   useIsoLayoutEffect(() => {
     if (!open) return;
     place();
-    let raf = 0;
+    // On scroll, slide the panel with the field by writing the DOM node
+    // directly — no rAF, no setState. Scroll handlers run before the frame
+    // paints, so a synchronous style write keeps the panel locked to the field
+    // with zero lag (the rAF + re-render version lagged a frame and jittered).
+    const sync = () => {
+      const t = triggerRef.current;
+      const p = panelRef.current;
+      if (!t || !p) return;
+      const r = t.getBoundingClientRect();
+      p.style.left = `${r.left}px`;
+      p.style.width = `${r.width}px`;
+      if (sideRef.current) {
+        p.style.top = 'auto';
+        p.style.bottom = `${(window.innerHeight || 0) - (r.top - GAP)}px`;
+      } else {
+        p.style.bottom = 'auto';
+        p.style.top = `${r.bottom + GAP}px`;
+      }
+    };
     const onScroll = (e: Event) => {
       if (panelRef.current?.contains(e.target as Node)) return; // the list's own scroll
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(place);
+      sync();
     };
     window.addEventListener('scroll', onScroll, true);
     window.addEventListener('resize', place);
     return () => {
-      cancelAnimationFrame(raf);
       window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', place);
     };
