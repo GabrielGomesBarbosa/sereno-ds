@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
-import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, MoonStar, Palette } from 'lucide-react';
+import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, MonitorSmartphone, MoonStar, Palette, Server } from 'lucide-react';
 import { Brand, Card, ThemeToggle } from '@sereno/ui';
 import { DS_VERSION } from '@/design-system/version';
 import { ComponentGallery } from '@/home/ComponentGallery';
 import { HeroPreview } from '@/home/HeroPreview';
 import { GithubMark, NextMark, ReactMark } from '@/home/tech';
+import { CopyCode } from '@/home/CopyCode';
 
 const REPO = 'https://github.com/GabrielGomesBarbosa/sereno-ds';
 
@@ -29,9 +30,11 @@ const FEATURES: { icon: ReactNode; title: string; body: string }[] = [
   { icon: <Palette size={20} strokeWidth={1.75} />, title: 'Token-driven', body: 'Every value is a CSS custom property. Light and dark are the same components on a different token set.' },
   { icon: <Ban size={20} strokeWidth={1.75} />, title: 'No base library', body: 'No Radix, MUI or Tailwind. Inline styles, built from scratch — the surface is exactly the design system.' },
   { icon: <MoonStar size={20} strokeWidth={1.75} />, title: 'Native dark mode', body: 'One `data-theme` on the root. No theme prop, no variant, no flash.' },
+  { icon: <MonitorSmartphone size={20} strokeWidth={1.75} />, title: 'Responsive UI', body: 'Adapts to the pointer, not just the width — Select opens as a bottom sheet on touch, Dialog as a slide-up, the dashboard re-homes its nav.' },
   { icon: <Accessibility size={20} strokeWidth={1.75} />, title: 'Keyboard & focus', body: 'Real focus rings, `:focus-visible`, roving tabindex where it matters — on every control.' },
   { icon: <Layers size={20} strokeWidth={1.75} />, title: '30 primitives, 5 categories', body: 'Core, forms, navigation, feedback and the scheduling-domain cards — a live preview for each.' },
   { icon: <Feather size={20} strokeWidth={1.75} />, title: 'Zero runtime', body: 'No CSS-in-JS engine. Plain inline styles reading `var(--token)` — nothing ships but the components.' },
+  { icon: <Server size={20} strokeWidth={1.75} />, title: 'RSC-ready', body: "Each primitive keeps its own `'use client'` boundary — server components import them freely; only what's interactive hydrates." },
 ];
 
 const eyebrow: CSSProperties = {
@@ -129,6 +132,8 @@ export default function Home() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
             <a
               href={REPO}
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="GitHub repository"
               style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 'var(--control-height-sm)', height: 'var(--control-height-sm)', borderRadius: 'var(--radius-control)', color: 'var(--text-secondary)' }}
             >
@@ -181,21 +186,10 @@ export default function Home() {
                 See the app <ExternalLink size={16} strokeWidth={2} />
               </a>
             </div>
-            <pre
-              style={{
-                margin: 'var(--space-2) 0 0',
-                padding: 'var(--space-3) var(--space-4)',
-                borderRadius: 'var(--radius-md)',
-                background: 'var(--bg-inverse)',
-                color: 'var(--text-inverse)',
-                fontFamily: 'var(--font-mono)',
-                fontSize: 'var(--text-xs)',
-                overflowX: 'auto',
-              }}
-            >
+            <CopyCode code="import { Button, Card } from '@sereno/ui'">
               <span style={{ opacity: 0.6 }}>import</span> {'{ Button, Card }'} <span style={{ opacity: 0.6 }}>from</span>{' '}
               <span style={{ color: 'var(--accent-300, #8ee3d3)' }}>&apos;@sereno/ui&apos;</span>
-            </pre>
+            </CopyCode>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -254,7 +248,7 @@ export default function Home() {
             <Brand variant="symbol" size={16} mono />
             Sereno Design System · v{DS_VERSION}
           </span>
-          <a href={REPO} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
+          <a href={REPO} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
             <GithubMark size={14} /> GitHub
           </a>
         </footer>
