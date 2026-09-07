@@ -44,6 +44,7 @@ import {
   Alert,
   Avatar,
   Badge,
+  Brand,
   Button,
   Card,
   DateTimePicker,
@@ -75,6 +76,8 @@ import {
   NOTIFICATIONS,
   SERVICES_BY_SLUG,
   UNAVAILABLE_DAYS,
+  bookingCountsOf,
+  weekendsOf,
   type Appointment,
   type ClientRow,
 } from '@/lib/mock';
@@ -164,24 +167,6 @@ function titleForView(v: string): string {
     }
   }
   return 'Sereno';
-}
-
-/** Placeholder brand mark — swap for the real asset when there is one. */
-function SerenoMark({ size = 28 }: { size?: number }) {
-  // Unique per instance: a shared gradient id breaks when the first holder is display:none.
-  const gid = React.useId();
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" role="img" aria-label="Sereno" style={{ display: 'block', flex: '0 0 auto' }}>
-      <defs>
-        <linearGradient id={gid} x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#7d8bdf" />
-          <stop offset="1" stopColor="#4f46e5" />
-        </linearGradient>
-      </defs>
-      <rect width="32" height="32" rx="9" fill={`url(#${gid})`} />
-      <path d="M10.5 16.5l3.7 3.7L22 12" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
 }
 
 function useMediaQuery(query: string) {
@@ -470,12 +455,7 @@ export function Dashboard() {
   const [base, sub] = view.split(':') as [string, string | undefined];
   const pageTitle = titleForView(view);
 
-  const brandFull = (
-    <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-      <SerenoMark size={24} />
-      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>
-    </span>
-  );
+  const brandFull = <Brand variant="lockup" size={22} />;
   const planFooter = (
     <Card padding="sm" elevation="none" style={{ background: 'var(--bg-accent-soft)', ...vcol('6px') }}>
       <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Plano gratuito</span>
@@ -498,7 +478,7 @@ export function Dashboard() {
             labels={{ expand: 'Expandir', collapse: 'Recolher' }}
             sections={SIDEBAR_SECTIONS}
             style={{ ['--sidenav-header-h' as string]: 'var(--dash-header-h)' } as React.CSSProperties}
-            header={navCollapsed ? <SerenoMark size={30} /> : brandFull}
+            header={navCollapsed ? <Brand variant="symbol" size={26} /> : brandFull}
             footer={planFooter}
           />
         </div>
@@ -512,7 +492,7 @@ export function Dashboard() {
                 <IconButton label="Abrir menu" variant="ghost" onClick={openDrawer}>
                   <Menu size={20} strokeWidth={1.75} />
                 </IconButton>
-                <SerenoMark size={26} />
+                <Brand variant="symbol" size={24} />
               </span>
             }
             style={{
@@ -680,6 +660,8 @@ function AgendaView({ onCancel, onToast }: { onCancel: () => void; onToast: (m: 
   const [filter, setFilter] = React.useState('hoje');
   const [limitShown, setLimitShown] = React.useState(true);
   const [acceptOnline, setAcceptOnline] = React.useState(true);
+  const [calOff, setCalOff] = React.useState(UNAVAILABLE_DAYS);
+  const [calCounts, setCalCounts] = React.useState(() => bookingCountsOf(2026, 7));
 
   const weekCount = AGENDA_SCHEDULE.reduce((n, g) => n + g.items.length, 0);
   const groups = filter === 'hoje' ? AGENDA_SCHEDULE.slice(0, 1) : AGENDA_SCHEDULE;
@@ -747,7 +729,17 @@ function AgendaView({ onCancel, onToast }: { onCancel: () => void; onToast: (m: 
               </Button>
             </Card>
           )}
-          <DateTimePicker year={2026} month={7} selectedDate={24} unavailable={UNAVAILABLE_DAYS} />
+          <DateTimePicker
+            year={2026}
+            month={7}
+            selectedDate={24}
+            unavailable={calOff}
+            onMonthChange={(y, m) => {
+              setCalOff(weekendsOf(y, m));
+              setCalCounts(bookingCountsOf(y, m));
+            }}
+            renderDay={(d) => (calCounts[d] ? <span className="dash-cal-count">{calCounts[d]}</span> : null)}
+          />
           <Card padding="md" style={vcol('var(--space-3)')}>
             <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>Seu link público</span>
             <Input

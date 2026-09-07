@@ -39,6 +39,22 @@ html, body { padding: 0; margin: 0; }
 @keyframes sereno-drawer-out { to { transform: translateX(-100%); } }
 @keyframes sereno-fade-out { to { opacity: 0; } }
 .dash-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); }
+/* Booking count under a day in the Agenda rail's DateTimePicker (renderDay).
+   Soft accent chip — legible on white and on the selected day's brand fill. */
+.dash-cal-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 15px;
+  height: 13px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  background: var(--bg-accent-soft);
+  color: var(--text-accent);
+}
 
 @media (max-width: 1080px) {
   .dash-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -2,6 +2,23 @@
 
 Version shown in the `/design-system` header. Source: `apps/docs/src/design-system/version.ts`.
 
+## 0.23.0 — DateTimePicker navigation (SS-217)
+
+- **Navigable header** — `‹` / `›` step the month; the centred title opens a
+  popover to jump to any month, and a year sub-grid (12-year window, paged) for
+  the year. `year` / `month` are now just the *initial* view — the component owns
+  it after mount.
+- **Fixed height** — the day grid is always 6 rows, so navigating months no
+  longer shifts everything below it.
+- **`onMonthChange(year, month)`** — fires on every navigation; recompute
+  `unavailable` / `renderDay` for the new month here. The showcase + demo strike
+  through the actual weekends of whatever month you land on.
+- **`renderDay(day) => ReactNode`** — content under each day number (a booking
+  count, a dot). Every cell grows to keep the grid even; scoping (e.g. future
+  days only) is the caller's job. The dashboard Agenda rail shows upcoming
+  booking counts; the public booking flow deliberately does not.
+- No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, no changeset).
+
 ## 0.22.0 — Table (SS-216 / SS-58)
 
 - **New `Table` primitive** (`@sereno/ui`, core) — the DS's first **compound

@@ -966,12 +966,14 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
     category: 'forms',
     summary: 'Month calendar + available time slots — the heart of the public flow. Days and months render in pt-BR.',
     props: [
-      R('year / month', 'number', 'Displayed month (`month` is 0-indexed). Defaults to the current month.'),
+      R('year / month', 'number', 'The *initial* month (`month` is 0-indexed). The component then owns navigation — re-mount with a `key` to force a new start.'),
       R('selectedDate', 'number', 'Selected day.'),
       R('times', '(string | { value, disabled })[]', 'Time-slot labels or objects with `disabled`.', '[]'),
       R('selectedTime', 'string', 'Selected time (marked in turquoise).'),
       R('unavailable', 'number[]', 'Days with no availability — struck through and unclickable.'),
       R('onSelectDate / onSelectTime', '(v) => void', 'Selection callbacks.'),
+      R('onMonthChange', '(year, month) => void', 'Fires on ‹ / › or the month/year popover — recompute `unavailable` / `renderDay` for the new month here.'),
+      R('renderDay', '(day) => ReactNode', 'Content under each day number (a count, a dot). Return `null` for nothing. Every cell grows to stay even — scope it yourself (e.g. future days only).'),
     ],
     code: `<DateTimePicker
   year={2026}
@@ -987,11 +989,30 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       {
         id: 'calendar',
         title: 'Calendar only',
-        description: 'Without `times`, it shows just the month. `month` is 0-indexed (7 = August). `unavailable` strikes through and disables the days.',
+        description:
+          'Without `times`, it’s just the calendar. `month` (0-indexed) is only the *starting* view — the header navigates from there, and the grid stays 6 rows so nothing below it shifts. `onMonthChange` keeps `unavailable` in sync — here, the weekends of whatever month you land on.',
+        code: `const [off, setOff] = useState(() => weekendsOf(2026, 7));
+
+<DateTimePicker
+  year={2026}
+  month={7}
+  unavailable={off}
+  onMonthChange={(y, m) => setOff(weekendsOf(y, m))}
+  selectedDate={day}
+  onSelectDate={setDay}
+/>`,
+      },
+      {
+        id: 'render-day',
+        title: 'Content under each day',
+        description: '`renderDay` drops a node under the day number — a booking count, a dot. Return `null` for days with nothing. Scope it in the consumer (this one shows counts for **future** days only). Every cell grows so the grid stays even.',
         code: `<DateTimePicker
   year={2026}
   month={7}
-  unavailable={[1, 2, 8, 9, 15, 16, 22, 23, 29, 30]}
+  onMonthChange={(y, m) => setCounts(bookingCountsOf(y, m))}
+  renderDay={(day) =>
+    counts[day] ? <span className="cal-count">{counts[day]}</span> : null
+  }
   selectedDate={day}
   onSelectDate={setDay}
 />`,
@@ -1012,8 +1033,16 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       },
     ],
     guidelines: {
-      do: ['`month` is 0-indexed.', 'Unavailable slots as `{ value, disabled: true }` — they keep their place in the grid.', 'Let the accent time marker be the only one on the screen.'],
-      dont: ['Removing unavailable slots from the list — the grid "jumps".'],
+      do: [
+        '`month` is 0-indexed and is only the *starting* view.',
+        'Recompute `unavailable` / `renderDay` inside `onMonthChange` so they track the visible month.',
+        'Unavailable slots as `{ value, disabled: true }` — they keep their place in the grid.',
+        'Let the accent time marker be the only one on the screen.',
+      ],
+      dont: [
+        'Removing unavailable slots from the list — the grid "jumps".',
+        'Putting `renderDay` counts in the public booking flow — that’s the pro’s private data.',
+      ],
     },
   },
   {
