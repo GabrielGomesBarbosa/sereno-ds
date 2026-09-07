@@ -13,13 +13,13 @@ export interface SelectOption {
 }
 
 /**
- * Single-choice select. On pointer devices it is a hand-rolled listbox
- * (token-styled panel, full keyboard support) so it looks the same in every
- * browser. On touch devices it falls back to the native `<select>`, whose
- * OS picker is the better experience with a finger.
+ * Single-choice select — a hand-rolled listbox (token-styled, full keyboard
+ * support) so it looks and behaves the same in every browser. On a mouse it's
+ * an anchored dropdown; on touch it opens as a bottom sheet with finger-sized
+ * rows.
  *
  * Value contract: `value` / `defaultValue` + `onValueChange(value)` — a plain
- * string, not a DOM event (this is no longer a native control on desktop).
+ * string, not a DOM event.
  */
 export interface SelectProps {
   label?: string;
@@ -28,7 +28,7 @@ export interface SelectProps {
   error?: string;
   required?: boolean;
   options?: SelectOption[];
-  /** Shown when nothing is selected. Also a disabled first row in the native fallback. */
+  /** Shown in muted text on the trigger when nothing is selected. */
   placeholder?: string;
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
@@ -93,80 +93,7 @@ function fieldBoxStyle(size: NonNullable<SelectProps['size']>, error: boolean, o
   });
 }
 
-// ── Native fallback (touch) ──────────────────────────────────────────────────
-function NativeSelect({
-  rid,
-  name,
-  options,
-  value,
-  placeholder,
-  size,
-  error,
-  disabled,
-  onCommit,
-}: {
-  rid: string;
-  name?: string;
-  options: SelectOption[];
-  value: string;
-  placeholder?: string;
-  size: NonNullable<SelectProps['size']>;
-  error: boolean;
-  disabled?: boolean;
-  onCommit: (v: string) => void;
-}) {
-  const [focus, setFocus] = React.useState(false);
-  return (
-    <div style={sx({ position: 'relative', display: 'flex' })}>
-      <select
-        id={rid}
-        name={name}
-        disabled={disabled}
-        value={value}
-        onFocus={() => setFocus(true)}
-        onBlur={() => setFocus(false)}
-        onChange={(e) => onCommit(e.currentTarget.value)}
-        style={sx({
-          ...fieldBoxStyle(size, error, focus, !!disabled),
-          // `fieldBoxStyle` is button-shaped (flex row). A <select> renders its
-          // own text — keep it a plain block so browsers don't treat it as a
-          // flex container and shift the label around.
-          display: 'block',
-          appearance: 'none',
-          WebkitAppearance: 'none',
-          paddingRight: 'var(--space-8)',
-        })}
-      >
-        {placeholder && (
-          <option value="" disabled>
-            {placeholder}
-          </option>
-        )}
-        {options.map((o) => (
-          <option key={o.value} value={o.value} disabled={o.disabled}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <span
-        aria-hidden="true"
-        style={sx({
-          position: 'absolute',
-          right: 'var(--space-3)',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          pointerEvents: 'none',
-          display: 'flex',
-          color: 'var(--text-muted)',
-        })}
-      >
-        <ChevronDown size={16} strokeWidth={1.75} />
-      </span>
-    </div>
-  );
-}
-
-// ── Custom listbox (pointer devices) ─────────────────────────────────────────
+// ── Custom listbox ──────────────────────────────────────────────────────────
 function CustomSelect({
   rid,
   options,
@@ -175,6 +102,7 @@ function CustomSelect({
   size,
   error,
   disabled,
+  coarse,
   onCommit,
 }: {
   rid: string;
@@ -184,6 +112,8 @@ function CustomSelect({
   size: NonNullable<SelectProps['size']>;
   error: boolean;
   disabled?: boolean;
+  /** Touch: open as a bottom sheet with finger-sized rows instead of a dropdown. */
+  coarse: boolean;
   onCommit: (v: string) => void;
 }) {
   const listboxId = `${rid}-listbox`;
@@ -235,7 +165,7 @@ function CustomSelect({
   };
 
   useIsoLayoutEffect(() => {
-    if (!open) return;
+    if (!open || coarse) return; // the touch sheet needs no anchoring
     const t = triggerRef.current;
     if (!t) return;
 
@@ -299,11 +229,11 @@ function CustomSelect({
       window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', applyFull);
     };
-  }, [open, options.length]);
+  }, [open, coarse, options.length]);
 
-  // Close on outside pointerdown.
+  // Close on outside pointerdown (the touch sheet uses its own scrim instead).
   React.useEffect(() => {
-    if (!open) return;
+    if (!open || coarse) return;
     const onDown = (e: PointerEvent) => {
       const target = e.target as Node;
       if (triggerRef.current?.contains(target) || panelRef.current?.contains(target)) return;
@@ -311,7 +241,7 @@ function CustomSelect({
     };
     document.addEventListener('pointerdown', onDown, true);
     return () => document.removeEventListener('pointerdown', onDown, true);
-  }, [open]);
+  }, [open, coarse]);
 
   // Keep the active option in view.
   React.useEffect(() => {
@@ -391,7 +321,7 @@ function CustomSelect({
   };
 
   const hasValue = !!selected;
-  const rowPadY = OPTION_PAD_Y[size];
+  const rowPadY = coarse ? 12 : OPTION_PAD_Y[size];
 
   const listStyleBase: React.CSSProperties = {
     minWidth: 160,
@@ -423,18 +353,20 @@ function CustomSelect({
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: 'var(--space-2)',
+          minHeight: coarse ? 44 : undefined,
           padding: `${rowPadY}px var(--space-3)`,
           borderRadius: 'var(--radius-sm)',
           cursor: o.disabled ? 'not-allowed' : 'pointer',
           color: o.disabled ? 'var(--text-disabled)' : 'var(--text-primary)',
           background: isActive && !o.disabled ? 'var(--bg-subtle)' : 'transparent',
           fontWeight: isSelected ? 'var(--weight-semibold)' : 'var(--weight-regular)',
+          fontSize: coarse ? 'var(--text-base)' : undefined,
         })}
       >
         <span style={sx({ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{o.label}</span>
         {isSelected && (
           <span style={sx({ display: 'flex', flex: '0 0 auto', color: 'var(--text-brand)' })}>
-            <Check size={16} strokeWidth={2} />
+            <Check size={coarse ? 18 : 16} strokeWidth={2} />
           </span>
         )}
       </li>
@@ -500,7 +432,46 @@ function CustomSelect({
         </span>
       </button>
 
-      {open && place && place.strategy === 'inline' && (
+      {open && mounted && coarse &&
+        createPortal(
+          <div
+            role="presentation"
+            onClick={() => closeMenu()}
+            style={sx({
+              position: 'fixed',
+              inset: 0,
+              zIndex: 1100,
+              display: 'flex',
+              alignItems: 'flex-end',
+              background: 'var(--bg-overlay)',
+              backdropFilter: 'blur(2px)',
+              animation: 'sereno-fade-in var(--duration-fast) var(--ease-standard)',
+            })}
+          >
+            <ul
+              ref={panelRef}
+              id={listboxId}
+              role="listbox"
+              tabIndex={-1}
+              onClick={(e) => e.stopPropagation()}
+              style={sx({
+                ...listStyleBase,
+                width: '100%',
+                maxHeight: '60dvh',
+                padding: 'var(--space-2)',
+                paddingBottom: 'calc(var(--space-2) + env(safe-area-inset-bottom))',
+                border: 'none',
+                borderRadius: 'var(--radius-sheet) var(--radius-sheet) 0 0',
+                boxShadow: 'var(--shadow-sheet)',
+                animation: 'sereno-slide-up var(--duration-sheet) var(--ease-gentle)',
+              })}
+            >
+              {optionRows}
+            </ul>
+          </div>,
+          document.body,
+        )}
+      {open && !coarse && place && place.strategy === 'inline' && (
         <ul
           ref={panelRef}
           id={listboxId}
@@ -519,7 +490,7 @@ function CustomSelect({
           {optionRows}
         </ul>
       )}
-      {open && mounted && place && place.strategy === 'fixed' &&
+      {open && !coarse && mounted && place && place.strategy === 'fixed' &&
         createPortal(
           <ul
             ref={panelRef}
@@ -578,31 +549,18 @@ export function Select({
 
   return (
     <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle}>
-      {coarse ? (
-        <NativeSelect
-          rid={rid}
-          name={name}
-          options={options}
-          value={value}
-          placeholder={placeholder}
-          size={size}
-          error={!!error}
-          disabled={disabled}
-          onCommit={commit}
-        />
-      ) : (
-        <CustomSelect
-          rid={rid}
-          options={options}
-          value={value}
-          placeholder={placeholder}
-          size={size}
-          error={!!error}
-          disabled={disabled}
-          onCommit={commit}
-        />
-      )}
-      {name && !coarse && <input type="hidden" name={name} value={value} />}
+      <CustomSelect
+        rid={rid}
+        options={options}
+        value={value}
+        placeholder={placeholder}
+        size={size}
+        error={!!error}
+        disabled={disabled}
+        coarse={coarse}
+        onCommit={commit}
+      />
+      {name && <input type="hidden" name={name} value={value} />}
     </Field>
   );
 }

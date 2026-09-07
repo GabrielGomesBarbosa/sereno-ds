@@ -13,7 +13,10 @@ rules with an independently scrolling body), `showClose` (header ✕),
 choice the user must make explicitly), and `variant="fullscreen"`. `width` still
 works as an explicit override. No breaking changes.
 
-**`Select`** — clicking the field `<label>` no longer opens the menu (only
-clicking the box, or keyboard); the label still focuses the control. Inside a
-`Dialog` the menu is portalled so the modal can't clip it; everywhere else it
-stays an in-place child, glued to the field through scroll with no jitter.
+**`Select`** — the hand-rolled listbox is now used on every device (the native
+`<select>` fallback is gone). On a mouse it's an anchored dropdown — an in-place
+child glued to the field through scroll with no jitter, or portalled + fixed when
+inside a `Dialog` so the modal can't clip it. On touch it opens as a **bottom
+sheet** with finger-sized rows. Clicking the field `<label>` no longer opens the
+menu (only clicking the box, or the keyboard); the label still focuses the
+control.

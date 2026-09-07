@@ -99,6 +99,36 @@ describe('Select (custom listbox)', () => {
     expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
 
+  it('opens as a bottom sheet on a coarse pointer', () => {
+    const orig = window.matchMedia;
+    window.matchMedia = ((q: string) => ({
+      matches: q.includes('coarse'),
+      media: q,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
+    try {
+      const onValueChange = vi.fn();
+      render(<Select label="Fruit" options={OPTS} onValueChange={onValueChange} />);
+      boxClick(screen.getByRole('combobox'));
+      const listbox = screen.getByRole('listbox');
+      expect(document.body).toContainElement(listbox); // portalled
+      const scrim = listbox.parentElement as HTMLElement;
+      expect(scrim).toHaveAttribute('role', 'presentation'); // full-screen scrim, not an anchored dropdown
+      expect(listbox.style.width).toBe('100%');
+      // tapping a row selects and closes
+      fireEvent.click(within(listbox).getByText('Cherry'));
+      expect(onValueChange).toHaveBeenCalledWith('c');
+      expect(screen.queryByRole('listbox')).toBeNull();
+    } finally {
+      window.matchMedia = orig;
+    }
+  });
+
   it('opens without error nested in an overflow container, and caps its height', () => {
     render(
       <div style={{ height: 140, overflowY: 'auto' }}>

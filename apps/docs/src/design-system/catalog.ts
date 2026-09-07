@@ -649,7 +649,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
     name: 'Select',
     category: 'forms',
     summary:
-      'Single choice from ≤12 flat options. A hand-rolled listbox on pointer devices (looks the same in every browser, full keyboard); the native `<select>` on touch, where the OS picker is better with a finger.',
+      'Single choice from ≤12 flat options. A hand-rolled listbox — the same in every browser, full keyboard support. On a mouse it drops down anchored to the field; on touch it opens as a bottom sheet with finger-sized rows.',
     props: [
       R('options', 'SelectOption[]', 'List of `{ value, label, disabled? }`.', '[]'),
       R('value / defaultValue', 'string', 'Controlled / uncontrolled selection.'),
