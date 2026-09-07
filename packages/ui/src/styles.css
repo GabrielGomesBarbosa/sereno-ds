@@ -154,6 +154,7 @@
 .sereno-table[data-density="comfortable"] th[data-sortable] button { padding: var(--space-3) var(--space-4); }
 .sereno-table[data-density="compact"] th[data-sortable] button { padding: 6px var(--space-4); }
 .sereno-table[data-sticky] thead { position: sticky; top: 0; z-index: 1; }
+.sereno-table[data-sticky] th { background: var(--bg-subtle); }
 .sereno-table[data-zebra] tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--bg-subtle) 40%, transparent); }
 .sereno-table tbody tr[data-interactive] { cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard); }
 .sereno-table tbody tr[data-interactive]:hover td { background: var(--bg-subtle); }

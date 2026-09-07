@@ -46,11 +46,13 @@ export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> 
   /** Visually-hidden `<caption>`; also the default accessible name for the scroll region. */
   caption?: string;
   density?: 'comfortable' | 'compact';
-  /** Pins the header while the body scrolls. Needs a bounded-height scroll ancestor to be visible. */
+  /** Pins the header while the body scrolls — pair it with `maxHeight`. */
   stickyHeader?: boolean;
+  /** Caps the scroll region's height, so `stickyHeader` has something to stick within. */
+  maxHeight?: number | string;
   /** Faint striping on even rows. Off by default — the row hover is usually enough. */
   zebra?: boolean;
-  /** Accessible name for the horizontally-scrollable region (defaults to `caption`). */
+  /** Accessible name for the scrollable region (defaults to `caption`). */
   regionLabel?: string;
   children: React.ReactNode;
 }
@@ -59,6 +61,7 @@ function TableRoot({
   caption,
   density = 'comfortable',
   stickyHeader = false,
+  maxHeight,
   zebra = false,
   regionLabel,
   className,
@@ -73,7 +76,8 @@ function TableRoot({
       aria-label={regionLabel ?? caption}
       tabIndex={0}
       style={sx({
-        overflowX: 'auto',
+        overflow: 'auto',
+        ...(maxHeight != null ? { maxHeight } : {}),
         borderRadius: 'var(--radius-lg)',
         boxShadow: '0 0 0 1px var(--border-default)',
         background: 'var(--bg-surface)',
@@ -114,7 +118,8 @@ function Row({ onClick, selected, children, style, ...rest }: TableRowProps) {
     <tr
       {...rest}
       data-interactive={interactive || undefined}
-      aria-selected={selected || undefined}
+      data-selected={selected || undefined}
+      aria-pressed={interactive ? !!selected : undefined}
       role={interactive ? 'button' : undefined}
       tabIndex={interactive ? 0 : undefined}
       onClick={onClick}

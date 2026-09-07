@@ -465,26 +465,24 @@ function TableClicavel() {
 function TableCompactSticky() {
   const many = Array.from({ length: 14 }, (_, i) => PLAN_ROWS[i % PLAN_ROWS.length]);
   return (
-    <div style={{ maxHeight: 220, overflowY: 'auto', borderRadius: 'var(--radius-lg)' }}>
-      <Table caption="Movimentações" density="compact" stickyHeader zebra>
-        <Table.Head>
-          <Table.Row>
-            <Table.HeaderCell>Cliente</Table.HeaderCell>
-            <Table.HeaderCell align="right">Sessões</Table.HeaderCell>
-            <Table.HeaderCell align="right">Total</Table.HeaderCell>
+    <Table caption="Movimentações" density="compact" stickyHeader maxHeight={220} zebra>
+      <Table.Head>
+        <Table.Row>
+          <Table.HeaderCell>Cliente</Table.HeaderCell>
+          <Table.HeaderCell align="right">Sessões</Table.HeaderCell>
+          <Table.HeaderCell align="right">Total</Table.HeaderCell>
+        </Table.Row>
+      </Table.Head>
+      <Table.Body>
+        {many.map((r, i) => (
+          <Table.Row key={i}>
+            <Table.Cell>{r.name}</Table.Cell>
+            <Table.Cell align="right">{r.sessions}</Table.Cell>
+            <Table.Cell align="right">{r.price}</Table.Cell>
           </Table.Row>
-        </Table.Head>
-        <Table.Body>
-          {many.map((r, i) => (
-            <Table.Row key={i}>
-              <Table.Cell>{r.name}</Table.Cell>
-              <Table.Cell align="right">{r.sessions}</Table.Cell>
-              <Table.Cell align="right">{r.price}</Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
-    </div>
+        ))}
+      </Table.Body>
+    </Table>
   );
 }
 

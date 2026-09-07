@@ -410,7 +410,7 @@ export const COMPONENTS: ComponentMeta[] = [
     props: [
       R('caption', 'string', 'Visually-hidden `<caption>` and the default accessible name for the scroll region. Always set one.'),
       R('density', "'comfortable' | 'compact'", 'Row padding. `compact` for dense CRM / reports.', "'comfortable'"),
-      R('stickyHeader', 'boolean', 'Pins the header while the body scrolls (needs a bounded-height ancestor).', 'false'),
+      R('stickyHeader / maxHeight', 'boolean / number | string', 'Pin the header while the body scrolls — pair them so the head has a bounded region to stick within.'),
       R('zebra', 'boolean', 'Faint striping on even rows. Off by default — the hover is usually enough.', 'false'),
       R('Table.Row · onClick', '() => void', 'Makes the row a button: hover, pointer, focusable, Enter / Space.'),
       R('Table.Row · selected', 'boolean', 'Brand-soft fill for the chosen row.', 'false'),
@@ -483,12 +483,10 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       {
         id: 'compact-sticky',
         title: 'Compact + sticky header',
-        description: '`density="compact"` for CRM density, `stickyHeader` to pin the head inside a bounded scroll box, `zebra` for faint striping on long lists.',
-        code: `<div style={{ maxHeight: 220, overflowY: 'auto' }}>
-  <Table caption="Movimentações" density="compact" stickyHeader zebra>
-    …
-  </Table>
-</div>`,
+        description: '`density="compact"` for CRM density; `stickyHeader` + `maxHeight` pin the head inside a bounded scroll region; `zebra` for faint striping on long lists.',
+        code: `<Table caption="Movimentações" density="compact" stickyHeader maxHeight={220} zebra>
+  …
+</Table>`,
       },
       {
         id: 'empty',
