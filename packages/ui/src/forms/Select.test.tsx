@@ -120,10 +120,15 @@ describe('Select (custom listbox)', () => {
       const scrim = listbox.parentElement as HTMLElement;
       expect(scrim).toHaveAttribute('role', 'presentation'); // full-screen scrim, not an anchored dropdown
       expect(listbox.style.width).toBe('100%');
-      // tapping a row selects and closes
+      expect(listbox.style.overscrollBehavior).toBe('contain'); // list scroll doesn't chain to the page
+      // page scroll is locked behind the sheet
+      expect(document.body.style.overflow).toBe('hidden');
+      expect(document.documentElement.style.overflow).toBe('hidden');
+      // tapping a row selects and closes — and restores the page scroll
       fireEvent.click(within(listbox).getByText('Cherry'));
       expect(onValueChange).toHaveBeenCalledWith('c');
       expect(screen.queryByRole('listbox')).toBeNull();
+      expect(document.body.style.overflow).toBe('');
     } finally {
       window.matchMedia = orig;
     }

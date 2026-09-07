@@ -243,6 +243,19 @@ function CustomSelect({
     return () => document.removeEventListener('pointerdown', onDown, true);
   }, [open, coarse]);
 
+  // The touch sheet is a modal surface — lock the page scroll behind it.
+  React.useEffect(() => {
+    if (!open || !coarse) return;
+    const root = document.documentElement;
+    const prev = { h: root.style.overflow, b: document.body.style.overflow };
+    root.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    return () => {
+      root.style.overflow = prev.h;
+      document.body.style.overflow = prev.b;
+    };
+  }, [open, coarse]);
+
   // Keep the active option in view.
   React.useEffect(() => {
     if (!open || activeIndex < 0) return;
@@ -463,6 +476,7 @@ function CustomSelect({
                 border: 'none',
                 borderRadius: 'var(--radius-sheet) var(--radius-sheet) 0 0',
                 boxShadow: 'var(--shadow-sheet)',
+                overscrollBehavior: 'contain', // don't chain the list's scroll to the page
                 animation: 'sereno-slide-up var(--duration-sheet) var(--ease-gentle)',
               })}
             >
