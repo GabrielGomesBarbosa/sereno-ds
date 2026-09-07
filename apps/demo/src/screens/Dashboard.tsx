@@ -237,7 +237,6 @@ const mobilePanelStyle: React.CSSProperties = {
   left: 'var(--gutter-mobile, 20px)',
   right: 'var(--gutter-mobile, 20px)',
   width: 'auto',
-  maxHeight: 'calc(100dvh - var(--dash-header-h, 74px) - 24px)',
 };
 
 function useDismiss(open: boolean, close: () => void) {
