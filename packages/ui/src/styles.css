@@ -161,7 +161,11 @@
 .sereno-table[data-sticky] th { background: var(--bg-subtle); }
 .sereno-table[data-zebra] tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--bg-subtle) 40%, transparent); }
 .sereno-table tbody tr[data-interactive] { cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard); }
-.sereno-table tbody tr[data-interactive]:hover td { background: var(--bg-subtle); }
+/* Row states are a brand-tinted progression so none of them blends into the
+   neutral header (also --bg-subtle): hover < selected < selected+hover. */
+.sereno-table tbody tr[data-selected] td { background: color-mix(in srgb, var(--interactive-primary) 26%, var(--bg-subtle)); }
+.sereno-table tbody tr[data-interactive]:hover td { background: color-mix(in srgb, var(--interactive-primary) 14%, var(--bg-subtle)); }
+.sereno-table tbody tr[data-interactive][data-selected]:hover td { background: color-mix(in srgb, var(--interactive-primary) 34%, var(--bg-subtle)); }
 .sereno-table th button { transition: color var(--duration-fast) var(--ease-standard); }
 .sereno-table th button:hover { color: var(--text-primary); }
 /* `min-width: 0` lets the region shrink below the table's `min-width` when it's a

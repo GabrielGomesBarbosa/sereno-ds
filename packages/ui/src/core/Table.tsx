@@ -150,7 +150,7 @@ function Row({ onClick, selected, children, style, ...rest }: TableRowProps) {
             }
           : undefined
       }
-      style={sx({ ...(selected ? { background: 'var(--bg-brand-soft)' } : {}), ...style })}
+      style={sx({ ...style })}
     >
       {children}
     </tr>

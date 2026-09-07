@@ -887,7 +887,7 @@ function ComingSoonView({ title }: { title: string }) {
 
 function FinanceiroView({ section, title }: { section: string; title: string }) {
   return (
-    <div style={{ ...vcol('var(--space-5)'), maxWidth: 760 }}>
+    <div style={vcol('var(--space-5)')}>
       <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
         <Stat label="Recebido em agosto" value="R$ 4.180" delta="+12% vs. julho" tone="up" />
         <Stat label="A receber" value="R$ 860" delta="4 atendimentos" />
