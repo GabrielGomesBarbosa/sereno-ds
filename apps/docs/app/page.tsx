@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
-import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, MoonStar, Palette } from 'lucide-react';
+import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, MonitorSmartphone, MoonStar, Palette } from 'lucide-react';
 import { Brand, Card, ThemeToggle } from '@sereno/ui';
 import { DS_VERSION } from '@/design-system/version';
 import { ComponentGallery } from '@/home/ComponentGallery';
@@ -29,6 +29,7 @@ const FEATURES: { icon: ReactNode; title: string; body: string }[] = [
   { icon: <Palette size={20} strokeWidth={1.75} />, title: 'Token-driven', body: 'Every value is a CSS custom property. Light and dark are the same components on a different token set.' },
   { icon: <Ban size={20} strokeWidth={1.75} />, title: 'No base library', body: 'No Radix, MUI or Tailwind. Inline styles, built from scratch — the surface is exactly the design system.' },
   { icon: <MoonStar size={20} strokeWidth={1.75} />, title: 'Native dark mode', body: 'One `data-theme` on the root. No theme prop, no variant, no flash.' },
+  { icon: <MonitorSmartphone size={20} strokeWidth={1.75} />, title: 'Responsive to the input', body: 'Adapts to the pointer, not just the width — Select opens as a bottom sheet on touch, Dialog as a slide-up, the dashboard re-homes its nav.' },
   { icon: <Accessibility size={20} strokeWidth={1.75} />, title: 'Keyboard & focus', body: 'Real focus rings, `:focus-visible`, roving tabindex where it matters — on every control.' },
   { icon: <Layers size={20} strokeWidth={1.75} />, title: '30 primitives, 5 categories', body: 'Core, forms, navigation, feedback and the scheduling-domain cards — a live preview for each.' },
   { icon: <Feather size={20} strokeWidth={1.75} />, title: 'Zero runtime', body: 'No CSS-in-JS engine. Plain inline styles reading `var(--token)` — nothing ships but the components.' },
