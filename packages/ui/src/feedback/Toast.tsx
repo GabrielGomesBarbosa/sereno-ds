@@ -13,6 +13,11 @@ export interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
   icon?: React.ReactNode;
   action?: React.ReactNode;
   onClose?: () => void;
+  /**
+   * Auto-dismiss countdown bar along the bottom edge. `ms` is the full duration;
+   * `paused` freezes it. `ToastProvider` wires this — you rarely set it by hand.
+   */
+  progress?: { ms: number; paused?: boolean };
 }
 
 const TONES: Record<NonNullable<ToastProps['tone']>, [string, string]> = {
@@ -23,13 +28,14 @@ const TONES: Record<NonNullable<ToastProps['tone']>, [string, string]> = {
   neutral: ['--bg-inverse', '--text-inverse'],
 };
 
-export function Toast({ tone = 'neutral', title, description, icon, action, onClose, style, ...rest }: ToastProps) {
+export function Toast({ tone = 'neutral', title, description, icon, action, onClose, progress, style, ...rest }: ToastProps) {
   const [bg, fg] = TONES[tone] || TONES.neutral;
   return (
     <div
       role="status"
       {...rest}
       style={sx({
+        position: 'relative',
         display: 'flex',
         gap: 'var(--space-3)',
         alignItems: 'flex-start',
@@ -40,6 +46,7 @@ export function Toast({ tone = 'neutral', title, description, icon, action, onCl
         boxShadow: 'var(--shadow-lg)',
         border: 'var(--border-width-hairline) solid ' + (tone === 'neutral' ? 'transparent' : 'color-mix(in srgb,currentColor 18%,transparent)'),
         maxWidth: 420,
+        overflow: progress ? 'hidden' : undefined,
         animation: 'sereno-slide-up var(--duration-normal) var(--ease-out)',
         ...style,
       })}
@@ -74,6 +81,14 @@ export function Toast({ tone = 'neutral', title, description, icon, action, onCl
         >
           <X size={16} strokeWidth={2} />
         </button>
+      )}
+      {progress && progress.ms > 0 && Number.isFinite(progress.ms) && (
+        <span
+          aria-hidden
+          className="sereno-toast-bar"
+          data-paused={progress.paused ? 'true' : undefined}
+          style={sx({ animationDuration: progress.ms + 'ms' })}
+        />
       )}
     </div>
   );

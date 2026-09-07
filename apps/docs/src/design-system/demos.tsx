@@ -52,7 +52,9 @@ import {
   Tabs,
   Textarea,
   Toast,
+  ToastProvider,
   TopBar,
+  useToast,
 } from '@sereno/ui';
 
 const row: React.CSSProperties = { display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' };
@@ -1492,6 +1494,62 @@ function ToastComAcao() {
   );
 }
 
+const TOAST_POSITIONS = ['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'] as const;
+
+function ToastSistemaBotoes() {
+  const { toast, dismiss } = useToast();
+  return (
+    <div style={{ ...row, gap: 'var(--space-3)' }}>
+      <Button size="sm" onClick={() => toast.success('Booking confirmed', { description: 'The client was notified via WhatsApp.' })}>
+        Success
+      </Button>
+      <Button size="sm" variant="secondary" onClick={() => toast.error('Payment failed', { description: 'The card was declined.' })}>
+        Error
+      </Button>
+      <Button size="sm" variant="secondary" onClick={() => toast('Link copied')}>
+        Neutral
+      </Button>
+      <Button
+        size="sm"
+        variant="secondary"
+        onClick={() =>
+          toast.info('Sync in progress', {
+            duration: 0,
+            action: (
+              <Button variant="link" size="sm">
+                View
+              </Button>
+            ),
+          })
+        }
+      >
+        Persistent + action
+      </Button>
+      <Button size="sm" variant="link" onClick={() => dismiss()}>
+        Dismiss all
+      </Button>
+    </div>
+  );
+}
+function ToastSistema() {
+  const [position, setPosition] = React.useState<(typeof TOAST_POSITIONS)[number]>('bottom-right');
+  return (
+    <div style={{ ...col, gap: 'var(--space-4)' }}>
+      <div style={{ maxWidth: 220 }}>
+        <Select
+          label="Position"
+          value={position}
+          onValueChange={(v) => setPosition(v as (typeof TOAST_POSITIONS)[number])}
+          options={TOAST_POSITIONS.map((p) => ({ value: p, label: p }))}
+        />
+      </div>
+      <ToastProvider key={position} position={position} duration={5000}>
+        <ToastSistemaBotoes />
+      </ToastProvider>
+    </div>
+  );
+}
+
 function DialogCenter() {
   const [open, setOpen] = React.useState(false);
   return (
@@ -1843,7 +1901,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   'sidebar-nav': { basic: SidebarNavBasico, collapsible: SidebarNavColapsavel },
   stepper: { bar: StepperBar, dots: StepperDots, clickable: StepperClicavel },
   alert: { tones: AlertTons, 'with-action': AlertComAcao, dismissible: AlertDispensavel },
-  toast: { tones: ToastTons, 'with-action': ToastComAcao },
+  toast: { tones: ToastTons, 'with-action': ToastComAcao, system: ToastSistema },
   dialog: {
     center: DialogCenter,
     sheet: DialogSheet,
