@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
+import { Table } from '@sereno/ui';
 import { type ComponentMeta, adjacentComponents, examplesFor } from './catalog';
 import { ExampleSection, InlineCode } from './ExampleSection';
 
@@ -77,32 +78,32 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
 
           <section id="props" style={{ scrollMarginTop: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <h2 style={h2}>Props</h2>
-            <div style={{ border: '1px solid var(--border-default)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>
-                  <thead>
-                    <tr style={{ background: 'var(--bg-subtle)', textAlign: 'left' }}>
-                      <th style={th}>Prop</th>
-                      <th style={th}>Type</th>
-                      <th style={th}>Default</th>
-                      <th style={th}>Description</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {meta.props.map((p) => (
-                      <tr key={p.name} style={{ borderTop: '1px solid var(--border-default)' }}>
-                        <td style={{ ...td, whiteSpace: 'nowrap', color: 'var(--text-primary)', fontWeight: 600 }}>{p.name}</td>
-                        <td style={{ ...td, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-brand)' }}>{p.type}</td>
-                        <td style={{ ...td, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                          {p.default ?? '—'}
-                        </td>
-                        <td style={{ ...td, color: 'var(--text-secondary)' }}>{p.description}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <Table caption={`${meta.name} props`} minWidth={520}>
+              <Table.Head>
+                <Table.Row>
+                  <Table.HeaderCell>Prop</Table.HeaderCell>
+                  <Table.HeaderCell>Type</Table.HeaderCell>
+                  <Table.HeaderCell>Default</Table.HeaderCell>
+                  <Table.HeaderCell>Description</Table.HeaderCell>
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                {meta.props.map((p) => (
+                  <Table.Row key={p.name}>
+                    <Table.Cell style={{ ...propCell, fontWeight: 600 }}>{p.name}</Table.Cell>
+                    <Table.Cell wrap style={{ ...propCell, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-brand)' }}>
+                      {p.type}
+                    </Table.Cell>
+                    <Table.Cell style={{ ...propCell, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                      {p.default ?? '—'}
+                    </Table.Cell>
+                    <Table.Cell wrap style={{ ...propCell, color: 'var(--text-secondary)' }}>
+                      {p.description}
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
           </section>
         </div>
 
@@ -203,15 +204,8 @@ function GuidelineList({ tone, items }: { tone: 'do' | 'dont'; items: string[] }
   );
 }
 
-const th: React.CSSProperties = {
-  padding: 'var(--space-3) var(--space-4)',
-  fontSize: 'var(--text-xs)',
-  fontWeight: 700,
-  letterSpacing: '0.04em',
-  textTransform: 'uppercase',
-  color: 'var(--text-muted)',
-};
-const td: React.CSSProperties = { padding: 'var(--space-3) var(--space-4)', verticalAlign: 'top', lineHeight: 1.5 };
+// Props rows read better top-aligned — the DS Table cell default is middle.
+const propCell: React.CSSProperties = { verticalAlign: 'top', lineHeight: 1.5 };
 const prevNextLink: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
