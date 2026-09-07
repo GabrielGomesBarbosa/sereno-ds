@@ -649,7 +649,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
     name: 'Select',
     category: 'forms',
     summary:
-      'Single choice from ≤12 flat options. A hand-rolled listbox on pointer devices (looks the same in every browser, full keyboard); the native `<select>` on touch, where the OS picker is better with a finger.',
+      'Single choice from ≤12 flat options. A hand-rolled listbox — the same in every browser, full keyboard support. On a mouse it drops down anchored to the field; on touch it opens as a bottom sheet with finger-sized rows.',
     props: [
       R('options', 'SelectOption[]', 'List of `{ value, label, disabled? }`.', '[]'),
       R('value / defaultValue', 'string', 'Controlled / uncontrolled selection.'),
@@ -734,6 +734,13 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
 <Select label="Field" size="md" options={opts} />
 <Select label="Field" size="lg" options={opts} />`,
       },
+      {
+        id: 'long',
+        title: 'Long list',
+        description:
+          'The panel caps its height and scrolls the rest — a dropdown to the room around the field, the touch sheet to 60% of the screen. It still *works*, but past ~12 options a search field beats scrolling; treat this as the ceiling, not the target.',
+        code: `<Select label="Home city" placeholder="Search the list" options={cities} />`,
+      },
     ],
     guidelines: {
       do: [
@@ -742,7 +749,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         'Give a `placeholder` when there is no sensible default.',
       ],
       dont: [
-        'More than ~12 options or grouped options — that is a combobox/search, a different pattern.',
+        'Many options or grouped options as the norm — past ~12, that is a combobox/search, a different pattern.',
         'Expecting a DOM event in `onValueChange` — it hands you the value string.',
       ],
     },
@@ -1683,14 +1690,19 @@ const steps = [
     slug: 'dialog',
     name: 'Dialog',
     category: 'feedback',
-    summary: 'Modal (desktop) or bottom sheet (mobile). Needs the sereno-pop / sereno-slide-up keyframes on the host.',
+    summary:
+      'Modal (desktop), bottom sheet (mobile) or full-screen. Portalled to `<body>` and fixed to the viewport; while open it locks page scroll and closes on Escape. Needs the sereno-pop / sereno-slide-up keyframes on the host.',
     props: [
       R('open', 'boolean', 'Controls visibility.', 'true'),
       R('title / description', 'string', 'Dialog header.'),
       R('footer', 'React.ReactNode', 'Action buttons, right-aligned.'),
-      R('onClose', '() => void', 'Close on scrim click.'),
-      R('variant', "'center' | 'sheet'", 'sheet slides up from the bottom — the mobile default.', "'center'"),
-      R('width', 'number', 'Width of the center modal.', '440'),
+      R('onClose', '() => void', 'Called on scrim click, on Escape, and by the header ✕.'),
+      R('variant', "'center' | 'sheet' | 'fullscreen'", 'sheet slides up from the bottom (mobile default); fullscreen fills the viewport.', "'center'"),
+      R('size', "'sm' | 'md' | 'lg' | 'xl'", 'Max width of the centered modal (440 / 600 / 800 / 1000).', "'sm'"),
+      R('dividers', 'boolean', 'Hairline rules between header / body / footer; the body scrolls on its own.', 'false'),
+      R('showClose', 'boolean', 'Show a ✕ in the header (needs onClose). Defaults on for fullscreen.', 'false'),
+      R('dismissible', 'boolean', 'When false, a scrim click and Escape no longer close it — only the ✕, a footer action, or open={false}.', 'true'),
+      R('width', 'number', 'Explicit pixel width — overrides size.'),
     ],
     code: `<Dialog
   open={open}
@@ -1728,10 +1740,57 @@ const steps = [
   {/* content */}
 </Dialog>`,
       },
+      {
+        id: 'sizes',
+        title: 'Sizes',
+        description: '`size` caps the centered modal at a fixed max-width — `sm` (440), `md` (600), `lg` (800), `xl` (1000). It still shrinks to fit narrow screens. `width` takes an explicit pixel value instead.',
+        code: `<Dialog size="lg" open={open} title="Report" onClose={close} footer={footer}>
+  {/* wide content */}
+</Dialog>`,
+      },
+      {
+        id: 'dividers',
+        title: 'Dividers',
+        description: 'Set `dividers` for a hairline rule under the header and above the footer; the body then scrolls between them so the title and actions stay put. Pair with `showClose` for a header ✕.',
+        code: `<Dialog dividers showClose open={open} title="Terms of service" onClose={close} footer={footer}>
+  {/* long, scrolling content */}
+</Dialog>`,
+      },
+      {
+        id: 'form',
+        title: 'Form inside',
+        description: 'Inputs, selects and checkboxes sit inside a `Dialog` without ceremony. Keep the form short enough not to need `dividers` — a `Select` menu opens within the panel, so a scrolling body would clip it.',
+        code: `<Dialog showClose size="md" open={open} title="New booking" onClose={close} footer={footer}>
+  <Input label="Client" />
+  <Select label="Service" options={services} />
+</Dialog>`,
+      },
+      {
+        id: 'fullscreen',
+        title: 'Full screen',
+        description: '`variant="fullscreen"` fills the viewport (no radius, no scrim gap) — for immersive multi-section flows. The header ✕ is on by default here.',
+        code: `<Dialog variant="fullscreen" dividers open={open} title="Edit availability" onClose={close} footer={footer}>
+  {/* full-page form */}
+</Dialog>`,
+      },
+      {
+        id: 'dismissible',
+        title: 'Require a choice',
+        description: '`dismissible={false}` drops the scrim-click and Escape shortcuts, so the user has to pick a footer action (or the ✕). Reserve it for a decision that really can’t be deferred — a stray click shouldn’t trap people.',
+        code: `<Dialog dismissible={false} open={open} title="Discard 3 unsaved changes?" onClose={close} footer={footer}>
+  {/* content */}
+</Dialog>`,
+      },
     ],
     guidelines: {
-      do: ['A title that names the consequence in destructive actions.', '`sheet` on mobile, `center` on desktop.', 'The destructive action on the right of the `footer`.'],
-      dont: ['"Tem certeza?" as the title.', 'A `Dialog` for information that would fit in an in-page `Alert`.'],
+      do: [
+        'A title that names the consequence in destructive actions.',
+        '`sheet` on mobile, `center` on desktop; `fullscreen` for long multi-step flows.',
+        '`dividers` whenever the body can scroll.',
+        'The destructive action on the right of the `footer`.',
+        '`dismissible={false}` only for a genuinely blocking choice — and always leave a visible way out (a ✕ or a footer button).',
+      ],
+      dont: ['"Tem certeza?" as the title.', 'A `Dialog` for information that would fit in an in-page `Alert`.', 'A tall form with no `dividers` — the header scrolls away with it.', '`dismissible={false}` as a default — most dialogs should let a scrim click out.'],
     },
   },
   {

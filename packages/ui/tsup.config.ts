@@ -8,7 +8,7 @@ import { defineConfig } from 'tsup';
  * stylesheet (see README / SS-154).
  */
 export default defineConfig({
-  entry: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
+  entry: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts', '!src/**/*.test.{ts,tsx}', '!src/test/**'],
   format: ['esm'],
   target: 'es2022',
   outDir: 'dist',

@@ -643,6 +643,19 @@ function SelectErro() {
     </div>
   );
 }
+const CITY_OPTS = [
+  'Auckland', 'Bogotá', 'Buenos Aires', 'Cairo', 'Chicago', 'Dubai', 'Dublin',
+  'Helsinki', 'Istanbul', 'Jakarta', 'Johannesburg', 'Lagos', 'Lisbon', 'London',
+  'Los Angeles', 'Madrid', 'Mexico City', 'Mumbai', 'Nairobi', 'New York', 'Paris',
+  'Reykjavík', 'São Paulo', 'Seoul', 'Singapore', 'Sydney', 'Tokyo', 'Toronto',
+].map((c) => ({ value: c.toLowerCase().replace(/\s+/g, '-'), label: c }));
+function SelectLista() {
+  return (
+    <div style={{ maxWidth: 420 }}>
+      <Select label="Home city" placeholder="Search the list" defaultValue="lisbon" options={CITY_OPTS} />
+    </div>
+  );
+}
 
 function CheckboxBasico() {
   const [a, setA] = React.useState(false);
@@ -1479,7 +1492,7 @@ function ToastComAcao() {
 function DialogCenter() {
   const [open, setOpen] = React.useState(false);
   return (
-    <div style={{ position: 'relative', minHeight: open ? 300 : undefined }}>
+    <div>
       <Button onClick={() => setOpen(true)}>Open dialog</Button>
       <Dialog
         open={open}
@@ -1503,7 +1516,7 @@ function DialogCenter() {
 function DialogSheet() {
   const [open, setOpen] = React.useState(false);
   return (
-    <div style={{ position: 'relative', minHeight: open ? 320 : undefined }}>
+    <div>
       <Button onClick={() => setOpen(true)}>Open sheet</Button>
       <Dialog
         open={open}
@@ -1515,6 +1528,191 @@ function DialogSheet() {
           <Button variant="accent" onClick={() => setOpen(false)}>
             Apply
           </Button>
+        }
+      />
+    </div>
+  );
+}
+
+const DIALOG_SIZES = ['sm', 'md', 'lg', 'xl'] as const;
+function DialogSizes() {
+  const [size, setSize] = React.useState<(typeof DIALOG_SIZES)[number] | null>(null);
+  return (
+    <div style={row}>
+      {DIALOG_SIZES.map((s) => (
+        <Button key={s} variant="secondary" onClick={() => setSize(s)}>
+          {s}
+        </Button>
+      ))}
+      <Dialog
+        open={size !== null}
+        size={size ?? 'sm'}
+        title={`size="${size ?? 'sm'}"`}
+        description="The centered modal caps at a fixed max-width per size and still shrinks to fit narrow screens."
+        onClose={() => setSize(null)}
+        footer={
+          <Button variant="secondary" onClick={() => setSize(null)}>
+            Close
+          </Button>
+        }
+      />
+    </div>
+  );
+}
+
+function DialogDividers() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <Button onClick={() => setOpen(true)}>Open dialog</Button>
+      <Dialog
+        open={open}
+        dividers
+        showClose
+        size="md"
+        title="Terms of service"
+        onClose={() => setOpen(false)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Decline
+            </Button>
+            <Button onClick={() => setOpen(false)}>Accept</Button>
+          </>
+        }
+      >
+        <div style={{ ...col, color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', lineHeight: 1.6 }}>
+          {Array.from({ length: 24 }, (_, i) => (
+            <p key={i} style={{ margin: 0 }}>
+              {i + 1}. Cras mattis consectetur purus sit amet fermentum. Morbi leo risus, porta ac
+              consectetur ac, vestibulum at eros. Praesent commodo cursus magna, vel scelerisque nisl
+              consectetur et. Donec ullamcorper nulla non metus auctor fringilla.
+            </p>
+          ))}
+        </div>
+      </Dialog>
+    </div>
+  );
+}
+
+function DialogForm() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <Button onClick={() => setOpen(true)}>New booking</Button>
+      <Dialog
+        open={open}
+        showClose
+        size="md"
+        title="New booking"
+        description="Forms sit inside a Dialog without ceremony — inputs, selects and checkboxes all work."
+        onClose={() => setOpen(false)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => setOpen(false)}>Create</Button>
+          </>
+        }
+      >
+        <div style={col}>
+          <Input label="Client" placeholder="Full name" />
+          <Select
+            label="Service"
+            placeholder="Pick one"
+            options={[
+              { value: 'assessment', label: 'First assessment (60 min)' },
+              { value: 'session', label: 'Therapy session (50 min)' },
+              { value: 'followup', label: 'Follow-up (30 min)' },
+            ]}
+          />
+          <Select
+            label="Professional"
+            placeholder="Pick one"
+            options={[
+              'Ana Beatriz Ramos',
+              'Bruno Katsumata',
+              'Carla Nogueira',
+              'Diego Martins',
+              'Elisa Fontanella',
+              'Helena Prado',
+              'Igor Salvatori',
+              'Júlia Menezes',
+              'Lucas Andrade',
+              'Marina Okafor',
+              'Nina Vasconcelos',
+              'Otávio Ribeiro',
+              'Paula Sciarra',
+              'Rafael Bittencourt',
+            ].map((n) => ({ value: n.toLowerCase().split(' ')[0], label: n }))}
+          />
+          <Checkbox label="Notify the client on WhatsApp" defaultChecked />
+        </div>
+      </Dialog>
+    </div>
+  );
+}
+
+function DialogFullscreen() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <Button onClick={() => setOpen(true)}>Open full screen</Button>
+      <Dialog
+        open={open}
+        variant="fullscreen"
+        dividers
+        title="Edit availability"
+        description="Fills the viewport — for immersive, multi-section flows on any screen size."
+        onClose={() => setOpen(false)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Discard
+            </Button>
+            <Button onClick={() => setOpen(false)}>Save changes</Button>
+          </>
+        }
+      >
+        <div style={{ ...col, maxWidth: 560 }}>
+          <Input label="Working hours" placeholder="09:00 – 18:00" />
+          <Select
+            label="Days off"
+            placeholder="Pick days"
+            options={[
+              { value: 'sat', label: 'Saturday' },
+              { value: 'sun', label: 'Sunday' },
+              { value: 'mon', label: 'Monday' },
+            ]}
+          />
+          <Input label="Notes" placeholder="Visible to clients" />
+        </div>
+      </Dialog>
+    </div>
+  );
+}
+
+function DialogRequired() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <Button onClick={() => setOpen(true)}>Leave editor</Button>
+      <Dialog
+        open={open}
+        dismissible={false}
+        title="Discard 3 unsaved changes?"
+        description="A scrim click and Escape are off here — pick one. There is still a way out on the left."
+        onClose={() => setOpen(false)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Keep editing
+            </Button>
+            <Button variant="error" onClick={() => setOpen(false)}>
+              Discard
+            </Button>
+          </>
         }
       />
     </div>
@@ -1606,7 +1804,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     sizes: InputTamanhos,
   },
   textarea: { basic: TextareaBasico, count: TextareaContador, error: TextareaErro },
-  select: { basic: SelectBasico, placeholder: SelectHint, error: SelectErro, disabled: SelectDesabilitado, sizes: SelectTamanhos },
+  select: { basic: SelectBasico, placeholder: SelectHint, error: SelectErro, disabled: SelectDesabilitado, sizes: SelectTamanhos, long: SelectLista },
   checkbox: {
     basic: CheckboxBasico,
     states: CheckboxEstados,
@@ -1643,7 +1841,15 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   stepper: { bar: StepperBar, dots: StepperDots, clickable: StepperClicavel },
   alert: { tones: AlertTons, 'with-action': AlertComAcao, dismissible: AlertDispensavel },
   toast: { tones: ToastTons, 'with-action': ToastComAcao },
-  dialog: { center: DialogCenter, sheet: DialogSheet },
+  dialog: {
+    center: DialogCenter,
+    sheet: DialogSheet,
+    sizes: DialogSizes,
+    dividers: DialogDividers,
+    form: DialogForm,
+    fullscreen: DialogFullscreen,
+    dismissible: DialogRequired,
+  },
   skeleton: { variants: SkeletonVariantes, lines: SkeletonLinhas },
   'empty-state': { basic: EmptyStateBasico, 'with-action': EmptyStateComAcao, compact: EmptyStateCompact },
 };
