@@ -2,6 +2,25 @@
 
 Version shown in the `/design-system` header. Source: `apps/docs/src/design-system/version.ts`.
 
+## 0.22.0 — Table (SS-216 / SS-58)
+
+- **New `Table` primitive** (`@sereno/ui`, core) — the DS's first **compound
+  component**: `Table` + `Table.Head` / `Table.Body` / `Table.Row` /
+  `Table.HeaderCell` / `Table.Cell`. Cells hold real JSX, not `render`
+  callbacks. Structure, `density` (`comfortable` / `compact`), row dividers and
+  hover / focus / sticky / zebra ship in `@sereno/ui/styles.css`, keyed off
+  `data-*` on the `<table>` — the parts stay thin.
+- **Controlled sort** — `sortKey` + `sort` + `onSort` on a `HeaderCell` shows
+  the chevron and sets `aria-sort`; the consumer sorts the `rows`. The DS never
+  reorders data. `Table.Row onClick` makes a row a button (hover, `Enter` /
+  `Space`, focus ring, `selected`). Semantic `<table>` / `scope="col"` /
+  `<caption>` / scroll `role="region"`.
+- **Demo:** the dashboard's *Clientes* view is now a real `Table` (sort by name,
+  selectable rows) instead of a hand-rolled row list.
+- Catalogue is now **28 primitives**. Showcase page at `/design-system/core/table`.
+- No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, no changeset).
+- Sets the reference for the compound pattern — see `CLAUDE.md` and SS-213.
+
 ## 0.21.1 — Onboarding "Formato" fix (no ticket)
 
 - Onboarding "first service" step: the "Online e presencial" option carried the

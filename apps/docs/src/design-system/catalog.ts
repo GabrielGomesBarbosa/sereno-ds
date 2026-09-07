@@ -402,6 +402,115 @@ export const COMPONENTS: ComponentMeta[] = [
       dont: ['Recolour the drop or add effects (shadow, gloss, outline).', 'Stretch or rotate the symbol, or set the wordmark in another font.'],
     },
   },
+  {
+    slug: 'table',
+    name: 'Table',
+    category: 'core',
+    summary: 'Data table — a **compound component**. Cells hold real JSX; structure, density, dividers and hover / focus / sticky / zebra ship in the stylesheet. Sorting is controlled — the DS never reorders the rows.',
+    props: [
+      R('caption', 'string', 'Visually-hidden `<caption>` and the default accessible name for the scroll region. Always set one.'),
+      R('density', "'comfortable' | 'compact'", 'Row padding. `compact` for dense CRM / reports.', "'comfortable'"),
+      R('stickyHeader', 'boolean', 'Pins the header while the body scrolls (needs a bounded-height ancestor).', 'false'),
+      R('zebra', 'boolean', 'Faint striping on even rows. Off by default — the hover is usually enough.', 'false'),
+      R('Table.Row · onClick', '() => void', 'Makes the row a button: hover, pointer, focusable, Enter / Space.'),
+      R('Table.Row · selected', 'boolean', 'Brand-soft fill for the chosen row.', 'false'),
+      R('Table.HeaderCell · sortKey / sort / onSort', 'string / TableSort | null / (s) => void', 'Turns the header into a sort control. React to `onSort` and feed sorted rows back — the DS does not sort.'),
+      R('Table.HeaderCell · srOnly', 'boolean', 'Visually-hide the header label (e.g. an actions column) — still read by assistive tech.'),
+      R('Table.Cell / Table.HeaderCell · align', "'left' | 'center' | 'right'", 'Text alignment. Right for numbers.', "'left'"),
+    ],
+    code: `<Table caption="Clientes" density="compact" stickyHeader>
+  <Table.Head>
+    <Table.Row>
+      <Table.HeaderCell sortKey="name" sort={sort} onSort={setSort}>Cliente</Table.HeaderCell>
+      <Table.HeaderCell align="right">Sessões</Table.HeaderCell>
+      <Table.HeaderCell srOnly>Ações</Table.HeaderCell>
+    </Table.Row>
+  </Table.Head>
+  <Table.Body>
+    {rows.map((r) => (
+      <Table.Row key={r.id} onClick={() => open(r)}>
+        <Table.Cell>{r.name}</Table.Cell>
+        <Table.Cell align="right">{r.sessions}</Table.Cell>
+        <Table.Cell align="right"><IconButton …/></Table.Cell>
+      </Table.Row>
+    ))}
+  </Table.Body>
+</Table>`,
+    examples: [
+      {
+        id: 'basic',
+        title: 'Basic',
+        description: '`Table.Head` + `Table.Body`, plain `Table.Cell`s. Always pass a `caption` — it names the table and the scroll region for assistive tech.',
+        code: `<Table caption="Clientes">
+  <Table.Head>
+    <Table.Row>
+      <Table.HeaderCell>Cliente</Table.HeaderCell>
+      <Table.HeaderCell align="right">Sessões</Table.HeaderCell>
+      <Table.HeaderCell>Status</Table.HeaderCell>
+    </Table.Row>
+  </Table.Head>
+  <Table.Body>
+    {rows.map((r) => (
+      <Table.Row key={r.id}>
+        <Table.Cell>{r.name}</Table.Cell>
+        <Table.Cell align="right">{r.sessions}</Table.Cell>
+        <Table.Cell><Badge tone={r.status}>{label}</Badge></Table.Cell>
+      </Table.Row>
+    ))}
+  </Table.Body>
+</Table>`,
+      },
+      {
+        id: 'sortable',
+        title: 'Sortable',
+        description: '`sortKey` + controlled `sort` / `onSort` on a `HeaderCell`. The chevron reflects the state; **you** sort the `rows` and pass them back — the DS never reorders data.',
+        code: `const [sort, setSort] = useState({ key: 'name', direction: 'asc' });
+const rows = useMemo(() => sortRows(DATA, sort), [sort]);
+
+<Table.HeaderCell sortKey="name" sort={sort} onSort={setSort}>Cliente</Table.HeaderCell>
+<Table.HeaderCell align="right" sortKey="sessions" sort={sort} onSort={setSort}>Sessões</Table.HeaderCell>`,
+      },
+      {
+        id: 'interactive',
+        title: 'Clickable rows',
+        description: '`onClick` on `Table.Row` makes the whole row a button — hover, `Enter` / `Space`, focus ring. `selected` marks one. Don’t also put a `<button>` in a cell — pick one target.',
+        code: `<Table.Row selected={r.id === picked} onClick={() => setPicked(r.id)}>
+  <Table.Cell>{r.name}</Table.Cell>
+  <Table.Cell align="right">{r.sessions}</Table.Cell>
+  <Table.Cell align="right"><ChevronRight size={16} /></Table.Cell>
+</Table.Row>`,
+      },
+      {
+        id: 'compact-sticky',
+        title: 'Compact + sticky header',
+        description: '`density="compact"` for CRM density, `stickyHeader` to pin the head inside a bounded scroll box, `zebra` for faint striping on long lists.',
+        code: `<div style={{ maxHeight: 220, overflowY: 'auto' }}>
+  <Table caption="Movimentações" density="compact" stickyHeader zebra>
+    …
+  </Table>
+</div>`,
+      },
+      {
+        id: 'empty',
+        title: 'Empty state',
+        description: 'The table has no built-in empty slot — the screen swaps in an `EmptyState` when `rows.length === 0`. Keeps the contract small.',
+        code: `{rows.length === 0
+  ? <EmptyState icon={<Search />} title="Nenhum cliente" description="…" />
+  : <Table caption="Clientes">…</Table>}`,
+      },
+    ],
+    guidelines: {
+      do: [
+        'Always set `caption` — it’s the accessible name for the table and its scroll region.',
+        'Sort the `rows` in the consumer and pass them back; `sort` is display-only.',
+        '`compact` for CRM / reports, `comfortable` everywhere else. Right-align numeric columns.',
+      ],
+      dont: [
+        'Nesting an interactive control in a clickable row (`onClick` on `Table.Row` **and** a `<button>` cell) — pick one.',
+        'Expecting the `Table` to sort, filter or paginate for you.',
+      ],
+    },
+  },
 
   // ── forms ─────────────────────────────────────────────────────────────────
   {

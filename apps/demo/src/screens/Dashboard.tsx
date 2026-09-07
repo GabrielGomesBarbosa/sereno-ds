@@ -56,6 +56,8 @@ import {
   SidebarNav,
   type SidebarNavSection,
   Switch,
+  Table,
+  type TableSort,
   Tabs,
   Toast,
   TopBar,
@@ -74,6 +76,7 @@ import {
   SERVICES_BY_SLUG,
   UNAVAILABLE_DAYS,
   type Appointment,
+  type ClientRow,
 } from '@/lib/mock';
 
 const si = (icon: React.ReactNode) => icon;
@@ -779,8 +782,19 @@ function AgendaView({ onCancel, onToast }: { onCancel: () => void; onToast: (m: 
 
 function ClientesView() {
   const [query, setQuery] = React.useState('');
+  const [sort, setSort] = React.useState<TableSort | null>({ key: 'name', direction: 'asc' });
+  const [selected, setSelected] = React.useState<string | null>(null);
   const q = query.trim().toLowerCase();
-  const rows = q ? CLIENTS.filter((c) => c.name.toLowerCase().includes(q)) : CLIENTS;
+
+  // The DS never reorders the rows — the screen sorts and hands the result back.
+  const rows = React.useMemo(() => {
+    const filtered = q ? CLIENTS.filter((c) => c.name.toLowerCase().includes(q)) : [...CLIENTS];
+    if (!sort) return filtered;
+    const dir = sort.direction === 'asc' ? 1 : -1;
+    const key = sort.key as keyof ClientRow;
+    return [...filtered].sort((a, b) => String(a[key]).localeCompare(String(b[key]), 'pt-BR') * dir);
+  }, [q, sort]);
+
   return (
     <div style={vcol('var(--space-4)')}>
       <ViewHeader action={<Button variant="secondary" iconLeft={<Download size={18} strokeWidth={1.75} />}>Exportar</Button>} />
@@ -797,23 +811,37 @@ function ClientesView() {
       {rows.length === 0 ? (
         <EmptyState icon={<Search size={22} strokeWidth={1.75} />} title="Nenhum cliente encontrado" description={`Nada para "${query.trim()}". Tente outro nome.`} />
       ) : (
-        <Card padding="none">
-          {rows.map((c, i) => (
-            <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', padding: 'var(--space-4)', borderTop: i ? '1px solid var(--border-subtle)' : 'none' }}>
-              <Avatar name={c.name} size="md" />
-              <div style={{ flex: 1, minWidth: 0, ...vcol('2px') }}>
-                <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>{c.name}</span>
-                <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
-                  {c.sessions} · {c.last}
-                </span>
-              </div>
-              <Badge tone={c.status}>{CLIENT_STATUS_LABEL[c.status]}</Badge>
-              <IconButton label="Abrir">
-                <ChevronRight size={18} strokeWidth={1.75} />
-              </IconButton>
-            </div>
-          ))}
-        </Card>
+        <Table caption="Clientes">
+          <Table.Head>
+            <Table.Row>
+              <Table.HeaderCell sortKey="name" sort={sort} onSort={setSort}>Cliente</Table.HeaderCell>
+              <Table.HeaderCell>Histórico</Table.HeaderCell>
+              <Table.HeaderCell>Status</Table.HeaderCell>
+              <Table.HeaderCell srOnly>Abrir</Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+          <Table.Body>
+            {rows.map((c) => (
+              <Table.Row key={c.name} selected={c.name === selected} onClick={() => setSelected(c.name)}>
+                <Table.Cell>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                    <Avatar name={c.name} size="sm" />
+                    <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>{c.name}</span>
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span style={{ color: 'var(--text-secondary)' }}>{c.sessions} · {c.last}</span>
+                </Table.Cell>
+                <Table.Cell>
+                  <Badge tone={c.status}>{CLIENT_STATUS_LABEL[c.status]}</Badge>
+                </Table.Cell>
+                <Table.Cell align="right">
+                  <ChevronRight size={16} strokeWidth={2} style={{ color: 'var(--text-muted)', verticalAlign: 'middle' }} />
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
       )}
     </div>
   );

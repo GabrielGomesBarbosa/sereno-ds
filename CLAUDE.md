@@ -13,7 +13,7 @@ npm workspaces + Turborepo. Four workspaces:
 | Path | Name | What |
 |---|---|---|
 | `packages/tokens` | `@sereno/tokens` | the token CSS (`*.css` + a `tokens.css` barrel) |
-| `packages/ui` | `@sereno/ui` | the 27 primitives + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) |
+| `packages/ui` | `@sereno/ui` | the 28 primitives + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) |
 | `apps/docs` | `docs` | the `/design-system` showcase (Next 16, `output: 'export'`) |
 | `apps/demo` | `demo` | landing at `/` + `/agendar/[slug]` + `/dashboard` + `/onboarding` + `src/screens/` + `src/domain/` (product cards on `@sereno/ui`) + `src/lib/mock.ts` |
 
@@ -122,7 +122,7 @@ previews (test locally + on the branch).
 
 - **Two Next.js 16 App Router apps** under `apps/`, both `output: 'export'`
   (static). No SSR / Node server.
-- **No UI base library.** The 27 primitives in `packages/ui/src/` are token-driven
+- **No UI base library.** The 28 primitives in `packages/ui/src/` are token-driven
   inline styles reading CSS custom properties. When editing them, preserve
   behaviour; do not introduce Radix / MUI / Tailwind.
 - **Field adornments must share the control's text metrics.** An `Input` /
@@ -132,6 +132,16 @@ previews (test locally + on the branch).
   `align-items: center`, which centres *boxes*, not baselines — unequal line
   boxes make the affix drift off the value's baseline (this bit us in SS-215:
   `prefix` was hard-coded to `--text-sm` and inherited the body's `line-height`).
+- **Compound components — reference: `Table` (SS-216).** For a component whose
+  shape the consumer composes (`Table` → `Table.Head` / `.Body` / `.Row` /
+  `.HeaderCell` / `.Cell`), the pattern is: a root that renders the semantic
+  element + puts config on it as `data-*` (`data-density`, `data-sticky`,
+  `data-sortable`, `data-interactive`), thin sub-components exported via
+  `Object.assign(Root, { … })`, and **all the structural CSS — dividers,
+  density, hover / focus-visible / sticky / zebra — in `packages/ui/src/styles.css`**
+  keyed off those `data-*`. No React context unless sub-parts genuinely share
+  runtime state. Controlled state (sort, selection) is passed to the sub-part
+  that needs it, explicitly. The broader compound migration is SS-213.
 - **Tokens** live in `packages/tokens/*.css`. Adjustments are made and documented
   in the file itself:
   - `typography.css` points the font families at the `--font-*` variables the
@@ -149,7 +159,8 @@ previews (test locally + on the branch).
 - **Component keyframes / pseudo-class rules** (`sereno-spin`, `-pop`, `-slide-up`,
   `-pulse`, `-flyout-in`, `-fade-in`; `.sereno-check` / `.sereno-radio` /
   `.sereno-switch` states; `.sereno-tab-scroll` and `.sereno-sidenav*` scrollbar
-  rules; the in-field `.ds-affix-btn`) live in **`packages/ui/src/styles.css`** —
+  rules; the in-field `.ds-affix-btn`; the whole `.sereno-table*` block —
+  dividers, density, sticky, zebra, hover / focus) live in **`packages/ui/src/styles.css`** —
   they ship with the components. Each app's `globals.css` only `@import`s it. Edit
   the rule where it lives.
   App-shell drawer keyframes (`sereno-drawer-in/out`, `sereno-fade-out`) and the
