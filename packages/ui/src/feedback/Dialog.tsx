@@ -202,17 +202,17 @@ export function Dialog({
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: 32,
-                  height: 32,
-                  margin: '-4px -4px 0 0',
+                  width: full ? 40 : 34,
+                  height: full ? 40 : 34,
+                  margin: full ? 0 : '-3px -5px 0 0',
                   border: 'none',
-                  borderRadius: 'var(--radius-sm)',
-                  background: 'transparent',
-                  color: 'var(--text-muted)',
+                  borderRadius: 'var(--radius-md)',
+                  background: full ? 'var(--bg-subtle)' : 'transparent',
+                  color: 'var(--text-secondary)',
                   cursor: 'pointer',
                 })}
               >
-                <X size={18} strokeWidth={1.75} />
+                <X size={full ? 22 : 18} strokeWidth={2} />
               </button>
             )}
           </div>

@@ -117,13 +117,21 @@ describe('Select (custom listbox)', () => {
       boxClick(screen.getByRole('combobox'));
       const listbox = screen.getByRole('listbox');
       expect(document.body).toContainElement(listbox); // portalled
-      const scrim = listbox.parentElement as HTMLElement;
-      expect(scrim).toHaveAttribute('role', 'presentation'); // full-screen scrim, not an anchored dropdown
-      expect(listbox.style.width).toBe('100%');
-      // tapping a row selects and closes
+      // a full-screen scrim wrapper, not an anchored dropdown
+      const scrim = listbox.closest('[role="presentation"]');
+      expect(scrim).toBeInTheDocument();
+      // the sheet carries the field label as its header / accessible name
+      expect(listbox).toHaveAttribute('aria-label', 'Fruit');
+      expect(scrim).toHaveTextContent('Fruit');
+      expect(listbox.style.overscrollBehavior).toBe('contain'); // list scroll doesn't chain to the page
+      // page scroll is locked behind the sheet
+      expect(document.body.style.overflow).toBe('hidden');
+      expect(document.documentElement.style.overflow).toBe('hidden');
+      // tapping a row selects and closes — and restores the page scroll
       fireEvent.click(within(listbox).getByText('Cherry'));
       expect(onValueChange).toHaveBeenCalledWith('c');
       expect(screen.queryByRole('listbox')).toBeNull();
+      expect(document.body.style.overflow).toBe('');
     } finally {
       window.matchMedia = orig;
     }
