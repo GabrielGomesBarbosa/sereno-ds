@@ -49,6 +49,15 @@ export { Stepper, type StepperProps, type StepperStep } from './navigation/Stepp
 // feedback
 export { Alert, type AlertProps } from './feedback/Alert';
 export { Toast, type ToastProps } from './feedback/Toast';
+export {
+  ToastProvider,
+  useToast,
+  type ToastProviderProps,
+  type ToastOptions,
+  type ToastApi,
+  type ToastContextValue,
+  type ToastPosition,
+} from './feedback/ToastProvider';
 export { Dialog, type DialogProps } from './feedback/Dialog';
 export { Skeleton, type SkeletonProps } from './feedback/Skeleton';
 export { EmptyState, type EmptyStateProps } from './feedback/EmptyState';

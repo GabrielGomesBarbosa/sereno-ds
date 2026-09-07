@@ -52,7 +52,9 @@ import {
   Tabs,
   Textarea,
   Toast,
+  ToastProvider,
   TopBar,
+  useToast,
 } from '@sereno/ui';
 
 const row: React.CSSProperties = { display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' };
@@ -1417,6 +1419,9 @@ function AlertTons() {
       <Alert tone="info" title="You've used 18 of 20 bookings this month" icon={<Bell size={18} strokeWidth={1.75} />}>
         On the free plan the limit resets on the 1st.
       </Alert>
+      <Alert tone="success" title="Your schedule is live" icon={<CalendarCheck size={18} strokeWidth={1.75} />}>
+        Clients can now book the times you set.
+      </Alert>
       <Alert tone="warning" title="Your schedule isn't set up" icon={<CalendarOff size={18} strokeWidth={1.75} />}>
         Without a schedule, your public link shows no times.
       </Alert>
@@ -1485,6 +1490,62 @@ function ToastComAcao() {
           Show again
         </Button>
       )}
+    </div>
+  );
+}
+
+const TOAST_POSITIONS = ['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'] as const;
+
+function ToastSistemaBotoes() {
+  const { toast, dismiss } = useToast();
+  return (
+    <div style={{ ...row, gap: 'var(--space-3)' }}>
+      <Button size="sm" onClick={() => toast.success('Booking confirmed', { description: 'The client was notified via WhatsApp.' })}>
+        Success
+      </Button>
+      <Button size="sm" variant="secondary" onClick={() => toast.error('Payment failed', { description: 'The card was declined.' })}>
+        Error
+      </Button>
+      <Button size="sm" variant="secondary" onClick={() => toast('Link copied')}>
+        Neutral
+      </Button>
+      <Button
+        size="sm"
+        variant="secondary"
+        onClick={() =>
+          toast.info('Sync in progress', {
+            duration: 0,
+            action: (
+              <Button variant="link" size="sm">
+                View
+              </Button>
+            ),
+          })
+        }
+      >
+        Persistent + action
+      </Button>
+      <Button size="sm" variant="link" onClick={() => dismiss()}>
+        Dismiss all
+      </Button>
+    </div>
+  );
+}
+function ToastSistema() {
+  const [position, setPosition] = React.useState<(typeof TOAST_POSITIONS)[number]>('bottom-right');
+  return (
+    <div style={{ ...col, gap: 'var(--space-4)' }}>
+      <div style={{ maxWidth: 220 }}>
+        <Select
+          label="Position"
+          value={position}
+          onValueChange={(v) => setPosition(v as (typeof TOAST_POSITIONS)[number])}
+          options={TOAST_POSITIONS.map((p) => ({ value: p, label: p }))}
+        />
+      </div>
+      <ToastProvider key={position} position={position} duration={5000}>
+        <ToastSistemaBotoes />
+      </ToastProvider>
     </div>
   );
 }
@@ -1840,7 +1901,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   'sidebar-nav': { basic: SidebarNavBasico, collapsible: SidebarNavColapsavel },
   stepper: { bar: StepperBar, dots: StepperDots, clickable: StepperClicavel },
   alert: { tones: AlertTons, 'with-action': AlertComAcao, dismissible: AlertDispensavel },
-  toast: { tones: ToastTons, 'with-action': ToastComAcao },
+  toast: { tones: ToastTons, 'with-action': ToastComAcao, system: ToastSistema },
   dialog: {
     center: DialogCenter,
     sheet: DialogSheet,

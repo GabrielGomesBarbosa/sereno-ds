@@ -20,13 +20,17 @@
 
 /* ── Keyframes ───────────────────────────────────────────────────────────────
    Button's spinner, Dialog/Toast entrances, Skeleton pulse, SidebarNav's rail
-   flyout + collapsed-rail tooltip. */
+   flyout + collapsed-rail tooltip, the ToastProvider stack enter/exit. */
 @keyframes sereno-spin { to { transform: rotate(360deg); } }
 @keyframes sereno-pop { from { opacity: 0; transform: scale(0.96); } }
 @keyframes sereno-slide-up { from { opacity: 0; transform: translateY(10px); } }
 @keyframes sereno-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 @keyframes sereno-flyout-in { from { opacity: 0; transform: translateX(-6px); } }
 @keyframes sereno-fade-in { from { opacity: 0; } }
+@keyframes sereno-toast-in { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
+@keyframes sereno-toast-in-top { from { opacity: 0; transform: translateY(-12px) scale(0.98); } }
+@keyframes sereno-toast-out { to { opacity: 0; transform: scale(0.96); } }
+@keyframes sereno-toast-bar { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
 /* ── Checkbox / Radio / Switch ───────────────────────────────────────────────
    Checkbox and Radio render bare <input>s; Switch is a role="switch" <span>.
@@ -187,6 +191,35 @@
    Header ✕ button — hover/focus states that can't be inline. */
 .sereno-dialog-close:hover { background: var(--interactive-ghost-hover); color: var(--text-primary); }
 .sereno-dialog-close:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+/* ── Dismiss ✕ (Alert / Toast) ─────────────────────────────────────────────
+   Ghost icon button on a tinted surface — tint the hover from currentColor so
+   it reads on every tone. */
+.sereno-dismiss { transition: opacity var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard); }
+.sereno-dismiss:hover { opacity: 1; background: color-mix(in srgb, currentColor 14%, transparent); }
+.sereno-dismiss:focus-visible { opacity: 1; outline: 2px solid currentColor; outline-offset: 1px; }
+
+/* ── Toast viewport (ToastProvider) ────────────────────────────────────────
+   Enter/exit per stacked toast + the auto-dismiss countdown bar. Direction
+   depends on the anchored edge. The reduced-motion rule below damps all of it
+   (the JS timer still dismisses on schedule — only the visuals are stilled). */
+.sereno-toast-item { animation: sereno-toast-in var(--duration-normal) var(--ease-out); }
+.sereno-toast-item[data-edge='top'] { animation-name: sereno-toast-in-top; }
+.sereno-toast-item[data-leaving='true'] { animation: sereno-toast-out var(--duration-fast) var(--ease-in) forwards; }
+.sereno-toast-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  transform-origin: left;
+  background: currentColor;
+  opacity: 0.32;
+  animation-name: sereno-toast-bar;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+.sereno-toast-bar[data-paused='true'] { animation-play-state: paused; }
 
 /* ── DateTimePicker ─────────────────────────────────────────────────────────
    The month/year popover: hover + focus + current-cell states that can't be
