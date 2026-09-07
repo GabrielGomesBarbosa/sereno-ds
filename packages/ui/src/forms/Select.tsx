@@ -242,25 +242,29 @@ function CustomSelect({
         break;
       }
     }
-    const sx_ = fixed ? 0 : window.scrollX;
-    const sy = fixed ? 0 : window.scrollY;
+    // Anchor the trigger's position in the menu's own coordinate space: viewport
+    // for a `fixed` menu, document for an `absolute` one.
+    const anchorX = fixed ? r.left : r.left + window.scrollX;
+    const anchorY = fixed ? r.top : r.top + window.scrollY;
     setPlace({
       fixed,
       above,
       maxH: Math.max(120, Math.min(288, Math.round(room))),
-      left: r.left + sx_,
+      left: anchorX,
       width: r.width,
-      top: (above ? r.top - GAP : r.bottom + GAP) + sy,
+      top: (above ? r.top - GAP : r.bottom + GAP) + (fixed ? 0 : window.scrollY),
     });
 
-    // The panel is document-anchored, so page scroll keeps it glued for free —
-    // ignore it. The list's own scroll is fine too. Any *other* scroll means an
-    // inner scroller is moving the field out from under the menu — dismiss.
+    // On any scroll, only dismiss if the field actually moved relative to the
+    // menu's anchor. Page scroll keeps it glued for free (both move together, so
+    // the anchor-space position is unchanged); a scroll that shifts the field —
+    // an inner overflow container — detaches the menu, so close.
     const onScroll = (e: Event) => {
-      const tgt = e.target;
-      if (tgt instanceof Node && panelRef.current?.contains(tgt)) return;
-      if (tgt === document || tgt === document.documentElement || tgt === document.body || tgt === window) return;
-      setOpen(false);
+      if (e.target instanceof Node && panelRef.current?.contains(e.target)) return; // the list's own scroll
+      const nr = t.getBoundingClientRect();
+      const x = fixed ? nr.left : nr.left + window.scrollX;
+      const y = fixed ? nr.top : nr.top + window.scrollY;
+      if (Math.abs(x - anchorX) > 1 || Math.abs(y - anchorY) > 1) setOpen(false);
     };
     const onResize = () => setOpen(false);
     window.addEventListener('scroll', onScroll, true);

@@ -50,21 +50,24 @@ describe('Select (custom listbox)', () => {
     expect(listbox.style.position).toBe('absolute');
   });
 
-  it('stays open on page scroll, closes when an inner scroller moves the field', () => {
-    render(
-      <div data-testid="scroller" style={{ overflowY: 'auto' }}>
-        <Select label="Fruit" options={OPTS} />
-      </div>,
-    );
-    boxClick(screen.getByRole('combobox'));
+  it('stays open on scroll while the field is glued, closes once the field moves', () => {
+    render(<Select label="Fruit" options={OPTS} />);
+    const trigger = screen.getByRole('combobox');
+    boxClick(trigger);
     expect(screen.getByRole('listbox')).toBeInTheDocument();
-    // page scroll — the menu is document-anchored, stays put
+
+    // A scroll where the field hasn't moved (page scroll — the menu rides along)
+    // must NOT dismiss it.
     fireEvent.scroll(document);
     expect(screen.getByRole('listbox')).toBeInTheDocument();
-    // an inner overflow container scrolling would slide the field out from under
-    // the menu, so it dismisses
-    fireEvent.scroll(screen.getByTestId('scroller'));
+
+    // Once the field shifts (an inner overflow container scrolled it out from
+    // under the menu), the next scroll dismisses.
+    const rect = { top: 480, bottom: 520, left: 0, right: 200, width: 200, height: 40, x: 0, y: 480, toJSON: () => ({}) } as DOMRect;
+    const spy = vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(rect);
+    fireEvent.scroll(document);
     expect(screen.queryByRole('listbox')).toBeNull();
+    spy.mockRestore();
   });
 
   it('selects an option, fires onValueChange and closes', () => {
