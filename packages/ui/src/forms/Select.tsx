@@ -485,8 +485,9 @@ function CustomSelect({
                     padding: 'var(--space-3) var(--space-4)',
                     borderBottom: 'var(--border-width-hairline) solid var(--border-subtle)',
                     fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-sm)',
+                    fontSize: 'var(--text-base)',
                     fontWeight: 'var(--weight-semibold)',
+                    letterSpacing: 'var(--tracking-snug)',
                     color: 'var(--text-primary)',
                   })}
                 >
