@@ -24,11 +24,37 @@ describe('Select (custom listbox)', () => {
     expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
 
-  it('does NOT open when the click is forwarded from the field label (no press on the box)', () => {
+  it('does NOT open when the click is forwarded from the field label', () => {
     render(<Select label="Fruit" options={OPTS} />);
-    // A <label htmlFor> click forwards a click to the button with no pointerdown on it.
-    fireEvent.click(screen.getByRole('combobox'));
+    const label = document.querySelector<HTMLLabelElement>('label[for]')!;
+    const trigger = screen.getByRole('combobox');
+    // Real label activation: the press lands on the <label>, then the browser
+    // forwards a trusted click (detail 1) to the associated control.
+    fireEvent.pointerDown(label);
+    fireEvent.mouseDown(label);
+    fireEvent.click(trigger, { detail: 1 });
     expect(screen.queryByRole('listbox')).toBeNull();
+    // ...and a bare forwarded click (no pointerdown anywhere) is also inert.
+    fireEvent.click(trigger);
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  it('stays open when the page scrolls, and the menu is a plain child (not a portal)', () => {
+    render(
+      <div data-testid="wrap">
+        <Select label="Fruit" options={OPTS} />
+      </div>,
+    );
+    boxClick(screen.getByRole('combobox'));
+    const listbox = screen.getByRole('listbox');
+    // Rendered in place — regression guard against re-introducing a body portal.
+    expect(screen.getByTestId('wrap')).toContainElement(listbox);
+    expect(document.body).not.toBe(listbox.parentElement);
+    expect(listbox.style.position).toBe('absolute');
+    // Scrolling the page must NOT dismiss it (the browser keeps an absolute
+    // child glued to the field for free).
+    fireEvent.scroll(document);
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
 
   it('selects an option, fires onValueChange and closes', () => {

@@ -233,7 +233,7 @@ function CustomSelect({
     };
     evaluate();
     const onScroll = (e: Event) => {
-      if (p.contains(e.target as Node)) return; // the list's own scroll
+      if (e.target instanceof Node && p.contains(e.target)) return; // the list's own scroll
       evaluate();
     };
     window.addEventListener('scroll', onScroll, true);

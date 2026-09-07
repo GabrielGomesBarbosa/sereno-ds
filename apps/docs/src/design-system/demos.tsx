@@ -1569,11 +1569,11 @@ function DialogDividers() {
         }
       >
         <div style={{ ...col, color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', lineHeight: 1.6 }}>
-          {Array.from({ length: 8 }, (_, i) => (
+          {Array.from({ length: 24 }, (_, i) => (
             <p key={i} style={{ margin: 0 }}>
               {i + 1}. Cras mattis consectetur purus sit amet fermentum. Morbi leo risus, porta ac
               consectetur ac, vestibulum at eros. Praesent commodo cursus magna, vel scelerisque nisl
-              consectetur et.
+              consectetur et. Donec ullamcorper nulla non metus auctor fringilla.
             </p>
           ))}
         </div>
