@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
@@ -186,15 +187,16 @@ function CustomSelect({
 
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState(-1);
-  // The panel is a plain absolutely-positioned child, so the browser keeps it
-  // glued to the field through any scroll with zero JS (this is why MUI's
-  // disablePortal popper stays perfectly smooth). `place` is decided against the
-  // nearest scroll-clipping ancestor (a Dialog body, a Card…), not just the
-  // viewport, so the menu isn't cut off inside one: `above` picks the roomier
-  // side and `maxH` caps the list to the room there. Both are frozen for the
-  // lifetime of an open menu except that scroll may re-toggle `above` — resizing
-  // per frame is what makes a popover jitter.
-  const [place, setPlace] = React.useState<{ above: boolean; maxH: number }>({ above: false, maxH: 288 });
+  const [mounted, setMounted] = React.useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target is client-only
+  React.useEffect(() => setMounted(true), []);
+  // The listbox is portalled to <body> so a Dialog / Card / overflow container
+  // can't clip it. It's `position: absolute` in *document* coordinates (rect +
+  // scrollX/Y), so it rides page scroll glued to the field for free — no
+  // per-frame JS, no jitter. It only detaches if an inner scroller moves the
+  // field, and we dismiss on that. `above`/`maxH`/`top`/`left`/`width` are
+  // measured once per open (viewport room decides the side); resize dismisses.
+  const [place, setPlace] = React.useState<{ above: boolean; maxH: number; top: number; left: number; width: number; fixed: boolean } | null>(null);
 
   const selectedIndex = options.findIndex((o) => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
@@ -217,57 +219,57 @@ function CustomSelect({
   useIsoLayoutEffect(() => {
     if (!open) return;
     const t = triggerRef.current;
-    const p = panelRef.current;
-    if (!t || !p) return;
+    if (!t) return;
 
-    // Vertical bounds = the viewport, tightened by every scroll-clipping ancestor.
-    const clipBounds = () => {
-      const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-      let top = 8;
-      let bottom = vh - 8;
-      for (let el = t.parentElement; el && el !== document.body; el = el.parentElement) {
-        const oy = getComputedStyle(el).overflowY;
-        if (oy === 'auto' || oy === 'scroll' || oy === 'hidden') {
-          const cr = el.getBoundingClientRect();
-          top = Math.max(top, cr.top + 8);
-          bottom = Math.min(bottom, cr.bottom - 8);
-        }
+    const GAP = 6;
+    const r = t.getBoundingClientRect();
+    // Non-zero fallback: if the viewport height is unknown, assume there's room
+    // below rather than flipping the menu up on a bad reading.
+    const vh = window.innerHeight || document.documentElement.clientHeight || 900;
+    const estH = Math.min(288, options.length * 36 + 8); // rough list height, no DOM needed
+    const roomBelow = vh - r.bottom - 8;
+    const roomAbove = r.top - 8;
+    const above = roomBelow < Math.min(estH, 200) && roomAbove > roomBelow;
+    const room = (above ? roomAbove : roomBelow) - GAP;
+    // A trigger inside a position:fixed container (a Dialog) is viewport-anchored
+    // and doesn't scroll, so the menu is `fixed` too with no scroll offset. In
+    // normal flow it's `absolute` in document coords so it rides page scroll for
+    // free. Either way: no per-frame tracking.
+    let fixed = false;
+    for (let el: HTMLElement | null = t.parentElement; el && el !== document.body; el = el.parentElement) {
+      if (getComputedStyle(el).position === 'fixed') {
+        fixed = true;
+        break;
       }
-      return { top, bottom };
-    };
-    const wantsAbove = (needsH: number) => {
-      const r = t.getBoundingClientRect();
-      const { top, bottom } = clipBounds();
-      const below = bottom - r.bottom - 6;
-      const above = r.top - top - 6;
-      return below < Math.min(needsH, 160) && above > below;
-    };
+    }
+    const sx_ = fixed ? 0 : window.scrollX;
+    const sy = fixed ? 0 : window.scrollY;
+    setPlace({
+      fixed,
+      above,
+      maxH: Math.max(120, Math.min(288, Math.round(room))),
+      left: r.left + sx_,
+      width: r.width,
+      top: (above ? r.top - GAP : r.bottom + GAP) + sy,
+    });
 
-    // Full placement: side + max-height, once on open and on resize.
-    const measure = () => {
-      const r = t.getBoundingClientRect();
-      const { top, bottom } = clipBounds();
-      const naturalH = p.scrollHeight || p.offsetHeight || 240;
-      const above = wantsAbove(naturalH);
-      const room = above ? r.top - top - 6 : bottom - r.bottom - 6;
-      const maxH = Math.max(96, Math.min(288, Math.round(room)));
-      setPlace((prev) => (prev.above === above && Math.abs(prev.maxH - maxH) < 4 ? prev : { above, maxH }));
-    };
-    measure();
-
-    // Scroll only re-toggles the side (never resizes — that would jitter).
+    // The panel is document-anchored, so page scroll keeps it glued for free —
+    // ignore it. The list's own scroll is fine too. Any *other* scroll means an
+    // inner scroller is moving the field out from under the menu — dismiss.
     const onScroll = (e: Event) => {
-      if (e.target instanceof Node && p.contains(e.target)) return; // the list's own scroll
-      const above = wantsAbove(p.scrollHeight || 240);
-      setPlace((prev) => (prev.above === above ? prev : { ...prev, above }));
+      const tgt = e.target;
+      if (tgt instanceof Node && panelRef.current?.contains(tgt)) return;
+      if (tgt === document || tgt === document.documentElement || tgt === document.body || tgt === window) return;
+      setOpen(false);
     };
+    const onResize = () => setOpen(false);
     window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', measure);
+    window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', measure);
+      window.removeEventListener('resize', onResize);
     };
-  }, [open]);
+  }, [open, options.length]);
 
   // Close on outside pointerdown.
   React.useEffect(() => {
@@ -420,17 +422,19 @@ function CustomSelect({
         </span>
       </button>
 
-      {open && (
+      {open && mounted && place &&
+        createPortal(
             <ul
               ref={panelRef}
               id={listboxId}
               role="listbox"
               tabIndex={-1}
               style={sx({
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                ...(place.above ? { bottom: 'calc(100% + 6px)' } : { top: 'calc(100% + 6px)' }),
+                position: place.fixed ? 'fixed' : 'absolute',
+                top: place.top,
+                left: place.left,
+                width: place.width,
+                ...(place.above ? { transform: 'translateY(-100%)' } : null),
                 minWidth: 160,
                 maxHeight: place.maxH,
                 overflowY: 'auto',
@@ -441,7 +445,7 @@ function CustomSelect({
                 border: 'var(--border-width-hairline) solid var(--border-default)',
                 borderRadius: 'var(--radius-md)',
                 boxShadow: 'var(--shadow-lg)',
-                zIndex: 100,
+                zIndex: 1100,
                 fontFamily: 'var(--font-body)',
                 fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)',
               })}
@@ -480,8 +484,9 @@ function CustomSelect({
                   </li>
                 );
               })}
-            </ul>
-      )}
+            </ul>,
+          document.body,
+        )}
     </div>
   );
 }

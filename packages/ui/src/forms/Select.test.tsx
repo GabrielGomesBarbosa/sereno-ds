@@ -39,22 +39,32 @@ describe('Select (custom listbox)', () => {
     expect(screen.queryByRole('listbox')).toBeNull();
   });
 
-  it('stays open when the page scrolls, and the menu is a plain child (not a portal)', () => {
+  it('portals to <body> as an absolute (document-anchored, not fixed) node', () => {
+    const { container } = render(<Select label="Fruit" options={OPTS} />);
+    boxClick(screen.getByRole('combobox'));
+    const listbox = screen.getByRole('listbox');
+    expect(container).not.toContainElement(listbox); // out of the component subtree…
+    expect(document.body).toContainElement(listbox); // …and into <body>
+    // absolute + document coords rides page scroll for free — NOT position:fixed
+    // (which would need per-frame JS repositioning and jitter).
+    expect(listbox.style.position).toBe('absolute');
+  });
+
+  it('stays open on page scroll, closes when an inner scroller moves the field', () => {
     render(
-      <div data-testid="wrap">
+      <div data-testid="scroller" style={{ overflowY: 'auto' }}>
         <Select label="Fruit" options={OPTS} />
       </div>,
     );
     boxClick(screen.getByRole('combobox'));
-    const listbox = screen.getByRole('listbox');
-    // Rendered in place — regression guard against re-introducing a body portal.
-    expect(screen.getByTestId('wrap')).toContainElement(listbox);
-    expect(document.body).not.toBe(listbox.parentElement);
-    expect(listbox.style.position).toBe('absolute');
-    // Scrolling the page must NOT dismiss it (the browser keeps an absolute
-    // child glued to the field for free).
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    // page scroll — the menu is document-anchored, stays put
     fireEvent.scroll(document);
     expect(screen.getByRole('listbox')).toBeInTheDocument();
+    // an inner overflow container scrolling would slide the field out from under
+    // the menu, so it dismisses
+    fireEvent.scroll(screen.getByTestId('scroller'));
+    expect(screen.queryByRole('listbox')).toBeNull();
   });
 
   it('selects an option, fires onValueChange and closes', () => {
