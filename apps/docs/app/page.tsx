@@ -7,6 +7,7 @@ import { DS_VERSION } from '@/design-system/version';
 import { ComponentGallery } from '@/home/ComponentGallery';
 import { HeroPreview } from '@/home/HeroPreview';
 import { GithubMark, NextMark, ReactMark } from '@/home/tech';
+import { CopyCode } from '@/home/CopyCode';
 
 const REPO = 'https://github.com/GabrielGomesBarbosa/sereno-ds';
 
@@ -131,6 +132,8 @@ export default function Home() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
             <a
               href={REPO}
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="GitHub repository"
               style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 'var(--control-height-sm)', height: 'var(--control-height-sm)', borderRadius: 'var(--radius-control)', color: 'var(--text-secondary)' }}
             >
@@ -183,21 +186,10 @@ export default function Home() {
                 See the app <ExternalLink size={16} strokeWidth={2} />
               </a>
             </div>
-            <pre
-              style={{
-                margin: 'var(--space-2) 0 0',
-                padding: 'var(--space-3) var(--space-4)',
-                borderRadius: 'var(--radius-md)',
-                background: 'var(--bg-inverse)',
-                color: 'var(--text-inverse)',
-                fontFamily: 'var(--font-mono)',
-                fontSize: 'var(--text-xs)',
-                overflowX: 'auto',
-              }}
-            >
+            <CopyCode code="import { Button, Card } from '@sereno/ui'">
               <span style={{ opacity: 0.6 }}>import</span> {'{ Button, Card }'} <span style={{ opacity: 0.6 }}>from</span>{' '}
               <span style={{ color: 'var(--accent-300, #8ee3d3)' }}>&apos;@sereno/ui&apos;</span>
-            </pre>
+            </CopyCode>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -256,7 +248,7 @@ export default function Home() {
             <Brand variant="symbol" size={16} mono />
             Sereno Design System · v{DS_VERSION}
           </span>
-          <a href={REPO} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
+          <a href={REPO} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
             <GithubMark size={14} /> GitHub
           </a>
         </footer>
