@@ -12,6 +12,6 @@ rules with an independently scrolling body), `showClose` (header ✕), and
 `variant="fullscreen"`. `width` still works as an explicit override. No breaking
 changes.
 
-**`Select`** — the listbox menu is now portalled to `<body>` and position-tracked
-on scroll/resize, so it is no longer clipped when the `Select` sits inside a
-`Dialog`, `Card`, or any `overflow` container.
+**`Select`** — clicking the field `<label>` no longer opens the menu (only
+clicking the box, or keyboard). The label still focuses the control, as any form
+label does.

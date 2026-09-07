@@ -1751,8 +1751,8 @@ const steps = [
       {
         id: 'form',
         title: 'Form inside',
-        description: 'A `Select` inside a `Dialog` keeps working — its menu is portalled to `<body>`, so `dividers`’ scroll area never clips it.',
-        code: `<Dialog dividers showClose size="md" open={open} title="New booking" onClose={close} footer={footer}>
+        description: 'Inputs, selects and checkboxes sit inside a `Dialog` without ceremony. Keep the form short enough not to need `dividers` — a `Select` menu opens within the panel, so a scrolling body would clip it.',
+        code: `<Dialog showClose size="md" open={open} title="New booking" onClose={close} footer={footer}>
   <Input label="Client" />
   <Select label="Service" options={services} />
 </Dialog>`,

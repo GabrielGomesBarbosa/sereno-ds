@@ -1589,11 +1589,10 @@ function DialogForm() {
       <Button onClick={() => setOpen(true)}>New booking</Button>
       <Dialog
         open={open}
-        dividers
         showClose
         size="md"
         title="New booking"
-        description="A Select inside the Dialog: its menu is portalled, so it is never clipped by the scroll area."
+        description="Forms sit inside a Dialog without ceremony — inputs, selects and checkboxes all work."
         onClose={() => setOpen(false)}
         footer={
           <>
@@ -1613,7 +1612,6 @@ function DialogForm() {
               { value: 'assessment', label: 'First assessment (60 min)' },
               { value: 'session', label: 'Therapy session (50 min)' },
               { value: 'followup', label: 'Follow-up (30 min)' },
-              { value: 'group', label: 'Group session (90 min)' },
             ]}
           />
           <Select
@@ -1623,17 +1621,6 @@ function DialogForm() {
               { value: 'ana', label: 'Ana Beatriz Ramos' },
               { value: 'carla', label: 'Carla Nogueira' },
               { value: 'diego', label: 'Diego Martins' },
-              { value: 'elisa', label: 'Elisa Fontanella' },
-              { value: 'bruno', label: 'Bruno Katsumata' },
-              { value: 'helena', label: 'Helena Prado' },
-              { value: 'igor', label: 'Igor Salvatori' },
-              { value: 'julia', label: 'Júlia Menezes' },
-              { value: 'lucas', label: 'Lucas Andrade' },
-              { value: 'marina', label: 'Marina Okafor' },
-              { value: 'nina', label: 'Nina Vasconcelos' },
-              { value: 'otavio', label: 'Otávio Ribeiro' },
-              { value: 'paula', label: 'Paula Sciarra' },
-              { value: 'rafael', label: 'Rafael Bittencourt' },
             ]}
           />
           <Checkbox label="Notify the client on WhatsApp" defaultChecked />

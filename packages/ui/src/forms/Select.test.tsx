@@ -18,12 +18,10 @@ const boxClick = (el: Element) => {
 };
 
 describe('Select (custom listbox)', () => {
-  it('opens on a box click and portals the listbox to <body>, outside its own container', () => {
-    const { container } = render(<Select label="Fruit" options={OPTS} />);
+  it('opens on a box click', () => {
+    render(<Select label="Fruit" options={OPTS} />);
     boxClick(screen.getByRole('combobox'));
-    const listbox = screen.getByRole('listbox');
-    expect(document.body).toContainElement(listbox);
-    expect(container).not.toContainElement(listbox);
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
 
   it('does NOT open when the click is forwarded from the field label (no press on the box)', () => {
@@ -48,18 +46,6 @@ describe('Select (custom listbox)', () => {
     boxClick(screen.getByRole('combobox'));
     expect(screen.getByRole('listbox')).toBeInTheDocument();
     fireEvent.pointerDown(document.body);
-    expect(screen.queryByRole('listbox')).toBeNull();
-  });
-
-  it('closes when the page scrolls (but not when the list itself scrolls)', () => {
-    render(<Select label="Fruit" options={OPTS} />);
-    boxClick(screen.getByRole('combobox'));
-    const listbox = screen.getByRole('listbox');
-    // the list's own scroll is ignored
-    fireEvent.scroll(listbox);
-    expect(screen.getByRole('listbox')).toBeInTheDocument();
-    // scrolling anything else dismisses it
-    fireEvent.scroll(document);
     expect(screen.queryByRole('listbox')).toBeNull();
   });
 
