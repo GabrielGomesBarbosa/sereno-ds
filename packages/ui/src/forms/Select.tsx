@@ -478,24 +478,21 @@ function CustomSelect({
                 animation: 'sereno-slide-up var(--duration-sheet) var(--ease-gentle)',
               })}
             >
-              <div
-                style={sx({
-                  flex: '0 0 auto',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 'var(--space-1)',
-                  padding: 'var(--space-2) var(--space-4) var(--space-3)',
-                  borderBottom: 'var(--border-width-hairline) solid var(--border-subtle)',
-                })}
-              >
-                <span aria-hidden style={sx({ width: 36, height: 4, borderRadius: '999px', background: 'var(--border-strong)' })} />
-                {label && (
-                  <span style={sx({ marginTop: 2, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)', textAlign: 'center' })}>
-                    {label}
-                  </span>
-                )}
-              </div>
+              {label && (
+                <div
+                  style={sx({
+                    flex: '0 0 auto',
+                    padding: 'var(--space-3) var(--space-4)',
+                    borderBottom: 'var(--border-width-hairline) solid var(--border-subtle)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 'var(--weight-semibold)',
+                    color: 'var(--text-primary)',
+                  })}
+                >
+                  {label}
+                </div>
+              )}
               <ul
                 ref={panelRef}
                 id={listboxId}
