@@ -1479,7 +1479,7 @@ function ToastComAcao() {
 function DialogCenter() {
   const [open, setOpen] = React.useState(false);
   return (
-    <div style={{ position: 'relative', minHeight: open ? 300 : undefined }}>
+    <div>
       <Button onClick={() => setOpen(true)}>Open dialog</Button>
       <Dialog
         open={open}
@@ -1503,7 +1503,7 @@ function DialogCenter() {
 function DialogSheet() {
   const [open, setOpen] = React.useState(false);
   return (
-    <div style={{ position: 'relative', minHeight: open ? 320 : undefined }}>
+    <div>
       <Button onClick={() => setOpen(true)}>Open sheet</Button>
       <Dialog
         open={open}

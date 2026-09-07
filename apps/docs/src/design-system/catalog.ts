@@ -1683,12 +1683,13 @@ const steps = [
     slug: 'dialog',
     name: 'Dialog',
     category: 'feedback',
-    summary: 'Modal (desktop) or bottom sheet (mobile). Needs the sereno-pop / sereno-slide-up keyframes on the host.',
+    summary:
+      'Modal (desktop) or bottom sheet (mobile). Portalled to `<body>` and fixed to the viewport; while open it locks page scroll and closes on Escape. Needs the sereno-pop / sereno-slide-up keyframes on the host.',
     props: [
       R('open', 'boolean', 'Controls visibility.', 'true'),
       R('title / description', 'string', 'Dialog header.'),
       R('footer', 'React.ReactNode', 'Action buttons, right-aligned.'),
-      R('onClose', '() => void', 'Close on scrim click.'),
+      R('onClose', '() => void', 'Called on scrim click and on Escape.'),
       R('variant', "'center' | 'sheet'", 'sheet slides up from the bottom — the mobile default.', "'center'"),
       R('width', 'number', 'Width of the center modal.', '440'),
     ],
