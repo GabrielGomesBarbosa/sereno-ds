@@ -188,6 +188,13 @@
 .sereno-dialog-close:hover { background: var(--interactive-ghost-hover); color: var(--text-primary); }
 .sereno-dialog-close:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 
+/* ── Dismiss ✕ (Alert / Toast) ─────────────────────────────────────────────
+   Ghost icon button on a tinted surface — tint the hover from currentColor so
+   it reads on every tone. */
+.sereno-dismiss { transition: opacity var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard); }
+.sereno-dismiss:hover { opacity: 1; background: color-mix(in srgb, currentColor 14%, transparent); }
+.sereno-dismiss:focus-visible { opacity: 1; outline: 2px solid currentColor; outline-offset: 1px; }
+
 /* ── DateTimePicker ─────────────────────────────────────────────────────────
    The month/year popover: hover + focus + current-cell states that can't be
    inline styles. The header title button lives here too. */

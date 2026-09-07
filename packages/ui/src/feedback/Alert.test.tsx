@@ -31,7 +31,9 @@ describe('Alert', () => {
     const { rerender } = render(<Alert>fixed condition</Alert>);
     expect(screen.queryByRole('button', { name: 'Dispensar' })).toBeNull();
     rerender(<Alert onDismiss={onDismiss}>fixed condition</Alert>);
-    fireEvent.click(screen.getByRole('button', { name: 'Dispensar' }));
+    const dismiss = screen.getByRole('button', { name: 'Dispensar' });
+    expect(dismiss).toHaveClass('sereno-dismiss'); // proper icon button, not a bare ×
+    fireEvent.click(dismiss);
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 

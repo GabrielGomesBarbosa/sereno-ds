@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { X } from 'lucide-react';
 import { sx } from '../_internal/style';
 
 /**
@@ -59,11 +60,27 @@ export function Alert({ tone = 'info', title, children, icon, action, onDismiss,
       </div>
       {onDismiss && (
         <button
+          type="button"
           onClick={onDismiss}
           aria-label="Dispensar"
-          style={sx({ border: 'none', background: 'transparent', color: 'inherit', opacity: 0.6, cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 0, flex: '0 0 auto' })}
+          className="sereno-dismiss"
+          style={sx({
+            flex: '0 0 auto',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 28,
+            height: 28,
+            margin: '-3px -5px 0 0',
+            border: 'none',
+            borderRadius: 'var(--radius-sm)',
+            background: 'transparent',
+            color: 'currentColor',
+            opacity: 0.6,
+            cursor: 'pointer',
+          })}
         >
-          ×
+          <X size={16} strokeWidth={2} />
         </button>
       )}
     </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { X } from 'lucide-react';
 import { sx } from '../_internal/style';
 
 /** Transient confirmation of a completed action. One line of title, optional detail. */
@@ -51,11 +52,27 @@ export function Toast({ tone = 'neutral', title, description, icon, action, onCl
       {action}
       {onClose && (
         <button
+          type="button"
           onClick={onClose}
           aria-label="Fechar"
-          style={sx({ border: 'none', background: 'transparent', color: 'inherit', opacity: 0.6, cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 0 })}
+          className="sereno-dismiss"
+          style={sx({
+            flex: '0 0 auto',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 28,
+            height: 28,
+            margin: '-3px -6px 0 0',
+            border: 'none',
+            borderRadius: 'var(--radius-sm)',
+            background: 'transparent',
+            color: 'currentColor',
+            opacity: 0.6,
+            cursor: 'pointer',
+          })}
         >
-          ×
+          <X size={16} strokeWidth={2} />
         </button>
       )}
     </div>

@@ -25,7 +25,9 @@ describe('Toast', () => {
     const { rerender } = render(<Toast title="Saved" />);
     expect(screen.queryByRole('button', { name: 'Fechar' })).toBeNull();
     rerender(<Toast title="Saved" onClose={onClose} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    const close = screen.getByRole('button', { name: 'Fechar' });
+    expect(close).toHaveClass('sereno-dismiss'); // proper icon button, not a bare ×
+    fireEvent.click(close);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 

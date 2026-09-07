@@ -1602,6 +1602,9 @@ const steps = [
         code: `<Alert tone="info" title="You've used 18 of 20 bookings this month">
   On the free plan the limit resets on the 1st.
 </Alert>
+<Alert tone="success" title="Your schedule is live">
+  Clients can now book the times you set.
+</Alert>
 <Alert tone="warning" title="Your schedule isn't set up">
   Without a schedule, your public link shows no times.
 </Alert>

@@ -1,6 +1,9 @@
 ---
+"@sereno/ui": patch
 ---
 
-Infra only (SS-61 / SS-62): dedicated behavioural tests for `Toast`, `Alert` and
-`Skeleton`. Test files don't ship (tsup excludes `*.test.*`) — no consumer-facing
-change, no version bump.
+`Alert` and `Toast` — the dismiss control is now a proper 28px icon button (a
+Lucide `X`, hover/focus states) instead of a bare `×` glyph with no hit area.
+
+Also adds dedicated behavioural tests for `Alert`, `Toast` and `Skeleton`
+(SS-61 / SS-62) — test files, not shipped.

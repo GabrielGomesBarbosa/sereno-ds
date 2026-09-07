@@ -1417,6 +1417,9 @@ function AlertTons() {
       <Alert tone="info" title="You've used 18 of 20 bookings this month" icon={<Bell size={18} strokeWidth={1.75} />}>
         On the free plan the limit resets on the 1st.
       </Alert>
+      <Alert tone="success" title="Your schedule is live" icon={<CalendarCheck size={18} strokeWidth={1.75} />}>
+        Clients can now book the times you set.
+      </Alert>
       <Alert tone="warning" title="Your schedule isn't set up" icon={<CalendarOff size={18} strokeWidth={1.75} />}>
         Without a schedule, your public link shows no times.
       </Alert>
