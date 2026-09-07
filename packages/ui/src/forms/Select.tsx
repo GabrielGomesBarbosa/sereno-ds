@@ -190,13 +190,21 @@ function CustomSelect({
   const [mounted, setMounted] = React.useState(false);
   // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target is client-only
   React.useEffect(() => setMounted(true), []);
-  // The listbox is portalled to <body> so a Dialog / Card / overflow container
-  // can't clip it. It's `position: absolute` in *document* coordinates (rect +
-  // scrollX/Y), so it rides page scroll glued to the field for free — no
-  // per-frame JS, no jitter. It only detaches if an inner scroller moves the
-  // field, and we dismiss on that. `above`/`maxH`/`top`/`left`/`width` are
-  // measured once per open (viewport room decides the side); resize dismisses.
-  const [place, setPlace] = React.useState<{ above: boolean; maxH: number; top: number; left: number; width: number; fixed: boolean } | null>(null);
+  // Two placement strategies, picked once per open:
+  //  • 'inline'  — the common case. A plain `position: absolute` child of the
+  //    field wrapper. The browser glues it to the field through *any* scroll
+  //    (page or an inner overflow container) for free — zero JS, zero jitter,
+  //    never closes on scroll. Only re-flips the side if room runs out.
+  //  • 'fixed'   — used when the field is inside a `position: fixed` container
+  //    (a Dialog), where an inline child would be clipped by the dialog's
+  //    overflow. Portalled to <body>, `position: fixed` at the trigger's
+  //    viewport rect. The dialog itself doesn't scroll, so it stays glued;
+  //    scrolling the dialog *body* detaches it, and we dismiss then.
+  const [place, setPlace] = React.useState<
+    | { strategy: 'inline'; above: boolean; maxH: number }
+    | { strategy: 'fixed'; above: boolean; maxH: number; top: number; left: number; width: number }
+    | null
+  >(null);
 
   const selectedIndex = options.findIndex((o) => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
@@ -222,19 +230,19 @@ function CustomSelect({
     if (!t) return;
 
     const GAP = 6;
-    const r = t.getBoundingClientRect();
-    // Non-zero fallback: if the viewport height is unknown, assume there's room
-    // below rather than flipping the menu up on a bad reading.
+    // Non-zero fallback: if the viewport height is unreadable, assume room below
+    // rather than flipping the menu up on a bad reading.
     const vh = window.innerHeight || document.documentElement.clientHeight || 900;
-    const estH = Math.min(288, options.length * 36 + 8); // rough list height, no DOM needed
-    const roomBelow = vh - r.bottom - 8;
-    const roomAbove = r.top - 8;
-    const above = roomBelow < Math.min(estH, 200) && roomAbove > roomBelow;
-    const room = (above ? roomAbove : roomBelow) - GAP;
-    // A trigger inside a position:fixed container (a Dialog) is viewport-anchored
-    // and doesn't scroll, so the menu is `fixed` too with no scroll offset. In
-    // normal flow it's `absolute` in document coords so it rides page scroll for
-    // free. Either way: no per-frame tracking.
+    const estH = Math.min(288, options.length * 36 + 8); // rough list height, no DOM
+    const evalRoom = () => {
+      const r = t.getBoundingClientRect();
+      const roomBelow = vh - r.bottom - 8;
+      const roomAbove = r.top - 8;
+      const above = roomBelow < Math.min(estH, 200) && roomAbove > roomBelow;
+      const maxH = Math.max(120, Math.min(288, Math.round((above ? roomAbove : roomBelow) - GAP)));
+      return { r, above, maxH };
+    };
+
     let fixed = false;
     for (let el: HTMLElement | null = t.parentElement; el && el !== document.body; el = el.parentElement) {
       if (getComputedStyle(el).position === 'fixed') {
@@ -242,36 +250,44 @@ function CustomSelect({
         break;
       }
     }
-    // Anchor the trigger's position in the menu's own coordinate space: viewport
-    // for a `fixed` menu, document for an `absolute` one.
-    const anchorX = fixed ? r.left : r.left + window.scrollX;
-    const anchorY = fixed ? r.top : r.top + window.scrollY;
-    setPlace({
-      fixed,
-      above,
-      maxH: Math.max(120, Math.min(288, Math.round(room))),
-      left: anchorX,
-      width: r.width,
-      top: (above ? r.top - GAP : r.bottom + GAP) + (fixed ? 0 : window.scrollY),
-    });
 
-    // On any scroll, only dismiss if the field actually moved relative to the
-    // menu's anchor. Page scroll keeps it glued for free (both move together, so
-    // the anchor-space position is unchanged); a scroll that shifts the field —
-    // an inner overflow container — detaches the menu, so close.
-    const onScroll = (e: Event) => {
-      if (e.target instanceof Node && panelRef.current?.contains(e.target)) return; // the list's own scroll
-      const nr = t.getBoundingClientRect();
-      const x = fixed ? nr.left : nr.left + window.scrollX;
-      const y = fixed ? nr.top : nr.top + window.scrollY;
-      if (Math.abs(x - anchorX) > 1 || Math.abs(y - anchorY) > 1) setOpen(false);
+    if (fixed) {
+      const { r, above, maxH } = evalRoom();
+      setPlace({ strategy: 'fixed', above, maxH, left: r.left, width: r.width, top: above ? r.top - GAP : r.bottom + GAP });
+      const anchorTop = r.top;
+      const onScroll = (e: Event) => {
+        if (e.target instanceof Node && panelRef.current?.contains(e.target)) return;
+        if (Math.abs(t.getBoundingClientRect().top - anchorTop) > 1) setOpen(false);
+      };
+      const onResize = () => setOpen(false);
+      window.addEventListener('scroll', onScroll, true);
+      window.addEventListener('resize', onResize);
+      return () => {
+        window.removeEventListener('scroll', onScroll, true);
+        window.removeEventListener('resize', onResize);
+      };
+    }
+
+    // Inline: the menu is a plain absolute child, glued for free. Never reposition
+    // or close on scroll — only re-flip the side (rare) and re-cap height on
+    // resize.
+    const applyFull = () => {
+      const { above, maxH } = evalRoom();
+      setPlace((prev) =>
+        prev?.strategy === 'inline' && prev.above === above && prev.maxH === maxH ? prev : { strategy: 'inline', above, maxH },
+      );
     };
-    const onResize = () => setOpen(false);
+    applyFull();
+    const onScroll = (e: Event) => {
+      if (e.target instanceof Node && panelRef.current?.contains(e.target)) return;
+      const { above } = evalRoom();
+      setPlace((prev) => (prev?.strategy === 'inline' && prev.above !== above ? { ...prev, above } : prev));
+    };
     window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', applyFull);
     return () => {
       window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener('resize', applyFull);
     };
   }, [open, options.length]);
 
@@ -367,6 +383,54 @@ function CustomSelect({
   const hasValue = !!selected;
   const rowPadY = OPTION_PAD_Y[size];
 
+  const listStyleBase: React.CSSProperties = {
+    minWidth: 160,
+    overflowY: 'auto',
+    margin: 0,
+    padding: 'var(--space-1)',
+    listStyle: 'none',
+    background: 'var(--bg-surface)',
+    border: 'var(--border-width-hairline) solid var(--border-default)',
+    borderRadius: 'var(--radius-md)',
+    boxShadow: 'var(--shadow-lg)',
+    fontFamily: 'var(--font-body)',
+    fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)',
+  };
+  const optionRows = options.map((o, i) => {
+    const isSelected = o.value === value;
+    const isActive = i === activeIndex;
+    return (
+      <li
+        key={o.value}
+        id={`${rid}-opt-${i}`}
+        role="option"
+        aria-selected={isSelected}
+        aria-disabled={o.disabled || undefined}
+        onPointerEnter={() => !o.disabled && setActiveIndex(i)}
+        onClick={() => choose(i)}
+        style={sx({
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 'var(--space-2)',
+          padding: `${rowPadY}px var(--space-3)`,
+          borderRadius: 'var(--radius-sm)',
+          cursor: o.disabled ? 'not-allowed' : 'pointer',
+          color: o.disabled ? 'var(--text-disabled)' : 'var(--text-primary)',
+          background: isActive && !o.disabled ? 'var(--bg-subtle)' : 'transparent',
+          fontWeight: isSelected ? 'var(--weight-semibold)' : 'var(--weight-regular)',
+        })}
+      >
+        <span style={sx({ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{o.label}</span>
+        {isSelected && (
+          <span style={sx({ display: 'flex', flex: '0 0 auto', color: 'var(--text-brand)' })}>
+            <Check size={16} strokeWidth={2} />
+          </span>
+        )}
+      </li>
+    );
+  });
+
   return (
     <div style={sx({ position: 'relative', width: '100%' })}>
       <button
@@ -426,69 +490,45 @@ function CustomSelect({
         </span>
       </button>
 
-      {open && mounted && place &&
+      {open && place && place.strategy === 'inline' && (
+        <ul
+          ref={panelRef}
+          id={listboxId}
+          role="listbox"
+          tabIndex={-1}
+          style={sx({
+            ...listStyleBase,
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            ...(place.above ? { bottom: 'calc(100% + 6px)' } : { top: 'calc(100% + 6px)' }),
+            maxHeight: place.maxH,
+            zIndex: 100,
+          })}
+        >
+          {optionRows}
+        </ul>
+      )}
+      {open && mounted && place && place.strategy === 'fixed' &&
         createPortal(
-            <ul
-              ref={panelRef}
-              id={listboxId}
-              role="listbox"
-              tabIndex={-1}
-              style={sx({
-                position: place.fixed ? 'fixed' : 'absolute',
-                top: place.top,
-                left: place.left,
-                width: place.width,
-                ...(place.above ? { transform: 'translateY(-100%)' } : null),
-                minWidth: 160,
-                maxHeight: place.maxH,
-                overflowY: 'auto',
-                margin: 0,
-                padding: 'var(--space-1)',
-                listStyle: 'none',
-                background: 'var(--bg-surface)',
-                border: 'var(--border-width-hairline) solid var(--border-default)',
-                borderRadius: 'var(--radius-md)',
-                boxShadow: 'var(--shadow-lg)',
-                zIndex: 1100,
-                fontFamily: 'var(--font-body)',
-                fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)',
-              })}
-            >
-              {options.map((o, i) => {
-                const isSelected = o.value === value;
-                const isActive = i === activeIndex;
-                return (
-                  <li
-                    key={o.value}
-                    id={`${rid}-opt-${i}`}
-                    role="option"
-                    aria-selected={isSelected}
-                    aria-disabled={o.disabled || undefined}
-                    onPointerEnter={() => !o.disabled && setActiveIndex(i)}
-                    onClick={() => choose(i)}
-                    style={sx({
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: 'var(--space-2)',
-                      padding: `${rowPadY}px var(--space-3)`,
-                      borderRadius: 'var(--radius-sm)',
-                      cursor: o.disabled ? 'not-allowed' : 'pointer',
-                      color: o.disabled ? 'var(--text-disabled)' : 'var(--text-primary)',
-                      background: isActive && !o.disabled ? 'var(--bg-subtle)' : 'transparent',
-                      fontWeight: isSelected ? 'var(--weight-semibold)' : 'var(--weight-regular)',
-                    })}
-                  >
-                    <span style={sx({ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{o.label}</span>
-                    {isSelected && (
-                      <span style={sx({ display: 'flex', flex: '0 0 auto', color: 'var(--text-brand)' })}>
-                        <Check size={16} strokeWidth={2} />
-                      </span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>,
+          <ul
+            ref={panelRef}
+            id={listboxId}
+            role="listbox"
+            tabIndex={-1}
+            style={sx({
+              ...listStyleBase,
+              position: 'fixed',
+              top: place.top,
+              left: place.left,
+              width: place.width,
+              ...(place.above ? { transform: 'translateY(-100%)' } : null),
+              maxHeight: place.maxH,
+              zIndex: 1100,
+            })}
+          >
+            {optionRows}
+          </ul>,
           document.body,
         )}
     </div>

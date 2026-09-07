@@ -39,35 +39,38 @@ describe('Select (custom listbox)', () => {
     expect(screen.queryByRole('listbox')).toBeNull();
   });
 
-  it('portals to <body> as an absolute (document-anchored, not fixed) node', () => {
+  it('is an in-place absolute child (not portalled) when not inside a fixed container', () => {
     const { container } = render(<Select label="Fruit" options={OPTS} />);
     boxClick(screen.getByRole('combobox'));
     const listbox = screen.getByRole('listbox');
-    expect(container).not.toContainElement(listbox); // out of the component subtree…
-    expect(document.body).toContainElement(listbox); // …and into <body>
-    // absolute + document coords rides page scroll for free — NOT position:fixed
-    // (which would need per-frame JS repositioning and jitter).
-    expect(listbox.style.position).toBe('absolute');
+    expect(container).toContainElement(listbox); // rendered in place…
+    expect(listbox.style.position).toBe('absolute'); // …glued to the field by the browser
   });
 
-  it('stays open on scroll while the field is glued, closes once the field moves', () => {
-    render(<Select label="Fruit" options={OPTS} />);
-    const trigger = screen.getByRole('combobox');
-    boxClick(trigger);
+  it('never closes on scroll in the inline case — the browser keeps it glued', () => {
+    render(
+      <div data-testid="scroller" style={{ overflowY: 'auto' }}>
+        <Select label="Fruit" options={OPTS} />
+      </div>,
+    );
+    boxClick(screen.getByRole('combobox'));
     expect(screen.getByRole('listbox')).toBeInTheDocument();
-
-    // A scroll where the field hasn't moved (page scroll — the menu rides along)
-    // must NOT dismiss it.
     fireEvent.scroll(document);
+    fireEvent.scroll(screen.getByTestId('scroller'));
     expect(screen.getByRole('listbox')).toBeInTheDocument();
+  });
 
-    // Once the field shifts (an inner overflow container scrolled it out from
-    // under the menu), the next scroll dismisses.
-    const rect = { top: 480, bottom: 520, left: 0, right: 200, width: 200, height: 40, x: 0, y: 480, toJSON: () => ({}) } as DOMRect;
-    const spy = vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(rect);
-    fireEvent.scroll(document);
-    expect(screen.queryByRole('listbox')).toBeNull();
-    spy.mockRestore();
+  it('portals to <body> as position:fixed when the field is inside a fixed container', () => {
+    const { container } = render(
+      <div style={{ position: 'fixed', inset: 0 }}>
+        <Select label="Fruit" options={OPTS} />
+      </div>,
+    );
+    boxClick(screen.getByRole('combobox'));
+    const listbox = screen.getByRole('listbox');
+    expect(container).not.toContainElement(listbox);
+    expect(document.body).toContainElement(listbox);
+    expect(listbox.style.position).toBe('fixed');
   });
 
   it('selects an option, fires onValueChange and closes', () => {
