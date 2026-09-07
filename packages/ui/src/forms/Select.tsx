@@ -96,6 +96,7 @@ function fieldBoxStyle(size: NonNullable<SelectProps['size']>, error: boolean, o
 // ── Custom listbox ──────────────────────────────────────────────────────────
 function CustomSelect({
   rid,
+  label,
   options,
   value,
   placeholder,
@@ -106,6 +107,8 @@ function CustomSelect({
   onCommit,
 }: {
   rid: string;
+  /** The field label — shown as the sheet header on touch so the picker has context. */
+  label?: string;
   options: SelectOption[];
   value: string;
   placeholder?: string;
@@ -461,27 +464,59 @@ function CustomSelect({
               animation: 'sereno-fade-in var(--duration-fast) var(--ease-standard)',
             })}
           >
-            <ul
-              ref={panelRef}
-              id={listboxId}
-              role="listbox"
-              tabIndex={-1}
+            <div
               onClick={(e) => e.stopPropagation()}
               style={sx({
-                ...listStyleBase,
                 width: '100%',
-                maxHeight: '60dvh',
-                padding: 'var(--space-2)',
-                paddingBottom: 'calc(var(--space-2) + env(safe-area-inset-bottom))',
-                border: 'none',
+                maxHeight: '70dvh',
+                display: 'flex',
+                flexDirection: 'column',
+                background: 'var(--bg-surface)',
                 borderRadius: 'var(--radius-sheet) var(--radius-sheet) 0 0',
                 boxShadow: 'var(--shadow-sheet)',
-                overscrollBehavior: 'contain', // don't chain the list's scroll to the page
+                paddingBottom: 'env(safe-area-inset-bottom)',
                 animation: 'sereno-slide-up var(--duration-sheet) var(--ease-gentle)',
               })}
             >
-              {optionRows}
-            </ul>
+              <div
+                style={sx({
+                  flex: '0 0 auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 'var(--space-1)',
+                  padding: 'var(--space-2) var(--space-4) var(--space-3)',
+                  borderBottom: 'var(--border-width-hairline) solid var(--border-subtle)',
+                })}
+              >
+                <span aria-hidden style={sx({ width: 36, height: 4, borderRadius: '999px', background: 'var(--border-strong)' })} />
+                {label && (
+                  <span style={sx({ marginTop: 2, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)', textAlign: 'center' })}>
+                    {label}
+                  </span>
+                )}
+              </div>
+              <ul
+                ref={panelRef}
+                id={listboxId}
+                role="listbox"
+                aria-label={label}
+                tabIndex={-1}
+                style={sx({
+                  ...listStyleBase,
+                  flex: '1 1 auto',
+                  minHeight: 0,
+                  border: 'none',
+                  borderRadius: 0,
+                  boxShadow: 'none',
+                  background: 'transparent',
+                  padding: 'var(--space-2)',
+                  overscrollBehavior: 'contain', // don't chain the list's scroll to the page
+                })}
+              >
+                {optionRows}
+              </ul>
+            </div>
           </div>,
           document.body,
         )}
@@ -565,6 +600,7 @@ export function Select({
     <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle}>
       <CustomSelect
         rid={rid}
+        label={label}
         options={options}
         value={value}
         placeholder={placeholder}
