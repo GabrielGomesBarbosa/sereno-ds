@@ -135,7 +135,10 @@
    density, dividers, hover / focus / sticky / zebra live here, keyed off
    data-* on the <table> root. */
 .sereno-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); }
-.sereno-table caption { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+/* Visually-hidden <caption>. `top/left: 0` pins it to the (position: relative)
+   scroll region — without an anchor a position:absolute caption falls back to its
+   static offset against the viewport and stretches the page's scroll height. */
+.sereno-table caption { position: absolute; top: 0; left: 0; width: 1px; height: 1px; padding: 0; margin: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
 .sereno-table thead tr { background: var(--bg-subtle); }
 .sereno-table th {
   font-size: var(--text-2xs);
@@ -163,8 +166,9 @@
 .sereno-table th button:hover { color: var(--text-primary); }
 /* `min-width: 0` lets the region shrink below the table's `min-width` when it's a
    flex / grid item — without it the wide table forces its ancestors open and the
-   *page* scrolls sideways instead of this box. */
-.sereno-table-scroll { outline: none; min-width: 0; max-width: 100%; }
+   *page* scrolls sideways instead of this box. `position: relative` anchors the
+   visually-hidden <caption> here (see the caption rule above). */
+.sereno-table-scroll { outline: none; position: relative; min-width: 0; max-width: 100%; }
 .sereno-table-scroll:focus-visible,
 .sereno-table th button:focus-visible,
 .sereno-table tbody tr[data-interactive]:focus-visible {

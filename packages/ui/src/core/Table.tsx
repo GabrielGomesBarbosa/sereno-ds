@@ -85,6 +85,10 @@ function TableRoot({
         // stylesheet can't let the wide table blow the page out sideways.
         // `width:100%` + `minWidth:0` = size to the container, never the content;
         // `maxWidth:100%` caps it; `overflow:auto` scrolls the table inside here.
+        // `position:relative` keeps the visually-hidden `<caption>` (position:absolute)
+        // anchored HERE — without it the caption escapes to the viewport and its
+        // static offset stretches the page's scroll height (a phantom scrollbar).
+        position: 'relative',
         display: 'block',
         width: '100%',
         minWidth: 0,
