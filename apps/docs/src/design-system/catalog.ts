@@ -1694,6 +1694,7 @@ const steps = [
       R('size', "'sm' | 'md' | 'lg' | 'xl'", 'Max width of the centered modal (440 / 600 / 800 / 1000).', "'sm'"),
       R('dividers', 'boolean', 'Hairline rules between header / body / footer; the body scrolls on its own.', 'false'),
       R('showClose', 'boolean', 'Show a ✕ in the header (needs onClose). Defaults on for fullscreen.', 'false'),
+      R('dismissible', 'boolean', 'When false, a scrim click and Escape no longer close it — only the ✕, a footer action, or open={false}.', 'true'),
       R('width', 'number', 'Explicit pixel width — overrides size.'),
     ],
     code: `<Dialog
@@ -1765,6 +1766,14 @@ const steps = [
   {/* full-page form */}
 </Dialog>`,
       },
+      {
+        id: 'dismissible',
+        title: 'Require a choice',
+        description: '`dismissible={false}` drops the scrim-click and Escape shortcuts, so the user has to pick a footer action (or the ✕). Reserve it for a decision that really can’t be deferred — a stray click shouldn’t trap people.',
+        code: `<Dialog dismissible={false} open={open} title="Discard 3 unsaved changes?" onClose={close} footer={footer}>
+  {/* content */}
+</Dialog>`,
+      },
     ],
     guidelines: {
       do: [
@@ -1772,8 +1781,9 @@ const steps = [
         '`sheet` on mobile, `center` on desktop; `fullscreen` for long multi-step flows.',
         '`dividers` whenever the body can scroll.',
         'The destructive action on the right of the `footer`.',
+        '`dismissible={false}` only for a genuinely blocking choice — and always leave a visible way out (a ✕ or a footer button).',
       ],
-      dont: ['"Tem certeza?" as the title.', 'A `Dialog` for information that would fit in an in-page `Alert`.', 'A tall form with no `dividers` — the header scrolls away with it.'],
+      dont: ['"Tem certeza?" as the title.', 'A `Dialog` for information that would fit in an in-page `Alert`.', 'A tall form with no `dividers` — the header scrolls away with it.', '`dismissible={false}` as a default — most dialogs should let a scrim click out.'],
     },
   },
   {

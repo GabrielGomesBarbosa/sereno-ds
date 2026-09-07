@@ -26,6 +26,12 @@ export interface DialogProps extends React.HTMLAttributes<HTMLDivElement> {
   dividers?: boolean;
   /** Show an ✕ in the header. Defaults to `true` for `fullscreen`, `false` otherwise. Needs `onClose`. */
   showClose?: boolean;
+  /**
+   * When `false`, a scrim click and `Escape` no longer close the dialog — only
+   * the header ✕, a footer action, or `open={false}` do. Use it for a choice the
+   * user must make explicitly. Defaults to `true`.
+   */
+  dismissible?: boolean;
   /** Explicit pixel width — overrides `size`. */
   width?: number;
   children?: React.ReactNode;
@@ -44,6 +50,7 @@ export function Dialog({
   size = 'sm',
   dividers = false,
   showClose,
+  dismissible = true,
   width,
   style,
   ...rest
@@ -59,11 +66,13 @@ export function Dialog({
   // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target is client-only
   React.useEffect(() => setMounted(true), []);
 
-  // While open: lock page scroll and bind Escape to close. `onClose` is read
-  // through a ref so the lock effect only re-runs when `open` flips.
+  // While open: lock page scroll and bind Escape to close. `onClose` / `dismissible`
+  // are read through refs so the lock effect only re-runs when `open` flips.
   const onCloseRef = React.useRef(onClose);
+  const dismissibleRef = React.useRef(dismissible);
   React.useEffect(() => {
     onCloseRef.current = onClose;
+    dismissibleRef.current = dismissible;
   });
   React.useEffect(() => {
     if (!open) return;
@@ -72,7 +81,7 @@ export function Dialog({
     root.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCloseRef.current?.();
+      if (e.key === 'Escape' && dismissibleRef.current) onCloseRef.current?.();
     };
     document.addEventListener('keydown', onKey);
     return () => {
@@ -107,7 +116,7 @@ export function Dialog({
         backdropFilter: 'blur(2px)',
         padding: sheet || full ? 0 : 'var(--space-5)',
       })}
-      onClick={onClose}
+      onClick={dismissible ? onClose : undefined}
     >
       <div
         ref={panelRef}

@@ -94,6 +94,17 @@ describe('Dialog', () => {
     expect(screen.getByRole('button', { name: 'Fechar' })).toBeInTheDocument();
   });
 
+  it('dismissible={false} blocks the scrim click and Escape, but not the header ✕', () => {
+    const onClose = vi.fn();
+    render(<Dialog open dismissible={false} showClose title="Required" onClose={onClose} />);
+    const panel = screen.getByRole('dialog');
+    fireEvent.click(panel.parentElement as HTMLElement); // scrim
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' })); // the ✕
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('dividers keeps title, body and footer all rendered', () => {
     render(
       <Dialog open dividers title="Terms" footer={<button>OK</button>}>

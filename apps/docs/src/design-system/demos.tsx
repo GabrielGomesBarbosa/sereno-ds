@@ -1680,6 +1680,32 @@ function DialogFullscreen() {
   );
 }
 
+function DialogRequired() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <Button onClick={() => setOpen(true)}>Leave editor</Button>
+      <Dialog
+        open={open}
+        dismissible={false}
+        title="Discard 3 unsaved changes?"
+        description="A scrim click and Escape are off here — pick one. There is still a way out on the left."
+        onClose={() => setOpen(false)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Keep editing
+            </Button>
+            <Button variant="error" onClick={() => setOpen(false)}>
+              Discard
+            </Button>
+          </>
+        }
+      />
+    </div>
+  );
+}
+
 function SkeletonVariantes() {
   return (
     <div style={{ ...col, maxWidth: 460 }}>
@@ -1809,6 +1835,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     dividers: DialogDividers,
     form: DialogForm,
     fullscreen: DialogFullscreen,
+    dismissible: DialogRequired,
   },
   skeleton: { variants: SkeletonVariantes, lines: SkeletonLinhas },
   'empty-state': { basic: EmptyStateBasico, 'with-action': EmptyStateComAcao, compact: EmptyStateCompact },
