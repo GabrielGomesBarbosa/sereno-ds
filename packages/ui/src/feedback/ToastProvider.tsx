@@ -244,11 +244,11 @@ export function ToastProvider({ children, position = 'bottom-right', max = 3, du
     padding: 'var(--space-4)',
     pointerEvents: 'none',
     [edge]: 0,
-    ...(side === 'center'
-      ? { left: '50%', transform: 'translateX(-50%)', alignItems: 'center' }
-      : { [side]: 0, alignItems: side === 'right' ? 'flex-end' : 'flex-start' }),
+    // Every toast is full-width of the viewport, so the stack edges line up on
+    // any side; `alignItems` only matters if a toast were ever narrower.
+    alignItems: 'stretch',
+    ...(side === 'center' ? { left: '50%', transform: 'translateX(-50%)' } : { [side]: 0 }),
   });
-  const rowJustify = side === 'right' ? 'flex-end' : side === 'center' ? 'center' : 'flex-start';
 
   return (
     <ToastContext.Provider value={value}>
@@ -267,7 +267,7 @@ export function ToastProvider({ children, position = 'bottom-right', max = 3, du
                 onMouseLeave={() => resume(e.id)}
                 onFocusCapture={() => pause(e.id)}
                 onBlurCapture={() => resume(e.id)}
-                style={sx({ pointerEvents: 'auto', width: '100%', display: 'flex', justifyContent: rowJustify })}
+                style={sx({ pointerEvents: 'auto', width: '100%' })}
               >
                 <Toast
                   tone={e.tone}

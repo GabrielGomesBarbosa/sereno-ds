@@ -38,7 +38,9 @@ export function Toast({ tone = 'neutral', title, description, icon, action, onCl
         position: 'relative',
         display: 'flex',
         gap: 'var(--space-3)',
-        alignItems: 'flex-start',
+        // Single-line toasts read better vertically centred; with a description
+        // the row items align to the first line instead.
+        alignItems: description ? 'flex-start' : 'center',
         padding: 'var(--space-3) var(--space-4)',
         borderRadius: 'var(--radius-md)',
         background: 'var(' + bg + ')',
