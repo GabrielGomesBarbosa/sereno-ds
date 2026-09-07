@@ -74,7 +74,12 @@ function fieldBoxStyle(size: NonNullable<SelectProps['size']>, error: boolean, o
     gap: 'var(--space-2)',
     width: '100%',
     height: CONTROL_HEIGHT[size],
-    padding: '0 var(--space-3)',
+    // Longhand (not the `padding` shorthand) so callers can override one side
+    // — e.g. NativeSelect's right pad — without React leaving the others blank.
+    paddingTop: 0,
+    paddingRight: 'var(--space-3)',
+    paddingBottom: 0,
+    paddingLeft: 'var(--space-3)',
     borderRadius: 'var(--radius-control)',
     background: disabled ? 'var(--interactive-disabled-bg)' : 'var(--bg-surface)',
     border: 'var(--border-width-hairline) solid ' + (error ? 'var(--interactive-error)' : open ? 'var(--border-focus)' : 'var(--border-default)'),
@@ -123,7 +128,12 @@ function NativeSelect({
         onChange={(e) => onCommit(e.currentTarget.value)}
         style={sx({
           ...fieldBoxStyle(size, error, focus, !!disabled),
+          // `fieldBoxStyle` is button-shaped (flex row). A <select> renders its
+          // own text — keep it a plain block so browsers don't treat it as a
+          // flex container and shift the label around.
+          display: 'block',
           appearance: 'none',
+          WebkitAppearance: 'none',
           paddingRight: 'var(--space-8)',
         })}
       >
