@@ -1,6 +1,6 @@
 {
   "name": "sereno-ds",
-  "version": "0.1.0",
+  "version": "0.23.0",
   "private": true,
   "packageManager": "npm@10.8.2",
   "workspaces": [
@@ -11,7 +11,11 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
     "dev": "turbo run dev",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter=\"./packages/*\" && changeset publish",
     "gen:brand-images": "node scripts/generate-brand-images.mjs",
     "build:docs": "turbo run build --filter=docs",
     "build:demo": "turbo run build --filter=demo",
@@ -19,6 +23,7 @@
     "serve:demo": "serve apps/demo/out -l ${PORT:-3000} --no-clipboard --no-port-switching"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

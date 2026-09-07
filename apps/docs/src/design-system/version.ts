@@ -1,7 +1,11 @@
+import pkg from '@sereno/ui/package.json';
+
 /**
- * Sereno Design System version. Bump on every change and add a line to
- * src/design-system/CHANGELOG.md. Shown in the /design-system header.
+ * The one Sereno DS version — the published `@sereno/ui` / `@sereno/tokens`
+ * number (they move in lockstep). Shown in the `/design-system` header.
  *
- * pre-1.0: minor = feature/structure, patch = fix/tweak.
+ * Do NOT hand-edit a version anywhere: `npm run version-packages` (Changesets)
+ * bumps `packages/ui/package.json` and this reads it back. Editing only the
+ * showcase or the demo never changes this.
  */
-export const DS_VERSION = '0.23.0';
+export const DS_VERSION: string = pkg.version;

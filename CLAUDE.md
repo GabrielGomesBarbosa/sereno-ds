@@ -45,10 +45,14 @@ at a time**. Columns: `To Do` → `In Progress` → `In Review` → `To Test` �
    column is empty).
 2. **AI does the work** — one branch off `main`
    (`feat|fix|chore|docs|refactor/SS-<id>-<slug>`), one or more PRs. Only the
-   **parent** rides the columns; **subtasks are the parent's checklist** — the
-   AI moves each subtask straight to **`Done`** as its chunk lands in a PR, one
-   by one. `npm run lint && npm run build` (both proxy `turbo run …`) green
-   first. Never push or merge straight to `main`.
+   **parent** competes for the single `In Progress` slot; its **subtasks are
+   the checklist**. As the AI starts a subtask's chunk it moves **that
+   subtask** to `In Progress` (several subtasks of the one active parent may
+   sit in `In Progress` together — that's fine), and to **`Done`** when the
+   chunk lands. So at any moment the board shows which subtasks are finished,
+   which is being worked, and which remain. `npm run lint && npm run test &&
+   npm run build` (all proxy `turbo run …`) green first. Never push or merge
+   straight to `main`.
 3. **AI moves the parent to `In Review`** and does a real self code-review of
    every open PR for it — post findings as PR comments, don't rubber-stamp.
    - Found something worth fixing → move the parent back to **`In Progress`**
@@ -75,37 +79,35 @@ it touches.
 
 ## Versioning & releases
 
-**Two versions, decoupled — never conflate them:**
+**One version.** It lives in `packages/ui/package.json` + `packages/tokens/package.json`
+(lockstep — always equal, `fixed` in `.changeset/config.json`). That number is
+what publishes to npm **and** what the `/design-system` header shows
+(`apps/docs/src/design-system/version.ts` just re-reads `@sereno/ui/package.json`
+— never hand-edit a version anywhere). Like MUI: the version in the docs *is* the
+package version.
 
-- **Showcase version** — `apps/docs/src/design-system/version.ts` + a
-  `apps/docs/src/design-system/CHANGELOG.md` entry. It's the number in the
-  `/design-system` header. Bump it when a PR changes **`apps/docs`** (or
-  `apps/demo`) in a user-visible way. Pre-1.0 → `patch` = fix/tweak, `minor` =
-  feature / structure / breaking. It is **never published anywhere**. After the
-  merge: `git checkout main && git pull` then
-  `gh release create vX.Y.Z --title "vX.Y.Z" --notes "<the CHANGELOG section>"`.
-- **Library version** — `packages/ui` + `packages/tokens` `package.json`.
-  Independent. Changed **only when `packages/**` actually changes**, via
-  **Changesets** (SS-161): a PR touching those packages adds a `.changeset/*.md`;
-  a PR that doesn't touch `packages/**` bumps nothing and **triggers no npm
-  publish**. Until SS-161 lands, `packages/*` sit at `0.0.0` (first published
-  version is SS-160's `0.1.0-beta`) and get no changeset.
+- **Bump only via Changesets, only for a `packages/**` change.** A PR that
+  touches a component / token / the barrel runs `npm run changeset`: pick
+  `@sereno/ui` (tokens rides along), `patch` = fix/tweak, `minor` = feature /
+  structure / breaking (pre-1.0), one line for the consumer changelog. Commit
+  the generated `.changeset/*.md` with the PR.
+- **`apps/docs` (the showcase) and `apps/demo` never bump anything.** They are
+  `private` and in the Changesets `ignore` list — they can't be versioned or
+  published. A showcase-only or demo-only PR (or a pure repo-meta PR —
+  `CLAUDE.md`, `.github/`, `turbo.json`, …) carries **no changeset, no bump, no
+  release**.
+- **Cutting a release:** `npm run version-packages` (consumes the changesets:
+  bumps both `package.json`s, writes `packages/ui/CHANGELOG.md`) → merge that →
+  `npm run release` (`changeset publish` to npm — needs `NPM_TOKEN`). Then a
+  GitHub release on the `@sereno/ui@X.Y.Z` tag, notes = the new
+  `packages/ui/CHANGELOG.md` section.
+- `apps/docs/src/design-system/CHANGELOG.md` stays as the hand-written narrative
+  ("what shipped, in prose"); `packages/ui/CHANGELOG.md` is the Changesets
+  machine log. Keep the narrative one in sync when you add a changeset.
 
-So: a demo/showcase-only PR bumps `version.ts` and stops; a `packages/**` PR is
-what reaches npm. **PRs that touch neither `apps/docs` nor `apps/demo`** — pure
-repo-meta (`CLAUDE.md`, `.gitignore`, `.github/`, `eslint.config`,
-`turbo.json`, `tsconfig.base.json`) and `packages/**`-only PRs — get **no
-`version.ts` bump and no `gh release`**.
-
-**Tag namespaces — two independent release streams, never conflated:**
-
-- `vX.Y.Z` → the **showcase**. Manual `gh release`; notes = the
-  `apps/docs/src/design-system/CHANGELOG.md` section.
-- `@sereno/ui@X.Y.Z` / `@sereno/tokens@X.Y.Z` → the **published packages**.
-  Created by Changesets (SS-161), not by hand; notes = that package's own
-  `CHANGELOG.md`. The git tag always equals the npm version. It does **not**
-  have to line up with the current `vX.Y.Z` — the first package release is
-  `@sereno/ui@0.1.0-beta.0` regardless of where the showcase sits.
+**Tags:** one stream — `@sereno/ui@X.Y.Z` (`@sereno/tokens@X.Y.Z` in lockstep),
+created by Changesets. The old `vX.Y.Z` showcase-tag stream (v0.19–v0.23) is
+retired history; the showcase has no version of its own now.
 
 ## Deploy
 
