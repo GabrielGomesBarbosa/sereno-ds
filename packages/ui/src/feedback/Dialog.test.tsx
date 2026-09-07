@@ -66,4 +66,42 @@ describe('Dialog', () => {
     render(<Dialog open variant="sheet" title="Filters" />);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
+
+  it('caps the panel at the requested size', () => {
+    render(<Dialog open size="lg" title="Report" />);
+    expect(screen.getByRole('dialog').getAttribute('style')).toContain('800px');
+  });
+
+  it('an explicit width overrides size', () => {
+    render(<Dialog open size="lg" width={512} title="Report" />);
+    const style = screen.getByRole('dialog').getAttribute('style') ?? '';
+    expect(style).toContain('512px');
+    expect(style).not.toContain('800px');
+  });
+
+  it('fullscreen fills the viewport and shows the ✕ by default', () => {
+    const onClose = vi.fn();
+    render(<Dialog open variant="fullscreen" title="Edit" onClose={onClose} />);
+    expect(screen.getByRole('dialog').getAttribute('style')).toContain('height: 100%');
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('showClose adds a header ✕ to the center variant; absent without it', () => {
+    const { rerender } = render(<Dialog open title="Hi" onClose={() => {}} />);
+    expect(screen.queryByRole('button', { name: 'Fechar' })).toBeNull();
+    rerender(<Dialog open showClose title="Hi" onClose={() => {}} />);
+    expect(screen.getByRole('button', { name: 'Fechar' })).toBeInTheDocument();
+  });
+
+  it('dividers keeps title, body and footer all rendered', () => {
+    render(
+      <Dialog open dividers title="Terms" footer={<button>OK</button>}>
+        <p>Body copy.</p>
+      </Dialog>,
+    );
+    expect(screen.getByRole('heading', { name: 'Terms' })).toBeInTheDocument();
+    expect(screen.getByText('Body copy.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'OK' })).toBeInTheDocument();
+  });
 });

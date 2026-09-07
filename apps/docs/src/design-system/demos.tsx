@@ -1521,6 +1521,167 @@ function DialogSheet() {
   );
 }
 
+const DIALOG_SIZES = ['sm', 'md', 'lg', 'xl'] as const;
+function DialogSizes() {
+  const [size, setSize] = React.useState<(typeof DIALOG_SIZES)[number] | null>(null);
+  return (
+    <div style={row}>
+      {DIALOG_SIZES.map((s) => (
+        <Button key={s} variant="secondary" onClick={() => setSize(s)}>
+          {s}
+        </Button>
+      ))}
+      <Dialog
+        open={size !== null}
+        size={size ?? 'sm'}
+        title={`size="${size ?? 'sm'}"`}
+        description="The centered modal caps at a fixed max-width per size and still shrinks to fit narrow screens."
+        onClose={() => setSize(null)}
+        footer={
+          <Button variant="secondary" onClick={() => setSize(null)}>
+            Close
+          </Button>
+        }
+      />
+    </div>
+  );
+}
+
+function DialogDividers() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <Button onClick={() => setOpen(true)}>Open dialog</Button>
+      <Dialog
+        open={open}
+        dividers
+        showClose
+        size="md"
+        title="Terms of service"
+        onClose={() => setOpen(false)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Decline
+            </Button>
+            <Button onClick={() => setOpen(false)}>Accept</Button>
+          </>
+        }
+      >
+        <div style={{ ...col, color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', lineHeight: 1.6 }}>
+          {Array.from({ length: 8 }, (_, i) => (
+            <p key={i} style={{ margin: 0 }}>
+              {i + 1}. Cras mattis consectetur purus sit amet fermentum. Morbi leo risus, porta ac
+              consectetur ac, vestibulum at eros. Praesent commodo cursus magna, vel scelerisque nisl
+              consectetur et.
+            </p>
+          ))}
+        </div>
+      </Dialog>
+    </div>
+  );
+}
+
+function DialogForm() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <Button onClick={() => setOpen(true)}>New booking</Button>
+      <Dialog
+        open={open}
+        dividers
+        showClose
+        size="md"
+        title="New booking"
+        description="A Select inside the Dialog: its menu is portalled, so it is never clipped by the scroll area."
+        onClose={() => setOpen(false)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => setOpen(false)}>Create</Button>
+          </>
+        }
+      >
+        <div style={col}>
+          <Input label="Client" placeholder="Full name" />
+          <Select
+            label="Service"
+            placeholder="Pick one"
+            options={[
+              { value: 'assessment', label: 'First assessment (60 min)' },
+              { value: 'session', label: 'Therapy session (50 min)' },
+              { value: 'followup', label: 'Follow-up (30 min)' },
+              { value: 'group', label: 'Group session (90 min)' },
+            ]}
+          />
+          <Select
+            label="Professional"
+            placeholder="Pick one"
+            options={[
+              { value: 'ana', label: 'Ana Beatriz Ramos' },
+              { value: 'carla', label: 'Carla Nogueira' },
+              { value: 'diego', label: 'Diego Martins' },
+              { value: 'elisa', label: 'Elisa Fontanella' },
+              { value: 'bruno', label: 'Bruno Katsumata' },
+              { value: 'helena', label: 'Helena Prado' },
+              { value: 'igor', label: 'Igor Salvatori' },
+              { value: 'julia', label: 'Júlia Menezes' },
+              { value: 'lucas', label: 'Lucas Andrade' },
+              { value: 'marina', label: 'Marina Okafor' },
+              { value: 'nina', label: 'Nina Vasconcelos' },
+              { value: 'otavio', label: 'Otávio Ribeiro' },
+              { value: 'paula', label: 'Paula Sciarra' },
+              { value: 'rafael', label: 'Rafael Bittencourt' },
+            ]}
+          />
+          <Checkbox label="Notify the client on WhatsApp" defaultChecked />
+        </div>
+      </Dialog>
+    </div>
+  );
+}
+
+function DialogFullscreen() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <Button onClick={() => setOpen(true)}>Open full screen</Button>
+      <Dialog
+        open={open}
+        variant="fullscreen"
+        dividers
+        title="Edit availability"
+        description="Fills the viewport — for immersive, multi-section flows on any screen size."
+        onClose={() => setOpen(false)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Discard
+            </Button>
+            <Button onClick={() => setOpen(false)}>Save changes</Button>
+          </>
+        }
+      >
+        <div style={{ ...col, maxWidth: 560 }}>
+          <Input label="Working hours" placeholder="09:00 – 18:00" />
+          <Select
+            label="Days off"
+            placeholder="Pick days"
+            options={[
+              { value: 'sat', label: 'Saturday' },
+              { value: 'sun', label: 'Sunday' },
+              { value: 'mon', label: 'Monday' },
+            ]}
+          />
+          <Input label="Notes" placeholder="Visible to clients" />
+        </div>
+      </Dialog>
+    </div>
+  );
+}
+
 function SkeletonVariantes() {
   return (
     <div style={{ ...col, maxWidth: 460 }}>
@@ -1643,7 +1804,14 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   stepper: { bar: StepperBar, dots: StepperDots, clickable: StepperClicavel },
   alert: { tones: AlertTons, 'with-action': AlertComAcao, dismissible: AlertDispensavel },
   toast: { tones: ToastTons, 'with-action': ToastComAcao },
-  dialog: { center: DialogCenter, sheet: DialogSheet },
+  dialog: {
+    center: DialogCenter,
+    sheet: DialogSheet,
+    sizes: DialogSizes,
+    dividers: DialogDividers,
+    form: DialogForm,
+    fullscreen: DialogFullscreen,
+  },
   skeleton: { variants: SkeletonVariantes, lines: SkeletonLinhas },
   'empty-state': { basic: EmptyStateBasico, 'with-action': EmptyStateComAcao, compact: EmptyStateCompact },
 };

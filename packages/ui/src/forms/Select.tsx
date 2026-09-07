@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
@@ -182,12 +183,13 @@ function CustomSelect({
 
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState(-1);
-  // The panel opens below the trigger; flip above only when there isn't room.
-  // Decided once per open with a single layout read — after that the panel is a
-  // plain absolutely-positioned child, so the browser keeps it glued to the
-  // field through any scroll with zero JS (this is why MUI's disablePortal
-  // popper stays perfectly smooth).
-  const [placeAbove, setPlaceAbove] = React.useState(false);
+  // The listbox is portalled to <body> so it can't be clipped by a scroll
+  // container (a Dialog, a Card, an overflow:auto panel). Position is read from
+  // the trigger's rect and kept glued on scroll/resize via rAF.
+  const [pos, setPos] = React.useState<{ left: number; top: number; width: number; maxH: number; above: boolean } | null>(null);
+  const [mounted, setMounted] = React.useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target is client-only
+  React.useEffect(() => setMounted(true), []);
 
   const selectedIndex = options.findIndex((o) => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
@@ -207,38 +209,40 @@ function CustomSelect({
     return from;
   };
 
-  // Drop down by default; flip up only when there isn't room. Re-checked on
-  // scroll/resize — but this only ever *toggles a direction*, it never
-  // repositions per frame (that's what made the panel jitter). Between the rare
-  // flips the panel is plain `position: absolute` and rides along for free.
-  // Scrolling the field off-screen doesn't close the menu (matches MUI) — the
-  // panel just scrolls away with it and comes back on scroll-back.
+  // Position the portalled listbox from the trigger's rect. Drops down by
+  // default; flips above only when there isn't room. Kept glued on scroll/resize
+  // (rAF-throttled). Scrolling the field off-screen doesn't close it (matches
+  // MUI) — it just tracks along and comes back.
+  const place = React.useCallback(() => {
+    const t = triggerRef.current;
+    if (!t) return;
+    const r = t.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    const gap = 6;
+    const spaceBelow = vh - r.bottom - 8;
+    const spaceAbove = r.top - 8;
+    const above = spaceBelow < Math.min(288, 200) && spaceAbove > spaceBelow;
+    const maxH = Math.max(120, Math.min(288, (above ? spaceAbove : spaceBelow) - gap));
+    setPos({ left: r.left, width: r.width, top: above ? r.top - gap : r.bottom + gap, above, maxH });
+  }, []);
+
   useIsoLayoutEffect(() => {
     if (!open) return;
-    const t = triggerRef.current;
-    const p = panelRef.current;
-    if (!t || !p) return;
-    const panelH = p.offsetHeight || 240;
-    const evaluate = () => {
-      const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-      if (!vh) return;
-      const r = t.getBoundingClientRect();
-      const spaceBelow = vh - r.bottom;
-      const wantAbove = spaceBelow < panelH + 16 && r.top - 16 > spaceBelow;
-      setPlaceAbove((prev) => (prev === wantAbove ? prev : wantAbove));
-    };
-    evaluate();
+    place();
+    let raf = 0;
     const onScroll = (e: Event) => {
-      if (p.contains(e.target as Node)) return; // the list's own scroll
-      evaluate();
+      if (panelRef.current?.contains(e.target as Node)) return; // the list's own scroll
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(place);
     };
     window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', evaluate);
+    window.addEventListener('resize', place);
     return () => {
+      cancelAnimationFrame(raf);
       window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', evaluate);
+      window.removeEventListener('resize', place);
     };
-  }, [open]);
+  }, [open, place]);
 
   // Close on outside pointerdown.
   React.useEffect(() => {
@@ -350,7 +354,14 @@ function CustomSelect({
           e.preventDefault();
           triggerRef.current?.focus({ preventScroll: true });
         }}
-        onClick={() => (open ? closeMenu(false) : openMenu())}
+        onClick={(e) => {
+          // Ignore clicks the <label> forwards here (detail === 0) — clicking the
+          // field label shouldn't open the menu, only clicking the box should.
+          // Keyboard activation is handled in onKeyDown.
+          if (e.detail === 0) return;
+          if (open) closeMenu(false);
+          else openMenu();
+        }}
         onKeyDown={onKeyDown}
         style={fieldBoxStyle(size, error, open, !!disabled)}
       >
@@ -380,19 +391,20 @@ function CustomSelect({
         </span>
       </button>
 
-      {open && (
+      {open && mounted && pos &&
+        createPortal(
             <ul
               ref={panelRef}
               id={listboxId}
               role="listbox"
               tabIndex={-1}
               style={sx({
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                ...(placeAbove ? { bottom: 'calc(100% + 6px)' } : { top: 'calc(100% + 6px)' }),
+                position: 'fixed',
+                left: pos.left,
+                width: pos.width,
+                ...(pos.above ? { bottom: (typeof window !== 'undefined' ? window.innerHeight : 0) - pos.top } : { top: pos.top }),
                 minWidth: 160,
-                maxHeight: 288,
+                maxHeight: pos.maxH,
                 overflowY: 'auto',
                 margin: 0,
                 padding: 'var(--space-1)',
@@ -401,7 +413,7 @@ function CustomSelect({
                 border: 'var(--border-width-hairline) solid var(--border-default)',
                 borderRadius: 'var(--radius-md)',
                 boxShadow: 'var(--shadow-lg)',
-                zIndex: 100,
+                zIndex: 1100,
                 fontFamily: 'var(--font-body)',
                 fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)',
               })}
@@ -440,8 +452,9 @@ function CustomSelect({
                   </li>
                 );
               })}
-            </ul>
-      )}
+            </ul>,
+          document.body,
+        )}
     </div>
   );
 }

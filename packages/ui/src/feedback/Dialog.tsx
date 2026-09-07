@@ -2,13 +2,14 @@
 
 import * as React from 'react';
 import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
 import { sx } from '../_internal/style';
 
 /**
- * Modal (desktop) or bottom sheet (mobile). Portalled to `<body>` and fixed to
- * the viewport, so no ancestor's `overflow`/`transform`/positioning can trap it.
- * While open it locks page scroll and closes on `Escape`. Host needs the
- * `sereno-pop` / `sereno-slide-up` keyframes (see globals.css).
+ * Modal (desktop), bottom sheet (mobile) or full-screen. Portalled to `<body>`
+ * and fixed to the viewport, so no ancestor's `overflow`/`transform`/positioning
+ * can trap it. While open it locks page scroll and closes on `Escape`. Host needs
+ * the `sereno-pop` / `sereno-slide-up` keyframes (see globals.css).
  */
 export interface DialogProps extends React.HTMLAttributes<HTMLDivElement> {
   open?: boolean;
@@ -17,14 +18,41 @@ export interface DialogProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Action buttons, right-aligned. */
   footer?: React.ReactNode;
   onClose?: () => void;
-  /** `sheet` slides up from the bottom — the mobile default. */
-  variant?: 'center' | 'sheet';
+  /** `sheet` slides up from the bottom (mobile default); `fullscreen` fills the viewport. */
+  variant?: 'center' | 'sheet' | 'fullscreen';
+  /** Max width of the centered modal. Ignored for `sheet` / `fullscreen`. */
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  /** Hairline rules between header / body / footer, MUI-style. The body scrolls on its own. */
+  dividers?: boolean;
+  /** Show an ✕ in the header. Defaults to `true` for `fullscreen`, `false` otherwise. Needs `onClose`. */
+  showClose?: boolean;
+  /** Explicit pixel width — overrides `size`. */
   width?: number;
   children?: React.ReactNode;
 }
 
-export function Dialog({ open = true, title, description, children, footer, onClose, variant = 'center', width = 440, style, ...rest }: DialogProps) {
+const SIZE_W = { sm: 440, md: 600, lg: 800, xl: 1000 } as const;
+
+export function Dialog({
+  open = true,
+  title,
+  description,
+  children,
+  footer,
+  onClose,
+  variant = 'center',
+  size = 'sm',
+  dividers = false,
+  showClose,
+  width,
+  style,
+  ...rest
+}: DialogProps) {
   const sheet = variant === 'sheet';
+  const full = variant === 'fullscreen';
+  const showX = (showClose ?? full) && !!onClose;
+  const rid = React.useId();
+  const titleId = title ? `${rid}-title` : undefined;
 
   // Portal target is client-only.
   const [mounted, setMounted] = React.useState(false);
@@ -62,6 +90,10 @@ export function Dialog({ open = true, title, description, children, footer, onCl
 
   if (!open || !mounted) return null;
 
+  const pad = 'var(--space-5)';
+  const hairline = 'var(--border-width-hairline) solid var(--border-default)';
+  const hasHeader = !!(title || description || showX);
+
   return createPortal(
     <div
       style={sx({
@@ -73,7 +105,7 @@ export function Dialog({ open = true, title, description, children, footer, onCl
         justifyContent: 'center',
         background: 'var(--bg-overlay)',
         backdropFilter: 'blur(2px)',
-        padding: sheet ? 0 : 'var(--space-5)',
+        padding: sheet || full ? 0 : 'var(--space-5)',
       })}
       onClick={onClose}
     >
@@ -81,61 +113,132 @@ export function Dialog({ open = true, title, description, children, footer, onCl
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby={titleId}
+        aria-label={titleId ? undefined : title}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         {...rest}
         style={sx({
-          width: sheet ? '100%' : 'min(100%,' + width + 'px)',
-          maxHeight: sheet ? '90dvh' : 'calc(100dvh - var(--space-6))',
-          overflowY: 'auto',
-          outline: 'none',
-          background: 'var(--bg-surface)',
-          borderRadius: sheet ? 'var(--radius-sheet) var(--radius-sheet) 0 0' : 'var(--radius-lg)',
-          border: 'var(--border-width-hairline) solid var(--border-default)',
-          boxShadow: sheet ? 'var(--shadow-sheet)' : 'var(--shadow-lg)',
-          padding: 'var(--space-5)',
+          width: full || sheet ? '100%' : 'min(100%,' + (width ?? SIZE_W[size]) + 'px)',
+          height: full ? '100%' : undefined,
+          maxHeight: full ? undefined : sheet ? '90dvh' : 'calc(100dvh - var(--space-6))',
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--space-4)',
+          overflow: 'hidden',
+          outline: 'none',
+          background: 'var(--bg-surface)',
+          borderRadius: full ? 0 : sheet ? 'var(--radius-sheet) var(--radius-sheet) 0 0' : 'var(--radius-lg)',
+          border: full ? 'none' : hairline,
+          boxShadow: full ? 'none' : sheet ? 'var(--shadow-sheet)' : 'var(--shadow-lg)',
           animation: sheet ? 'sereno-slide-up var(--duration-sheet) var(--ease-gentle)' : 'sereno-pop var(--duration-normal) var(--ease-out)',
           ...style,
         })}
       >
-        {sheet && <span style={sx({ width: 36, height: 4, borderRadius: '999px', background: 'var(--border-strong)', alignSelf: 'center', marginTop: -6 })} />}
-        {(title || description) && (
-          <div style={sx({ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' })}>
-            {title && (
-              <h3
+        {sheet && (
+          <span
+            aria-hidden
+            style={sx({ width: 36, height: 4, borderRadius: '999px', background: 'var(--border-strong)', alignSelf: 'center', marginTop: 'var(--space-2)', flex: '0 0 auto' })}
+          />
+        )}
+
+        {hasHeader && (
+          <div
+            style={sx({
+              flex: '0 0 auto',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 'var(--space-3)',
+              padding: dividers ? pad : `${pad} ${pad} var(--space-3)`,
+              borderBottom: dividers ? hairline : undefined,
+            })}
+          >
+            <div style={sx({ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' })}>
+              {title && (
+                <h3
+                  id={titleId}
+                  style={sx({
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'var(--text-xl)',
+                    fontWeight: 'var(--weight-bold)',
+                    letterSpacing: 'var(--tracking-tight)',
+                    color: 'var(--text-primary)',
+                    margin: 0,
+                  })}
+                >
+                  {title}
+                </h3>
+              )}
+              {description && (
+                <p
+                  style={sx({
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-base)',
+                    lineHeight: 'var(--leading-normal)',
+                    color: 'var(--text-secondary)',
+                    margin: 0,
+                  })}
+                >
+                  {description}
+                </p>
+              )}
+            </div>
+            {showX && (
+              <button
+                type="button"
+                className="sereno-dialog-close"
+                aria-label="Fechar"
+                onClick={onClose}
                 style={sx({
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-xl)',
-                  fontWeight: 'var(--weight-bold)',
-                  letterSpacing: 'var(--tracking-tight)',
-                  color: 'var(--text-primary)',
-                  margin: 0,
+                  flex: '0 0 auto',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 32,
+                  height: 32,
+                  margin: '-4px -4px 0 0',
+                  border: 'none',
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'transparent',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
                 })}
               >
-                {title}
-              </h3>
-            )}
-            {description && (
-              <p
-                style={sx({
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-base)',
-                  lineHeight: 'var(--leading-normal)',
-                  color: 'var(--text-secondary)',
-                  margin: 0,
-                })}
-              >
-                {description}
-              </p>
+                <X size={18} strokeWidth={1.75} />
+              </button>
             )}
           </div>
         )}
-        {children}
-        {footer && <div style={sx({ display: 'flex', gap: 'var(--space-3)', justifyContent: 'flex-end', flexWrap: 'wrap' })}>{footer}</div>}
+
+        <div
+          style={sx({
+            flex: full ? '1 1 auto' : '0 1 auto',
+            minHeight: 0,
+            overflowY: 'auto',
+            padding: dividers
+              ? pad
+              : hasHeader
+                ? `0 ${pad} ${footer ? 'var(--space-3)' : pad}`
+                : pad,
+          })}
+        >
+          {children}
+        </div>
+
+        {footer && (
+          <div
+            style={sx({
+              flex: '0 0 auto',
+              display: 'flex',
+              gap: 'var(--space-3)',
+              justifyContent: 'flex-end',
+              flexWrap: 'wrap',
+              padding: dividers ? pad : `0 ${pad} ${pad}`,
+              borderTop: dividers ? hairline : undefined,
+            })}
+          >
+            {footer}
+          </div>
+        )}
       </div>
     </div>,
     document.body,

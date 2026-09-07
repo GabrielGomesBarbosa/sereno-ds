@@ -1684,14 +1684,17 @@ const steps = [
     name: 'Dialog',
     category: 'feedback',
     summary:
-      'Modal (desktop) or bottom sheet (mobile). Portalled to `<body>` and fixed to the viewport; while open it locks page scroll and closes on Escape. Needs the sereno-pop / sereno-slide-up keyframes on the host.',
+      'Modal (desktop), bottom sheet (mobile) or full-screen. Portalled to `<body>` and fixed to the viewport; while open it locks page scroll and closes on Escape. Needs the sereno-pop / sereno-slide-up keyframes on the host.',
     props: [
       R('open', 'boolean', 'Controls visibility.', 'true'),
       R('title / description', 'string', 'Dialog header.'),
       R('footer', 'React.ReactNode', 'Action buttons, right-aligned.'),
-      R('onClose', '() => void', 'Called on scrim click and on Escape.'),
-      R('variant', "'center' | 'sheet'", 'sheet slides up from the bottom — the mobile default.', "'center'"),
-      R('width', 'number', 'Width of the center modal.', '440'),
+      R('onClose', '() => void', 'Called on scrim click, on Escape, and by the header ✕.'),
+      R('variant', "'center' | 'sheet' | 'fullscreen'", 'sheet slides up from the bottom (mobile default); fullscreen fills the viewport.', "'center'"),
+      R('size', "'sm' | 'md' | 'lg' | 'xl'", 'Max width of the centered modal (440 / 600 / 800 / 1000).', "'sm'"),
+      R('dividers', 'boolean', 'Hairline rules between header / body / footer; the body scrolls on its own.', 'false'),
+      R('showClose', 'boolean', 'Show a ✕ in the header (needs onClose). Defaults on for fullscreen.', 'false'),
+      R('width', 'number', 'Explicit pixel width — overrides size.'),
     ],
     code: `<Dialog
   open={open}
@@ -1729,10 +1732,48 @@ const steps = [
   {/* content */}
 </Dialog>`,
       },
+      {
+        id: 'sizes',
+        title: 'Sizes',
+        description: '`size` caps the centered modal at a fixed max-width — `sm` (440), `md` (600), `lg` (800), `xl` (1000). It still shrinks to fit narrow screens. `width` takes an explicit pixel value instead.',
+        code: `<Dialog size="lg" open={open} title="Report" onClose={close} footer={footer}>
+  {/* wide content */}
+</Dialog>`,
+      },
+      {
+        id: 'dividers',
+        title: 'Dividers',
+        description: 'Set `dividers` for a hairline rule under the header and above the footer; the body then scrolls between them so the title and actions stay put. Pair with `showClose` for a header ✕.',
+        code: `<Dialog dividers showClose open={open} title="Terms of service" onClose={close} footer={footer}>
+  {/* long, scrolling content */}
+</Dialog>`,
+      },
+      {
+        id: 'form',
+        title: 'Form inside',
+        description: 'A `Select` inside a `Dialog` keeps working — its menu is portalled to `<body>`, so `dividers`’ scroll area never clips it.',
+        code: `<Dialog dividers showClose size="md" open={open} title="New booking" onClose={close} footer={footer}>
+  <Input label="Client" />
+  <Select label="Service" options={services} />
+</Dialog>`,
+      },
+      {
+        id: 'fullscreen',
+        title: 'Full screen',
+        description: '`variant="fullscreen"` fills the viewport (no radius, no scrim gap) — for immersive multi-section flows. The header ✕ is on by default here.',
+        code: `<Dialog variant="fullscreen" dividers open={open} title="Edit availability" onClose={close} footer={footer}>
+  {/* full-page form */}
+</Dialog>`,
+      },
     ],
     guidelines: {
-      do: ['A title that names the consequence in destructive actions.', '`sheet` on mobile, `center` on desktop.', 'The destructive action on the right of the `footer`.'],
-      dont: ['"Tem certeza?" as the title.', 'A `Dialog` for information that would fit in an in-page `Alert`.'],
+      do: [
+        'A title that names the consequence in destructive actions.',
+        '`sheet` on mobile, `center` on desktop; `fullscreen` for long multi-step flows.',
+        '`dividers` whenever the body can scroll.',
+        'The destructive action on the right of the `footer`.',
+      ],
+      dont: ['"Tem certeza?" as the title.', 'A `Dialog` for information that would fit in an in-page `Alert`.', 'A tall form with no `dividers` — the header scrolls away with it.'],
     },
   },
   {
