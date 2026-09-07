@@ -6,7 +6,8 @@ import { sx } from '../_internal/style';
 /** Sticky page header: back/leading slot, title + subtitle, trailing actions. 60px tall, blurred translucent. */
 export interface TopBarProps extends React.HTMLAttributes<HTMLElement> {
   title?: string;
-  subtitle?: string;
+  /** Plain string in most cases; accepts nodes for e.g. a `<time>` element or a responsive date. */
+  subtitle?: React.ReactNode;
   /** Usually a back IconButton or the wordmark. */
   leading?: React.ReactNode;
   actions?: React.ReactNode;
@@ -52,7 +53,20 @@ export function TopBar({ title, subtitle, leading, actions, sticky = true, trans
             {title}
           </span>
         )}
-        {subtitle && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' })}>{subtitle}</span>}
+        {subtitle && (
+          <span
+            style={sx({
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-xs)',
+              color: 'var(--text-muted)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            })}
+          >
+            {subtitle}
+          </span>
+        )}
       </div>
       {actions && <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' })}>{actions}</div>}
     </header>
