@@ -77,7 +77,9 @@ function TableRoot({
   return (
     <div
       className="sereno-table-scroll"
-      role="region"
+      // Only a *named* region is a useful landmark; without a caption it's just a
+      // focusable scroll box.
+      role={(regionLabel ?? caption) ? 'region' : undefined}
       aria-label={regionLabel ?? caption}
       tabIndex={0}
       style={sx({
@@ -163,6 +165,7 @@ const srOnlyStyle: React.CSSProperties = {
   height: 1,
   overflow: 'hidden',
   clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
   whiteSpace: 'nowrap',
 };
 
