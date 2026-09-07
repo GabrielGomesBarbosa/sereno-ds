@@ -82,4 +82,18 @@ describe('Select (custom listbox)', () => {
     fireEvent.keyDown(trigger, { key: 'ArrowDown' });
     expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
+
+  it('opens without error nested in an overflow container, and caps its height', () => {
+    render(
+      <div style={{ height: 140, overflowY: 'auto' }}>
+        <div style={{ height: 400 }} />
+        <Select label="Fruit" options={OPTS} />
+      </div>,
+    );
+    boxClick(screen.getByRole('combobox'));
+    const listbox = screen.getByRole('listbox');
+    expect(listbox).toBeInTheDocument();
+    // clip-aware placement resolves maxHeight to a concrete px value.
+    expect(listbox.style.maxHeight).toMatch(/^\d+px$/);
+  });
 });

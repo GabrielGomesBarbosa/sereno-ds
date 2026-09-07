@@ -186,12 +186,15 @@ function CustomSelect({
 
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState(-1);
-  // The panel opens below the trigger; flip above only when there isn't room.
-  // Decided once per open with a single layout read — after that the panel is a
-  // plain absolutely-positioned child, so the browser keeps it glued to the
-  // field through any scroll with zero JS (this is why MUI's disablePortal
-  // popper stays perfectly smooth).
-  const [placeAbove, setPlaceAbove] = React.useState(false);
+  // The panel is a plain absolutely-positioned child, so the browser keeps it
+  // glued to the field through any scroll with zero JS (this is why MUI's
+  // disablePortal popper stays perfectly smooth). `place` is decided against the
+  // nearest scroll-clipping ancestor (a Dialog body, a Card…), not just the
+  // viewport, so the menu isn't cut off inside one: `above` picks the roomier
+  // side and `maxH` caps the list to the room there. Both are frozen for the
+  // lifetime of an open menu except that scroll may re-toggle `above` — resizing
+  // per frame is what makes a popover jitter.
+  const [place, setPlace] = React.useState<{ above: boolean; maxH: number }>({ above: false, maxH: 288 });
 
   const selectedIndex = options.findIndex((o) => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
@@ -211,36 +214,58 @@ function CustomSelect({
     return from;
   };
 
-  // Drop down by default; flip up only when there isn't room. Re-checked on
-  // scroll/resize — but this only ever *toggles a direction*, it never
-  // repositions per frame (that's what made the panel jitter). Between the rare
-  // flips the panel is plain `position: absolute` and rides along for free.
-  // Scrolling the field off-screen doesn't close the menu (matches MUI) — the
-  // panel just scrolls away with it and comes back on scroll-back.
   useIsoLayoutEffect(() => {
     if (!open) return;
     const t = triggerRef.current;
     const p = panelRef.current;
     if (!t || !p) return;
-    const panelH = p.offsetHeight || 240;
-    const evaluate = () => {
+
+    // Vertical bounds = the viewport, tightened by every scroll-clipping ancestor.
+    const clipBounds = () => {
       const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-      if (!vh) return;
-      const r = t.getBoundingClientRect();
-      const spaceBelow = vh - r.bottom;
-      const wantAbove = spaceBelow < panelH + 16 && r.top - 16 > spaceBelow;
-      setPlaceAbove((prev) => (prev === wantAbove ? prev : wantAbove));
+      let top = 8;
+      let bottom = vh - 8;
+      for (let el = t.parentElement; el && el !== document.body; el = el.parentElement) {
+        const oy = getComputedStyle(el).overflowY;
+        if (oy === 'auto' || oy === 'scroll' || oy === 'hidden') {
+          const cr = el.getBoundingClientRect();
+          top = Math.max(top, cr.top + 8);
+          bottom = Math.min(bottom, cr.bottom - 8);
+        }
+      }
+      return { top, bottom };
     };
-    evaluate();
+    const wantsAbove = (needsH: number) => {
+      const r = t.getBoundingClientRect();
+      const { top, bottom } = clipBounds();
+      const below = bottom - r.bottom - 6;
+      const above = r.top - top - 6;
+      return below < Math.min(needsH, 160) && above > below;
+    };
+
+    // Full placement: side + max-height, once on open and on resize.
+    const measure = () => {
+      const r = t.getBoundingClientRect();
+      const { top, bottom } = clipBounds();
+      const naturalH = p.scrollHeight || p.offsetHeight || 240;
+      const above = wantsAbove(naturalH);
+      const room = above ? r.top - top - 6 : bottom - r.bottom - 6;
+      const maxH = Math.max(96, Math.min(288, Math.round(room)));
+      setPlace((prev) => (prev.above === above && Math.abs(prev.maxH - maxH) < 4 ? prev : { above, maxH }));
+    };
+    measure();
+
+    // Scroll only re-toggles the side (never resizes — that would jitter).
     const onScroll = (e: Event) => {
       if (e.target instanceof Node && p.contains(e.target)) return; // the list's own scroll
-      evaluate();
+      const above = wantsAbove(p.scrollHeight || 240);
+      setPlace((prev) => (prev.above === above ? prev : { ...prev, above }));
     };
     window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', evaluate);
+    window.addEventListener('resize', measure);
     return () => {
       window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', evaluate);
+      window.removeEventListener('resize', measure);
     };
   }, [open]);
 
@@ -405,9 +430,9 @@ function CustomSelect({
                 position: 'absolute',
                 left: 0,
                 right: 0,
-                ...(placeAbove ? { bottom: 'calc(100% + 6px)' } : { top: 'calc(100% + 6px)' }),
+                ...(place.above ? { bottom: 'calc(100% + 6px)' } : { top: 'calc(100% + 6px)' }),
                 minWidth: 160,
-                maxHeight: 288,
+                maxHeight: place.maxH,
                 overflowY: 'auto',
                 margin: 0,
                 padding: 'var(--space-1)',
