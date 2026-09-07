@@ -372,15 +372,15 @@ const PLAN_ROWS: Plan[] = [
   { id: 'p3', name: 'Juliana Prado', sessions: 7, price: 'R$ 1.260', status: 'success' },
   { id: 'p4', name: 'Helena Costa', sessions: 3, price: 'R$ 540', status: 'error' },
 ];
-const STATUS_LABEL: Record<Plan['status'], string> = { success: 'Ativo', warning: 'Novo', error: 'Atenção' };
+const STATUS_LABEL: Record<Plan['status'], string> = { success: 'Active', warning: 'New', error: 'At risk' };
 
 function TableBasico() {
   return (
-    <Table caption="Clientes" minWidth={520}>
+    <Table caption="Clients">
       <Table.Head>
         <Table.Row>
-          <Table.HeaderCell>Cliente</Table.HeaderCell>
-          <Table.HeaderCell align="right">Sessões</Table.HeaderCell>
+          <Table.HeaderCell>Client</Table.HeaderCell>
+          <Table.HeaderCell align="right">Sessions</Table.HeaderCell>
           <Table.HeaderCell align="right">Total</Table.HeaderCell>
           <Table.HeaderCell>Status</Table.HeaderCell>
         </Table.Row>
@@ -409,15 +409,15 @@ function TableSortable() {
     return [...PLAN_ROWS].sort((a, b) => {
       const av = a[sort.key as keyof Plan];
       const bv = b[sort.key as keyof Plan];
-      return (typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv), 'pt-BR')) * dir;
+      return (typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv), 'en')) * dir;
     });
   }, [sort]);
   return (
-    <Table caption="Clientes">
+    <Table caption="Clients">
       <Table.Head>
         <Table.Row>
-          <Table.HeaderCell sortKey="name" sort={sort} onSort={setSort}>Cliente</Table.HeaderCell>
-          <Table.HeaderCell align="right" sortKey="sessions" sort={sort} onSort={setSort}>Sessões</Table.HeaderCell>
+          <Table.HeaderCell sortKey="name" sort={sort} onSort={setSort}>Client</Table.HeaderCell>
+          <Table.HeaderCell align="right" sortKey="sessions" sort={sort} onSort={setSort}>Sessions</Table.HeaderCell>
           <Table.HeaderCell>Status</Table.HeaderCell>
         </Table.Row>
       </Table.Head>
@@ -439,12 +439,12 @@ function TableSortable() {
 function TableClicavel() {
   const [selected, setSelected] = React.useState<string | null>('p1');
   return (
-    <Table caption="Clientes">
+    <Table caption="Clients">
       <Table.Head>
         <Table.Row>
-          <Table.HeaderCell>Cliente</Table.HeaderCell>
-          <Table.HeaderCell align="right">Sessões</Table.HeaderCell>
-          <Table.HeaderCell srOnly>Abrir</Table.HeaderCell>
+          <Table.HeaderCell>Client</Table.HeaderCell>
+          <Table.HeaderCell align="right">Sessions</Table.HeaderCell>
+          <Table.HeaderCell srOnly>Open</Table.HeaderCell>
         </Table.Row>
       </Table.Head>
       <Table.Body>
@@ -465,11 +465,11 @@ function TableClicavel() {
 function TableCompactSticky() {
   const many = Array.from({ length: 14 }, (_, i) => PLAN_ROWS[i % PLAN_ROWS.length]);
   return (
-    <Table caption="Movimentações" density="compact" stickyHeader maxHeight={220} zebra>
+    <Table caption="Transactions" density="compact" stickyHeader maxHeight={220} zebra>
       <Table.Head>
         <Table.Row>
-          <Table.HeaderCell>Cliente</Table.HeaderCell>
-          <Table.HeaderCell align="right">Sessões</Table.HeaderCell>
+          <Table.HeaderCell>Client</Table.HeaderCell>
+          <Table.HeaderCell align="right">Sessions</Table.HeaderCell>
           <Table.HeaderCell align="right">Total</Table.HeaderCell>
         </Table.Row>
       </Table.Head>
@@ -489,7 +489,7 @@ function TableCompactSticky() {
 function TableVazia() {
   return (
     <div style={{ ...col, gap: 12 }}>
-      <EmptyState icon={<Search size={22} strokeWidth={1.75} />} title="Nenhum cliente" description="A tabela não tem um estado vazio próprio — a tela troca por um EmptyState quando não há linhas." />
+      <EmptyState icon={<Search size={22} strokeWidth={1.75} />} title="No clients" description="The table has no built-in empty slot — the screen swaps in an EmptyState when there are no rows." />
     </div>
   );
 }

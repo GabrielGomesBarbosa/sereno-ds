@@ -420,12 +420,12 @@ export const COMPONENTS: ComponentMeta[] = [
       R('Table.Cell / Table.HeaderCell · align', "'left' | 'center' | 'right'", 'Text alignment. Right for numbers.', "'left'"),
       R('Table.Cell · wrap', 'boolean', 'Let this cell wrap. Cells are `nowrap` by default so `minWidth` can do its job — opt one column back in for long free text.', 'false'),
     ],
-    code: `<Table caption="Clientes" density="compact" stickyHeader>
+    code: `<Table caption="Clients" density="compact" stickyHeader>
   <Table.Head>
     <Table.Row>
-      <Table.HeaderCell sortKey="name" sort={sort} onSort={setSort}>Cliente</Table.HeaderCell>
-      <Table.HeaderCell align="right">Sessões</Table.HeaderCell>
-      <Table.HeaderCell srOnly>Ações</Table.HeaderCell>
+      <Table.HeaderCell sortKey="name" sort={sort} onSort={setSort}>Client</Table.HeaderCell>
+      <Table.HeaderCell align="right">Sessions</Table.HeaderCell>
+      <Table.HeaderCell srOnly>Actions</Table.HeaderCell>
     </Table.Row>
   </Table.Head>
   <Table.Body>
@@ -442,12 +442,12 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'basic',
         title: 'Basic',
-        description: '`Table.Head` + `Table.Body`, plain `Table.Cell`s. Always pass a `caption` — it names the table and the scroll region for assistive tech. `minWidth` floors the width so a narrow screen scrolls the region sideways instead of crushing the columns.',
-        code: `<Table caption="Clientes" minWidth={520}>
+        description: '`Table.Head` + `Table.Body`, plain `Table.Cell`s. Always pass a `caption` — it names the table and the scroll region for assistive tech.',
+        code: `<Table caption="Clients">
   <Table.Head>
     <Table.Row>
-      <Table.HeaderCell>Cliente</Table.HeaderCell>
-      <Table.HeaderCell align="right">Sessões</Table.HeaderCell>
+      <Table.HeaderCell>Client</Table.HeaderCell>
+      <Table.HeaderCell align="right">Sessions</Table.HeaderCell>
       <Table.HeaderCell>Status</Table.HeaderCell>
     </Table.Row>
   </Table.Head>
@@ -469,8 +469,8 @@ export const COMPONENTS: ComponentMeta[] = [
         code: `const [sort, setSort] = useState({ key: 'name', direction: 'asc' });
 const rows = useMemo(() => sortRows(DATA, sort), [sort]);
 
-<Table.HeaderCell sortKey="name" sort={sort} onSort={setSort}>Cliente</Table.HeaderCell>
-<Table.HeaderCell align="right" sortKey="sessions" sort={sort} onSort={setSort}>Sessões</Table.HeaderCell>`,
+<Table.HeaderCell sortKey="name" sort={sort} onSort={setSort}>Client</Table.HeaderCell>
+<Table.HeaderCell align="right" sortKey="sessions" sort={sort} onSort={setSort}>Sessions</Table.HeaderCell>`,
       },
       {
         id: 'interactive',
@@ -486,7 +486,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         id: 'compact-sticky',
         title: 'Compact + sticky header',
         description: '`density="compact"` for CRM density; `stickyHeader` + `maxHeight` pin the head inside a bounded scroll region; `zebra` for faint striping on long lists.',
-        code: `<Table caption="Movimentações" density="compact" stickyHeader maxHeight={220} zebra>
+        code: `<Table caption="Transactions" density="compact" stickyHeader maxHeight={220} zebra>
   …
 </Table>`,
       },
@@ -495,8 +495,8 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         title: 'Empty state',
         description: 'The table has no built-in empty slot — the screen swaps in an `EmptyState` when `rows.length === 0`. Keeps the contract small.',
         code: `{rows.length === 0
-  ? <EmptyState icon={<Search />} title="Nenhum cliente" description="…" />
-  : <Table caption="Clientes">…</Table>}`,
+  ? <EmptyState icon={<Search />} title="No clients" description="…" />
+  : <Table caption="Clients">…</Table>}`,
       },
     ],
     guidelines: {
