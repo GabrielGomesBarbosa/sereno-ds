@@ -89,7 +89,29 @@ export function getServices(slug: string): Service[] {
 
 // August 2026 sample availability for the DateTimePicker (month index 7).
 export const BOOKING_MONTH = { year: 2026, month: 7 };
-export const UNAVAILABLE_DAYS = [1, 2, 8, 9, 15, 16, 22, 23, 29, 30];
+/** Weekend day-numbers of a month — sample "no availability" days that stay
+ *  meaningful when the calendar is navigated (feed via `onMonthChange`). */
+export const weekendsOf = (y: number, m: number): number[] =>
+  Array.from({ length: new Date(y, m + 1, 0).getDate() }, (_, i) => i + 1).filter((d) => {
+    const wd = new Date(y, m, d).getDay();
+    return wd === 0 || wd === 6;
+  });
+export const UNAVAILABLE_DAYS = weekendsOf(2026, 7);
+/** The demo's "today" — Mon 24 Aug 2026 (matches the Agenda header). */
+export const DEMO_TODAY = { year: 2026, month: 7, day: 24 };
+/** Deterministic sample booking counts per day for a month — weekdays only, and
+ *  only from DEMO_TODAY forward, so a `renderDay` badge reads as "upcoming load". */
+export const bookingCountsOf = (y: number, m: number): Record<number, number> => {
+  const out: Record<number, number> = {};
+  for (let d = 1; d <= new Date(y, m + 1, 0).getDate(); d++) {
+    const future =
+      y > DEMO_TODAY.year ||
+      (y === DEMO_TODAY.year && (m > DEMO_TODAY.month || (m === DEMO_TODAY.month && d >= DEMO_TODAY.day)));
+    const wd = new Date(y, m, d).getDay();
+    if (future && wd !== 0 && wd !== 6) out[d] = ((d * 5 + m * 3) % 6) + 1;
+  }
+  return out;
+};
 export const TIME_SLOTS = ['09:00', '10:00', { value: '11:00', disabled: true }, '14:00', '15:00', '16:00', '17:00', { value: '18:00', disabled: true }];
 
 export const TODAY_APPOINTMENTS: Appointment[] = [

@@ -183,6 +183,34 @@
   border-radius: var(--radius-sm);
 }
 
+/* ── DateTimePicker ─────────────────────────────────────────────────────────
+   The month/year popover: hover + focus + current-cell states that can't be
+   inline styles. The header title button lives here too. */
+.sereno-dtp-title:hover { background: var(--interactive-ghost-hover); }
+.sereno-dtp-title:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+/* fade only — the box is centred with translateX(-50%), so no transform anim. */
+.sereno-dtp-pop { animation: sereno-fade-in var(--duration-fast) var(--ease-standard); }
+.sereno-dtp-grid button {
+  height: 34px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  text-transform: capitalize;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.sereno-dtp-grid button:hover { background: var(--interactive-ghost-hover); }
+.sereno-dtp-grid button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
+.sereno-dtp-grid button[data-current] {
+  background: var(--interactive-primary);
+  color: var(--interactive-primary-fg);
+  font-weight: var(--weight-bold);
+}
+
 /* ── Reduced motion ──────────────────────────────────────────────────────────
    The token layer already zeroes `--duration-*`, but Button's spinner and
    Skeleton's pulse use fixed loop durations — damp every animation so the
