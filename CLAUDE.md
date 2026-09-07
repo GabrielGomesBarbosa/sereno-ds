@@ -39,6 +39,23 @@ One human, one AI agent — so **the `In Progress` column holds exactly one card
 at a time**. Columns: `To Do` → `In Progress` → `In Review` → `To Test` →
 `Testing` → `Done`.
 
+**Who moves what** — the human touches exactly one transition, `To Test →
+Testing`. Every other move on the board is the AI's:
+
+| Transition | Owner |
+| --- | --- |
+| `To Do → In Progress` | AI |
+| `In Progress → In Review` | AI |
+| `In Review` — review the PR(s), post the self-review, decide pass/fail | **AI** |
+| `In Review → In Progress` (found something) / `In Review → To Test` (clean) | AI |
+| `To Test → Testing` | **human** (the only one) |
+| `Testing → Done` (after the human says it passed) / `Testing → In Progress` (failed) | AI |
+
+`In Review` is **not** a hand-off — the human does nothing there. The AI owns
+the code review of its own PR: read the whole diff, run the checks, post real
+findings as PR comments, fix or clear each one. The card only leaves `In
+Review` when the AI is satisfied. The human's turn starts at `To Test`.
+
 1. **AI picks a card from `To Do`.** First check the card is fully clear
    (scope, acceptance criteria, decisions). If anything is ambiguous, ask the
    human before moving it. Then move it to **`In Progress`** (only if that
@@ -53,14 +70,17 @@ at a time**. Columns: `To Do` → `In Progress` → `In Review` → `To Test` �
    which is being worked, and which remain. `npm run lint && npm run test &&
    npm run build` (all proxy `turbo run …`) green first. Never push or merge
    straight to `main`.
-3. **AI moves the parent to `In Review`** and does a real self code-review of
-   every open PR for it — post findings as PR comments, don't rubber-stamp.
+3. **AI moves the parent to `In Review` — and `In Review` is the AI's job, not
+   a hand-off.** The human does nothing here. The AI does a real self
+   code-review of every open PR for it: read the entire diff, confirm the
+   checks are green, post findings as PR comments, don't rubber-stamp.
    - Found something worth fixing → move the parent back to **`In Progress`**
      (and re-open whatever subtask the fix belongs to), fix, repeat.
    - Clean → move the parent to **`To Test`** — **only once every subtask is
      already `Done`.** The human must never be handed a parent whose sub-work
-     isn't finished.
-4. **The human drags `To Test` → `Testing`** and tests locally.
+     isn't finished, or whose PR hasn't been self-reviewed.
+4. **The human drags `To Test` → `Testing`** (their only move on the board) and
+   tests locally.
    - Pass → the human tells the AI, naming the parent (e.g. "SS-156 está
      certo"). The AI **squash-merges** the PR(s) and moves the **parent** to
      **`Done`** (the subtasks are already there).

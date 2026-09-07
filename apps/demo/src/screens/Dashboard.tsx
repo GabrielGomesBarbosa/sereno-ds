@@ -22,6 +22,7 @@ import {
   Megaphone,
   Menu,
   MessageSquare,
+  Moon,
   Package,
   Percent,
   Plus,
@@ -31,6 +32,7 @@ import {
   Share2,
   Sparkles,
   Star,
+  Sun,
   Target,
   Ticket,
   UserCog,
@@ -64,6 +66,7 @@ import {
   TopBar,
 } from '@sereno/ui';
 import { ThemeToggle } from '@sereno/ui';
+import { useTheme } from 'next-themes';
 import { AppointmentCard } from '@/domain/AppointmentCard';
 import { ServiceCard } from '@/domain/ServiceCard';
 import { WeeklyScheduleEditor } from '@/domain/WeeklyScheduleEditor';
@@ -183,6 +186,17 @@ function useMediaQuery(query: string) {
 
 const cardTitle: React.CSSProperties = { fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' };
 const vcol = (gap: string): React.CSSProperties => ({ display: 'flex', flexDirection: 'column', gap });
+
+/** Today's date, pt-BR — `short` picks the abbreviated weekday ("Seg" vs "Segunda-feira"). */
+function todayLabel(short: boolean): string {
+  const s = new Date().toLocaleDateString('pt-BR', {
+    weekday: short ? 'short' : 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+  const clean = s.replace(/\./g, '');
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+}
 const bigNumber: React.CSSProperties = {
   fontFamily: 'var(--font-display)',
   fontSize: 'var(--text-3xl)',
@@ -212,6 +226,17 @@ const panelStyle: React.CSSProperties = {
   boxShadow: '0 0 0 1px var(--border-default), var(--shadow-lg)',
   zIndex: 50,
   overflow: 'hidden',
+};
+
+/** On phones the trigger sits too close to the right edge for a right-anchored
+    dropdown (it spills off the left). Pin the panel to the viewport gutters,
+    just below the 74px TopBar, so it always stays on screen. */
+const mobilePanelStyle: React.CSSProperties = {
+  position: 'fixed',
+  top: 'calc(var(--dash-header-h, 74px) + 4px)',
+  left: 'var(--gutter-mobile, 20px)',
+  right: 'var(--gutter-mobile, 20px)',
+  width: 'auto',
 };
 
 function useDismiss(open: boolean, close: () => void) {
@@ -248,6 +273,7 @@ function NotificationsMenu({ onToast }: { onToast: (m: string) => void }) {
   const [items, setItems] = React.useState(NOTIFICATIONS);
   const close = React.useCallback(() => setOpen(false), []);
   useDismiss(open, close);
+  const isNarrow = useMediaQuery('(max-width: 900px)');
   const unread = items.filter((n) => n.unread).length;
 
   return (
@@ -279,7 +305,7 @@ function NotificationsMenu({ onToast }: { onToast: (m: string) => void }) {
         </span>
       )}
       {open && (
-        <div style={{ ...panelStyle, width: 360 }}>
+        <div style={{ ...panelStyle, ...(isNarrow ? mobilePanelStyle : { width: 'min(360px, calc(100vw - 32px))' }) }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-3) var(--space-4)', borderBottom: '1px solid var(--border-subtle)' }}>
             <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Notificações</span>
             {unread > 0 && (
@@ -345,6 +371,10 @@ function UserMenu({ onNavigate, onToast }: { onNavigate: (v: string) => void; on
   const [open, setOpen] = React.useState(false);
   const close = React.useCallback(() => setOpen(false), []);
   useDismiss(open, close);
+  // On mobile the standalone TopBar theme toggle is dropped for space — it lives here instead.
+  const isNarrow = useMediaQuery('(max-width: 900px)');
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const row: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
@@ -383,11 +413,17 @@ function UserMenu({ onNavigate, onToast }: { onNavigate: (v: string) => void; on
         <ChevronDown size={16} strokeWidth={2} style={{ color: 'var(--text-muted)', transition: 'transform var(--duration-fast) var(--ease-standard)', transform: open ? 'rotate(180deg)' : 'none' }} />
       </button>
       {open && (
-        <div style={{ ...panelStyle, width: 220 }}>
+        <div style={{ ...panelStyle, width: 'min(220px, calc(100vw - 32px))' }}>
           <div style={{ padding: 'var(--space-3) var(--space-4)', borderBottom: '1px solid var(--border-subtle)' }}>
             <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>Ana Beatriz Ramos</div>
             <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>ana.ramos@email.com</div>
           </div>
+          {isNarrow && (
+            <button type="button" className="dash-menu-btn" style={row} onClick={() => setTheme(isDark ? 'light' : 'dark')}>
+              {isDark ? <Sun size={16} strokeWidth={1.75} /> : <Moon size={16} strokeWidth={1.75} />}
+              {isDark ? 'Tema claro' : 'Tema escuro'}
+            </button>
+          )}
           <button type="button" className="dash-menu-btn" style={row} onClick={() => { setOpen(false); onNavigate('config:perfil'); }}>
             <Settings size={16} strokeWidth={1.75} /> Configurações
           </button>
@@ -486,13 +522,19 @@ export function Dashboard() {
         <div className="dash-content">
           <TopBar
             title={pageTitle}
-            subtitle={base === 'agenda' ? (isNarrow ? 'Seg, 24 de agosto' : 'Segunda-feira, 24 de agosto') : undefined}
+            subtitle={
+              base === 'agenda' ? (
+                <>
+                  <span className="dash-date-full">{todayLabel(false)}</span>
+                  <span className="dash-date-short">{todayLabel(true)}</span>
+                </>
+              ) : undefined
+            }
             leading={
               <span className="dash-topbar-lead">
                 <IconButton label="Abrir menu" variant="ghost" onClick={openDrawer}>
                   <Menu size={20} strokeWidth={1.75} />
                 </IconButton>
-                <Brand variant="symbol" size={24} />
               </span>
             }
             style={{
@@ -506,7 +548,11 @@ export function Dashboard() {
             }}
             actions={
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <ThemeToggle variant="ghost" />
+                {/* Hidden via CSS (not JS) below 900px so it can't flash on reload — the
+                    toggle moves into the avatar menu there. See .dash-topbar-theme. */}
+                <span className="dash-topbar-theme">
+                  <ThemeToggle variant="ghost" />
+                </span>
                 <NotificationsMenu onToast={setToast} />
                 <span style={{ width: 1, height: 24, background: 'var(--border-default)', margin: '0 var(--space-1)' }} />
                 <UserMenu onNavigate={setView} onToast={setToast} />

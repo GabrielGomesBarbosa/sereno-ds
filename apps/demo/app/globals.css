@@ -27,6 +27,10 @@ html, body { padding: 0; margin: 0; }
 .dash-content { min-width: 0; height: 100dvh; overflow-y: auto; display: flex; flex-direction: column; }
 .dash-main { width: 100%; max-width: var(--container-app); margin-inline: auto; padding: var(--space-7) var(--dash-gutter); }
 .dash-topbar-lead { display: none; }
+.dash-topbar-theme { display: inline-flex; }
+/* TopBar date subtitle: full weekday on desktop, abbreviated on mobile — a CSS
+   swap so a static/hydrated first paint never flashes the wrong length. */
+.dash-date-short { display: none; }
 
 /* ── Mobile nav drawer (the persistent sidebar off-canvas under 900px) ──────── */
 .dash-drawer-scrim { position: fixed; inset: 0; z-index: 60; background: rgba(15, 18, 24, 0.45); animation: sereno-fade-in var(--duration-fast) var(--ease-out); }
@@ -67,7 +71,10 @@ html, body { padding: 0; margin: 0; }
   .dash-sidebar { display: none; }
   .dash-content { height: auto; overflow: visible; }
   .dash-topbar-lead { display: inline-flex; align-items: center; gap: var(--space-1); }
+  .dash-topbar-theme { display: none; }
   .dash-main { padding: var(--space-6) var(--dash-gutter) var(--space-9); }
+  .dash-date-full { display: none; }
+  .dash-date-short { display: inline; }
 }
 @media (max-width: 620px) {
   .dash-agenda-aside { flex-direction: column !important; }
