@@ -81,6 +81,14 @@ function TableRoot({
       aria-label={regionLabel ?? caption}
       tabIndex={0}
       style={sx({
+        // Containment is inline (not just in styles.css) so a stale cached
+        // stylesheet can't let the wide table blow the page out sideways.
+        // `width:100%` + `minWidth:0` = size to the container, never the content;
+        // `maxWidth:100%` caps it; `overflow:auto` scrolls the table inside here.
+        display: 'block',
+        width: '100%',
+        minWidth: 0,
+        maxWidth: '100%',
         overflow: 'auto',
         ...(maxHeight != null ? { maxHeight } : {}),
         borderRadius: 'var(--radius-lg)',
