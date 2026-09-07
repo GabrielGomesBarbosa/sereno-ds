@@ -1618,10 +1618,21 @@ function DialogForm() {
             label="Professional"
             placeholder="Pick one"
             options={[
-              { value: 'ana', label: 'Ana Beatriz Ramos' },
-              { value: 'carla', label: 'Carla Nogueira' },
-              { value: 'diego', label: 'Diego Martins' },
-            ]}
+              'Ana Beatriz Ramos',
+              'Bruno Katsumata',
+              'Carla Nogueira',
+              'Diego Martins',
+              'Elisa Fontanella',
+              'Helena Prado',
+              'Igor Salvatori',
+              'Júlia Menezes',
+              'Lucas Andrade',
+              'Marina Okafor',
+              'Nina Vasconcelos',
+              'Otávio Ribeiro',
+              'Paula Sciarra',
+              'Rafael Bittencourt',
+            ].map((n) => ({ value: n.toLowerCase().split(' ')[0], label: n }))}
           />
           <Checkbox label="Notify the client on WhatsApp" defaultChecked />
         </div>
