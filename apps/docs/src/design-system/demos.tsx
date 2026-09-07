@@ -643,6 +643,19 @@ function SelectErro() {
     </div>
   );
 }
+const CITY_OPTS = [
+  'Auckland', 'Bogotá', 'Buenos Aires', 'Cairo', 'Chicago', 'Dubai', 'Dublin',
+  'Helsinki', 'Istanbul', 'Jakarta', 'Johannesburg', 'Lagos', 'Lisbon', 'London',
+  'Los Angeles', 'Madrid', 'Mexico City', 'Mumbai', 'Nairobi', 'New York', 'Paris',
+  'Reykjavík', 'São Paulo', 'Seoul', 'Singapore', 'Sydney', 'Tokyo', 'Toronto',
+].map((c) => ({ value: c.toLowerCase().replace(/\s+/g, '-'), label: c }));
+function SelectLista() {
+  return (
+    <div style={{ maxWidth: 420 }}>
+      <Select label="Home city" placeholder="Search the list" defaultValue="lisbon" options={CITY_OPTS} />
+    </div>
+  );
+}
 
 function CheckboxBasico() {
   const [a, setA] = React.useState(false);
@@ -1791,7 +1804,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     sizes: InputTamanhos,
   },
   textarea: { basic: TextareaBasico, count: TextareaContador, error: TextareaErro },
-  select: { basic: SelectBasico, placeholder: SelectHint, error: SelectErro, disabled: SelectDesabilitado, sizes: SelectTamanhos },
+  select: { basic: SelectBasico, placeholder: SelectHint, error: SelectErro, disabled: SelectDesabilitado, sizes: SelectTamanhos, long: SelectLista },
   checkbox: {
     basic: CheckboxBasico,
     states: CheckboxEstados,

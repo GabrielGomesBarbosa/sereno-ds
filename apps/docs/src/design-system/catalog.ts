@@ -734,6 +734,13 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
 <Select label="Field" size="md" options={opts} />
 <Select label="Field" size="lg" options={opts} />`,
       },
+      {
+        id: 'long',
+        title: 'Long list',
+        description:
+          'The panel caps its height and scrolls the rest — a dropdown to the room around the field, the touch sheet to 60% of the screen. It still *works*, but past ~12 options a search field beats scrolling; treat this as the ceiling, not the target.',
+        code: `<Select label="Home city" placeholder="Search the list" options={cities} />`,
+      },
     ],
     guidelines: {
       do: [
@@ -742,7 +749,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         'Give a `placeholder` when there is no sensible default.',
       ],
       dont: [
-        'More than ~12 options or grouped options — that is a combobox/search, a different pattern.',
+        'Many options or grouped options as the norm — past ~12, that is a combobox/search, a different pattern.',
         'Expecting a DOM event in `onValueChange` — it hands you the value string.',
       ],
     },
