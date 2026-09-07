@@ -1,6 +1,8 @@
 # Sereno DS — changelog
 
-Version shown in the `/design-system` header. Source: `apps/docs/src/design-system/version.ts`.
+Hand-written narrative of what shipped, per version. The version is the one in
+`packages/ui/package.json` (Changesets); `packages/ui/CHANGELOG.md` is the
+machine log. Add an entry here whenever you add a changeset.
 
 ## 0.23.0 — DateTimePicker navigation (SS-217)
 

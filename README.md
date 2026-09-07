@@ -96,14 +96,15 @@ must be green.
 
 ## Versioning & releases
 
-The **showcase** version lives in `apps/docs/src/design-system/version.ts` and
-shows in the `/design-system` header. Every PR that touches `packages/` or `apps/`
-bumps it and adds an `apps/docs/src/design-system/CHANGELOG.md` entry (pre-1.0:
-`patch` = fix/tweak, `minor` = feature / structure / breaking). After each merge a
-GitHub release `vX.Y.Z` is cut — see
+**One version** — `packages/ui` + `packages/tokens` `package.json` (lockstep).
+That number publishes to npm and is what the `/design-system` header shows (it
+reads `@sereno/ui/package.json`). Managed with **Changesets**: a PR that changes
+a component / token adds a `.changeset/*.md` (`npm run changeset`); showcase- or
+demo-only PRs add nothing and bump nothing. `npm run version-packages` cuts the
+bump + `packages/ui/CHANGELOG.md`; `npm run release` publishes. Tags:
+`@sereno/ui@X.Y.Z` — see
 [Releases](https://github.com/GabrielGomesBarbosa/sereno-ds/releases).
-The `@sereno/ui` / `@sereno/tokens` package versions get their own line (changesets)
-in SS-199 — for now they track the showcase version.
+`apps/docs/src/design-system/CHANGELOG.md` is the hand-written narrative.
 
 ## Deploy
 
