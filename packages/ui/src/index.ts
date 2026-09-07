@@ -11,6 +11,15 @@ export { Badge, type BadgeProps } from './core/Badge';
 export { Card, type CardProps } from './core/Card';
 export { Avatar, type AvatarProps } from './core/Avatar';
 export { Brand, type BrandProps } from './core/Brand';
+export {
+  Table,
+  type TableProps,
+  type TableRowProps,
+  type HeaderCellProps,
+  type CellProps,
+  type TableSort,
+  type SortDirection,
+} from './core/Table';
 
 // forms
 export { Input, type InputProps } from './forms/Input';

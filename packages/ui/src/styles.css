@@ -130,6 +130,59 @@
 .ds-affix-btn:focus { outline: none; }
 .ds-affix-btn:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 
+/* ── Table ──────────────────────────────────────────────────────────────────
+   Ships with @sereno/ui's compound <Table>. The parts stay thin — structure,
+   density, dividers, hover / focus / sticky / zebra live here, keyed off
+   data-* on the <table> root. */
+.sereno-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); }
+/* Visually-hidden <caption>. `top/left: 0` pins it to the (position: relative)
+   scroll region — without an anchor a position:absolute caption falls back to its
+   static offset against the viewport and stretches the page's scroll height. */
+.sereno-table caption { position: absolute; top: 0; left: 0; width: 1px; height: 1px; padding: 0; margin: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+.sereno-table thead tr { background: var(--bg-subtle); }
+.sereno-table th {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-default);
+}
+.sereno-table td { font-size: var(--text-sm); color: var(--text-primary); vertical-align: middle; white-space: nowrap; }
+.sereno-table td[data-wrap] { white-space: normal; }
+.sereno-table tbody tr:not(:first-child) td { border-top: 1px solid var(--border-subtle); }
+.sereno-table[data-density="comfortable"] :where(th, td) { padding: var(--space-3) var(--space-4); }
+.sereno-table[data-density="compact"] :where(th, td) { padding: 6px var(--space-4); }
+.sereno-table th[data-sortable] { padding: 0; }
+.sereno-table[data-density="comfortable"] th[data-sortable] button { padding: var(--space-3) var(--space-4); }
+.sereno-table[data-density="compact"] th[data-sortable] button { padding: 6px var(--space-4); }
+.sereno-table[data-sticky] thead { position: sticky; top: 0; z-index: 1; }
+.sereno-table[data-sticky] th { background: var(--bg-subtle); }
+/* `:where()` zeroes the stripe's specificity so hover / selected below always win
+   (otherwise `:nth-child` outweighs them and states vanish on even rows). */
+:where(.sereno-table[data-zebra] tbody tr:nth-child(even)) td { background: color-mix(in srgb, var(--bg-subtle) 40%, transparent); }
+.sereno-table tbody tr[data-interactive] { cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard); }
+/* Row states are a brand-tinted progression so none of them blends into the
+   neutral header (also --bg-subtle): hover < selected < selected+hover. */
+.sereno-table tbody tr[data-selected] td { background: color-mix(in srgb, var(--interactive-primary) 26%, var(--bg-subtle)); }
+.sereno-table tbody tr[data-interactive]:hover td { background: color-mix(in srgb, var(--interactive-primary) 14%, var(--bg-subtle)); }
+.sereno-table tbody tr[data-interactive][data-selected]:hover td { background: color-mix(in srgb, var(--interactive-primary) 34%, var(--bg-subtle)); }
+.sereno-table th button { transition: color var(--duration-fast) var(--ease-standard); }
+.sereno-table th button:hover { color: var(--text-primary); }
+/* `min-width: 0` lets the region shrink below the table's `min-width` when it's a
+   flex / grid item — without it the wide table forces its ancestors open and the
+   *page* scrolls sideways instead of this box. `position: relative` anchors the
+   visually-hidden <caption> here (see the caption rule above). */
+.sereno-table-scroll { outline: none; position: relative; min-width: 0; max-width: 100%; }
+.sereno-table-scroll:focus-visible,
+.sereno-table th button:focus-visible,
+.sereno-table tbody tr[data-interactive]:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
 /* ── Reduced motion ──────────────────────────────────────────────────────────
    The token layer already zeroes `--duration-*`, but Button's spinner and
    Skeleton's pulse use fixed loop durations — damp every animation so the
