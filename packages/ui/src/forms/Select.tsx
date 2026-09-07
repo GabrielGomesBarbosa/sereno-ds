@@ -213,11 +213,13 @@ function CustomSelect({
     return from;
   };
 
-  // Full placement pass: picks a side (above/below) and a max-height from the
-  // room available, and writes React state (first paint + on resize). The
-  // above/below choice is frozen for the lifetime of the open menu — re-deciding
-  // it mid-scroll is what makes a tracked popover jump around.
-  const sideRef = React.useRef(false);
+  // Place the panel once from the trigger's rect: pick a side (above/below) and a
+  // max-height from the room available. The panel is portalled + position:fixed
+  // so it can't be clipped by a Dialog / overflow container — but a fixed node
+  // can't ride page scroll on the compositor the way an absolute child does, and
+  // repositioning it from JS always lags a frame and jitters. So instead we just
+  // **close on scroll** (like Radix / Headless UI): the list's own scroll is
+  // ignored; scrolling anything else dismisses the menu. Resize re-places it.
   const GAP = 6;
   const place = React.useCallback(() => {
     const t = triggerRef.current;
@@ -228,41 +230,22 @@ function CustomSelect({
     const spaceAbove = r.top - 8;
     const above = spaceBelow < 200 && spaceAbove > spaceBelow;
     const maxH = Math.max(120, Math.min(288, (above ? spaceAbove : spaceBelow) - GAP));
-    sideRef.current = above;
     setPos({ left: r.left, width: r.width, top: above ? r.top - GAP : r.bottom + GAP, above, maxH });
   }, []);
 
   useIsoLayoutEffect(() => {
     if (!open) return;
     place();
-    // On scroll, slide the panel with the field by writing the DOM node
-    // directly — no rAF, no setState. Scroll handlers run before the frame
-    // paints, so a synchronous style write keeps the panel locked to the field
-    // with zero lag (the rAF + re-render version lagged a frame and jittered).
-    const sync = () => {
-      const t = triggerRef.current;
-      const p = panelRef.current;
-      if (!t || !p) return;
-      const r = t.getBoundingClientRect();
-      p.style.left = `${r.left}px`;
-      p.style.width = `${r.width}px`;
-      if (sideRef.current) {
-        p.style.top = 'auto';
-        p.style.bottom = `${(window.innerHeight || 0) - (r.top - GAP)}px`;
-      } else {
-        p.style.bottom = 'auto';
-        p.style.top = `${r.bottom + GAP}px`;
-      }
-    };
     const onScroll = (e: Event) => {
       if (panelRef.current?.contains(e.target as Node)) return; // the list's own scroll
-      sync();
+      setOpen(false);
     };
+    const onResize = () => place();
     window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', place);
+    window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', place);
+      window.removeEventListener('resize', onResize);
     };
   }, [open, place]);
 

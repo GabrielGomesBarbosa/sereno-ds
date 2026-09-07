@@ -51,6 +51,18 @@ describe('Select (custom listbox)', () => {
     expect(screen.queryByRole('listbox')).toBeNull();
   });
 
+  it('closes when the page scrolls (but not when the list itself scrolls)', () => {
+    render(<Select label="Fruit" options={OPTS} />);
+    boxClick(screen.getByRole('combobox'));
+    const listbox = screen.getByRole('listbox');
+    // the list's own scroll is ignored
+    fireEvent.scroll(listbox);
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    // scrolling anything else dismisses it
+    fireEvent.scroll(document);
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
   it('still opens from the keyboard (ArrowDown), with no pointer press', () => {
     render(<Select label="Fruit" options={OPTS} />);
     const trigger = screen.getByRole('combobox');
