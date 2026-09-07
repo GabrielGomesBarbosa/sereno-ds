@@ -410,6 +410,7 @@ export const COMPONENTS: ComponentMeta[] = [
     props: [
       R('caption', 'string', 'Visually-hidden `<caption>` and the default accessible name for the scroll region. Always set one.'),
       R('density', "'comfortable' | 'compact'", 'Row padding. `compact` for dense CRM / reports.', "'comfortable'"),
+      R('minWidth', 'number | string', 'Floor width for the table. Below it the scroll region takes a sideways scrollbar instead of the columns squashing. Set it on anything with more than ~3 columns that has to survive a phone.'),
       R('stickyHeader / maxHeight', 'boolean / number | string', 'Pin the header while the body scrolls — pair them so the head has a bounded region to stick within.'),
       R('zebra', 'boolean', 'Faint striping on even rows. Off by default — the hover is usually enough.', 'false'),
       R('Table.Row · onClick', '() => void', 'Makes the row a button: hover, pointer, focusable, Enter / Space.'),
@@ -417,6 +418,7 @@ export const COMPONENTS: ComponentMeta[] = [
       R('Table.HeaderCell · sortKey / sort / onSort', 'string / TableSort | null / (s) => void', 'Turns the header into a sort control. React to `onSort` and feed sorted rows back — the DS does not sort.'),
       R('Table.HeaderCell · srOnly', 'boolean', 'Visually-hide the header label (e.g. an actions column) — still read by assistive tech.'),
       R('Table.Cell / Table.HeaderCell · align', "'left' | 'center' | 'right'", 'Text alignment. Right for numbers.', "'left'"),
+      R('Table.Cell · wrap', 'boolean', 'Let this cell wrap. Cells are `nowrap` by default so `minWidth` can do its job — opt one column back in for long free text.', 'false'),
     ],
     code: `<Table caption="Clientes" density="compact" stickyHeader>
   <Table.Head>
@@ -440,8 +442,8 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'basic',
         title: 'Basic',
-        description: '`Table.Head` + `Table.Body`, plain `Table.Cell`s. Always pass a `caption` — it names the table and the scroll region for assistive tech.',
-        code: `<Table caption="Clientes">
+        description: '`Table.Head` + `Table.Body`, plain `Table.Cell`s. Always pass a `caption` — it names the table and the scroll region for assistive tech. `minWidth` floors the width so a narrow screen scrolls the region sideways instead of crushing the columns.',
+        code: `<Table caption="Clientes" minWidth={520}>
   <Table.Head>
     <Table.Row>
       <Table.HeaderCell>Cliente</Table.HeaderCell>
@@ -502,10 +504,12 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         'Always set `caption` — it’s the accessible name for the table and its scroll region.',
         'Sort the `rows` in the consumer and pass them back; `sort` is display-only.',
         '`compact` for CRM / reports, `comfortable` everywhere else. Right-align numeric columns.',
+        'Set `minWidth` on multi-column tables — the region scrolls sideways on a phone instead of the text crushing.',
       ],
       dont: [
         'Nesting an interactive control in a clickable row (`onClick` on `Table.Row` **and** a `<button>` cell) — pick one.',
         'Expecting the `Table` to sort, filter or paginate for you.',
+        'Putting the `Table` in a flex / grid track without `min-width: 0` on the track — the `minWidth` will push the *page* wide instead of the region.',
       ],
     },
   },

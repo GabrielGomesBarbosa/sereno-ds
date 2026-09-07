@@ -46,6 +46,10 @@ export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> 
   /** Visually-hidden `<caption>`; also the default accessible name for the scroll region. */
   caption?: string;
   density?: 'comfortable' | 'compact';
+  /** Keeps the table this wide — below it the `role="region"` scrolls horizontally
+   * instead of the columns squashing. Set it for anything with more than ~3
+   * columns that has to survive a phone. */
+  minWidth?: number | string;
   /** Pins the header while the body scrolls — pair it with `maxHeight`. */
   stickyHeader?: boolean;
   /** Caps the scroll region's height, so `stickyHeader` has something to stick within. */
@@ -60,6 +64,7 @@ export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> 
 function TableRoot({
   caption,
   density = 'comfortable',
+  minWidth,
   stickyHeader = false,
   maxHeight,
   zebra = false,
@@ -89,7 +94,7 @@ function TableRoot({
         data-sticky={stickyHeader || undefined}
         data-zebra={zebra || undefined}
         className={['sereno-table', className].filter(Boolean).join(' ')}
-        style={style}
+        style={sx({ ...(minWidth != null ? { minWidth } : {}), ...style })}
       >
         {caption ? <caption>{caption}</caption> : null}
         {children}
@@ -214,11 +219,17 @@ function HeaderCell({ align = 'left', width, sortKey, sort, onSort, srOnly, chil
 export interface CellProps extends Omit<React.TdHTMLAttributes<HTMLTableCellElement>, 'align'> {
   align?: Align;
   width?: number | string;
+  /** Let this cell's text wrap. Cells are `nowrap` by default (the region scrolls). */
+  wrap?: boolean;
 }
 
-function Cell({ align = 'left', width, children, style, ...rest }: CellProps) {
+function Cell({ align = 'left', width, wrap, children, style, ...rest }: CellProps) {
   return (
-    <td {...rest} style={sx({ textAlign: align, ...(width != null ? { width } : {}), ...style })}>
+    <td
+      {...rest}
+      data-wrap={wrap || undefined}
+      style={sx({ textAlign: align, ...(width != null ? { width } : {}), ...style })}
+    >
       {children}
     </td>
   );

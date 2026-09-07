@@ -376,7 +376,7 @@ const STATUS_LABEL: Record<Plan['status'], string> = { success: 'Ativo', warning
 
 function TableBasico() {
   return (
-    <Table caption="Clientes">
+    <Table caption="Clientes" minWidth={520}>
       <Table.Head>
         <Table.Row>
           <Table.HeaderCell>Cliente</Table.HeaderCell>

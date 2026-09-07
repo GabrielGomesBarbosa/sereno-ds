@@ -811,13 +811,13 @@ function ClientesView() {
       {rows.length === 0 ? (
         <EmptyState icon={<Search size={22} strokeWidth={1.75} />} title="Nenhum cliente encontrado" description={`Nada para "${query.trim()}". Tente outro nome.`} />
       ) : (
-        <Table caption="Clientes">
+        <Table caption="Clientes" minWidth={460}>
           <Table.Head>
             <Table.Row>
               <Table.HeaderCell sortKey="name" sort={sort} onSort={setSort}>Cliente</Table.HeaderCell>
               <Table.HeaderCell>Histórico</Table.HeaderCell>
               <Table.HeaderCell>Status</Table.HeaderCell>
-              <Table.HeaderCell srOnly>Abrir</Table.HeaderCell>
+              <Table.HeaderCell srOnly width={44}>Abrir</Table.HeaderCell>
             </Table.Row>
           </Table.Head>
           <Table.Body>

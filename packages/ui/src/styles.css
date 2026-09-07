@@ -146,7 +146,8 @@
   white-space: nowrap;
   border-bottom: 1px solid var(--border-default);
 }
-.sereno-table td { font-size: var(--text-sm); color: var(--text-primary); vertical-align: middle; }
+.sereno-table td { font-size: var(--text-sm); color: var(--text-primary); vertical-align: middle; white-space: nowrap; }
+.sereno-table td[data-wrap] { white-space: normal; }
 .sereno-table tbody tr:not(:first-child) td { border-top: 1px solid var(--border-subtle); }
 .sereno-table[data-density="comfortable"] :where(th, td) { padding: var(--space-3) var(--space-4); }
 .sereno-table[data-density="compact"] :where(th, td) { padding: 6px var(--space-4); }
@@ -160,7 +161,10 @@
 .sereno-table tbody tr[data-interactive]:hover td { background: var(--bg-subtle); }
 .sereno-table th button { transition: color var(--duration-fast) var(--ease-standard); }
 .sereno-table th button:hover { color: var(--text-primary); }
-.sereno-table-scroll { outline: none; }
+/* `min-width: 0` lets the region shrink below the table's `min-width` when it's a
+   flex / grid item — without it the wide table forces its ancestors open and the
+   *page* scrolls sideways instead of this box. */
+.sereno-table-scroll { outline: none; min-width: 0; max-width: 100%; }
 .sereno-table-scroll:focus-visible,
 .sereno-table th button:focus-visible,
 .sereno-table tbody tr[data-interactive]:focus-visible {

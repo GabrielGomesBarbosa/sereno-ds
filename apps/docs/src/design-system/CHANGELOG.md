@@ -17,6 +17,12 @@ Version shown in the `/design-system` header. Source: `apps/docs/src/design-syst
   `<caption>` / scroll `role="region"`.
 - **Demo:** the dashboard's *Clientes* view is now a real `Table` (sort by name,
   selectable rows) instead of a hand-rolled row list.
+- **`minWidth` + `nowrap` cells** — cells are `white-space: nowrap` by default and
+  `<Table minWidth={…}>` floors the table width, so on a phone the scroll
+  `region` takes a sideways scrollbar instead of the columns crushing.
+  `<Table.Cell wrap>` opts one column back into wrapping. The scroll region now
+  carries `min-width: 0` so a wide table can't push its flex / grid ancestors —
+  or the page — sideways.
 - Catalogue is now **28 primitives**. Showcase page at `/design-system/core/table`.
 - No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, no changeset).
 - Sets the reference for the compound pattern — see `CLAUDE.md` and SS-213.
