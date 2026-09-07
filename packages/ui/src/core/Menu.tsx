@@ -71,7 +71,9 @@ export interface MenuProps {
 const GAP = 6;
 const GUTTER = 12;
 
-type Place = { top: number; left: number; width: number; above: boolean; maxH: number };
+/** The panel anchors by two edges (one vertical, one horizontal) so its own
+ *  width never has to be known to place it — CSS `max-content` sizes it. */
+type Place = { top?: number; bottom?: number; left?: number; right?: number; above: boolean; maxH: number };
 
 export function Menu({ trigger, items, children, label, align = 'end', width, disabled, open: openProp, onOpenChange }: MenuProps) {
   const rid = React.useId();
@@ -111,14 +113,16 @@ export function Menu({ trigger, items, children, label, align = 'end', width, di
     [setOpen],
   );
 
-  // Measure + place the panel while open. Re-runs on scroll/resize; closes if the
-  // trigger scrolls away (mirrors Select's fixed strategy).
+  // Measure + place the panel while open. Anchors by one vertical + one
+  // horizontal edge so the panel's own width need not be known. Re-runs on
+  // scroll/resize; closes if the trigger scrolls away (mirrors Select's fixed
+  // strategy). A microtask re-measure picks up the real panel height for the flip.
   React.useLayoutEffect(() => {
     if (!open || !mounted) return;
     const anchor = anchorRef.current;
     if (!anchor) return;
 
-    const measure = () => {
+    const measure = (): Place => {
       const r = anchor.getBoundingClientRect();
       const vw = window.innerWidth || document.documentElement.clientWidth || 360;
       const vh = window.innerHeight || document.documentElement.clientHeight || 640;
@@ -127,20 +131,14 @@ export function Menu({ trigger, items, children, label, align = 'end', width, di
       const panelH = panelRef.current?.scrollHeight ?? 240;
       const above = roomBelow < Math.min(panelH, 200) && roomAbove > roomBelow;
       const maxH = Math.max(120, Math.round((above ? roomAbove : roomBelow) - GAP));
-
-      const w =
-        typeof width === 'number'
-          ? width
-          : width
-            ? (panelRef.current?.offsetWidth ?? 220)
-            : Math.min(Math.max(180, panelRef.current?.scrollWidth ?? 200), vw - GUTTER * 2);
-      let left = align === 'end' ? r.right - w : r.left;
-      left = Math.min(Math.max(GUTTER, left), vw - GUTTER - w);
-      const top = above ? Math.max(GUTTER, r.top - GAP - Math.min(panelH, maxH)) : r.bottom + GAP;
-      return { top, left, width: w, above, maxH };
+      const horiz: Pick<Place, 'left' | 'right'> =
+        align === 'end' ? { right: Math.max(GUTTER, vw - r.right) } : { left: Math.max(GUTTER, r.left) };
+      const vert: Pick<Place, 'top' | 'bottom'> = above ? { bottom: Math.max(GUTTER, vh - r.top + GAP) } : { top: r.bottom + GAP };
+      return { ...horiz, ...vert, above, maxH };
     };
 
     setPlace(measure());
+    const raf = window.setTimeout(() => setPlace(measure()), 0); // real height now that the panel is in the DOM
     const anchorTop = anchor.getBoundingClientRect().top;
     const onScroll = (e: Event) => {
       if (e.target instanceof Node && panelRef.current?.contains(e.target)) return;
@@ -151,10 +149,11 @@ export function Menu({ trigger, items, children, label, align = 'end', width, di
     window.addEventListener('scroll', onScroll, true);
     window.addEventListener('resize', onResize);
     return () => {
+      window.clearTimeout(raf);
       window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', onResize);
     };
-  }, [open, mounted, align, width, close]);
+  }, [open, mounted, align, close]);
 
   // Outside pointerdown closes.
   React.useEffect(() => {
@@ -233,8 +232,12 @@ export function Menu({ trigger, items, children, label, align = 'end', width, di
     sx({
       position: 'fixed',
       top: p.top,
+      bottom: p.bottom,
       left: p.left,
-      width: p.width,
+      right: p.right,
+      width: width ?? 'max-content',
+      minWidth: width ?? 180,
+      maxWidth: `calc(100vw - ${GUTTER * 2}px)`,
       maxHeight: p.maxH,
       zIndex: 1200,
       display: 'flex',
