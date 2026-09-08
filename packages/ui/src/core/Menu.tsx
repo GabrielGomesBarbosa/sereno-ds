@@ -76,9 +76,10 @@ export interface MenuProps {
 const GAP = 6;
 const GUTTER = 12;
 
-/** The panel anchors by two edges (one vertical, one horizontal) so its own
- *  width never has to be known to place it — CSS `max-content` sizes it. */
-type Place = { top?: number; bottom?: number; left?: number; right?: number; above: boolean; maxH: number };
+/** `left` is clamped so the panel is always fully on screen; `above` picks the
+ *  vertical edge. A microtask re-measure (after the panel mounts) refines both
+ *  with the real box. */
+type Place = { top?: number; bottom?: number; left: number; above: boolean; maxH: number };
 
 export function Menu({ trigger, adornment, items, children, header, label, align = 'end', width, disabled, open: openProp, onOpenChange }: MenuProps) {
   const rid = React.useId();
@@ -118,10 +119,11 @@ export function Menu({ trigger, adornment, items, children, header, label, align
     [setOpen],
   );
 
-  // Measure + place the panel while open. Anchors by one vertical + one
-  // horizontal edge so the panel's own width need not be known. Re-runs on
-  // scroll/resize; closes if the trigger scrolls away (mirrors Select's fixed
-  // strategy). A microtask re-measure picks up the real panel height for the flip.
+  // Measure + place the panel while open. `left` is clamped to keep the whole
+  // panel on screen (it can't just right-anchor — on a phone a 360px panel off a
+  // trigger 300px from the left would run off the edge). Re-runs on scroll/resize;
+  // closes if the trigger scrolls away (mirrors Select's fixed strategy). A
+  // microtask re-measure picks up the real panel box once it's in the DOM.
   React.useLayoutEffect(() => {
     if (!open || !mounted) return;
     const anchor = anchorRef.current;
@@ -136,10 +138,13 @@ export function Menu({ trigger, adornment, items, children, header, label, align
       const panelH = panelRef.current?.scrollHeight ?? 240;
       const above = roomBelow < Math.min(panelH, 200) && roomAbove > roomBelow;
       const maxH = Math.max(120, Math.round((above ? roomAbove : roomBelow) - GAP));
-      const horiz: Pick<Place, 'left' | 'right'> =
-        align === 'end' ? { right: Math.max(GUTTER, vw - r.right) } : { left: Math.max(GUTTER, r.left) };
+
+      const panelW = Math.min(panelRef.current?.offsetWidth || (typeof width === 'number' ? width : 240), vw - GUTTER * 2);
+      const wanted = align === 'end' ? r.right - panelW : r.left;
+      const left = Math.min(Math.max(GUTTER, wanted), vw - GUTTER - panelW);
+
       const vert: Pick<Place, 'top' | 'bottom'> = above ? { bottom: Math.max(GUTTER, vh - r.top + GAP) } : { top: r.bottom + GAP };
-      return { ...horiz, ...vert, above, maxH };
+      return { left, ...vert, above, maxH };
     };
 
     setPlace(measure());
@@ -158,7 +163,7 @@ export function Menu({ trigger, adornment, items, children, header, label, align
       window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', onResize);
     };
-  }, [open, mounted, align, close]);
+  }, [open, mounted, align, width, close]);
 
   // Outside pointerdown closes.
   React.useEffect(() => {
@@ -239,7 +244,6 @@ export function Menu({ trigger, adornment, items, children, header, label, align
       top: p.top,
       bottom: p.bottom,
       left: p.left,
-      right: p.right,
       width: width ?? 'max-content',
       minWidth: width ?? 180,
       maxWidth: `calc(100vw - ${GUTTER * 2}px)`,

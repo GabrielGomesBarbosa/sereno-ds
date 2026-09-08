@@ -201,6 +201,20 @@ describe('Menu', () => {
     expect(screen.queryByRole('menu')).toBeNull();
   });
 
+  it('keeps a wide panel on screen at a narrow viewport (left never goes negative)', () => {
+    const orig = window.innerWidth;
+    Object.defineProperty(window, 'innerWidth', { value: 400, configurable: true });
+    try {
+      render(<Menu trigger={<Trigger />} align="end" width={360} items={[{ label: 'One' }]} />);
+      open();
+      const menu = screen.getByRole('menu');
+      expect(parseFloat(menu.style.left)).toBeGreaterThanOrEqual(12);
+      expect(menu.style.right).toBe('');
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { value: orig, configurable: true });
+    }
+  });
+
   it('composes with the trigger’s own onClick', () => {
     const triggerClick = vi.fn();
     render(<Menu trigger={<Trigger onClick={triggerClick} />} items={[{ label: 'One' }]} />);
