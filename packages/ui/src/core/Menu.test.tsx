@@ -2,6 +2,7 @@ import * as React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { Menu, type MenuEntry } from './Menu';
+import { Table } from './Table';
 
 afterEach(cleanup);
 
@@ -152,6 +153,52 @@ describe('Menu', () => {
     expect(screen.queryByRole('menu')).toBeNull();
     rerender(<Menu trigger={<Trigger />} open onOpenChange={onOpenChange} items={[{ label: 'One' }]} />);
     expect(screen.getByRole('menu')).toBeInTheDocument();
+  });
+
+  it('renders a header above the items', () => {
+    render(
+      <Menu
+        trigger={<Trigger />}
+        header={<div>Ana Beatriz Ramos</div>}
+        items={[{ label: 'Sign out', onClick: () => {} }]}
+      />,
+    );
+    open();
+    const menu = screen.getByRole('menu');
+    expect(within(menu).getByText('Ana Beatriz Ramos')).toBeInTheDocument();
+    // header comes before the first menuitem in DOM order
+    const header = within(menu).getByText('Ana Beatriz Ramos');
+    const firstItem = within(menu).getByRole('menuitem');
+    expect(header.compareDocumentPosition(firstItem) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('works as a per-row action menu inside a Table', () => {
+    const onDelete = vi.fn();
+    render(
+      <Table caption="Clients">
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>Marina</Table.Cell>
+            <Table.Cell>
+              <Menu
+                trigger={<Trigger />}
+                items={[
+                  { label: 'Edit', onClick: () => {} },
+                  { label: 'Delete', tone: 'danger', onClick: onDelete },
+                ]}
+              />
+            </Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table>,
+    );
+    open();
+    // portalled out of the table, so the scroll region can't clip it
+    const menu = screen.getByRole('menu');
+    expect(document.body).toContainElement(menu);
+    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Delete' }));
+    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('menu')).toBeNull();
   });
 
   it('composes with the trigger’s own onClick', () => {

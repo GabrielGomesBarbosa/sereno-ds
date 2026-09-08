@@ -18,6 +18,7 @@ import {
   LogOut,
   Mail,
   MoreHorizontal,
+  Pencil,
   Phone,
   Plus,
   Search,
@@ -545,6 +546,53 @@ function TableClicavel() {
         ))}
       </Table.Body>
     </Table>
+  );
+}
+
+function TableRowActionsInner() {
+  const { toast } = useToast();
+  return (
+    <Table caption="Clients" minWidth={420}>
+      <Table.Head>
+        <Table.Row>
+          <Table.HeaderCell>Client</Table.HeaderCell>
+          <Table.HeaderCell align="right">Sessions</Table.HeaderCell>
+          <Table.HeaderCell srOnly width={44}>
+            Actions
+          </Table.HeaderCell>
+        </Table.Row>
+      </Table.Head>
+      <Table.Body>
+        {PLAN_ROWS.map((r) => (
+          <Table.Row key={r.id}>
+            <Table.Cell>{r.name}</Table.Cell>
+            <Table.Cell align="right">{r.sessions}</Table.Cell>
+            <Table.Cell align="right">
+              <Menu
+                trigger={
+                  <IconButton label={`Ações — ${r.name}`} size="sm">
+                    <MoreHorizontal size={16} strokeWidth={1.75} />
+                  </IconButton>
+                }
+                items={[
+                  { label: 'Editar', icon: <Pencil size={16} strokeWidth={1.75} />, onClick: () => toast(`Editando ${r.name}`) },
+                  { label: 'Duplicar', icon: <Copy size={16} strokeWidth={1.75} />, onClick: () => toast(`${r.name} duplicado`) },
+                  { separator: true },
+                  { label: 'Excluir', icon: <Trash2 size={16} strokeWidth={1.75} />, tone: 'danger', onClick: () => toast.error(`${r.name} excluído`) },
+                ]}
+              />
+            </Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table>
+  );
+}
+function TableRowActions() {
+  return (
+    <ToastProvider>
+      <TableRowActionsInner />
+    </ToastProvider>
   );
 }
 
@@ -1939,7 +1987,14 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   avatar: { sizes: AvatarTamanhos, 'initials-photo': AvatarIniciais, status: AvatarStatus },
   brand: { variants: BrandVariantes, mono: BrandMono, sizes: BrandTamanhos },
   menu: { basic: MenuBasicoWrap, 'danger-disabled': MenuDangerDisabled, rich: MenuRico },
-  table: { basic: TableBasico, sortable: TableSortable, interactive: TableClicavel, 'compact-sticky': TableCompactSticky, empty: TableVazia },
+  table: {
+    basic: TableBasico,
+    sortable: TableSortable,
+    interactive: TableClicavel,
+    'row-actions': TableRowActions,
+    'compact-sticky': TableCompactSticky,
+    empty: TableVazia,
+  },
   input: {
     basic: InputBasico,
     'icon-suffix': InputIconeSufixo,

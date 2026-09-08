@@ -20,7 +20,7 @@ import {
   Link2,
   LogOut,
   Megaphone,
-  Menu,
+  Menu as MenuIcon,
   MessageSquare,
   Moon,
   Package,
@@ -54,6 +54,8 @@ import {
   EmptyState,
   IconButton,
   Input,
+  Menu,
+  type MenuEntry,
   SearchInput,
   Select,
   SidebarNav,
@@ -217,44 +219,6 @@ function Stat({ label, value, delta, tone }: { label: string; value: string; del
 }
 
 // ── TopBar menus ────────────────────────────────────────────────────────────────
-const panelStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: 'calc(100% + 10px)',
-  right: 0,
-  background: 'var(--bg-surface)',
-  borderRadius: 'var(--radius-lg)',
-  boxShadow: '0 0 0 1px var(--border-default), var(--shadow-lg)',
-  zIndex: 50,
-  overflow: 'hidden',
-};
-
-/** On phones the trigger sits too close to the right edge for a right-anchored
-    dropdown (it spills off the left). Pin the panel to the viewport gutters,
-    just below the 74px TopBar, so it always stays on screen. */
-const mobilePanelStyle: React.CSSProperties = {
-  position: 'fixed',
-  top: 'calc(var(--dash-header-h, 74px) + 4px)',
-  left: 'var(--gutter-mobile, 20px)',
-  right: 'var(--gutter-mobile, 20px)',
-  width: 'auto',
-};
-
-function useDismiss(open: boolean, close: () => void) {
-  React.useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (!(e.target as HTMLElement).closest('[data-menu-root]')) close();
-    };
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close();
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open, close]);
-}
-
 const NOTIF_ICON: Record<(typeof NOTIFICATIONS)[number]['kind'], React.ReactNode> = {
   booking: <CalendarCheck size={16} strokeWidth={1.75} />,
   payment: <Wallet size={16} strokeWidth={1.75} />,
@@ -269,56 +233,56 @@ const NOTIF_TONE: Record<(typeof NOTIFICATIONS)[number]['kind'], string> = {
 };
 
 function NotificationsMenu({ onToast }: { onToast: (m: string) => void }) {
-  const [open, setOpen] = React.useState(false);
   const [items, setItems] = React.useState(NOTIFICATIONS);
-  const close = React.useCallback(() => setOpen(false), []);
-  useDismiss(open, close);
-  const isNarrow = useMediaQuery('(max-width: 900px)');
   const unread = items.filter((n) => n.unread).length;
 
   return (
-    <span data-menu-root style={{ position: 'relative', display: 'inline-flex' }}>
-      <IconButton label="Notificações" onClick={() => setOpen((o) => !o)}>
-        <Bell size={18} strokeWidth={1.75} />
-      </IconButton>
-      {unread > 0 && (
-        <span
-          aria-hidden
-          style={{
-            position: 'absolute',
-            top: 2,
-            right: 2,
-            minWidth: 16,
-            height: 16,
-            padding: '0 4px',
-            borderRadius: 999,
-            background: 'var(--status-error-fg)',
-            color: '#fff',
-            fontSize: 10,
-            fontWeight: 700,
-            lineHeight: '16px',
-            textAlign: 'center',
-            boxShadow: '0 0 0 2px var(--bg-surface)',
-          }}
-        >
-          {unread}
-        </span>
-      )}
-      {open && (
-        <div style={{ ...panelStyle, ...(isNarrow ? mobilePanelStyle : { width: 'min(360px, calc(100vw - 32px))' }) }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-3) var(--space-4)', borderBottom: '1px solid var(--border-subtle)' }}>
-            <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Notificações</span>
-            {unread > 0 && (
-              <button
-                type="button"
-                className="dash-menu-btn"
-                onClick={() => setItems((xs) => xs.map((n) => ({ ...n, unread: false })))}
-                style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--text-brand)', borderRadius: 'var(--radius-sm)', padding: '4px 6px' }}
-              >
-                Marcar todas como lidas
-              </button>
-            )}
-          </div>
+    <Menu
+      trigger={
+        <IconButton label="Notificações">
+          <Bell size={18} strokeWidth={1.75} />
+        </IconButton>
+      }
+      adornment={
+        unread > 0 ? (
+          <span
+            aria-hidden
+            style={{
+              position: 'absolute',
+              top: 2,
+              right: 2,
+              minWidth: 16,
+              height: 16,
+              padding: '0 4px',
+              borderRadius: 999,
+              background: 'var(--status-error-fg)',
+              color: '#fff',
+              fontSize: 10,
+              fontWeight: 700,
+              lineHeight: '16px',
+              textAlign: 'center',
+              boxShadow: '0 0 0 2px var(--bg-surface)',
+            }}
+          >
+            {unread}
+          </span>
+        ) : null
+      }
+      label="Notificações"
+      width={360}
+      header={
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-2)' }}>
+          <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Notificações</span>
+          {unread > 0 && (
+            <Button variant="link" size="sm" onClick={() => setItems((xs) => xs.map((n) => ({ ...n, unread: false })))}>
+              Marcar todas como lidas
+            </Button>
+          )}
+        </div>
+      }
+    >
+      {(close) => (
+        <>
           <div style={{ maxHeight: 340, overflowY: 'auto' }}>
             {items.map((n, i) => (
               <div
@@ -339,100 +303,62 @@ function NotificationsMenu({ onToast }: { onToast: (m: string) => void }) {
               </div>
             ))}
           </div>
-          <button
-            type="button"
-            className="dash-menu-btn"
+          <Button
+            variant="ghost"
+            fullWidth
+            style={{ borderTop: '1px solid var(--border-subtle)', borderRadius: 0, color: 'var(--text-secondary)' }}
             onClick={() => {
-              setOpen(false);
+              close();
               onToast('Central de notificações — em breve.');
-            }}
-            style={{
-              width: '100%',
-              border: 'none',
-              borderTop: '1px solid var(--border-subtle)',
-              background: 'var(--bg-surface)',
-              cursor: 'pointer',
-              padding: 'var(--space-3)',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-xs)',
-              fontWeight: 600,
-              color: 'var(--text-secondary)',
             }}
           >
             Ver todas
-          </button>
-        </div>
+          </Button>
+        </>
       )}
-    </span>
+    </Menu>
   );
 }
 
 function UserMenu({ onNavigate, onToast }: { onNavigate: (v: string) => void; onToast: (m: string) => void }) {
-  const [open, setOpen] = React.useState(false);
-  const close = React.useCallback(() => setOpen(false), []);
-  useDismiss(open, close);
   // On mobile the standalone TopBar theme toggle is dropped for space — it lives here instead.
   const isNarrow = useMediaQuery('(max-width: 900px)');
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
-  const row: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'var(--space-3)',
-    width: '100%',
-    padding: 'var(--space-3) var(--space-4)',
-    border: 'none',
-    background: 'transparent',
-    cursor: 'pointer',
-    fontFamily: 'var(--font-body)',
-    fontSize: 'var(--text-sm)',
-    color: 'var(--text-secondary)',
-    textAlign: 'left',
-  };
+
+  const items: MenuEntry[] = [
+    ...(isNarrow
+      ? [
+          {
+            label: isDark ? 'Tema claro' : 'Tema escuro',
+            icon: isDark ? <Sun size={16} strokeWidth={1.75} /> : <Moon size={16} strokeWidth={1.75} />,
+            onClick: () => setTheme(isDark ? 'light' : 'dark'),
+            keepOpen: true,
+          } satisfies MenuEntry,
+        ]
+      : []),
+    { label: 'Configurações', icon: <Settings size={16} strokeWidth={1.75} />, onClick: () => onNavigate('config:perfil') },
+    { label: 'Sair', icon: <LogOut size={16} strokeWidth={1.75} />, tone: 'danger', onClick: () => onToast('Você saiu da sua conta.') },
+  ];
 
   return (
-    <span data-menu-root style={{ position: 'relative', display: 'inline-flex' }}>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-2)',
-          border: 'none',
-          background: open ? 'var(--interactive-secondary-hover)' : 'transparent',
-          cursor: 'pointer',
-          padding: '4px 6px 4px 4px',
-          borderRadius: 'var(--radius-pill)',
-        }}
-      >
-        <Avatar name="Ana Beatriz Ramos" size="sm" />
-        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }} className="dash-user-name">
-          Ana Beatriz
-        </span>
-        <ChevronDown size={16} strokeWidth={2} style={{ color: 'var(--text-muted)', transition: 'transform var(--duration-fast) var(--ease-standard)', transform: open ? 'rotate(180deg)' : 'none' }} />
-      </button>
-      {open && (
-        <div style={{ ...panelStyle, width: 'min(220px, calc(100vw - 32px))' }}>
-          <div style={{ padding: 'var(--space-3) var(--space-4)', borderBottom: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>Ana Beatriz Ramos</div>
-            <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>ana.ramos@email.com</div>
-          </div>
-          {isNarrow && (
-            <button type="button" className="dash-menu-btn" style={row} onClick={() => setTheme(isDark ? 'light' : 'dark')}>
-              {isDark ? <Sun size={16} strokeWidth={1.75} /> : <Moon size={16} strokeWidth={1.75} />}
-              {isDark ? 'Tema claro' : 'Tema escuro'}
-            </button>
-          )}
-          <button type="button" className="dash-menu-btn" style={row} onClick={() => { setOpen(false); onNavigate('config:perfil'); }}>
-            <Settings size={16} strokeWidth={1.75} /> Configurações
-          </button>
-          <button type="button" className="dash-menu-btn" style={{ ...row, color: 'var(--status-error-fg)' }} onClick={() => { setOpen(false); onToast('Você saiu da sua conta.'); }}>
-            <LogOut size={16} strokeWidth={1.75} /> Sair
-          </button>
-        </div>
-      )}
-    </span>
+    <Menu
+      width={220}
+      trigger={
+        <button type="button" className="dash-user-trigger">
+          <Avatar name="Ana Beatriz Ramos" size="sm" />
+          <span className="dash-user-name">Ana Beatriz</span>
+          <ChevronDown size={16} strokeWidth={2} />
+        </button>
+      }
+      header={
+        <>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>Ana Beatriz Ramos</div>
+          <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>ana.ramos@email.com</div>
+        </>
+      }
+      items={items}
+    />
   );
 }
 
@@ -533,7 +459,7 @@ export function Dashboard() {
             leading={
               <span className="dash-topbar-lead">
                 <IconButton label="Abrir menu" variant="ghost" onClick={openDrawer}>
-                  <Menu size={20} strokeWidth={1.75} />
+                  <MenuIcon size={20} strokeWidth={1.75} />
                 </IconButton>
               </span>
             }

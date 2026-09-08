@@ -410,8 +410,10 @@ export const COMPONENTS: ComponentMeta[] = [
       'Action menu / dropdown — a `trigger` you supply plus a portalled panel. Same mechanics as `Select`: `position: fixed` panel measured off the trigger, flips up when there is no room, closes on outside pointerdown / `Escape` / selection and returns focus to the trigger.',
     props: [
       R('trigger', 'React.ReactElement', 'The element that opens the menu — an `IconButton`, `Button`, an avatar button. `Menu` clones it to wire `onClick` + `aria-*`.'),
+      R('adornment', 'React.ReactNode', 'Overlaid on the trigger (a notification count, a status dot) in a `pointer-events: none` layer.'),
       R('items', 'MenuEntry[]', 'Rows: `{ label, icon?, onClick, disabled?, tone?, keepOpen? }`, `{ separator: true }`, or `{ heading }`. Omit when using the render function.'),
       R('children', '(close) => ReactNode', 'Rich panel content instead of `items` — receives `close`. The panel is a `role="dialog"` then.'),
+      R('header', 'React.ReactNode', 'A block above the items — a name + email, a title. Not part of the keyboard roving.'),
       R('label', 'string', 'Accessible name for the panel; also a heading row when `items` is used.'),
       R('align', "'start' | 'end'", 'Which trigger edge the panel lines up with.', "'end'"),
       R('width', 'number | string', 'Panel width. Default: fits the content (min 180px), capped to the viewport.'),
@@ -555,6 +557,24 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
 </Table.Row>`,
       },
       {
+        id: 'row-actions',
+        title: 'Row actions',
+        description: 'A per-row `Menu` in a trailing `srOnly` cell — the pattern for when each row has several verbs. The row itself is **not** a button; the `IconButton` trigger is. `Menu` portals out, so the table\'s scroll region never clips it.',
+        code: `<Table.HeaderCell srOnly width={44}>Actions</Table.HeaderCell>
+…
+<Table.Cell align="right">
+  <Menu
+    trigger={<IconButton label={\`Ações — \${r.name}\`} size="sm"><MoreHorizontal size={16} /></IconButton>}
+    items={[
+      { label: 'Editar', icon: <Pencil size={16} />, onClick: () => edit(r) },
+      { label: 'Duplicar', icon: <Copy size={16} />, onClick: () => dup(r) },
+      { separator: true },
+      { label: 'Excluir', icon: <Trash2 size={16} />, tone: 'danger', onClick: () => del(r) },
+    ]}
+  />
+</Table.Cell>`,
+      },
+      {
         id: 'compact-sticky',
         title: 'Compact + sticky header',
         description: '`density="compact"` for CRM density; `stickyHeader` + `maxHeight` pin the head inside a bounded scroll region; `zebra` for faint striping on long lists.',
@@ -577,6 +597,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         'Sort the `rows` in the consumer and pass them back; `sort` is display-only.',
         '`compact` for CRM / reports, `comfortable` everywhere else. Right-align numeric columns.',
         'Set `minWidth` on multi-column tables — the region scrolls sideways on a phone instead of the text crushing.',
+        'For several verbs per row, a `Menu` in a trailing `srOnly` cell — not a clickable row.',
       ],
       dont: [
         'Nesting an interactive control in a clickable row (`onClick` on `Table.Row` **and** a `<button>` cell) — pick one.',

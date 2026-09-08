@@ -52,10 +52,15 @@ const isItem = (e: MenuEntry): e is MenuItem => !('separator' in e) && !('headin
 export interface MenuProps {
   /** The clickable element that opens the menu (an `IconButton`, `Button`, avatar button…). */
   trigger: React.ReactElement;
+  /** Overlaid on the trigger — a notification count, a status dot. Sits in a
+   *  `pointer-events: none` layer so a click still opens the menu. */
+  adornment?: React.ReactNode;
   /** Structured rows. Omit when using the `children` render function. */
   items?: MenuEntry[];
   /** Rich panel content — receives `close`. Mutually exclusive with `items`. */
   children?: (close: () => void) => React.ReactNode;
+  /** A block above the `items` — a name + email, a title. Not part of the keyboard roving. */
+  header?: React.ReactNode;
   /** Accessible name for the panel, and a heading row when `items` is used. */
   label?: string;
   /** Which trigger edge the panel lines up with. Default `end` (right). */
@@ -75,7 +80,7 @@ const GUTTER = 12;
  *  width never has to be known to place it — CSS `max-content` sizes it. */
 type Place = { top?: number; bottom?: number; left?: number; right?: number; above: boolean; maxH: number };
 
-export function Menu({ trigger, items, children, label, align = 'end', width, disabled, open: openProp, onOpenChange }: MenuProps) {
+export function Menu({ trigger, adornment, items, children, header, label, align = 'end', width, disabled, open: openProp, onOpenChange }: MenuProps) {
   const rid = React.useId();
   const menuId = `${rid}-menu`;
   const anchorRef = React.useRef<HTMLSpanElement>(null);
@@ -259,6 +264,7 @@ export function Menu({ trigger, items, children, label, align = 'end', width, di
   return (
     <span ref={anchorRef} style={sx({ display: 'inline-flex', position: 'relative' })}>
       {triggerEl}
+      {adornment != null && <span style={sx({ position: 'absolute', inset: 0, pointerEvents: 'none' })}>{adornment}</span>}
       {open &&
         mounted &&
         place &&
@@ -273,6 +279,19 @@ export function Menu({ trigger, items, children, label, align = 'end', width, di
             onKeyDown={roverKeyDown}
             style={panelStyle(place)}
           >
+            {header && (
+              <div
+                style={sx({
+                  flex: '0 0 auto',
+                  padding: 'var(--space-3) var(--space-4)',
+                  margin: items ? 'calc(var(--space-1) * -1) calc(var(--space-1) * -1) var(--space-1)' : 0,
+                  borderBottom: 'var(--border-width-hairline) solid var(--border-subtle)',
+                  fontFamily: 'var(--font-body)',
+                })}
+              >
+                {header}
+              </div>
+            )}
             {items ? (
               <>
                 {label && (
