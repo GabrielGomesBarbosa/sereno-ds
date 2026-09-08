@@ -77,13 +77,13 @@ const GAP = 6;
 const GUTTER = 12;
 
 /** `left` is clamped so the panel is always fully on screen; `above` picks the
- *  vertical edge. On a phone `right` is set too — the panel spans the gutters
- *  (centred, full-width) instead of hanging off the trigger. */
+ *  vertical edge. On a narrow (phone) viewport `right` is set too — the panel
+ *  spans the gutters (centred, full-width) instead of hanging off the trigger. */
 type Place = { top?: number; bottom?: number; left: number; right?: number; above: boolean; maxH: number };
 
-const isPhone = () =>
-  typeof window !== 'undefined' &&
-  ((window.matchMedia?.('(pointer: coarse)').matches ?? false) || (window.innerWidth || 1024) <= 560);
+/** Phone-width viewport (`--bp-sm`). Width only — not `pointer: coarse`, which a
+ *  trackpad / touch laptop reports on a full-size screen. */
+const PHONE_W = 560;
 
 export function Menu({ trigger, adornment, items, children, header, label, align = 'end', width, disabled, open: openProp, onOpenChange }: MenuProps) {
   const rid = React.useId();
@@ -135,8 +135,10 @@ export function Menu({ trigger, adornment, items, children, header, label, align
 
     const measure = (): Place => {
       const r = anchor.getBoundingClientRect();
-      const vw = window.innerWidth || document.documentElement.clientWidth || 360;
-      const vh = window.innerHeight || document.documentElement.clientHeight || 640;
+      // Fall back to a *desktop* width when unmeasurable — never full-width a
+      // menu just because a reading came back 0 (a real phone always reports).
+      const vw = window.innerWidth || document.documentElement.clientWidth || 1024;
+      const vh = window.innerHeight || document.documentElement.clientHeight || 768;
       const roomBelow = vh - r.bottom - GUTTER;
       const roomAbove = r.top - GUTTER;
       const panelH = panelRef.current?.scrollHeight ?? 240;
@@ -144,8 +146,8 @@ export function Menu({ trigger, adornment, items, children, header, label, align
       const maxH = Math.max(120, Math.round((above ? roomAbove : roomBelow) - GAP));
       const vert: Pick<Place, 'top' | 'bottom'> = above ? { bottom: Math.max(GUTTER, vh - r.top + GAP) } : { top: r.bottom + GAP };
 
-      // Phone: span the gutters — centred, full-width — rather than hang off the trigger.
-      if (isPhone()) return { left: GUTTER, right: GUTTER, ...vert, above, maxH };
+      // Phone-width: span the gutters — centred, full-width — rather than hang off the trigger.
+      if (vw <= PHONE_W) return { left: GUTTER, right: GUTTER, ...vert, above, maxH };
 
       const panelW = Math.min(panelRef.current?.offsetWidth || (typeof width === 'number' ? width : 240), vw - GUTTER * 2);
       const wanted = align === 'end' ? r.right - panelW : r.left;
