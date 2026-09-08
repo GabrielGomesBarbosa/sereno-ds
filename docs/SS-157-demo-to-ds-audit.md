@@ -1,6 +1,6 @@
 # SS-157 — Auditoria "demo → DS"
 
-**Subtask [SS-177](https://archtechsystems.atlassian.net/browse/SS-177).** Varredura de `apps/demo/src/screens/` atrás de todo elemento de UI **base** (botão / campo / menu / marca) que não vem de `@sereno/ui`. Composições de tela (`Stat`, `AppointmentRow`, `DayBlock`, `ComingSoon`, `Hero`, `Rail`, …) **não** entram — montar tela com primitivos é o padrão certo.
+**Subtask [SS-177](https://archtechsystems.atlassian.net/browse/SS-177).** Varredura de `apps/demo/src/screens/` atrás de todo elemento de UI **base** (botão / campo / menu / marca) que não vem de `@sereno-ds/ui`. Composições de tela (`Stat`, `AppointmentRow`, `DayBlock`, `ComingSoon`, `Hero`, `Rail`, …) **não** entram — montar tela com primitivos é o padrão certo.
 
 Telas varridas: `BookingFlow.tsx`, `Dashboard.tsx`, `Onboarding.tsx`. Também conferido `apps/docs/src/design-system/Sidebar.tsx` (citado no card).
 

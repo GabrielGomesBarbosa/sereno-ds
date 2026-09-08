@@ -1,5 +1,5 @@
 ---
-"@sereno/ui": minor
+"@sereno-ds/ui": minor
 ---
 
 New `ToastProvider` + `useToast()` — the toast *system* on top of the
@@ -18,4 +18,4 @@ duration=…>`; call `const { toast, dismiss } = useToast()` anywhere below it.
 
 `Toast` gains an opt-in `progress={{ ms, paused }}` prop for that bar (the
 provider wires it). Adds the `sereno-toast-*` keyframes to
-`@sereno/ui/styles.css`.
+`@sereno-ds/ui/styles.css`.

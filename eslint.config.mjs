@@ -8,7 +8,7 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
-    // @sereno/ui is a component library, not a Next app — silence the
+    // @sereno-ds/ui is a component library, not a Next app — silence the
     // pages-dir lookup from this Next-app-only rule.
     files: ["packages/ui/**/*.{ts,tsx}"],
     rules: { "@next/next/no-html-link-for-pages": "off" },

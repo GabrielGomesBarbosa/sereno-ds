@@ -9,7 +9,7 @@ import { sx } from '../_internal/style';
  * items. Same mechanics as `Select`: `position: fixed` panel measured off the
  * trigger, flips up when there's no room, closes on outside pointerdown / `Escape`
  * / selection, and returns focus to the trigger. `role="menu"` with arrow-key
- * roving. Needs the `sereno-pop` keyframe from `@sereno/ui/styles.css`.
+ * roving. Needs the `sereno-pop` keyframe from `@sereno-ds/ui/styles.css`.
  *
  * ```tsx
  * <Menu

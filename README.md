@@ -17,20 +17,20 @@ npm workspaces + Turborepo.
 
 | Path | Name | What |
 |---|---|---|
-| `packages/tokens` | `@sereno/tokens` | the token layer — `*.css` (light × dark) + a `tokens.css` barrel |
-| `packages/ui` | `@sereno/ui` | **29 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) — token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
+| `packages/tokens` | `@sereno-ds/tokens` | the token layer — `*.css` (light × dark) + a `tokens.css` barrel |
+| `packages/ui` | `@sereno-ds/ui` | **29 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) — token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
 | `apps/docs` | `docs` | the `/design-system` showcase (Next 16, `output: 'export'`) — MUI-doc-style page per component: live preview, "show code", Do / Don't, "on this page" rail, prev/next, versioned header |
 | `apps/demo` | `demo` | `/demo` hub + `/agendar/[slug]` (public booking) + `/dashboard` + `/onboarding` + `src/screens/` + `src/lib/mock.ts` — fully responsive, components reflow |
 
-- **`@sereno/ui` / `@sereno/tokens` are consumed as source** through the workspace
+- **`@sereno-ds/ui` / `@sereno-ds/tokens` are consumed as source** through the workspace
   link (`transpilePackages`) — a real package build lands in SS-156.
 - The component stylesheet (`@keyframes`, `:checked` / `:focus-visible`,
   `::-webkit-scrollbar`, one responsive reflow) is
   **`packages/ui/src/styles.css`** — load it once at the app root. Each app's
-  `globals.css` does `@import "@sereno/tokens/tokens.css"` then
-  `@import "@sereno/ui/styles.css"`, then only its own shell rules.
+  `globals.css` does `@import "@sereno-ds/tokens/tokens.css"` then
+  `@import "@sereno-ds/ui/styles.css"`, then only its own shell rules.
 - Icons: `lucide-react` passed to components as props (a `peerDependency`).
-- Fonts: `next/font/google` per app; the `--font-*` CSS vars are the `@sereno/ui`
+- Fonts: `next/font/google` per app; the `--font-*` CSS vars are the `@sereno-ds/ui`
   contract.
 
 ## Components
@@ -44,7 +44,7 @@ npm workspaces + Turborepo.
 | **theme** (2) | `ThemeProvider` · `ThemeToggle` |
 
 Product-domain cards (`ServiceCard`, `ProfessionalCard`, `AppointmentCard`,
-`WeeklyScheduleEditor`) are **not** in `@sereno/ui` — they encode Sereno's
+`WeeklyScheduleEditor`) are **not** in `@sereno-ds/ui` — they encode Sereno's
 domain, not reusable UI. They live in `apps/demo/src/domain/` as a reference for
 building product components on top of the DS.
 
@@ -81,7 +81,7 @@ apps/
   demo/
     app/                   layout.tsx, globals.css, agendar/[slug]/, dashboard/, onboarding/, robots.ts, sitemap.ts
     src/screens/           BookingFlow, Dashboard, Onboarding
-    src/domain/            ServiceCard, ProfessionalCard, AppointmentCard, WeeklyScheduleEditor — product cards built on @sereno/ui
+    src/domain/            ServiceCard, ProfessionalCard, AppointmentCard, WeeklyScheduleEditor — product cards built on @sereno-ds/ui
     src/lib/mock.ts        mocked data for the 3 screens
 turbo.json                 build / lint / typecheck / dev tasks
 tsconfig.base.json         shared compiler options (each workspace extends it)
@@ -98,11 +98,11 @@ must be green.
 
 **One version** — `packages/ui` + `packages/tokens` `package.json` (lockstep).
 That number publishes to npm and is what the `/design-system` header shows (it
-reads `@sereno/ui/package.json`). Managed with **Changesets**: a PR that changes
+reads `@sereno-ds/ui/package.json`). Managed with **Changesets**: a PR that changes
 a component / token adds a `.changeset/*.md` (`npm run changeset`); showcase- or
 demo-only PRs add nothing and bump nothing. `npm run version-packages` cuts the
 bump + `packages/ui/CHANGELOG.md`; `npm run release` publishes. Tags:
-`@sereno/ui@X.Y.Z` — see
+`@sereno-ds/ui@X.Y.Z` — see
 [Releases](https://github.com/GabrielGomesBarbosa/sereno-ds/releases).
 `apps/docs/src/design-system/CHANGELOG.md` is the hand-written narrative.
 

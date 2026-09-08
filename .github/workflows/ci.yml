@@ -29,3 +29,21 @@ jobs:
       - run: npm run typecheck
       - run: npm run test
       - run: npm run build
+
+  # What would actually ship to npm. Runs on every PR so a stray file in the
+  # tarball is caught before a release. `--dry-run` needs no auth.
+  publish-dry-run:
+    name: npm publish --dry-run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build --workspace=@sereno-ds/ui
+      - name: "@sereno-ds/tokens — tarball contents"
+        run: npm publish --dry-run --workspace=@sereno-ds/tokens
+      - name: "@sereno-ds/ui — tarball contents"
+        run: npm publish --dry-run --workspace=@sereno-ds/ui

@@ -6,7 +6,7 @@ machine log. Add an entry here whenever you add a changeset.
 
 ## 0.24.0 — Menu, the toast system, Dialog/Select overlays (SS-153 / SS-60 / SS-61)
 
-- **New `Menu` primitive** (`@sereno/ui`, core) — action menu / dropdown. A
+- **New `Menu` primitive** (`@sereno-ds/ui`, core) — action menu / dropdown. A
   `trigger` you supply plus a portalled panel; same mechanics as `Select`
   (`position: fixed` panel measured off the trigger, flips up, closes on outside
   pointerdown / `Escape` / selection, focus return). `items[]` with `icon` /
@@ -51,15 +51,15 @@ machine log. Add an entry here whenever you add a changeset.
   count, a dot). Every cell grows to keep the grid even; scoping (e.g. future
   days only) is the caller's job. The dashboard Agenda rail shows upcoming
   booking counts; the public booking flow deliberately does not.
-- No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, no changeset).
+- No `@sereno-ds/ui` / `@sereno-ds/tokens` version change (pre-SS-161, no changeset).
 
 ## 0.22.0 — Table (SS-216 / SS-58)
 
-- **New `Table` primitive** (`@sereno/ui`, core) — the DS's first **compound
+- **New `Table` primitive** (`@sereno-ds/ui`, core) — the DS's first **compound
   component**: `Table` + `Table.Head` / `Table.Body` / `Table.Row` /
   `Table.HeaderCell` / `Table.Cell`. Cells hold real JSX, not `render`
   callbacks. Structure, `density` (`comfortable` / `compact`), row dividers and
-  hover / focus / sticky / zebra ship in `@sereno/ui/styles.css`, keyed off
+  hover / focus / sticky / zebra ship in `@sereno-ds/ui/styles.css`, keyed off
   `data-*` on the `<table>` — the parts stay thin.
 - **Controlled sort** — `sortKey` + `sort` + `onSort` on a `HeaderCell` shows
   the chevron and sets `aria-sort`; the consumer sorts the `rows`. The DS never
@@ -78,9 +78,9 @@ machine log. Add an entry here whenever you add a changeset.
 - **Row states** are a brand-tinted progression — hover < selected <
   selected+hover — so none of them blends into the neutral header fill.
 - **Demo:** Financeiro → "A receber" → *Pagamentos pendentes* is a real `Table`
-  now too — every tabular view in the demo goes through `@sereno/ui`.
+  now too — every tabular view in the demo goes through `@sereno-ds/ui`.
 - Catalogue is now **28 primitives**. Showcase page at `/design-system/core/table`.
-- No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, no changeset).
+- No `@sereno-ds/ui` / `@sereno-ds/tokens` version change (pre-SS-161, no changeset).
 - Sets the reference for the compound pattern — see `CLAUDE.md` and SS-213.
 
 ## 0.21.1 — Onboarding "Formato" fix (no ticket)
@@ -91,7 +91,7 @@ machine log. Add an entry here whenever you add a changeset.
 
 ## 0.21.0 — Domain cards out of the DS (SS-212)
 
-- **The `domain` category is gone from `@sereno/ui`.** `ServiceCard`,
+- **The `domain` category is gone from `@sereno-ds/ui`.** `ServiceCard`,
   `ProfessionalCard`, `AppointmentCard` and `WeeklyScheduleEditor` encoded
   Sereno's product domain, not reusable UI — a published DS should not ship
   them. They moved to `apps/demo/src/domain/` as a reference for building product
@@ -100,20 +100,20 @@ machine log. Add an entry here whenever you add a changeset.
 - **Showcase:** the Domain section and its four component pages are removed;
   `CategoryId` drops `'domain'`. Catalogue is now **27 primitives** across core /
   forms / navigation / feedback / theme.
-- `WeeklyScheduleEditor`'s 560px reflow rule moved from `@sereno/ui/styles.css`
+- `WeeklyScheduleEditor`'s 560px reflow rule moved from `@sereno-ds/ui/styles.css`
   to `apps/demo/app/globals.css` with the component.
 - `ProfessionalCard` (previously only in the showcase) now renders the
   professional's identity at the top of the booking flow — mobile hero and
   desktop rail — replacing the hand-rolled `Avatar` + text.
 - Booking flow polish: the plain "Sereno" wordmark is now the `Brand` lockup
-  (drop + wordmark); the desktop "Voltar" link is a real `@sereno/ui` ghost
+  (drop + wordmark); the desktop "Voltar" link is a real `@sereno-ds/ui` ghost
   `Button`; the in-step service/time recap card is hidden on desktop (the rail
   already shows it); `ServiceCard` moves the duration under the price,
   right-aligned. (`Brand` in the dashboard / onboarding screens is still SS-180.)
 - Onboarding "first service" step gains an optional **Descrição** `Textarea`,
   fed into the "como o cliente vai ver" `ServiceCard` preview — it was missing
   the description line that real services show in the booking flow.
-- No `@sereno/ui` / `@sereno/tokens` version change (pre-SS-161, packages at
+- No `@sereno-ds/ui` / `@sereno-ds/tokens` version change (pre-SS-161, packages at
   `0.0.0`, no changeset).
 - Drive-by: the `Brand` lockup in the `/design-system` sidebar header is now a
   link back to the docs landing (`/`).
@@ -179,7 +179,7 @@ machine log. Add an entry here whenever you add a changeset.
 
 - `apps/docs/app/page.tsx` is no longer a placeholder. A proper DS home:
   - **Split hero** — copy (eyebrow, big headline, sub, React / Next.js marks, two
-    CTAs, an `import { Button, Card } from '@sereno/ui'` code block) next to a
+    CTAs, an `import { Button, Card } from '@sereno-ds/ui'` code block) next to a
     **live preview panel** (`HeroPreview`) that wires up real primitives — a
     booking card with Avatar, Badge, Tabs, Switch, Buttons and a floating
     success Alert. Proof, not a screenshot. A soft indigo radial glow behind it.
@@ -190,13 +190,13 @@ machine log. Add an entry here whenever you add a changeset.
   - **Path cards** to `/design-system` and `/demo`, plus a footer with the mono
     mark and a GitHub link.
 - All landing copy in **English** (product screens stay pt-BR).
-- Built from `@sereno/ui` + tokens only — no external images, responsive, light +
+- Built from `@sereno-ds/ui` + tokens only — no external images, responsive, light +
   dark. New `apps/docs/src/home/` (`HeroPreview`, `ComponentGallery`, mono
   React / Next.js / GitHub marks); `@/home/*` tsconfig path added.
 
 ## 0.19.0 — `Brand` component + the water-drop mark (SS-202)
 
-- **New `Brand` primitive** (`@sereno/ui`, core) — the Sereno mark: an indigo
+- **New `Brand` primitive** (`@sereno-ds/ui`, core) — the Sereno mark: an indigo
   water-drop symbol (`#7d8bdf` → `#4f46e5` gradient), optionally locked up with
   the lowercase `sereno` wordmark (`--font-display` at 500). `variant`
   (`symbol` / `lockup` / `lockup-vertical`), `size` (px), `mono` (drops the
@@ -211,12 +211,12 @@ machine log. Add an entry here whenever you add a changeset.
 
 ## 0.18.1 — Monorepo (npm workspaces + Turborepo) (SS-155)
 
-- The repo is now four workspaces: **`packages/tokens`** (`@sereno/tokens`),
-  **`packages/ui`** (`@sereno/ui` — the 31 primitives + `styles.css` + `theme`),
+- The repo is now four workspaces: **`packages/tokens`** (`@sereno-ds/tokens`),
+  **`packages/ui`** (`@sereno-ds/ui` — the 31 primitives + `styles.css` + `theme`),
   **`apps/docs`** (this showcase) and **`apps/demo`** (the 3 product screens).
-- Both apps consume `@sereno/ui` / `@sereno/tokens` through the workspace link;
+- Both apps consume `@sereno-ds/ui` / `@sereno-ds/tokens` through the workspace link;
   the `@/components` / `@/theme` tsconfig aliases are gone. Each app's
-  `globals.css` `@import`s `@sereno/tokens/tokens.css` + `@sereno/ui/styles.css`
+  `globals.css` `@import`s `@sereno-ds/tokens/tokens.css` + `@sereno-ds/ui/styles.css`
   and then only its own shell rules.
 - `turbo run build | lint | typecheck` from the root. No component API or visual
   change — plumbing only. Deploy is a stopgap on `apps/docs` until SS-158.
@@ -239,8 +239,8 @@ machine log. Add an entry here whenever you add a changeset.
   `.onb-*` shell rule. The app renders identically.
 - **New consumer contract:** load the component stylesheet once at the app root.
   Today that's the `@import` above; once the library is packaged it becomes
-  `import '@sereno/ui/styles.css'`.
-- No component API or visual change — first step of the "@sereno/ui as a
+  `import '@sereno-ds/ui/styles.css'`.
+- No component API or visual change — first step of the "@sereno-ds/ui as a
   publishable package" epic (SS-153).
 
 ## 0.17.1 — Stepper showcase + design-system chrome on SidebarNav (SS-53)

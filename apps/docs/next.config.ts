@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   output: "export",
   images: { unoptimized: true },
   trailingSlash: true,
-  // @sereno/ui is consumed as TS source (built in SS-156) — Next must transpile it.
-  transpilePackages: ["@sereno/ui"],
+  // @sereno-ds/ui is consumed as TS source (built in SS-156) — Next must transpile it.
+  transpilePackages: ["@sereno-ds/ui"],
 };
 
 export default nextConfig;

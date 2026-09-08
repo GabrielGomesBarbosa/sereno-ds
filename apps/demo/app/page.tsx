@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ExternalLink } from 'lucide-react';
-import { Brand, Card, ThemeToggle } from '@sereno/ui';
+import { Brand, Card, ThemeToggle } from '@sereno-ds/ui';
 
 // The Design System lives in a separate app (apps/docs). SS-158 sets
 // NEXT_PUBLIC_DS_URL for the deployed build; locally it runs on :3000.
@@ -132,7 +132,7 @@ export default function DemoHome() {
           </h1>
           <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-lg)', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0, maxWidth: 520 }}>
             Three real product screens — a public booking flow, the professional dashboard and onboarding — assembled from{' '}
-            <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85em', padding: '0.12em 0.4em', borderRadius: 'var(--radius-sm)', background: 'var(--bg-subtle)' }}>@sereno/ui</code>{' '}
+            <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85em', padding: '0.12em 0.4em', borderRadius: 'var(--radius-sm)', background: 'var(--bg-subtle)' }}>@sereno-ds/ui</code>{' '}
             primitives and navigable end to end on mocked data.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', marginTop: 'var(--space-1)' }}>

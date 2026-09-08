@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Badge, Avatar } from '@sereno/ui';
+import { Card, Badge, Avatar } from '@sereno-ds/ui';
 import { sx } from './sx';
 
 /**

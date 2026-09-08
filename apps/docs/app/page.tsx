@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
 import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, MonitorSmartphone, MoonStar, Palette, Server } from 'lucide-react';
-import { Brand, Card, ThemeToggle } from '@sereno/ui';
+import { Brand, Card, ThemeToggle } from '@sereno-ds/ui';
 import { DS_VERSION } from '@/design-system/version';
 import { ComponentGallery } from '@/home/ComponentGallery';
 import { HeroPreview } from '@/home/HeroPreview';
@@ -186,9 +186,9 @@ export default function Home() {
                 See the app <ExternalLink size={16} strokeWidth={2} />
               </a>
             </div>
-            <CopyCode code="import { Button, Card } from '@sereno/ui'">
+            <CopyCode code="import { Button, Card } from '@sereno-ds/ui'">
               <span style={{ opacity: 0.6 }}>import</span> {'{ Button, Card }'} <span style={{ opacity: 0.6 }}>from</span>{' '}
-              <span style={{ color: 'var(--accent-300, #8ee3d3)' }}>&apos;@sereno/ui&apos;</span>
+              <span style={{ color: 'var(--accent-300, #8ee3d3)' }}>&apos;@sereno-ds/ui&apos;</span>
             </CopyCode>
           </div>
 

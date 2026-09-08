@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Check } from 'lucide-react';
-import { Alert, Avatar, Badge, Button, Card, Switch, Tabs } from '@sereno/ui';
+import { Alert, Avatar, Badge, Button, Card, Switch, Tabs } from '@sereno-ds/ui';
 
 const FLOW = [
   { value: 'service', label: 'Service' },

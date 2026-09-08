@@ -1,5 +1,5 @@
 ---
-"@sereno/ui": patch
+"@sereno-ds/ui": patch
 ---
 
 `TopBar`: the subtitle now truncates with an ellipsis like the title instead of

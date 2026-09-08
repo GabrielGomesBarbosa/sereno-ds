@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Calendar, CheckCircle2, Link2, Share2, Sparkles, User } from 'lucide-react';
-import { AvatarUpload, Badge, Brand, Button, Card, Input, Select, Stepper, Textarea } from '@sereno/ui';
+import { AvatarUpload, Badge, Brand, Button, Card, Input, Select, Stepper, Textarea } from '@sereno-ds/ui';
 import { ServiceCard } from '@/domain/ServiceCard';
 import { WeeklyScheduleEditor, type WeekSchedule } from '@/domain/WeeklyScheduleEditor';
 import { DEFAULT_WEEK } from '@/lib/mock';

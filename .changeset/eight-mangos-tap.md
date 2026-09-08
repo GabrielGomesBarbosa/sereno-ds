@@ -1,5 +1,5 @@
 ---
-"@sereno/ui": patch
+"@sereno-ds/ui": patch
 ---
 
 `Alert` and `Toast` — the dismiss control is now a proper 28px icon button (a

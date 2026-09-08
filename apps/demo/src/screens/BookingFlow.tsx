@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Calendar, CalendarPlus, CheckCircle2, ChevronLeft, CreditCard, Info, Mail, Phone, Share2, User, Video } from 'lucide-react';
-import { Badge, Brand, Button, Card, Checkbox, DateTimePicker, IconButton, Input, Textarea, TopBar } from '@sereno/ui';
+import { Badge, Brand, Button, Card, Checkbox, DateTimePicker, IconButton, Input, Textarea, TopBar } from '@sereno-ds/ui';
 import { ServiceCard } from '@/domain/ServiceCard';
 import { ProfessionalCard } from '@/domain/ProfessionalCard';
 import type { Professional, Service } from '@/lib/mock';

@@ -1,5 +1,5 @@
 ---
-"@sereno/ui": minor
+"@sereno-ds/ui": minor
 ---
 
 New `Menu` — action menu / dropdown (SS-178). A `trigger` you supply plus a

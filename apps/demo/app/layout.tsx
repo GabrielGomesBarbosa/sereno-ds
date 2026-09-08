@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Manrope, JetBrains_Mono } from 'next/font/google';
-import { ThemeProvider } from '@sereno/ui';
+import { ThemeProvider } from '@sereno-ds/ui';
 import './globals.css';
 
 // Self-hosted, optimised by next/font — no Google Fonts CDN (SS-39 decisão 3).
@@ -15,7 +15,7 @@ const SITE = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3001';
 // the screens render pt-BR mock content, but the app identity is the DS.
 const TITLE = 'Sereno Design System — demo';
 const DESCRIPTION =
-  'Demo screens of the Sereno Design System: the booking flow, professional dashboard and onboarding, built with @sereno/ui and navigable on mocked data.';
+  'Demo screens of the Sereno Design System: the booking flow, professional dashboard and onboarding, built with @sereno-ds/ui and navigable on mocked data.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),

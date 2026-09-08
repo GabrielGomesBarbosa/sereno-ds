@@ -1,8 +1,8 @@
 # Changesets
 
-`@sereno/ui` and `@sereno/tokens` are versioned here, **in lockstep** (one number,
+`@sereno-ds/ui` and `@sereno-ds/tokens` are versioned here, **in lockstep** (one number,
 always equal — `fixed` in `config.json`). That number is what publishes to npm
-and what the showcase header displays (it reads `@sereno/ui/package.json`).
+and what the showcase header displays (it reads `@sereno-ds/ui/package.json`).
 
 ## The one rule
 
@@ -17,7 +17,7 @@ and what the showcase header displays (it reads `@sereno/ui/package.json`).
   npm run changeset
   ```
 
-  Pick `@sereno/ui` (tokens comes along automatically), choose `patch` for a
+  Pick `@sereno-ds/ui` (tokens comes along automatically), choose `patch` for a
   fix/tweak or `minor` for a feature/structure change, write one line for the
   consumer changelog. Commit the generated `.changeset/*.md` with your PR.
 

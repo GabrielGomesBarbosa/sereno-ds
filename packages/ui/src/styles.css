@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   @sereno/ui — component stylesheet.
+   @sereno-ds/ui — component stylesheet.
 
    The Sereno components are token-driven inline styles, but a handful of things
    can't live in an inline `style`: @keyframes, pseudo-classes (:checked,
@@ -7,10 +7,10 @@
    responsive reflow. Those rules live here and MUST be loaded once, at the app
    root, for the components to render correctly:
 
-       import '@sereno/ui/styles.css';   // (today: this file, via app/globals.css)
+       import '@sereno-ds/ui/styles.css';   // (today: this file, via app/globals.css)
 
    Depends on the design tokens (custom properties) being defined — see
-   app/styles/tokens/*.css (future @sereno/tokens).
+   app/styles/tokens/*.css (future @sereno-ds/tokens).
 
    Not included here (host-app concerns, not the library):
    - the token layer itself
@@ -135,7 +135,7 @@
 .ds-affix-btn:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 
 /* ── Table ──────────────────────────────────────────────────────────────────
-   Ships with @sereno/ui's compound <Table>. The parts stay thin — structure,
+   Ships with @sereno-ds/ui's compound <Table>. The parts stay thin — structure,
    density, dividers, hover / focus / sticky / zebra live here, keyed off
    data-* on the <table> root. */
 .sereno-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); }

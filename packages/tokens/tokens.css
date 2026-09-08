@@ -1,6 +1,6 @@
-/* @sereno/tokens — the full token layer, in the order components expect.
+/* @sereno-ds/tokens — the full token layer, in the order components expect.
    `colors` and `elevation` carry the `[data-theme="dark"]` overrides; `base` is
-   the element reset. Import this once at the app root (before @sereno/ui/styles.css). */
+   the element reset. Import this once at the app root (before @sereno-ds/ui/styles.css). */
 @import url("./colors.css");
 @import url("./typography.css");
 @import url("./spacing.css");

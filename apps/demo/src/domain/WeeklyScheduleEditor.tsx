@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Switch, Select } from '@sereno/ui';
+import { Switch, Select } from '@sereno-ds/ui';
 import { sx } from './sx';
 
 export interface DaySchedule {
