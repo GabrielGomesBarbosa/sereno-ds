@@ -1,19 +1,22 @@
 name: Release
 
-# Publishes @sereno/ui + @sereno/tokens to npm. This is NOT the showcase/demo
-# deploy (that's Railway, on its own) — see CLAUDE.md § "Package release".
+# Publishes @sereno-ds/ui + @sereno-ds/tokens to npm. This is NOT the
+# showcase/demo deploy (that's Railway, on its own) — see CLAUDE.md § "Package
+# release".
 #
 # Flow (Changesets):
 #   1. PRs land on main carrying `.changeset/*.md` files.
-#   2. This workflow opens/updates a "Version Packages" PR that runs
+#   2. This workflow opens/updates a "chore: version packages" PR that runs
 #      `changeset version` (bumps package.json + CHANGELOG, deletes changesets).
 #   3. Merging that PR runs `changeset publish` → `npm publish` for each package
-#      whose version isn't on the registry yet, and pushes the `@sereno/*@x.y.z`
-#      git tags.
+#      whose version isn't on the registry yet, and pushes the
+#      `@sereno-ds/*@x.y.z` git tags.
 #
-# Auth: OIDC trusted publishing — NO NPM_TOKEN. npm ≥ 11.5.1 (Node 24) plus
-# `id-token: write` and a Trusted Publisher configured on npm for this repo +
-# this workflow file. `provenance: true` is in each package's publishConfig.
+# Auth: OIDC trusted publishing — NO NPM_TOKEN. The install runs on Node 20 (to
+# match `ci.yml`'s lockfile); npm is then bumped to latest (≥ 11.5.1) for the
+# publish step, which OIDC trusted publishing requires. `id-token: write` +
+# `provenance: true` in each package's publishConfig + a Trusted Publisher
+# configured on npm for this repo + this workflow.
 
 on:
   push:
@@ -25,7 +28,7 @@ concurrency:
 
 permissions:
   contents: write # version-bump commit + tags
-  pull-requests: write # the Version Packages PR
+  pull-requests: write # the "chore: version packages" PR
   id-token: write # OIDC: provenance + trusted publishing
 
 jobs:
@@ -39,13 +42,17 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24 # npm 11 — OIDC trusted publishing needs ≥ 11.5.1
+          node-version: 20
+          cache: npm
           registry-url: https://registry.npmjs.org
 
       - run: npm ci
 
       # Gate: the packages must build + lint + test before anything can publish.
-      - run: npx turbo run lint typecheck test build --filter=@sereno/ui --filter=@sereno/tokens
+      - run: npx turbo run lint typecheck test build --filter=@sereno-ds/ui --filter=@sereno-ds/tokens
+
+      # OIDC trusted publishing needs npm ≥ 11.5.1; Node 20 ships npm 10.
+      - run: npm install -g npm@latest
 
       - name: Create Version PR or publish
         uses: changesets/action@v1
