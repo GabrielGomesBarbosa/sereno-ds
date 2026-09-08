@@ -16,9 +16,23 @@ html, body { padding: 0; margin: 0; }
   }
 }
 
-/* Dashboard TopBar dropdown rows (hand-built menu — becomes a Menu primitive in SS-157). */
-.dash-menu-btn { transition: background-color var(--duration-fast) var(--ease-standard); }
-.dash-menu-btn:hover { background: var(--bg-subtle) !important; }
+/* Dashboard TopBar user-menu trigger (the avatar + name + chevron pill that opens a Menu). */
+.dash-user-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 6px 4px 4px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.dash-user-trigger:hover { background: var(--interactive-ghost-hover); }
+.dash-user-trigger[data-menu-open] { background: var(--interactive-secondary-hover); }
+.dash-user-trigger .dash-user-name { font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); }
+.dash-user-trigger > svg:last-child { color: var(--text-muted); transition: transform var(--duration-fast) var(--ease-standard); }
+.dash-user-trigger[data-menu-open] > svg:last-child { transform: rotate(180deg); }
 
 /* ── Dashboard shell — fixed sidebar + scrolling content on desktop, drawer under 900px ── */
 .dash-shell { --dash-gutter: var(--gutter-desktop); display: grid; grid-template-columns: var(--dash-sb-w, 248px) minmax(0, 1fr); height: 100dvh; overflow: hidden; transition: grid-template-columns var(--duration-normal) var(--ease-out); }
@@ -80,7 +94,7 @@ html, body { padding: 0; margin: 0; }
   .dash-agenda-aside { flex-direction: column !important; }
 }
 @media (max-width: 560px) {
-  .dash-user-name { display: none; }
+  .dash-user-trigger .dash-user-name { display: none; }
 }
 
 /* ── Onboarding wizard ───────────────────────────────────────────────────────
@@ -119,17 +133,6 @@ html, body { padding: 0; margin: 0; }
   padding-top: var(--space-5);
   border-top: 1px solid var(--border-subtle);
 }
-.onb-skip {
-  align-self: center;
-  padding: var(--space-2);
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-}
-.onb-skip:hover { color: var(--text-secondary); }
 
 .onb-row { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: var(--space-3); }
 .onb-row-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
