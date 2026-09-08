@@ -6,15 +6,16 @@ import { sx } from '../_internal/style';
 export interface StepperStep {
   /** Stable identifier; falls back to the array index when omitted. */
   value?: string;
-  /** Short label — shown next to the "Passo N de M" counter for the current step. */
+  /** Short label — shown next to the step counter for the current step. */
   label: string;
 }
 
 /**
  * Progress indicator for a linear multi-step flow (onboarding, guided setup).
- * Renders the segment track plus a "Passo N de M · <label>" line (a dot
- * separates the counter from the current step's label). Same visual language as
- * the progress bar in the public booking flow, but with a props contract.
+ * Renders the segment track plus a `<counter> · <label>` line (a dot separates
+ * the counter from the current step's label). The counter defaults to
+ * `Step N of M` — the DS ships no localised copy; pass `stepLabel` for another
+ * language.
  */
 export interface StepperProps extends React.HTMLAttributes<HTMLDivElement> {
   steps: StepperStep[];
@@ -24,9 +25,17 @@ export interface StepperProps extends React.HTMLAttributes<HTMLDivElement> {
   onStepClick?: (index: number) => void;
   /** `bar` = full-width segments (desktop wizards). `dots` = compact pills (mobile). */
   variant?: 'bar' | 'dots';
+  /**
+   * Formats the step counter (both args 1-based / total). Default:
+   * `` `Step ${current} of ${total}` ``. Return `null` to drop the counter and
+   * show only the current step's `label`.
+   */
+  stepLabel?: (current: number, total: number) => React.ReactNode;
 }
 
-export function Stepper({ steps = [], current = 0, onStepClick, variant = 'bar', style, ...rest }: StepperProps) {
+const defaultStepLabel = (current: number, total: number) => `Step ${current} of ${total}`;
+
+export function Stepper({ steps = [], current = 0, onStepClick, variant = 'bar', stepLabel = defaultStepLabel, style, ...rest }: StepperProps) {
   const dots = variant === 'dots';
   const clickable = typeof onStepClick === 'function';
   return (
@@ -67,20 +76,27 @@ export function Stepper({ steps = [], current = 0, onStepClick, variant = 'bar',
       </div>
       {steps[current] && (
         <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', minWidth: 0 })}>
-          <span
-            style={sx({
-              flex: '0 0 auto',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-2xs)',
-              fontWeight: 'var(--weight-bold)',
-              letterSpacing: 'var(--tracking-wide)',
-              textTransform: 'uppercase',
-              color: 'var(--text-muted)',
-            })}
-          >
-            Passo {current + 1} de {steps.length}
-          </span>
-          <span aria-hidden style={sx({ flex: '0 0 auto', width: 3, height: 3, borderRadius: '999px', background: 'var(--border-strong)' })} />
+          {(() => {
+            const counter = stepLabel(current + 1, steps.length);
+            return counter == null ? null : (
+              <>
+                <span
+                  style={sx({
+                    flex: '0 0 auto',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-2xs)',
+                    fontWeight: 'var(--weight-bold)',
+                    letterSpacing: 'var(--tracking-wide)',
+                    textTransform: 'uppercase',
+                    color: 'var(--text-muted)',
+                  })}
+                >
+                  {counter}
+                </span>
+                <span aria-hidden style={sx({ flex: '0 0 auto', width: 3, height: 3, borderRadius: '999px', background: 'var(--border-strong)' })} />
+              </>
+            );
+          })()}
           <span
             style={sx({
               minWidth: 0,

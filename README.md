@@ -18,7 +18,7 @@ npm workspaces + Turborepo.
 | Path | Name | What |
 |---|---|---|
 | `packages/tokens` | `@sereno/tokens` | the token layer — `*.css` (light × dark) + a `tokens.css` barrel |
-| `packages/ui` | `@sereno/ui` | **28 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) — token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
+| `packages/ui` | `@sereno/ui` | **29 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) — token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
 | `apps/docs` | `docs` | the `/design-system` showcase (Next 16, `output: 'export'`) — MUI-doc-style page per component: live preview, "show code", Do / Don't, "on this page" rail, prev/next, versioned header |
 | `apps/demo` | `demo` | `/demo` hub + `/agendar/[slug]` (public booking) + `/dashboard` + `/onboarding` + `src/screens/` + `src/lib/mock.ts` — fully responsive, components reflow |
 
@@ -37,7 +37,7 @@ npm workspaces + Turborepo.
 
 | Category | Components |
 |---|---|
-| **core** (7) | `Avatar` · `Badge` · `Brand` · `Button` · `Card` · `IconButton` · `Table` |
+| **core** (8) | `Avatar` · `Badge` · `Brand` · `Button` · `Card` · `IconButton` · `Menu` · `Table` |
 | **forms** (10) | `AvatarUpload` · `Checkbox` · `DateTimePicker` · `FileUpload` · `Input` · `Radio` · `SearchInput` · `Select` · `Switch` · `Textarea` |
 | **navigation** (5) | `BottomNav` · `SidebarNav` · `Stepper` · `Tabs` · `TopBar` |
 | **feedback** (5) | `Alert` · `Dialog` · `EmptyState` · `Skeleton` · `Toast` |
@@ -58,7 +58,7 @@ npm run lint         # turbo run lint
 npm run typecheck    # turbo run typecheck
 ```
 
-`npm run build` must be green: **docs ≈ 32 routes** (25 component pages + tokens +
+`npm run build` must be green: **docs ≈ 33 routes** (26 component pages + tokens +
 overview + robots) and **demo ≈ 12 routes** (hub + 3 `/agendar` slugs + dashboard
 + onboarding + robots + sitemap).
 
@@ -70,7 +70,7 @@ packages/
   ui/
     src/
       index.ts            the barrel
-      core/ forms/ navigation/ feedback/   the 28 primitives
+      core/ forms/ navigation/ feedback/   the 29 primitives
       _internal/           Field, CharCount, mask, style helpers
       theme/               ThemeProvider + ThemeToggle
       styles.css           keyframes + :checked / scrollbar / reflow rules
