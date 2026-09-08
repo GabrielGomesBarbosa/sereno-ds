@@ -64,8 +64,9 @@ import {
   Table,
   type TableSort,
   Tabs,
-  Toast,
+  ToastProvider,
   TopBar,
+  useToast,
 } from '@sereno/ui';
 import { ThemeToggle } from '@sereno/ui';
 import { useTheme } from 'next-themes';
@@ -362,11 +363,12 @@ function UserMenu({ onNavigate, onToast }: { onNavigate: (v: string) => void; on
   );
 }
 
-export function Dashboard() {
+function DashboardShell() {
+  const { toast } = useToast();
+  const notify = React.useCallback((m: string) => toast.success(m), [toast]);
   const [view, setView] = React.useState<string>('agenda');
   const [navCollapsed, setNavCollapsed] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [toast, setToast] = React.useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [drawerRender, setDrawerRender] = React.useState(false);
   const isNarrow = useMediaQuery('(max-width: 900px)');
@@ -374,12 +376,6 @@ export function Dashboard() {
     setDrawerRender(true);
     setDrawerOpen(true);
   };
-
-  React.useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 3200);
-    return () => clearTimeout(t);
-  }, [toast]);
 
   // Nav drawer (mobile/tablet): lock scroll + Esc to close; auto-close on desktop.
   React.useEffect(() => {
@@ -422,7 +418,7 @@ export function Dashboard() {
     <Card padding="sm" elevation="none" style={{ background: 'var(--bg-accent-soft)', ...vcol('6px') }}>
       <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Plano gratuito</span>
       <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.4 }}>18 de 20 agendamentos usados este mês.</span>
-      <Button variant="accent" size="sm" fullWidth style={{ marginTop: 4 }} onClick={() => setToast('Redirecionando para os planos…')}>
+      <Button variant="accent" size="sm" fullWidth style={{ marginTop: 4 }} onClick={() => notify('Redirecionando para os planos…')}>
         Assinar agora
       </Button>
     </Card>
@@ -479,14 +475,14 @@ export function Dashboard() {
                 <span className="dash-topbar-theme">
                   <ThemeToggle variant="ghost" />
                 </span>
-                <NotificationsMenu onToast={setToast} />
+                <NotificationsMenu onToast={notify} />
                 <span style={{ width: 1, height: 24, background: 'var(--border-default)', margin: '0 var(--space-1)' }} />
-                <UserMenu onNavigate={setView} onToast={setToast} />
+                <UserMenu onNavigate={setView} onToast={notify} />
               </div>
             }
           />
           <main className="dash-main">
-            {base === 'agenda' && <AgendaView onCancel={() => setDialogOpen(true)} onToast={setToast} />}
+            {base === 'agenda' && <AgendaView onCancel={() => setDialogOpen(true)} onToast={notify} />}
             {base === 'clientes' && <ClientesView />}
             {base === 'servicos' && <ServicosView />}
             {base === 'financeiro' && <FinanceiroView section={sub ?? 'resumo'} title={pageTitle} />}
@@ -533,7 +529,7 @@ export function Dashboard() {
                 variant="error"
                 onClick={() => {
                   setDialogOpen(false);
-                  setToast('Agendamento cancelado. A cliente foi avisada.');
+                  notify('Agendamento cancelado. A cliente foi avisada.');
                 }}
               >
                 Cancelar agendamento
@@ -542,24 +538,15 @@ export function Dashboard() {
           }
         />
       )}
-
-      {toast && (
-        <div
-          style={{
-            position: 'fixed',
-            left: 'var(--space-4)',
-            right: 'var(--space-6)',
-            top: 'var(--space-6)',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            zIndex: 100, // above the screen header — a toast overlays everything
-            pointerEvents: 'none', // wrapper spans the width but must not block clicks
-          }}
-        >
-          <Toast tone="success" title={toast} onClose={() => setToast(null)} style={{ pointerEvents: 'auto' }} />
-        </div>
-      )}
     </div>
+  );
+}
+
+export function Dashboard() {
+  return (
+    <ToastProvider position="top-right">
+      <DashboardShell />
+    </ToastProvider>
   );
 }
 
