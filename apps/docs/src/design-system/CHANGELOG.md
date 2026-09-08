@@ -4,6 +4,38 @@ Hand-written narrative of what shipped, per version. The version is the one in
 `packages/ui/package.json` (Changesets); `packages/ui/CHANGELOG.md` is the
 machine log. Add an entry here whenever you add a changeset.
 
+## 0.24.0 — Menu, the toast system, Dialog/Select overlays (SS-153 / SS-60 / SS-61)
+
+- **New `Menu` primitive** (`@sereno/ui`, core) — action menu / dropdown. A
+  `trigger` you supply plus a portalled panel; same mechanics as `Select`
+  (`position: fixed` panel measured off the trigger, flips up, closes on outside
+  pointerdown / `Escape` / selection, focus return). `items[]` with `icon` /
+  `tone: 'danger'` / `keepOpen` / `separator` / `heading`, a `children` render-fn
+  for a rich panel (`role="dialog"`), plus `header` and `adornment` slots and a
+  controlled `open` / `onOpenChange` pair. Full-width centred on a phone-width
+  viewport (≤ 560px). Replaces the hand-rolled popovers in the demo dashboard.
+- **New `ToastProvider` + `useToast()`** — the toast *system* on top of the
+  presentational `Toast`. `<ToastProvider position max duration>` at the app
+  root; `const { toast, dismiss } = useToast()` anywhere below it. Portal
+  viewport, six positions, a countdown bar that pauses with the timer on hover /
+  focus, stack capped at `max` (oldest drops), `duration: 0` sticks. Error toasts
+  announce as `role="alert"`.
+- **`Dialog` portals to `<body>`** and is fixed to the viewport — no ancestor's
+  `overflow` / `transform` can trap it. New props: `size` (`sm`–`xl`),
+  `dividers`, `showClose`, `dismissible`, and `variant="fullscreen"`. Locks page
+  scroll, closes on `Escape`.
+- **`Select` — hand-rolled listbox** in every browser: two placement strategies
+  (inline `position: absolute`, glued through any scroll; `position: fixed`
+  portal only inside a `Dialog`), full keyboard support, and a **bottom sheet**
+  with finger-sized rows on a touch pointer (scroll-locked, `overscroll-behavior:
+  contain`). Clicking the field `<label>` no longer opens it.
+- **`Alert` / `Toast` dismiss** is now a proper 28px icon button (Lucide `X`,
+  hover / focus states) instead of a bare `×` with no hit area.
+- **`Stepper`** — the counter (`stepLabel`) is customisable and defaults to
+  English `Step N of M`; no more embedded pt-BR.
+- **`TopBar`** — the `subtitle` truncates with an ellipsis (was wrapping and
+  blowing out the bar height) and accepts `React.ReactNode`.
+
 ## 0.23.0 — DateTimePicker navigation (SS-217)
 
 - **Navigable header** — `‹` / `›` step the month; the centred title opens a

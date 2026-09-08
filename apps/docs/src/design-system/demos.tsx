@@ -1261,7 +1261,7 @@ function TopBarTransparente() {
       <TopBar
         transparent
         sticky={false}
-        leading={<span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>}
+        leading={<Brand variant="lockup" size={20} />}
         actions={
           <IconButton label="Share" variant="secondary">
             <Share2 size={18} strokeWidth={1.75} />
@@ -1429,11 +1429,7 @@ function SideFrame({ children }: { children: React.ReactNode }) {
   );
 }
 function Wordmark({ compact }: { compact?: boolean }) {
-  return (
-    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: compact ? 18 : 20, letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>
-      {compact ? 'S' : 'Sereno'}
-    </span>
-  );
+  return compact ? <Brand variant="symbol" size={22} /> : <Brand variant="lockup" size={20} />;
 }
 function SideUser() {
   return (
@@ -1499,12 +1495,20 @@ const STEP_ITEMS = [
   { value: 'grade', label: 'Your schedule' },
   { value: 'review', label: 'Review & finish' },
 ];
-function StepperWizard({ variant, clickable }: { variant?: 'bar' | 'dots'; clickable?: boolean }) {
+function StepperWizard({
+  variant,
+  clickable,
+  stepLabel,
+}: {
+  variant?: 'bar' | 'dots';
+  clickable?: boolean;
+  stepLabel?: (c: number, t: number) => React.ReactNode;
+}) {
   const [step, setStep] = React.useState(0);
   const last = STEP_ITEMS.length - 1;
   return (
     <div style={{ ...col, maxWidth: variant === 'dots' ? 340 : 460 }}>
-      <Stepper steps={STEP_ITEMS} current={step} variant={variant} onStepClick={clickable ? setStep : undefined} />
+      <Stepper steps={STEP_ITEMS} current={step} variant={variant} onStepClick={clickable ? setStep : undefined} stepLabel={stepLabel} />
       <div
         style={{
           marginTop: 'var(--space-1)',
@@ -1542,6 +1546,9 @@ function StepperDots() {
 }
 function StepperClicavel() {
   return <StepperWizard variant="bar" clickable />;
+}
+function StepperContador() {
+  return <StepperWizard variant="bar" stepLabel={(c, t) => `${c} / ${t}`} />;
 }
 
 function AlertTons() {
@@ -2038,7 +2045,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   tabs: { underline: TabsUnderline, pill: TabsPill, 'full-width': TabsFullWidth, overflow: TabsOverflow },
   'bottom-nav': { basic: BottomNavBasico, 'with-badge': BottomNavBadge },
   'sidebar-nav': { basic: SidebarNavBasico, collapsible: SidebarNavColapsavel },
-  stepper: { bar: StepperBar, dots: StepperDots, clickable: StepperClicavel },
+  stepper: { bar: StepperBar, dots: StepperDots, clickable: StepperClicavel, 'step-label': StepperContador },
   alert: { tones: AlertTons, 'with-action': AlertComAcao, dismissible: AlertDispensavel },
   toast: { tones: ToastTons, 'with-action': ToastComAcao, system: ToastSistema },
   dialog: {

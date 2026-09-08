@@ -1617,6 +1617,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       R('current', 'number', '0-based index of the active step.', '0'),
       R('onStepClick', '(index: number) => void', 'When present, completed steps become clickable (back only).'),
       R('variant', "'bar' | 'dots'", 'bar = full-width segments (desktop). dots = compact pills (mobile).', "'bar'"),
+      R('stepLabel', '(current, total) => ReactNode', 'Formats the counter (1-based). Default `Step N of M` — the DS ships no localised copy. Return `null` to drop the counter.'),
     ],
     code: `<Stepper
   current={step}
@@ -1632,7 +1633,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
         id: 'bar',
         title: 'Bar',
         description:
-          'Full-width segments + a "Passo N de M · <label>" line (a dot separates the counter from the step label). The default for desktop wizards. Drive it with `current` — **Back** / **Next** below walk a live 4-step flow.',
+          'Full-width segments + a `Step N of M · <label>` line (a dot separates the counter from the step label). The default for desktop wizards. Drive it with `current` — **Back** / **Next** below walk a live 4-step flow.',
         code: `const [step, setStep] = React.useState(0);
 const steps = [
   { value: 'profile', label: 'Your profile' },
@@ -1658,9 +1659,24 @@ const steps = [
           'With `onStepClick`, completed steps and the current one become buttons — **back only**; the disabled forward segments still need the primary **Next**. Try clicking an earlier segment.',
         code: `<Stepper current={step} onStepClick={setStep} steps={steps} />`,
       },
+      {
+        id: 'step-label',
+        title: 'Localised / custom counter',
+        description:
+          'The counter defaults to `Step N of M` — the DS embeds no localised text. Pass `stepLabel` for another language or a compact form; return `null` to show only the step label.',
+        code: `<Stepper current={step} steps={steps}
+  stepLabel={(c, t) => \`Passo \${c} de \${t}\`} />   // pt-BR
+
+<Stepper current={step} steps={steps}
+  stepLabel={(c, t) => \`\${c} / \${t}\`} />          // compact`,
+      },
     ],
     guidelines: {
-      do: ['`onStepClick` navigates back only.', '`bar` on desktop, `dots` on mobile.'],
+      do: [
+        '`onStepClick` navigates back only.',
+        '`bar` on desktop, `dots` on mobile.',
+        'Pass `stepLabel` for the counter in your app’s language — the DS default is English.',
+      ],
       dont: ['Letting the user skip ahead via the Stepper.'],
     },
   },

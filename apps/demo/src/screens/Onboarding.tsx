@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Calendar, CheckCircle2, Link2, Share2, Sparkles, User } from 'lucide-react';
-import { AvatarUpload, Badge, Button, Card, Input, Select, Stepper, Textarea } from '@sereno/ui';
+import { AvatarUpload, Badge, Brand, Button, Card, Input, Select, Stepper, Textarea } from '@sereno/ui';
 import { ServiceCard } from '@/domain/ServiceCard';
 import { WeeklyScheduleEditor, type WeekSchedule } from '@/domain/WeeklyScheduleEditor';
 import { DEFAULT_WEEK } from '@/lib/mock';
@@ -76,7 +76,7 @@ export function Onboarding() {
     <div className="onb-shell">
       <div className="onb-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: 'var(--text-brand)' }}>Sereno</span>
+          <Brand variant="lockup" size={22} />
           <Badge tone="neutral" dot={false}>
             Configuração inicial
           </Badge>
@@ -92,7 +92,7 @@ export function Onboarding() {
           />
         ) : (
           <>
-            <Stepper steps={STEPS} current={step} onStepClick={setStep} />
+            <Stepper steps={STEPS} current={step} onStepClick={setStep} stepLabel={(c, t) => `Passo ${c} de ${t}`} />
             {step === 0 && <PerfilStep data={data} set={set} />}
             {step === 1 && <ServicoStep data={data} set={set} />}
             {step === 2 && <GradeStep data={data} set={set} />}
