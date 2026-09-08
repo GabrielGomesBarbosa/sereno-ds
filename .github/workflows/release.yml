@@ -13,8 +13,8 @@ name: Release
 #      `@sereno-ds/*@x.y.z` git tags.
 #
 # Auth: OIDC trusted publishing — NO NPM_TOKEN. The install runs on Node 20 (to
-# match `ci.yml`'s lockfile); npm is then bumped to latest (≥ 11.5.1) for the
-# publish step, which OIDC trusted publishing requires. `id-token: write` +
+# match `ci.yml`'s lockfile); npm is then bumped to 11.x (≥ 11.5.1, the floor
+# for OIDC trusted publishing) for the publish step. `id-token: write` +
 # `provenance: true` in each package's publishConfig + a Trusted Publisher
 # configured on npm for this repo + this workflow.
 
@@ -51,8 +51,9 @@ jobs:
       # Gate: the packages must build + lint + test before anything can publish.
       - run: npx turbo run lint typecheck test build --filter=@sereno-ds/ui --filter=@sereno-ds/tokens
 
-      # OIDC trusted publishing needs npm ≥ 11.5.1; Node 20 ships npm 10.
-      - run: npm install -g npm@latest
+      # OIDC trusted publishing needs npm ≥ 11.5.1; Node 20 ships npm 10. Pinned
+      # to 11.x on purpose — npm@latest is 12.x now, which requires Node 22+.
+      - run: npm install -g npm@11
 
       - name: Create Version PR or publish
         uses: changesets/action@v1
