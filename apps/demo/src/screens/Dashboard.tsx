@@ -710,7 +710,6 @@ function AgendaView({ onCancel, onToast }: { onCancel: () => void; onToast: (m: 
                   className="ds-affix-btn"
                   aria-label="Copiar link"
                   onClick={() => onToast('Link copiado para a área de transferência.')}
-                  style={{ display: 'inline-flex', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}
                 >
                   <Copy size={16} strokeWidth={1.75} />
                 </button>

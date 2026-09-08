@@ -133,17 +133,6 @@ html, body { padding: 0; margin: 0; }
   padding-top: var(--space-5);
   border-top: 1px solid var(--border-subtle);
 }
-.onb-skip {
-  align-self: center;
-  padding: var(--space-2);
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-}
-.onb-skip:hover { color: var(--text-secondary); }
 
 .onb-row { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: var(--space-3); }
 .onb-row-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }

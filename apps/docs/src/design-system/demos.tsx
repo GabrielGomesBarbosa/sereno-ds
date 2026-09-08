@@ -15,7 +15,6 @@ import {
   Copy,
   Flag,
   Lock,
-  LogOut,
   Mail,
   MoreHorizontal,
   Pencil,

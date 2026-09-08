@@ -114,9 +114,9 @@ export function Onboarding() {
                 </Button>
               </div>
               {step < 2 && (
-                <button className="onb-skip" onClick={() => setStep(step + 1)}>
+                <Button variant="ghost" size="sm" style={{ alignSelf: 'center' }} onClick={() => setStep(step + 1)}>
                   Preencher depois
-                </button>
+                </Button>
               )}
             </div>
           </>
