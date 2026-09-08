@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
-import { Table } from '@sereno/ui';
+import { Table } from '@sereno-ds/ui';
 import { type ComponentMeta, adjacentComponents, examplesFor } from './catalog';
 import { ExampleSection, InlineCode } from './ExampleSection';
 

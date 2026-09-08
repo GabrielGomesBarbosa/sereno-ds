@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Bell, Calendar, Search } from 'lucide-react';
-import { Alert, Avatar, Badge, Button, Card, Checkbox, IconButton, Input, Radio, Skeleton, Switch, Tabs } from '@sereno/ui';
+import { Alert, Avatar, Badge, Button, Card, Checkbox, IconButton, Input, Radio, Skeleton, Switch, Tabs } from '@sereno-ds/ui';
 
 const row: React.CSSProperties = { display: 'flex', gap: 'var(--space-2)', alignItems: 'center', flexWrap: 'wrap' };
 const cell: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' };

@@ -1,0 +1,59 @@
+name: Release
+
+# Publishes @sereno/ui + @sereno/tokens to npm. This is NOT the showcase/demo
+# deploy (that's Railway, on its own) — see CLAUDE.md § "Package release".
+#
+# Flow (Changesets):
+#   1. PRs land on main carrying `.changeset/*.md` files.
+#   2. This workflow opens/updates a "Version Packages" PR that runs
+#      `changeset version` (bumps package.json + CHANGELOG, deletes changesets).
+#   3. Merging that PR runs `changeset publish` → `npm publish` for each package
+#      whose version isn't on the registry yet, and pushes the `@sereno/*@x.y.z`
+#      git tags.
+#
+# Auth: OIDC trusted publishing — NO NPM_TOKEN. npm ≥ 11.5.1 (Node 24) plus
+# `id-token: write` and a Trusted Publisher configured on npm for this repo +
+# this workflow file. `provenance: true` is in each package's publishConfig.
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write # version-bump commit + tags
+  pull-requests: write # the Version Packages PR
+  id-token: write # OIDC: provenance + trusted publishing
+
+jobs:
+  release:
+    name: version PR / publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24 # npm 11 — OIDC trusted publishing needs ≥ 11.5.1
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci
+
+      # Gate: the packages must build + lint + test before anything can publish.
+      - run: npx turbo run lint typecheck test build --filter=@sereno/ui --filter=@sereno/tokens
+
+      - name: Create Version PR or publish
+        uses: changesets/action@v1
+        with:
+          version: npx changeset version
+          publish: npx changeset publish
+          commit: "chore: version packages"
+          title: "chore: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # no NPM_TOKEN — publish auth is OIDC trusted publishing

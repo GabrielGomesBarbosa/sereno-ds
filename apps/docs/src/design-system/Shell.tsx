@@ -3,7 +3,7 @@ import { Sidebar } from './Sidebar';
 import { ScrollPanel } from './ScrollPanel';
 import { MobileNav } from './MobileNav';
 import { DS_VERSION } from './version';
-import { ThemeToggle } from '@sereno/ui';
+import { ThemeToggle } from '@sereno-ds/ui';
 
 // The demo is a separate app (apps/demo). SS-158 sets NEXT_PUBLIC_DEMO_URL for
 // the deployed build; locally it runs on :3001.

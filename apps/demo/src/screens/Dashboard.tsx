@@ -67,8 +67,8 @@ import {
   ToastProvider,
   TopBar,
   useToast,
-} from '@sereno/ui';
-import { ThemeToggle } from '@sereno/ui';
+} from '@sereno-ds/ui';
+import { ThemeToggle } from '@sereno-ds/ui';
 import { useTheme } from 'next-themes';
 import { AppointmentCard } from '@/domain/AppointmentCard';
 import { ServiceCard } from '@/domain/ServiceCard';

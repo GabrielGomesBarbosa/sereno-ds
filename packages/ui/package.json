@@ -1,5 +1,5 @@
 {
-  "name": "@sereno/ui",
+  "name": "@sereno-ds/ui",
   "version": "0.23.0",
   "description": "Sereno Design System — React primitives (token-driven, inline styles, no UI base lib).",
   "license": "MIT",
@@ -52,7 +52,7 @@
     "next-themes": "^0.4.6"
   },
   "peerDependencies": {
-    "@sereno/tokens": "*",
+    "@sereno-ds/tokens": "*",
     "lucide-react": ">=1",
     "react": ">=18",
     "react-dom": ">=18"
@@ -73,6 +73,7 @@
     "vitest": "^2.1.9"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   }
 }

@@ -1,5 +1,5 @@
 ---
-"@sereno/ui": patch
+"@sereno-ds/ui": patch
 ---
 
 `Select` — the touch bottom sheet now locks page scroll while it's open (the

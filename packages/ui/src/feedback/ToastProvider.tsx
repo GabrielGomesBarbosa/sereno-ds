@@ -27,7 +27,7 @@ import { sx } from '../_internal/style';
  * Toasts stack (newest nearest the edge), show a countdown bar, auto-dismiss
  * after `duration`, pause that timer (and the bar) while hovered/focused, and
  * cap at `max` — the oldest drops. Needs the `sereno-toast-*` keyframes from
- * `@sereno/ui/styles.css`.
+ * `@sereno-ds/ui/styles.css`.
  */
 
 type Tone = NonNullable<ToastProps['tone']>;

@@ -1,5 +1,5 @@
 ---
-"@sereno/ui": minor
+"@sereno-ds/ui": minor
 ---
 
 `Stepper` no longer embeds pt-BR copy. The counter (was a hardcoded

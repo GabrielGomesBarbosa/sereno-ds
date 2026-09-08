@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Brand, SidebarNav, type SidebarNavSection } from '@sereno/ui';
+import { Brand, SidebarNav, type SidebarNavSection } from '@sereno-ds/ui';
 import { CATEGORIES, COMPONENTS } from './catalog';
 
 const SECTIONS: SidebarNavSection[] = [

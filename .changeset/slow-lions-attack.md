@@ -1,5 +1,5 @@
 ---
-"@sereno/ui": minor
+"@sereno-ds/ui": minor
 ---
 
 **`Dialog`** now portals to `<body>` and is fixed to the viewport, so it always

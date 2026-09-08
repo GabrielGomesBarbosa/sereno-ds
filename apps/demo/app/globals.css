@@ -1,8 +1,8 @@
 /* apps/demo — the product screens shell. Component-level CSS comes from the
    packages; what's here is host-app: the token layer, the reset, and the
    `.dash-*` / `.onb-*` / `.booking-*` layout the three screens use. */
-@import url("@sereno/tokens/tokens.css");
-@import url("@sereno/ui/styles.css");
+@import url("@sereno-ds/tokens/tokens.css");
+@import url("@sereno-ds/ui/styles.css");
 
 html, body { padding: 0; margin: 0; }
 
@@ -52,7 +52,7 @@ html, body { padding: 0; margin: 0; }
 .dash-drawer { position: fixed; left: 0; top: 0; bottom: 0; z-index: 61; width: min(300px, 86vw); display: flex; background: var(--bg-surface); box-shadow: var(--shadow-lg); animation: sereno-drawer-in var(--duration-normal) var(--ease-out); }
 .dash-drawer[data-closing] { animation: sereno-drawer-out var(--duration-normal) var(--ease-in) forwards; }
 .dash-drawer-close { position: absolute; top: calc(var(--dash-header-h, 74px) / 2); right: 8px; transform: translateY(-50%); z-index: 2; display: flex; }
-/* sereno-fade-in / -fade-out come from @sereno/ui/styles.css. */
+/* sereno-fade-in / -fade-out come from @sereno-ds/ui/styles.css. */
 @keyframes sereno-drawer-in { from { transform: translateX(-100%); } }
 @keyframes sereno-drawer-out { to { transform: translateX(-100%); } }
 @keyframes sereno-fade-out { to { opacity: 0; } }
@@ -212,7 +212,7 @@ html, body { padding: 0; margin: 0; }
   }
   .booking-chrome { display: none; }              /* rail replaces the hero / TopBar */
   .booking-step-title { display: block; }
-  /* A @sereno/ui ghost Button; the class only positions it in the step column. */
+  /* A @sereno-ds/ui ghost Button; the class only positions it in the step column. */
   .booking-backbtn { display: inline-flex; align-self: flex-start; margin: var(--space-5) var(--gutter-desktop) 0; }
   .booking-scroll { padding-inline: var(--gutter-desktop); }
   .booking-footer { padding-inline: var(--gutter-desktop); }

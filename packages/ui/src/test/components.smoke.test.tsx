@@ -66,7 +66,7 @@ const CASES: Record<string, React.ReactElement> = {
   ThemeToggle: <UI.ThemeToggle />,
 };
 
-describe('@sereno/ui barrel', () => {
+describe('@sereno-ds/ui barrel', () => {
   it('exports every documented component', () => {
     for (const name of EXPECTED) expect(UI, name).toHaveProperty(name);
   });

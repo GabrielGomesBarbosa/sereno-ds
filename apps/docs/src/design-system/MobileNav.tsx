@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
-import { IconButton } from '@sereno/ui';
+import { IconButton } from '@sereno-ds/ui';
 import { Sidebar } from './Sidebar';
 
 /**

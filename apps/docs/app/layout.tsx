@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Inter, Manrope, JetBrains_Mono } from 'next/font/google';
-import { ThemeProvider } from '@sereno/ui';
+import { ThemeProvider } from '@sereno-ds/ui';
 import './globals.css';
 
 // Self-hosted, optimised by next/font — no Google Fonts CDN (SS-39 decisão 3).
-// These CSS variables are the @sereno/ui font contract.
+// These CSS variables are the @sereno-ds/ui font contract.
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-inter', display: 'swap' });
 const manrope = Manrope({ subsets: ['latin'], weight: ['500', '600', '700', '800'], variable: '--font-manrope', display: 'swap' });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-jetbrains-mono', display: 'swap' });

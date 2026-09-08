@@ -39,7 +39,7 @@ Railway auto-detects the monorepo and stages a `docs` service. Open it →
 
 | Field | Value | Why |
 |---|---|---|
-| **Root Directory** | `/` | The build is a Turborepo monorepo build from the repo root — `@sereno/tokens` / `@sereno/ui` build first (`^build`). An app subdir can't build alone. This is why it's `/`, not `/apps/docs`. |
+| **Root Directory** | `/` | The build is a Turborepo monorepo build from the repo root — `@sereno-ds/tokens` / `@sereno-ds/ui` build first (`^build`). An app subdir can't build alone. This is why it's `/`, not `/apps/docs`. |
 | **Build Command** | `npm run build:docs` | = `turbo run build --filter=docs` |
 | **Start Command** | `npm run serve:docs` | = `serve apps/docs/out -l $PORT` |
 | **Healthcheck Path** | `/` | Confirm it returns 200 before moving on. |

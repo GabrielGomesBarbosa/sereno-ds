@@ -1,8 +1,8 @@
 /* apps/docs — the showcase shell. Component-level CSS comes from the packages;
    what's here is host-app: the token layer, the reset, and the `.ds-*` / `.cv-*`
    layout that only the showcase uses. */
-@import url("@sereno/tokens/tokens.css");
-@import url("@sereno/ui/styles.css");
+@import url("@sereno-ds/tokens/tokens.css");
+@import url("@sereno-ds/ui/styles.css");
 
 html, body { padding: 0; margin: 0; }
 
@@ -131,7 +131,7 @@ html, body { padding: 0; margin: 0; }
   }
   .ds-drawer-body { flex: 1; min-height: 0; display: flex; }
 }
-/* sereno-fade-in comes from @sereno/ui/styles.css. */
+/* sereno-fade-in comes from @sereno-ds/ui/styles.css. */
 @keyframes sereno-drawer-in { from { transform: translateX(-100%); } }
 
 /* ── Component page (MUI-style) — nav flush left, TOC flush right, article centred ── */

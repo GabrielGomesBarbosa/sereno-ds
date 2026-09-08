@@ -7,7 +7,7 @@ import { sx } from '../_internal/style';
 /**
  * Data table — a **compound component**. Cells hold real JSX, not `render`
  * callbacks. Structure, density, row dividers and hover / focus / sticky / zebra
- * live in `@sereno/ui/styles.css` (keyed off `data-*` on the root), so the parts
+ * live in `@sereno-ds/ui/styles.css` (keyed off `data-*` on the root), so the parts
  * stay thin.
  *
  * ```tsx

@@ -63,7 +63,7 @@ import {
   ToastProvider,
   TopBar,
   useToast,
-} from '@sereno/ui';
+} from '@sereno-ds/ui';
 
 const row: React.CSSProperties = { display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' };
 const col: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 12 };

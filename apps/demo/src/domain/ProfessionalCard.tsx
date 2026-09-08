@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Avatar } from '@sereno/ui';
+import { Card, Avatar } from '@sereno-ds/ui';
 import { sx } from './sx';
 
 /** Identity card for a professional — public directory, booking header, team lists. */
