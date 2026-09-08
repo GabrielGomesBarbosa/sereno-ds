@@ -6,13 +6,18 @@ import {
   Bell,
   Calendar,
   CalendarCheck,
+  CalendarClock,
   CalendarOff,
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Copy,
   Flag,
   Lock,
   Mail,
+  MoreHorizontal,
+  Pencil,
   Phone,
   Plus,
   Search,
@@ -22,6 +27,7 @@ import {
   Trash2,
   Users,
   Wallet,
+  X,
 } from 'lucide-react';
 import {
   Alert,
@@ -39,6 +45,8 @@ import {
   FileUpload,
   IconButton,
   Input,
+  Menu,
+  type MenuEntry,
   Radio,
   SearchInput,
   Select,
@@ -366,6 +374,82 @@ function BrandTamanhos() {
   );
 }
 
+// ── Menu ────────────────────────────────────────────────────────────────────
+function MenuBasico() {
+  const { toast } = useToast();
+  return (
+    <Menu
+      trigger={
+        <Button variant="secondary" iconRight={<ChevronDown size={16} strokeWidth={1.75} />}>
+          Actions
+        </Button>
+      }
+      label="Appointment"
+      items={[
+        { label: 'Reschedule', icon: <CalendarClock size={16} strokeWidth={1.75} />, onClick: () => toast('Rescheduling…') },
+        { label: 'Duplicate', icon: <Copy size={16} strokeWidth={1.75} />, onClick: () => toast('Duplicated') },
+        { separator: true },
+        { label: 'Cancel appointment', icon: <X size={16} strokeWidth={1.75} />, tone: 'danger', onClick: () => toast.error('Appointment cancelled') },
+      ]}
+    />
+  );
+}
+function MenuBasicoWrap() {
+  return (
+    <ToastProvider>
+      <MenuBasico />
+    </ToastProvider>
+  );
+}
+
+function MenuDangerDisabled() {
+  const items: MenuEntry[] = [
+    { label: 'Edit', icon: <Settings size={16} strokeWidth={1.75} />, onClick: () => {} },
+    { label: 'Archive', disabled: true },
+    { separator: true },
+    { label: 'Delete', icon: <Trash2 size={16} strokeWidth={1.75} />, tone: 'danger', onClick: () => {} },
+  ];
+  return (
+    <Menu trigger={<IconButton label="More"><MoreHorizontal size={18} strokeWidth={1.75} /></IconButton>} label="Service" items={items} align="start" />
+  );
+}
+
+const MENU_NOTIFS = [
+  { title: 'Marina Alves confirmou o horário de amanhã', time: 'há 5 min' },
+  { title: 'Pagamento de R$ 180 recebido', time: 'há 1 h' },
+  { title: 'Novo cliente: Helena Costa', time: 'ontem' },
+];
+function MenuRico() {
+  return (
+    <Menu
+      trigger={<IconButton label="Notificações"><Bell size={18} strokeWidth={1.75} /></IconButton>}
+      label="Notificações"
+      width={300}
+    >
+      {(close) => (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: 'var(--space-3) var(--space-4)', borderBottom: '1px solid var(--border-subtle)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>
+            Notificações
+          </div>
+          {MENU_NOTIFS.map((n) => (
+            <div key={n.title} style={{ padding: 'var(--space-3) var(--space-4)', borderBottom: '1px solid var(--border-subtle)' }}>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-primary)', lineHeight: 1.4 }}>{n.title}</div>
+              <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-muted)', marginTop: 2 }}>{n.time}</div>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={close}
+            style={{ padding: 'var(--space-3)', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--text-secondary)' }}
+          >
+            Ver todas
+          </button>
+        </div>
+      )}
+    </Menu>
+  );
+}
+
 // ── Table ───────────────────────────────────────────────────────────────────
 type Plan = { id: string; name: string; sessions: number; price: string; status: 'success' | 'warning' | 'error' };
 const PLAN_ROWS: Plan[] = [
@@ -461,6 +545,53 @@ function TableClicavel() {
         ))}
       </Table.Body>
     </Table>
+  );
+}
+
+function TableRowActionsInner() {
+  const { toast } = useToast();
+  return (
+    <Table caption="Clients" minWidth={420}>
+      <Table.Head>
+        <Table.Row>
+          <Table.HeaderCell>Client</Table.HeaderCell>
+          <Table.HeaderCell align="right">Sessions</Table.HeaderCell>
+          <Table.HeaderCell srOnly width={44}>
+            Actions
+          </Table.HeaderCell>
+        </Table.Row>
+      </Table.Head>
+      <Table.Body>
+        {PLAN_ROWS.map((r) => (
+          <Table.Row key={r.id}>
+            <Table.Cell>{r.name}</Table.Cell>
+            <Table.Cell align="right">{r.sessions}</Table.Cell>
+            <Table.Cell align="right">
+              <Menu
+                trigger={
+                  <IconButton label={`Ações — ${r.name}`} size="sm">
+                    <MoreHorizontal size={16} strokeWidth={1.75} />
+                  </IconButton>
+                }
+                items={[
+                  { label: 'Editar', icon: <Pencil size={16} strokeWidth={1.75} />, onClick: () => toast(`Editando ${r.name}`) },
+                  { label: 'Duplicar', icon: <Copy size={16} strokeWidth={1.75} />, onClick: () => toast(`${r.name} duplicado`) },
+                  { separator: true },
+                  { label: 'Excluir', icon: <Trash2 size={16} strokeWidth={1.75} />, tone: 'danger', onClick: () => toast.error(`${r.name} excluído`) },
+                ]}
+              />
+            </Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table>
+  );
+}
+function TableRowActions() {
+  return (
+    <ToastProvider>
+      <TableRowActionsInner />
+    </ToastProvider>
   );
 }
 
@@ -1854,7 +1985,15 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   card: { padding: CardPadding, elevation: CardElevacao, interactive: CardInterativo },
   avatar: { sizes: AvatarTamanhos, 'initials-photo': AvatarIniciais, status: AvatarStatus },
   brand: { variants: BrandVariantes, mono: BrandMono, sizes: BrandTamanhos },
-  table: { basic: TableBasico, sortable: TableSortable, interactive: TableClicavel, 'compact-sticky': TableCompactSticky, empty: TableVazia },
+  menu: { basic: MenuBasicoWrap, 'danger-disabled': MenuDangerDisabled, rich: MenuRico },
+  table: {
+    basic: TableBasico,
+    sortable: TableSortable,
+    interactive: TableClicavel,
+    'row-actions': TableRowActions,
+    'compact-sticky': TableCompactSticky,
+    empty: TableVazia,
+  },
   input: {
     basic: InputBasico,
     'icon-suffix': InputIconeSufixo,

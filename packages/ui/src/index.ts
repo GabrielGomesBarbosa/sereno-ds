@@ -11,6 +11,7 @@ export { Badge, type BadgeProps } from './core/Badge';
 export { Card, type CardProps } from './core/Card';
 export { Avatar, type AvatarProps } from './core/Avatar';
 export { Brand, type BrandProps } from './core/Brand';
+export { Menu, type MenuProps, type MenuItem, type MenuEntry, type MenuSeparator, type MenuHeading } from './core/Menu';
 export {
   Table,
   type TableProps,

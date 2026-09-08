@@ -7,7 +7,7 @@ afterEach(cleanup);
 
 /** Every component the barrel is meant to export. */
 const EXPECTED = [
-  'Button', 'IconButton', 'Badge', 'Card', 'Avatar', 'Brand', 'Table',
+  'Button', 'IconButton', 'Badge', 'Card', 'Avatar', 'Brand', 'Menu', 'Table',
   'Input', 'Textarea', 'Select', 'Checkbox', 'Radio', 'Switch', 'DateTimePicker',
   'FileUpload', 'AvatarUpload', 'SearchInput',
   'TopBar', 'Tabs', 'BottomNav', 'SidebarNav', 'Stepper',
@@ -25,6 +25,7 @@ const CASES: Record<string, React.ReactElement> = {
   Card: <UI.Card>body</UI.Card>,
   Avatar: <UI.Avatar name="Ana Ramos" />,
   Brand: <UI.Brand />,
+  Menu: <UI.Menu trigger={<button type="button">Menu</button>} items={[{ label: 'One', onClick: () => {} }]} />,
   Table: (
     <UI.Table caption="Clients">
       <UI.Table.Head>
