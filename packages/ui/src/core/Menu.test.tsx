@@ -201,18 +201,35 @@ describe('Menu', () => {
     expect(screen.queryByRole('menu')).toBeNull();
   });
 
-  it('keeps a wide panel on screen at a narrow viewport (left never goes negative)', () => {
+  const withViewport = (w: number, fn: () => void) => {
     const orig = window.innerWidth;
-    Object.defineProperty(window, 'innerWidth', { value: 400, configurable: true });
+    Object.defineProperty(window, 'innerWidth', { value: w, configurable: true });
     try {
+      fn();
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { value: orig, configurable: true });
+    }
+  };
+
+  it('spans the gutters (centred, full-width) on a phone-width viewport', () => {
+    withViewport(400, () => {
+      render(<Menu trigger={<Trigger />} align="end" width={360} items={[{ label: 'One' }]} />);
+      open();
+      const menu = screen.getByRole('menu');
+      expect(menu.style.left).toBe('12px');
+      expect(menu.style.right).toBe('12px');
+      expect(menu.style.width).toBe(''); // width is implied by left + right
+    });
+  });
+
+  it('clamps left (no negative) but does not force full-width on a wide viewport', () => {
+    withViewport(1200, () => {
       render(<Menu trigger={<Trigger />} align="end" width={360} items={[{ label: 'One' }]} />);
       open();
       const menu = screen.getByRole('menu');
       expect(parseFloat(menu.style.left)).toBeGreaterThanOrEqual(12);
       expect(menu.style.right).toBe('');
-    } finally {
-      Object.defineProperty(window, 'innerWidth', { value: orig, configurable: true });
-    }
+    });
   });
 
   it('composes with the trigger’s own onClick', () => {

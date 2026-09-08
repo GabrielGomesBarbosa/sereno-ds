@@ -77,9 +77,13 @@ const GAP = 6;
 const GUTTER = 12;
 
 /** `left` is clamped so the panel is always fully on screen; `above` picks the
- *  vertical edge. A microtask re-measure (after the panel mounts) refines both
- *  with the real box. */
-type Place = { top?: number; bottom?: number; left: number; above: boolean; maxH: number };
+ *  vertical edge. On a phone `right` is set too — the panel spans the gutters
+ *  (centred, full-width) instead of hanging off the trigger. */
+type Place = { top?: number; bottom?: number; left: number; right?: number; above: boolean; maxH: number };
+
+const isPhone = () =>
+  typeof window !== 'undefined' &&
+  ((window.matchMedia?.('(pointer: coarse)').matches ?? false) || (window.innerWidth || 1024) <= 560);
 
 export function Menu({ trigger, adornment, items, children, header, label, align = 'end', width, disabled, open: openProp, onOpenChange }: MenuProps) {
   const rid = React.useId();
@@ -138,12 +142,14 @@ export function Menu({ trigger, adornment, items, children, header, label, align
       const panelH = panelRef.current?.scrollHeight ?? 240;
       const above = roomBelow < Math.min(panelH, 200) && roomAbove > roomBelow;
       const maxH = Math.max(120, Math.round((above ? roomAbove : roomBelow) - GAP));
+      const vert: Pick<Place, 'top' | 'bottom'> = above ? { bottom: Math.max(GUTTER, vh - r.top + GAP) } : { top: r.bottom + GAP };
+
+      // Phone: span the gutters — centred, full-width — rather than hang off the trigger.
+      if (isPhone()) return { left: GUTTER, right: GUTTER, ...vert, above, maxH };
 
       const panelW = Math.min(panelRef.current?.offsetWidth || (typeof width === 'number' ? width : 240), vw - GUTTER * 2);
       const wanted = align === 'end' ? r.right - panelW : r.left;
       const left = Math.min(Math.max(GUTTER, wanted), vw - GUTTER - panelW);
-
-      const vert: Pick<Place, 'top' | 'bottom'> = above ? { bottom: Math.max(GUTTER, vh - r.top + GAP) } : { top: r.bottom + GAP };
       return { left, ...vert, above, maxH };
     };
 
@@ -238,15 +244,17 @@ export function Menu({ trigger, adornment, items, children, header, label, align
     'data-menu-open': open || undefined,
   });
 
-  const panelStyle = (p: Place): React.CSSProperties =>
-    sx({
+  const panelStyle = (p: Place): React.CSSProperties => {
+    const full = p.right != null; // phone: left+right span the gutters, width is implied
+    return sx({
       position: 'fixed',
       top: p.top,
       bottom: p.bottom,
       left: p.left,
-      width: width ?? 'max-content',
-      minWidth: width ?? 180,
-      maxWidth: `calc(100vw - ${GUTTER * 2}px)`,
+      right: p.right,
+      width: full ? undefined : width ?? 'max-content',
+      minWidth: full ? undefined : width ?? 180,
+      maxWidth: full ? undefined : `calc(100vw - ${GUTTER * 2}px)`,
       maxHeight: p.maxH,
       zIndex: 1200,
       display: 'flex',
@@ -261,6 +269,7 @@ export function Menu({ trigger, adornment, items, children, header, label, align
       transformOrigin: p.above ? 'bottom' : 'top',
       animation: 'sereno-pop var(--duration-fast) var(--ease-out)',
     });
+  };
 
   /* eslint-disable react-hooks/refs -- the `children` render function receives `close`, a stable
      useCallback that reads the anchor ref only when a consumer invokes it from an event handler —
