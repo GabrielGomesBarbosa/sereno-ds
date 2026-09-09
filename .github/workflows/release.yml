@@ -1,22 +1,27 @@
 name: Release
 
-# Publishes @sereno-ds/ui + @sereno-ds/tokens to npm. This is NOT the
-# showcase/demo deploy (that's Railway, on its own) — see CLAUDE.md § "Package
-# release".
+# Publishes @sereno-ds/ui + @sereno-ds/tokens to npm. NOT the showcase/demo
+# deploy (Railway, separate) — see CLAUDE.md § "Package release".
 #
-# Flow (Changesets):
-#   1. PRs land on main carrying `.changeset/*.md` files.
-#   2. This workflow opens/updates a "chore: version packages" PR that runs
-#      `changeset version` (bumps package.json + CHANGELOG, deletes changesets).
-#   3. Merging that PR runs `changeset publish` → `npm publish` for each package
-#      whose version isn't on the registry yet, and pushes the
+# Direct-publish flow (no intermediate "Version Packages" PR):
+#   1. A feature PR lands on main carrying a `.changeset/*.md` file.
+#   2. On that push this workflow runs `changeset version` (bumps
+#      package.json + CHANGELOG, deletes the consumed changesets), commits the
+#      bump straight to main, then `changeset publish` → `npm publish` for each
+#      package whose version isn't on the registry yet + pushes the
 #      `@sereno-ds/*@x.y.z` git tags.
+#   3. A push with no pending changesets is a no-op (the config-only PRs, the
+#      bump commit itself).
 #
-# Auth: OIDC trusted publishing — NO NPM_TOKEN. The install runs on Node 20 (to
-# match `ci.yml`'s lockfile); npm is then bumped to 11.x (≥ 11.5.1, the floor
-# for OIDC trusted publishing) for the publish step. `id-token: write` +
-# `provenance: true` in each package's publishConfig + a Trusted Publisher
-# configured on npm for this repo + this workflow.
+# The bump commit is pushed with GITHUB_TOKEN, which by design does not trigger
+# another workflow run, so there's no loop. `changeset status` + the
+# `publish-dry-run` job in ci.yml run on every feature PR — that's the
+# review point for the version now, in place of a dedicated PR.
+#
+# Auth: OIDC trusted publishing — NO NPM_TOKEN. Install on Node 20 (matches
+# ci.yml's lockfile); npm bumped to 11.x (≥ 11.5.1, the OIDC floor) for the
+# publish step. Needs `id-token: write` + `provenance: true` in each package's
+# publishConfig + a Trusted Publisher configured on npm for this repo + workflow.
 
 on:
   push:
@@ -27,13 +32,12 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write # version-bump commit + tags
-  pull-requests: write # the "chore: version packages" PR
+  contents: write # push the version-bump commit + tags
   id-token: write # OIDC: provenance + trusted publishing
 
 jobs:
   release:
-    name: version PR / publish
+    name: version + publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,13 +59,25 @@ jobs:
       # to 11.x on purpose — npm@latest is 12.x now, which requires Node 22+.
       - run: npm install -g npm@11
 
-      - name: Create Version PR or publish
-        uses: changesets/action@v1
-        with:
-          version: npx changeset version
-          publish: npx changeset publish
-          commit: "chore: version packages"
-          title: "chore: version packages"
+      - name: Version, commit, publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # no NPM_TOKEN — publish auth is OIDC trusted publishing
+        run: |
+          set -euo pipefail
+
+          npx changeset version
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No pending changesets — nothing to release."
+            exit 0
+          fi
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: release [skip ci]"
+          git push origin HEAD:main
+
+          # publish first fails safe: main already carries the bump, so a re-run
+          # (which finds no changesets) retries just the publish.
+          npx changeset publish
+          git push origin --tags

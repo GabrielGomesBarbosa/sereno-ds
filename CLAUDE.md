@@ -116,23 +116,28 @@ package version.
   published. A showcase-only or demo-only PR (or a pure repo-meta PR —
   `CLAUDE.md`, `.github/`, `turbo.json`, …) carries **no changeset, no bump, no
   release**.
-- **Cutting a release is automated** — `.github/workflows/release.yml` (SS-159),
-  separate from the showcase/demo deploy (that's Railway, § Deploy). On every
-  push to `main` the `changesets/action` step:
-  1. **If unreleased changesets exist** → opens/updates a **`chore: version
-     packages`** PR that runs `changeset version` (bumps both `package.json`s,
-     rewrites `packages/*/CHANGELOG.md`, deletes the consumed `.changeset/*.md`).
-     Review it like any PR.
-  2. **When that PR merges** (no changesets left, versions bumped) → runs
-     `changeset publish` → `npm publish` for each package whose version isn't on
-     the registry, and pushes the `@sereno-ds/ui@X.Y.Z` / `@sereno-ds/tokens@X.Y.Z`
-     tags. Cut a GitHub release on the `@sereno-ds/ui` tag, notes = the new
+- **Cutting a release is automated, direct-publish (no "Version Packages" PR)** —
+  `.github/workflows/release.yml` (SS-159), separate from the showcase/demo
+  deploy (that's Railway, § Deploy). On every push to `main`, one job:
+  1. Builds + lints + tests `@sereno-ds/ui` and `@sereno-ds/tokens`.
+  2. `changeset version` — bumps both `package.json`s, rewrites
+     `packages/*/CHANGELOG.md`, deletes the consumed `.changeset/*.md`. **No
+     pending changesets → the job no-ops** (config-only PRs, the bump commit
+     itself).
+  3. Commits the bump straight to `main` (`chore: release [skip ci]`, pushed
+     with `GITHUB_TOKEN` so it doesn't re-trigger), then `changeset publish` →
+     `npm publish` for each package whose version isn't on the registry, then
+     pushes the `@sereno-ds/ui@X.Y.Z` / `@sereno-ds/tokens@X.Y.Z` tags. Cut a
+     GitHub release on the `@sereno-ds/ui` tag, notes = the new
      `apps/docs/src/design-system/CHANGELOG.md` section.
+  The version review happens on the **feature PR** — `ci.yml` runs
+  `changeset status` + `npm publish --dry-run` there — not in a dedicated PR.
 - **npm auth is OIDC trusted publishing — there is no `NPM_TOKEN`.** `release.yml`
-  runs with `permissions: id-token: write` on Node 24 (npm ≥ 11.5.1); npm has a
-  **Trusted Publisher** configured for this repo + `release.yml` on each package.
-  `publishConfig` in both `package.json`s carries `access: "public"` +
-  `provenance: true`.
+  runs with `permissions: id-token: write`; it installs on Node 20 (matches
+  `ci.yml`'s lockfile) then `npm i -g npm@11` for the publish step (OIDC needs
+  npm ≥ 11.5.1; `npm@latest` is 12.x / Node 22+). npm has a **Trusted Publisher**
+  configured for this repo + `release.yml` on each package. `publishConfig` in
+  both `package.json`s carries `access: "public"` + `provenance: true`.
 - **Manual publish** (only the very first time, before the Trusted Publisher can
   be attached, or to recover): `cd packages/tokens && npm publish` then
   `cd ../ui && npm publish` — needs your npm login + 2FA. Never commit a token.
