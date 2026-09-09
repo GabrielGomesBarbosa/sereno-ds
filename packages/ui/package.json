@@ -1,6 +1,6 @@
 {
   "name": "@sereno-ds/ui",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "description": "Sereno Design System — React primitives (token-driven, inline styles, no UI base lib).",
   "license": "MIT",
   "author": "Sereno",
