@@ -326,13 +326,16 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
           boxShadow: 'var(--shadow-md)',
           color: 'var(--text-secondary)',
           cursor: 'pointer',
-          // Measured against the actual glyph box (Range.getBoundingClientRect
-          // on the label's text node, not the row's own padded box) — the
-          // label sits ~6px above the row's geometric center, since the row
-          // reserves padding-bottom for the underline that the text itself
-          // doesn't use. -1px undershot this; matching the glyph center
-          // exactly takes the full -6px.
-          transform: 'translateY(-6px)',
+          // `underline`-only correction, measured against the actual glyph
+          // box (Range.getBoundingClientRect on the label's text node, not
+          // the row's own padded box): that variant's label sits ~6px above
+          // the row's geometric center, since the row reserves padding-bottom
+          // for the underline bar that the text itself doesn't use. `pill`
+          // pads top and bottom equally, so its label is already centered —
+          // applying this there overshoots (confirmed live on the Dashboard's
+          // pill filter: the same -6px landed 6px too high once the row
+          // wasn't underline's asymmetric one).
+          transform: pill ? undefined : 'translateY(-6px)',
         })}
       >
         {side === 'left' ? <ChevronLeft size={16} strokeWidth={2} /> : <ChevronRight size={16} strokeWidth={2} />}

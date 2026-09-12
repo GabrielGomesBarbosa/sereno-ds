@@ -663,6 +663,8 @@ function AgendaView({ onCancel, onToast }: { onCancel: () => void; onToast: (m: 
                 Semana
               </Tabs.Tab>
               <Tabs.Tab value="mes">Mês</Tabs.Tab>
+              <Tabs.Tab value="ano">Ano</Tabs.Tab>
+              <Tabs.Tab value="personalizado">Personalizado</Tabs.Tab>
             </Tabs.List>
           </Tabs>
           {groups.map((g) => (
