@@ -173,8 +173,12 @@ describe('ToastProvider / useToast', () => {
       const region = screen.getByRole('region', { name: 'Notifications' });
       const [edge, side] = position.split('-');
       expect(region.style.getPropertyValue(edge)).toBe('0px');
+      // `side` (left/right) carries a small outward offset, not flush 0 — see
+      // ToastProvider's viewport style: a macOS Safari overlay scrollbar can
+      // paint right over a flush edge, inside what should have been the
+      // toast's only clearance from it.
       if (side === 'center') expect(region.style.left).toBe('50%');
-      else expect(region.style.getPropertyValue(side)).toBe('0px');
+      else expect(region.style.getPropertyValue(side)).toBe('var(--space-2)');
       unmount();
     }
   });
