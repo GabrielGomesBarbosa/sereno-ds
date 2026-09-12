@@ -56,9 +56,9 @@ interface TabsContextValue {
   fullWidth: boolean;
 }
 
-/** Width of the overflow chevron button — also how much `scroll-padding` the
- * strip keeps on that side, so `scrollIntoView` never lands a tab half-hidden
- * behind the chevron's fade-out gradient. */
+/** Width of the overflow chevron's own reserved space — Tabs.List opens up
+ * a margin this wide on whichever edge is scrollable, so the chevron sits in
+ * real dead space next to the strip instead of overlaid on top of it. */
 const CHEVRON_W = 44;
 
 const TabsContext = React.createContext<TabsContextValue | null>(null);
@@ -138,8 +138,6 @@ function List({ children, style, ...rest }: TabsListProps) {
     scrollRef.current?.scrollBy({ left: dir * scrollRef.current.clientWidth * 0.72, behavior: 'smooth' });
   };
 
-  const fade = pill ? 'var(--bg-subtle)' : 'var(--bg-surface)';
-
   return (
     <div
       style={sx({
@@ -167,8 +165,19 @@ function List({ children, style, ...rest }: TabsListProps) {
           overflowX: 'auto',
           gap: pill ? 'var(--space-1)' : 'var(--space-5)',
           padding: pill ? 'var(--space-1)' : 0,
-          scrollPaddingLeft: CHEVRON_W,
-          scrollPaddingRight: CHEVRON_W,
+          // Reserve the chevron's own footprint as real layout space,
+          // outside the scrollable box itself, on whichever edge is
+          // currently scrollable — margin (unlike padding) isn't part of
+          // what scrollWidth/clientWidth measure, so this can't feed back
+          // into the edge-detection above, and it's *why* this works at
+          // all: the chevron's span is absolutely positioned flush with
+          // the outer wrapper's edge, so this margin opens real dead space
+          // there for it to sit in, geometrically outside the scrollable
+          // content rather than floating over whatever tab happens to be
+          // at that edge — which is what let a tab's own (necessarily
+          // interactive, unstyled-behind) box paint over the chevron.
+          marginLeft: edge.left ? CHEVRON_W : 0,
+          marginRight: edge.right ? CHEVRON_W : 0,
         })}
       >
         {indicator && (
@@ -194,8 +203,8 @@ function List({ children, style, ...rest }: TabsListProps) {
         {children}
       </div>
 
-      {edge.left && <ScrollChevron side="left" fade={fade} pill={pill} onClick={() => nudge(-1)} />}
-      {edge.right && <ScrollChevron side="right" fade={fade} pill={pill} onClick={() => nudge(1)} />}
+      {edge.left && <ScrollChevron side="left" pill={pill} onClick={() => nudge(-1)} />}
+      {edge.right && <ScrollChevron side="right" pill={pill} onClick={() => nudge(1)} />}
     </div>
   );
 }
@@ -276,7 +285,7 @@ function Panel({ value, children, ...rest }: TabsPanelProps) {
   );
 }
 
-function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; fade: string; pill: boolean; onClick: () => void }) {
+function ScrollChevron({ side, pill, onClick }: { side: 'left' | 'right'; pill: boolean; onClick: () => void }) {
   return (
     <span
       aria-hidden
@@ -288,9 +297,12 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
         width: CHEVRON_W,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: side === 'left' ? 'flex-start' : 'flex-end',
+        // Centered, not hugging the edge — this span now sits in the
+        // margin gap Tabs.List opens up for it (real dead space, not an
+        // overlay on the scrollable content), so there's no cut-off tab
+        // text underneath it to stay close to anymore.
+        justifyContent: 'center',
         pointerEvents: 'none',
-        background: `linear-gradient(to ${side === 'left' ? 'right' : 'left'}, ${fade} 55%, transparent)`,
         borderRadius: pill ? 'var(--radius-pill)' : 0,
       })}
     >
@@ -312,6 +324,10 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
           boxShadow: 'var(--shadow-md)',
           color: 'var(--text-secondary)',
           cursor: 'pointer',
+          // Optical alignment with the row's label text, which sits in the
+          // row's upper portion (no top padding — space below is reserved
+          // for the underline) rather than the row's true geometric middle.
+          transform: 'translateY(-1px)',
         })}
       >
         {side === 'left' ? <ChevronLeft size={16} strokeWidth={2} /> : <ChevronRight size={16} strokeWidth={2} />}
