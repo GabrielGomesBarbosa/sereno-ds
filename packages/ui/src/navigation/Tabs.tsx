@@ -324,10 +324,13 @@ function ScrollChevron({ side, pill, onClick }: { side: 'left' | 'right'; pill: 
           boxShadow: 'var(--shadow-md)',
           color: 'var(--text-secondary)',
           cursor: 'pointer',
-          // Optical alignment with the row's label text, which sits in the
-          // row's upper portion (no top padding — space below is reserved
-          // for the underline) rather than the row's true geometric middle.
-          transform: 'translateY(-1px)',
+          // Measured against the actual glyph box (Range.getBoundingClientRect
+          // on the label's text node, not the row's own padded box) — the
+          // label sits ~6px above the row's geometric center, since the row
+          // reserves padding-bottom for the underline that the text itself
+          // doesn't use. -1px undershot this; matching the glyph center
+          // exactly takes the full -6px.
+          transform: 'translateY(-6px)',
         })}
       >
         {side === 'left' ? <ChevronLeft size={16} strokeWidth={2} /> : <ChevronRight size={16} strokeWidth={2} />}
