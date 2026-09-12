@@ -300,15 +300,20 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
           height: 26,
           borderRadius: '999px',
           border: '1px solid var(--border-strong)',
-          // Opposite of `fade` on purpose: the fade gradient matches the
-          // surrounding card/panel background so the tab strip disappears
-          // under it seamlessly, which means a same-color button fill would
-          // vanish into that same background (underline: white-on-white).
-          // Contrast the button against it instead.
-          background: pill ? 'var(--bg-surface)' : 'var(--bg-subtle)',
-          boxShadow: 'var(--shadow-sm)',
+          // White like the DS's other floating circular controls (IconButton,
+          // Menu's trigger chrome) — consistent with that language, and
+          // --shadow-md (real elevation, not the whisper-thin --shadow-sm)
+          // is what actually keeps it visible on a white card, not a fill
+          // color fighting the fade gradient underneath.
+          background: 'var(--bg-surface)',
+          boxShadow: 'var(--shadow-md)',
           color: 'var(--text-secondary)',
           cursor: 'pointer',
+          // Optical, not geometric: text sits in the upper part of the row
+          // (no top padding, space reserved below for the underline), so a
+          // circle dead-centered on the row's full box reads as low against
+          // it. Nudge up a couple px to match where the eye reads the label.
+          transform: 'translateY(-2px)',
         })}
       >
         {side === 'left' ? <ChevronLeft size={16} strokeWidth={2} /> : <ChevronRight size={16} strokeWidth={2} />}
