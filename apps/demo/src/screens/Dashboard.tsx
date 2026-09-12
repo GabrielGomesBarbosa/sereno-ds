@@ -560,8 +560,6 @@ function ViewHeader({ title, action }: { title?: string; action?: React.ReactNod
   );
 }
 
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-
 function AppointmentRow({ a, onCancel, onToast }: { a: Appointment; onCancel: () => void; onToast: (m: string) => void }) {
   const first = a.client.split(' ')[0];
   return (
@@ -602,12 +600,6 @@ function AppointmentRow({ a, onCancel, onToast }: { a: Appointment; onCancel: ()
 function DayBlock({ g, onCancel, onToast }: { g: (typeof AGENDA_SCHEDULE)[number]; onCancel: () => void; onToast: (m: string) => void }) {
   return (
     <div style={vcol('var(--space-3)')}>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
-        <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>{g.relative ?? g.weekday}</span>
-        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
-          {(g.relative ? `${g.weekday}, ${g.date}` : g.date) + ' · ' + plural(g.items.length, 'atendimento', 'atendimentos')}
-        </span>
-      </div>
       {g.items.map((a) => (
         <AppointmentRow key={g.key + a.time} a={a} onCancel={onCancel} onToast={onToast} />
       ))}
@@ -654,16 +646,19 @@ function AgendaView({ onCancel, onToast }: { onCancel: () => void; onToast: (m: 
 
       <div className="dash-agenda-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 320px', gap: 'var(--space-5)', alignItems: 'start' }}>
         <div style={vcol('var(--space-5)')}>
-          <Tabs
-            variant="pill"
-            value={filter}
-            onChange={setFilter}
-            items={[
-              { value: 'hoje', label: 'Hoje', count: AGENDA_SCHEDULE[0].items.length },
-              { value: 'semana', label: 'Semana', count: weekCount },
-              { value: 'mes', label: 'Mês' },
-            ]}
-          />
+          <Tabs variant="pill" value={filter} onChange={setFilter}>
+            <Tabs.List>
+              <Tabs.Tab value="hoje" count={AGENDA_SCHEDULE[0].items.length}>
+                Hoje
+              </Tabs.Tab>
+              <Tabs.Tab value="semana" count={weekCount}>
+                Semana
+              </Tabs.Tab>
+              <Tabs.Tab value="mes">Mês</Tabs.Tab>
+              <Tabs.Tab value="ano">Ano</Tabs.Tab>
+              <Tabs.Tab value="personalizado">Personalizado</Tabs.Tab>
+            </Tabs.List>
+          </Tabs>
           {groups.map((g) => (
             <DayBlock key={g.key} g={g} onCancel={onCancel} onToast={onToast} />
           ))}
@@ -733,7 +728,7 @@ function AgendaView({ onCancel, onToast }: { onCancel: () => void; onToast: (m: 
 function ClientesView() {
   const [query, setQuery] = React.useState('');
   const [sort, setSort] = React.useState<TableSort | null>({ key: 'name', direction: 'asc' });
-  const [selected, setSelected] = React.useState<string | null>(null);
+  const [openClient, setOpenClient] = React.useState<ClientRow | null>(null);
   const q = query.trim().toLowerCase();
 
   // The DS never reorders the rows — the screen sorts and hands the result back.
@@ -772,7 +767,7 @@ function ClientesView() {
           </Table.Head>
           <Table.Body>
             {rows.map((c) => (
-              <Table.Row key={c.name} selected={c.name === selected} onClick={() => setSelected(c.name)}>
+              <Table.Row key={c.name} selected={c.name === openClient?.name} onClick={() => setOpenClient(c)}>
                 <Table.Cell>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                     <Avatar name={c.name} size="sm" />
@@ -793,7 +788,67 @@ function ClientesView() {
           </Table.Body>
         </Table>
       )}
+
+      {openClient && <ClientDetailDialog client={openClient} onClose={() => setOpenClient(null)} />}
     </div>
+  );
+}
+
+/**
+ * A client's profile — Tabs' real-world use case for the `underline`
+ * variant: page-level sections inside one view, not a filter. `Tabs.Panel`
+ * does the section switch here instead of the screen hand-rolling it.
+ */
+function ClientDetailDialog({ client, onClose }: { client: ClientRow; onClose: () => void }) {
+  const [tab, setTab] = React.useState('geral');
+
+  const history = React.useMemo(() => AGENDA_SCHEDULE.flatMap((g) => g.items.filter((a) => a.client === client.name)), [client.name]);
+
+  return (
+    <Dialog size="lg" title={client.name} description={CLIENT_STATUS_LABEL[client.status]} dividers showClose onClose={onClose}>
+      <Tabs value={tab} onChange={setTab}>
+        <Tabs.List>
+          <Tabs.Tab value="geral">Visão geral</Tabs.Tab>
+          <Tabs.Tab value="historico" count={history.length || undefined}>
+            Histórico
+          </Tabs.Tab>
+          <Tabs.Tab value="documentos">Documentos</Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel value="geral" style={{ paddingTop: 'var(--space-4)' }}>
+          <div style={vcol('var(--space-3)')}>
+            <Card padding="md" style={vcol('var(--space-2)')}>
+              {[
+                ['Sessões', client.sessions],
+                ['Última atividade', client.last],
+                ['Status', CLIENT_STATUS_LABEL[client.status]],
+              ].map(([label, value]) => (
+                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-3)' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>{label}</span>
+                  <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>{value}</span>
+                </div>
+              ))}
+            </Card>
+          </div>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="historico" style={{ paddingTop: 'var(--space-4)' }}>
+          {history.length === 0 ? (
+            <EmptyState icon={<Clock size={22} strokeWidth={1.75} />} title="Sem sessões registradas" description="Essa semana de exemplo não tem nenhuma sessão para este cliente." />
+          ) : (
+            <div style={vcol('var(--space-2)')}>
+              {history.map((a, i) => (
+                <AppointmentCard key={a.date + a.time + i} compact client={a.client} service={a.service} time={a.time} date={a.date} channel={a.channel} status={a.status} />
+              ))}
+            </div>
+          )}
+        </Tabs.Panel>
+
+        <Tabs.Panel value="documentos" style={{ paddingTop: 'var(--space-4)' }}>
+          <ComingSoon label="Documentos" />
+        </Tabs.Panel>
+      </Tabs>
+    </Dialog>
   );
 }
 

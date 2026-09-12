@@ -1,12 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { Calendar, CalendarPlus, CheckCircle2, ChevronLeft, CreditCard, Info, Mail, Phone, Share2, User, Video } from 'lucide-react';
-import { Badge, Brand, Button, Card, Checkbox, DateTimePicker, IconButton, Input, Textarea, TopBar } from '@sereno-ds/ui';
+import { Calendar, CalendarPlus, CheckCircle2, ChevronLeft, Clock, CreditCard, HelpCircle, Info, Mail, MapPin, Navigation, Phone, Share2, ShieldCheck, Star, User, Video } from 'lucide-react';
+import { Avatar, Badge, Brand, Button, Card, Checkbox, DateTimePicker, IconButton, Input, Tabs, Textarea, TopBar } from '@sereno-ds/ui';
 import { ServiceCard } from '@/domain/ServiceCard';
 import { ProfessionalCard } from '@/domain/ProfessionalCard';
 import type { Professional, Service } from '@/lib/mock';
-import { BOOKING_MONTH, TIME_SLOTS, UNAVAILABLE_DAYS } from '@/lib/mock';
+import { BOOKING_MONTH, PROFESSIONAL_FAQ, PROFESSIONAL_INSURANCE, REVIEWS, TIME_SLOTS, UNAVAILABLE_DAYS } from '@/lib/mock';
 
 type Step = 'profile' | 'schedule' | 'details' | 'confirmed';
 
@@ -121,6 +121,7 @@ function Rail({ professional, service, day, time }: { professional: Professional
 
 export function BookingFlow({ professional, services }: { professional: Professional; services: Service[] }) {
   const [step, setStep] = React.useState<Step>('profile');
+  const [profileTab, setProfileTab] = React.useState('servicos');
   const [serviceId, setServiceId] = React.useState<string | null>(null);
   const [day, setDay] = React.useState<number | null>(null);
   const [time, setTime] = React.useState<string | null>(null);
@@ -182,23 +183,147 @@ export function BookingFlow({ professional, services }: { professional: Professi
           )}
 
           {step === 'profile' && (
-            <div className="booking-scroll" style={{ paddingBlock: 'var(--space-5) var(--space-8)', gap: 'var(--space-3)' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)' }}>Escolha o serviço</span>
-              {services.map((s) => (
-                <ServiceCard
-                  key={s.id}
-                  name={s.name}
-                  duration={s.duration}
-                  price={s.price}
-                  description={s.description}
-                  tag={s.tag}
-                  selected={serviceId === s.id}
-                  onSelect={() => setServiceId(s.id)}
-                />
-              ))}
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', lineHeight: 1.5, margin: 'var(--space-2) 0 0' }}>
-                Cancelamentos gratuitos até 24h antes do horário marcado.
-              </p>
+            <div className="booking-scroll" style={{ paddingBlock: 'var(--space-5) var(--space-8)', gap: 0 }}>
+              {/* The public profile's real sections — page-level, exactly what
+                  `underline` is for. Narrow enough on this booking card that
+                  it overflows on its own, no forced narrowing needed. */}
+              <Tabs value={profileTab} onChange={setProfileTab}>
+                <Tabs.List>
+                  <Tabs.Tab value="servicos">Serviços</Tabs.Tab>
+                  <Tabs.Tab value="sobre">Sobre</Tabs.Tab>
+                  <Tabs.Tab value="avaliacoes" count={REVIEWS.length}>
+                    Avaliações
+                  </Tabs.Tab>
+                  <Tabs.Tab value="localizacao">Localização</Tabs.Tab>
+                  <Tabs.Tab value="horarios">Horários</Tabs.Tab>
+                  <Tabs.Tab value="convenios">Convênios</Tabs.Tab>
+                  <Tabs.Tab value="faq">Perguntas frequentes</Tabs.Tab>
+                </Tabs.List>
+
+                <Tabs.Panel value="servicos" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', paddingTop: 'var(--space-4)' }}>
+                  {services.map((s) => (
+                    <ServiceCard
+                      key={s.id}
+                      name={s.name}
+                      duration={s.duration}
+                      price={s.price}
+                      description={s.description}
+                      tag={s.tag}
+                      selected={serviceId === s.id}
+                      onSelect={() => setServiceId(s.id)}
+                    />
+                  ))}
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', lineHeight: 1.5, margin: 'var(--space-2) 0 0' }}>
+                    Cancelamentos gratuitos até 24h antes do horário marcado.
+                  </p>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="sobre" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', paddingTop: 'var(--space-4)' }}>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>{professional.bio}</p>
+                  <Card padding="md" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                    {[
+                      ['Especialidade', professional.specialty],
+                      ['Registro', professional.credential],
+                      ['Atendimento', professional.channels.join(' · ')],
+                    ].map(([label, value]) => (
+                      <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-3)' }}>
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{label}</span>
+                        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>{value}</span>
+                      </div>
+                    ))}
+                  </Card>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="avaliacoes" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', paddingTop: 'var(--space-4)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                    <Star size={20} strokeWidth={1.75} fill="currentColor" style={{ color: 'var(--status-warning-dot)' }} />
+                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-lg)', color: 'var(--text-primary)' }}>
+                      {(REVIEWS.reduce((sum, r) => sum + r.rating, 0) / REVIEWS.length).toFixed(1)}
+                    </span>
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>· {REVIEWS.length} avaliações</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                    {REVIEWS.map((r) => (
+                      <Card key={r.name} padding="md" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                          <Avatar name={r.name} size="sm" />
+                          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>{r.name}</span>
+                            <span style={{ display: 'flex', gap: 1 }}>
+                              {Array.from({ length: 5 }, (_, i) => (
+                                <Star key={i} size={12} strokeWidth={1.75} fill={i < r.rating ? 'currentColor' : 'none'} style={{ color: 'var(--status-warning-dot)' }} />
+                              ))}
+                            </span>
+                          </div>
+                          <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{r.date}</span>
+                        </div>
+                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>{r.comment}</p>
+                      </Card>
+                    ))}
+                  </div>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="localizacao" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', paddingTop: 'var(--space-4)' }}>
+                  <Card padding="md" style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start' }}>
+                    <MapPin size={20} strokeWidth={1.75} style={{ color: 'var(--text-brand)', flexShrink: 0, marginTop: 2 }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>Consultório — {professional.location}</span>
+                      <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Rua Fradique Coutinho, 501 — Pinheiros</span>
+                    </div>
+                  </Card>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                    <Navigation size={16} strokeWidth={1.75} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                      {professional.channels.includes('Online') ? 'Também atende por videochamada, em qualquer cidade.' : 'Atendimento só presencial, neste endereço.'}
+                    </span>
+                  </div>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="horarios" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', paddingTop: 'var(--space-4)' }}>
+                  <Card padding="md" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                    {[
+                      ['Segunda a sexta', '9h às 18h'],
+                      ['Sábado', '9h às 13h'],
+                      ['Domingo', 'Fechado'],
+                    ].map(([day, hours]) => (
+                      <div key={day} style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-3)' }}>
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>{day}</span>
+                        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-sm)', color: hours === 'Fechado' ? 'var(--text-muted)' : 'var(--text-primary)' }}>{hours}</span>
+                      </div>
+                    ))}
+                  </Card>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                    <Clock size={14} strokeWidth={1.75} /> Horário de Brasília.
+                  </span>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="convenios" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', paddingTop: 'var(--space-4)' }}>
+                  <Card padding="md" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                    {PROFESSIONAL_INSURANCE.map((plan) => (
+                      <div key={plan} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                        <CheckCircle2 size={16} strokeWidth={1.75} style={{ color: 'var(--status-success-dot)', flexShrink: 0 }} />
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>{plan}</span>
+                      </div>
+                    ))}
+                  </Card>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                    <ShieldCheck size={16} strokeWidth={1.75} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Consulta particular também disponível, com recibo para reembolso.</span>
+                  </div>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="faq" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', paddingTop: 'var(--space-4)' }}>
+                  {PROFESSIONAL_FAQ.map((item) => (
+                    <div key={item.question} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <span style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>
+                        <HelpCircle size={16} strokeWidth={1.75} style={{ color: 'var(--text-brand)', flexShrink: 0, marginTop: 2 }} />
+                        {item.question}
+                      </span>
+                      <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5, paddingLeft: 24 }}>{item.answer}</span>
+                    </div>
+                  ))}
+                </Tabs.Panel>
+              </Tabs>
             </div>
           )}
 

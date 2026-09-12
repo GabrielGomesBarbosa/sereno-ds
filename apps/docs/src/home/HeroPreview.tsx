@@ -8,7 +8,7 @@ const FLOW = [
   { value: 'service', label: 'Service' },
   { value: 'time', label: 'Time' },
   { value: 'confirm', label: 'Confirm' },
-];
+] as const;
 
 /**
  * A few real primitives, wired up — the same thing the product screens do,
@@ -39,7 +39,15 @@ export function HeroPreview() {
           </Badge>
         </div>
 
-        <Tabs items={FLOW} value={step} onChange={setStep} fullWidth />
+        <Tabs value={step} onChange={setStep} fullWidth>
+          <Tabs.List>
+            {FLOW.map((f) => (
+              <Tabs.Tab key={f.value} value={f.value}>
+                {f.label}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs>
 
         <Switch label="WhatsApp reminder" checked={reminder} onChange={(e) => setReminder(e.target.checked)} />
 

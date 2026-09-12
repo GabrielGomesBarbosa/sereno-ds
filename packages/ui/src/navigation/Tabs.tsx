@@ -4,32 +4,87 @@ import * as React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { sx } from '../_internal/style';
 
-export interface TabItem {
-  value: string;
-  label: string;
-  icon?: React.ReactNode;
-  count?: number;
-}
-
 /**
- * Horizontal section switcher. `underline` for page-level sections, `pill` for
- * filters inside a panel. When the tabs overflow their width the strip scrolls
- * horizontally, with a chevron on whichever side has more.
+ * Horizontal section switcher — a **compound component**. `underline` for
+ * page-level sections, `pill` for filters inside a panel. When the tabs
+ * overflow their width the strip scrolls horizontally, with a chevron on
+ * whichever side has more; picking a tab scrolls it into view.
+ *
+ * ```tsx
+ * <Tabs value={tab} onChange={setTab} variant="pill">
+ *   <Tabs.List>
+ *     <Tabs.Tab value="today" count={5}>Today</Tabs.Tab>
+ *     <Tabs.Tab value="week" count={23}>Week</Tabs.Tab>
+ *   </Tabs.List>
+ *   <Tabs.Panel value="today">…</Tabs.Panel>
+ *   <Tabs.Panel value="week">…</Tabs.Panel>
+ * </Tabs>
+ * ```
+ *
+ * `Tabs.Panel` is optional — nothing requires it. Render your own content
+ * next to `Tabs.List`, keyed off the controlled `value`, if that reads
+ * better for the screen.
  */
-export interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
-  items: TabItem[];
+export interface TabsProps {
   value?: string;
   onChange?: (value: string) => void;
   variant?: 'underline' | 'pill';
   fullWidth?: boolean;
+  children: React.ReactNode;
 }
 
-export function Tabs({ items = [], value, onChange, variant = 'underline', fullWidth = false, style, ...rest }: TabsProps) {
+export interface TabsListProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+  children: React.ReactNode;
+}
+
+export interface TabsTabProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onClick'> {
+  value: string;
+  icon?: React.ReactNode;
+  count?: number;
+  children: React.ReactNode;
+}
+
+export interface TabsPanelProps extends React.HTMLAttributes<HTMLDivElement> {
+  value: string;
+  children: React.ReactNode;
+}
+
+interface TabsContextValue {
+  value?: string;
+  onChange?: (value: string) => void;
+  variant: 'underline' | 'pill';
+  fullWidth: boolean;
+}
+
+/** Width of the overflow chevron's fade-out + hit area, and how much
+ * scroll-padding the strip keeps on that side so scrollIntoView doesn't land
+ * a tab half-hidden behind it. The chevron overlays this edge rather than
+ * reserving space for itself — reserving space fit fewer tabs on screen at
+ * once, for no benefit once the chevron reliably paints above the tab under
+ * it (see Tab's z-index comment). */
+const CHEVRON_W = 56;
+
+const TabsContext = React.createContext<TabsContextValue | null>(null);
+
+function useTabsContext(component: string): TabsContextValue {
+  const ctx = React.useContext(TabsContext);
+  if (!ctx) throw new Error(`<Tabs.${component}> must be rendered inside <Tabs>.`);
+  return ctx;
+}
+
+function TabsRoot({ value, onChange, variant = 'underline', fullWidth = false, children }: TabsProps) {
+  const ctx = React.useMemo<TabsContextValue>(() => ({ value, onChange, variant, fullWidth }), [value, onChange, variant, fullWidth]);
+  return <TabsContext.Provider value={ctx}>{children}</TabsContext.Provider>;
+}
+
+function List({ children, style, ...rest }: TabsListProps) {
+  const { value: activeValue, variant, fullWidth } = useTabsContext('List');
   const pill = variant === 'pill';
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [edge, setEdge] = React.useState({ left: false, right: false });
+  const [indicator, setIndicator] = React.useState<{ left: number; width: number; top: number; height: number } | null>(null);
 
-  const measure = React.useCallback(() => {
+  const measureEdges = React.useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     setEdge({
@@ -38,18 +93,49 @@ export function Tabs({ items = [], value, onChange, variant = 'underline', fullW
     });
   }, []);
 
+  // Finds the active <Tabs.Tab> by its data-tab-value (no ref registry needed
+  // — children render into this same scroll container) and measures it in the
+  // container's own coordinate space, so `indicator.left` lines up with the
+  // absolutely-positioned bar/pill below.
+  const measureIndicator = React.useCallback(() => {
+    const el = scrollRef.current;
+    if (!el || activeValue == null) {
+      setIndicator(null);
+      return;
+    }
+    let active: HTMLElement | null = null;
+    el.querySelectorAll<HTMLElement>('[data-tab-value]').forEach((tab) => {
+      if (tab.dataset.tabValue === activeValue) active = tab;
+    });
+    setIndicator(
+      active
+        ? { left: (active as HTMLElement).offsetLeft, width: (active as HTMLElement).offsetWidth, top: (active as HTMLElement).offsetTop, height: (active as HTMLElement).offsetHeight }
+        : null,
+    );
+  }, [activeValue]);
+
+  // Layout effect so the indicator lands in the right spot before paint —
+  // no visible jump from a stale position on the very first render after a
+  // value change.
+  React.useLayoutEffect(() => {
+    measureIndicator();
+  }, [measureIndicator, children]);
+
   React.useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    measure();
-    el.addEventListener('scroll', measure, { passive: true });
-    const ro = new ResizeObserver(measure);
+    measureEdges();
+    el.addEventListener('scroll', measureEdges, { passive: true });
+    const ro = new ResizeObserver(() => {
+      measureEdges();
+      measureIndicator();
+    });
     ro.observe(el);
     return () => {
-      el.removeEventListener('scroll', measure);
+      el.removeEventListener('scroll', measureEdges);
       ro.disconnect();
     };
-  }, [measure, items]);
+  }, [measureEdges, measureIndicator, children]);
 
   const nudge = (dir: 1 | -1) => {
     scrollRef.current?.scrollBy({ left: dir * scrollRef.current.clientWidth * 0.72, behavior: 'smooth' });
@@ -77,71 +163,124 @@ export function Tabs({ items = [], value, onChange, variant = 'underline', fullW
         {...rest}
         className={'sereno-tab-scroll' + (rest.className ? ' ' + rest.className : '')}
         style={sx({
+          position: 'relative',
           display: 'flex',
           flex: 1,
           minWidth: 0,
           overflowX: 'auto',
           gap: pill ? 'var(--space-1)' : 'var(--space-5)',
           padding: pill ? 'var(--space-1)' : 0,
+          // The chevron overlays this edge (see ScrollChevron) rather than
+          // reserving permanent space for itself — reserving space fit fewer
+          // tabs on screen at once for no real benefit once the chevron
+          // paints correctly above whatever tab is underneath it (the actual
+          // bug, fixed below on Tab). scroll-padding keeps scrollIntoView
+          // from landing a tab half-behind the chevron's fade.
+          scrollPaddingLeft: CHEVRON_W,
+          scrollPaddingRight: CHEVRON_W,
         })}
       >
-        {items.map((it) => {
-          const active = value === it.value;
-          return (
-            <button
-              key={it.value}
-              role="tab"
-              aria-selected={active}
-              onClick={(e) => {
-                onChange?.(it.value);
-                e.currentTarget.scrollIntoView({ inline: 'nearest', block: 'nearest' });
-              }}
-              style={sx({
-                flex: fullWidth ? 1 : '0 0 auto',
-                whiteSpace: 'nowrap',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 'var(--space-2)',
-                border: 'none',
-                cursor: 'pointer',
-                outline: 'none',
-                background: pill ? (active ? 'var(--bg-surface)' : 'transparent') : 'transparent',
-                boxShadow: pill && active ? 'var(--shadow-xs)' : 'none',
-                borderRadius: pill ? 'var(--radius-pill)' : 0,
-                padding: pill ? '8px var(--space-4)' : '0 0 var(--space-3)',
-                borderBottom: pill ? 'none' : '2px solid ' + (active ? 'var(--interactive-primary)' : 'transparent'),
-                marginBottom: pill ? 0 : -1,
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-base)',
-                fontWeight: active ? 'var(--weight-semibold)' : 'var(--weight-medium)',
-                color: active ? (pill ? 'var(--text-primary)' : 'var(--text-brand)') : 'var(--text-secondary)',
-                transition: 'var(--transition-control)',
-              })}
-            >
-              {it.icon}
-              {it.label}
-              {it.count !== undefined && (
-                <span
-                  style={sx({
-                    fontSize: 'var(--text-2xs)',
-                    fontWeight: 'var(--weight-bold)',
-                    padding: '1px 6px',
-                    borderRadius: '999px',
-                    background: active ? 'var(--bg-brand-soft)' : pill ? 'var(--bg-surface)' : 'var(--bg-subtle)',
-                    color: active ? 'var(--text-brand)' : 'var(--text-muted)',
-                  })}
-                >
-                  {it.count}
-                </span>
-              )}
-            </button>
-          );
-        })}
+        {indicator && (
+          <span
+            aria-hidden
+            style={sx({
+              position: 'absolute',
+              left: indicator.left,
+              width: indicator.width,
+              zIndex: 0,
+              pointerEvents: 'none',
+              transition: 'left 200ms ease, width 200ms ease, top 200ms ease, height 200ms ease',
+              // Match the active Tab's own box exactly (offsetTop/offsetHeight,
+              // not top:0/bottom:0) — the latter is relative to the scroll
+              // container's *padding edge*, which for `pill` ignores the
+              // container's own padding and over-fills it top-to-bottom.
+              ...(pill
+                ? { top: indicator.top, height: indicator.height, borderRadius: 'var(--radius-pill)', background: 'var(--bg-surface)', boxShadow: 'var(--shadow-xs)' }
+                : { top: 'auto', bottom: 0, height: 2, background: 'var(--interactive-primary)' }),
+            })}
+          />
+        )}
+        {children}
       </div>
 
       {edge.left && <ScrollChevron side="left" fade={fade} pill={pill} onClick={() => nudge(-1)} />}
       {edge.right && <ScrollChevron side="right" fade={fade} pill={pill} onClick={() => nudge(1)} />}
+    </div>
+  );
+}
+
+function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
+  const { value: activeValue, onChange, variant, fullWidth } = useTabsContext('Tab');
+  const pill = variant === 'pill';
+  const active = activeValue === value;
+
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      data-tab-value={value}
+      {...rest}
+      onClick={(e) => {
+        onChange?.(value);
+        e.currentTarget.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+      }}
+      style={sx({
+        // position:relative (no explicit z-index) is enough to paint above
+        // the indicator — both sit in the DOM-order-decided stacking layer,
+        // and this comes later. An explicit z-index would promote this into
+        // its own stacking context ranked ahead of *everything* z-index:auto,
+        // including the unrelated ScrollChevron sibling outside this row —
+        // which is exactly the bug that shipped: the chevron ended up
+        // painted underneath every tab, visible only through the gaps
+        // between glyphs of whichever tab it overlapped.
+        position: 'relative',
+        flex: fullWidth ? 1 : '0 0 auto',
+        whiteSpace: 'nowrap',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 'var(--space-2)',
+        border: 'none',
+        cursor: 'pointer',
+        outline: 'none',
+        background: 'transparent',
+        borderRadius: pill ? 'var(--radius-pill)' : 0,
+        padding: pill ? '8px var(--space-4)' : '0 0 var(--space-3)',
+        fontFamily: 'var(--font-body)',
+        fontSize: 'var(--text-base)',
+        fontWeight: active ? 'var(--weight-semibold)' : 'var(--weight-medium)',
+        color: active ? (pill ? 'var(--text-primary)' : 'var(--text-brand)') : 'var(--text-secondary)',
+        transition: 'var(--transition-control)',
+        ...style,
+      })}
+    >
+      {icon}
+      {children}
+      {count !== undefined && (
+        <span
+          style={sx({
+            fontSize: 'var(--text-2xs)',
+            fontWeight: 'var(--weight-bold)',
+            padding: '1px 6px',
+            borderRadius: '999px',
+            background: active ? 'var(--bg-brand-soft)' : pill ? 'var(--bg-surface)' : 'var(--bg-subtle)',
+            color: active ? 'var(--text-brand)' : 'var(--text-muted)',
+          })}
+        >
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
+
+function Panel({ value, children, ...rest }: TabsPanelProps) {
+  const { value: activeValue } = useTabsContext('Panel');
+  if (activeValue !== value) return null;
+  return (
+    <div role="tabpanel" {...rest}>
+      {children}
     </div>
   );
 }
@@ -153,13 +292,18 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
       style={sx({
         position: 'absolute',
         top: 0,
-        bottom: pill ? 0 : 1,
+        bottom: 0,
         [side]: 0,
-        width: 44,
+        width: CHEVRON_W,
         display: 'flex',
         alignItems: 'center',
         justifyContent: side === 'left' ? 'flex-start' : 'flex-end',
         pointerEvents: 'none',
+        // Fades the tab it overlays out towards this edge — the button
+        // itself paints above every tab (Tab has no explicit z-index, so
+        // it can't outrank this), so it's never actually hidden by one;
+        // this is purely about not hard-cutting the text right at the
+        // button's boundary.
         background: `linear-gradient(to ${side === 'left' ? 'right' : 'left'}, ${fade} 55%, transparent)`,
         borderRadius: pill ? 'var(--radius-pill)' : 0,
       })}
@@ -176,11 +320,22 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
           width: 26,
           height: 26,
           borderRadius: '999px',
-          border: '1px solid var(--border-default)',
+          border: '1px solid var(--border-strong)',
+          // White, matching the DS's other floating circular controls.
           background: 'var(--bg-surface)',
-          boxShadow: 'var(--shadow-sm)',
+          boxShadow: 'var(--shadow-md)',
           color: 'var(--text-secondary)',
           cursor: 'pointer',
+          // `underline`-only correction, measured against the actual glyph
+          // box (Range.getBoundingClientRect on the label's text node, not
+          // the row's own padded box): that variant's label sits ~6px above
+          // the row's geometric center, since the row reserves padding-bottom
+          // for the underline bar that the text itself doesn't use. `pill`
+          // pads top and bottom equally, so its label is already centered —
+          // applying this there overshoots (confirmed live on the Dashboard's
+          // pill filter: the same -6px landed 6px too high once the row
+          // wasn't underline's asymmetric one).
+          transform: pill ? undefined : 'translateY(-6px)',
         })}
       >
         {side === 'left' ? <ChevronLeft size={16} strokeWidth={2} /> : <ChevronRight size={16} strokeWidth={2} />}
@@ -188,3 +343,5 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
     </span>
   );
 }
+
+export const Tabs = Object.assign(TabsRoot, { List, Tab, Panel });

@@ -247,7 +247,12 @@ export function ToastProvider({ children, position = 'bottom-right', max = 3, du
     // Every toast is full-width of the viewport, so the stack edges line up on
     // any side; `alignItems` only matters if a toast were ever narrower.
     alignItems: 'stretch',
-    ...(side === 'center' ? { left: '50%', transform: 'translateX(-50%)' } : { [side]: 0 }),
+    // An *outer* offset on top of the padding above, not just the padding
+    // itself — macOS Safari's overlay scrollbar floats over the page rather
+    // than reducing its width, so a left/right edge flush at 0 can end up
+    // with the scrollbar painted right where the padding was supposed to be
+    // the toast's only clearance from the edge.
+    ...(side === 'center' ? { left: '50%', transform: 'translateX(-50%)' } : { [side]: 'var(--space-2)' }),
   });
 
   return (

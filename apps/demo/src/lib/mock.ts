@@ -191,6 +191,33 @@ export const CLIENT_STATUS_LABEL: Record<ClientRow['status'], string> = {
   error: 'Atenção',
 };
 
+export interface Review {
+  name: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
+export const REVIEWS: Review[] = [
+  { name: 'Marina Alves', rating: 5, comment: 'Profissional muito atenciosa — me senti acolhida desde a primeira sessão.', date: 'ago 2026' },
+  { name: 'Carlos Dias', rating: 5, comment: 'Ótima escuta e sempre pontual. Recomendo bastante.', date: 'jul 2026' },
+  { name: 'Juliana Prado', rating: 4, comment: 'Bom atendimento; só gostaria de mais horários disponíveis à noite.', date: 'jun 2026' },
+  { name: 'Rafael e Bia', rating: 5, comment: 'A terapia de casal mudou nossa comunicação. Muito grata.', date: 'mai 2026' },
+];
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export const PROFESSIONAL_FAQ: FaqItem[] = [
+  { question: 'Preciso de indicação médica para agendar?', answer: 'Não. Você pode marcar uma primeira consulta diretamente por aqui, sem encaminhamento.' },
+  { question: 'Como funciona o atendimento online?', answer: 'Por videochamada, num link que chega por e-mail e WhatsApp 15 minutos antes do horário marcado.' },
+  { question: 'Posso remarcar ou cancelar?', answer: 'Sim, gratuitamente até 24h antes do horário. Depois disso a sessão é cobrada normalmente.' },
+];
+
+export const PROFESSIONAL_INSURANCE = ['Unimed', 'Bradesco Saúde', 'SulAmérica', 'Amil'];
+
 export const DASHBOARD_STATS = [
   { label: 'Hoje', value: '5', delta: '1 pendente de confirmação' },
   { label: 'Esta semana', value: '23', delta: '+4 vs. semana passada', tone: 'up' as const },
