@@ -56,6 +56,11 @@ interface TabsContextValue {
   fullWidth: boolean;
 }
 
+/** Width of the overflow chevron button — also how much `scroll-padding` the
+ * strip keeps on that side, so `scrollIntoView` never lands a tab half-hidden
+ * behind the chevron's fade-out gradient. */
+const CHEVRON_W = 44;
+
 const TabsContext = React.createContext<TabsContextValue | null>(null);
 
 function useTabsContext(component: string): TabsContextValue {
@@ -70,12 +75,13 @@ function TabsRoot({ value, onChange, variant = 'underline', fullWidth = false, c
 }
 
 function List({ children, style, ...rest }: TabsListProps) {
-  const { variant, fullWidth } = useTabsContext('List');
+  const { value: activeValue, variant, fullWidth } = useTabsContext('List');
   const pill = variant === 'pill';
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [edge, setEdge] = React.useState({ left: false, right: false });
+  const [indicator, setIndicator] = React.useState<{ left: number; width: number } | null>(null);
 
-  const measure = React.useCallback(() => {
+  const measureEdges = React.useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     setEdge({
@@ -84,18 +90,45 @@ function List({ children, style, ...rest }: TabsListProps) {
     });
   }, []);
 
+  // Finds the active <Tabs.Tab> by its data-tab-value (no ref registry needed
+  // — children render into this same scroll container) and measures it in the
+  // container's own coordinate space, so `indicator.left` lines up with the
+  // absolutely-positioned bar/pill below.
+  const measureIndicator = React.useCallback(() => {
+    const el = scrollRef.current;
+    if (!el || activeValue == null) {
+      setIndicator(null);
+      return;
+    }
+    let active: HTMLElement | null = null;
+    el.querySelectorAll<HTMLElement>('[data-tab-value]').forEach((tab) => {
+      if (tab.dataset.tabValue === activeValue) active = tab;
+    });
+    setIndicator(active ? { left: (active as HTMLElement).offsetLeft, width: (active as HTMLElement).offsetWidth } : null);
+  }, [activeValue]);
+
+  // Layout effect so the indicator lands in the right spot before paint —
+  // no visible jump from a stale position on the very first render after a
+  // value change.
+  React.useLayoutEffect(() => {
+    measureIndicator();
+  }, [measureIndicator, children]);
+
   React.useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    measure();
-    el.addEventListener('scroll', measure, { passive: true });
-    const ro = new ResizeObserver(measure);
+    measureEdges();
+    el.addEventListener('scroll', measureEdges, { passive: true });
+    const ro = new ResizeObserver(() => {
+      measureEdges();
+      measureIndicator();
+    });
     ro.observe(el);
     return () => {
-      el.removeEventListener('scroll', measure);
+      el.removeEventListener('scroll', measureEdges);
       ro.disconnect();
     };
-  }, [measure, children]);
+  }, [measureEdges, measureIndicator, children]);
 
   const nudge = (dir: 1 | -1) => {
     scrollRef.current?.scrollBy({ left: dir * scrollRef.current.clientWidth * 0.72, behavior: 'smooth' });
@@ -123,14 +156,35 @@ function List({ children, style, ...rest }: TabsListProps) {
         {...rest}
         className={'sereno-tab-scroll' + (rest.className ? ' ' + rest.className : '')}
         style={sx({
+          position: 'relative',
           display: 'flex',
           flex: 1,
           minWidth: 0,
           overflowX: 'auto',
           gap: pill ? 'var(--space-1)' : 'var(--space-5)',
           padding: pill ? 'var(--space-1)' : 0,
+          scrollPaddingLeft: CHEVRON_W,
+          scrollPaddingRight: CHEVRON_W,
         })}
       >
+        {indicator && (
+          <span
+            aria-hidden
+            style={sx({
+              position: 'absolute',
+              left: indicator.left,
+              width: indicator.width,
+              top: 0,
+              bottom: 0,
+              zIndex: 0,
+              pointerEvents: 'none',
+              transition: 'left 200ms ease, width 200ms ease',
+              ...(pill
+                ? { borderRadius: 'var(--radius-pill)', background: 'var(--bg-surface)', boxShadow: 'var(--shadow-xs)' }
+                : { top: 'auto', height: 2, background: 'var(--interactive-primary)' }),
+            })}
+          />
+        )}
         {children}
       </div>
 
@@ -150,12 +204,15 @@ function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
       type="button"
       role="tab"
       aria-selected={active}
+      data-tab-value={value}
       {...rest}
       onClick={(e) => {
         onChange?.(value);
         e.currentTarget.scrollIntoView({ inline: 'nearest', block: 'nearest' });
       }}
       style={sx({
+        position: 'relative',
+        zIndex: 1, // above the sliding indicator, which shares this row
         flex: fullWidth ? 1 : '0 0 auto',
         whiteSpace: 'nowrap',
         display: 'inline-flex',
@@ -165,12 +222,9 @@ function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
         border: 'none',
         cursor: 'pointer',
         outline: 'none',
-        background: pill ? (active ? 'var(--bg-surface)' : 'transparent') : 'transparent',
-        boxShadow: pill && active ? 'var(--shadow-xs)' : 'none',
+        background: 'transparent',
         borderRadius: pill ? 'var(--radius-pill)' : 0,
         padding: pill ? '8px var(--space-4)' : '0 0 var(--space-3)',
-        borderBottom: pill ? 'none' : '2px solid ' + (active ? 'var(--interactive-primary)' : 'transparent'),
-        marginBottom: pill ? 0 : -1,
         fontFamily: 'var(--font-body)',
         fontSize: 'var(--text-base)',
         fontWeight: active ? 'var(--weight-semibold)' : 'var(--weight-medium)',
@@ -216,9 +270,9 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
       style={sx({
         position: 'absolute',
         top: 0,
-        bottom: pill ? 0 : 1,
+        bottom: 0,
         [side]: 0,
-        width: 44,
+        width: CHEVRON_W,
         display: 'flex',
         alignItems: 'center',
         justifyContent: side === 'left' ? 'flex-start' : 'flex-end',
