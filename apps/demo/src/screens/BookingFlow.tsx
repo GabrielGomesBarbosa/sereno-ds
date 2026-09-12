@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Calendar, CalendarPlus, CheckCircle2, ChevronLeft, CreditCard, Info, Mail, Phone, Share2, User, Video } from 'lucide-react';
-import { Badge, Brand, Button, Card, Checkbox, DateTimePicker, IconButton, Input, Textarea, TopBar } from '@sereno-ds/ui';
+import { Calendar, CalendarPlus, CheckCircle2, ChevronLeft, Clock, CreditCard, Info, Mail, MapPin, Phone, Share2, Star, User, Video } from 'lucide-react';
+import { Badge, Brand, Button, Card, Checkbox, DateTimePicker, EmptyState, IconButton, Input, Tabs, Textarea, TopBar } from '@sereno-ds/ui';
 import { ServiceCard } from '@/domain/ServiceCard';
 import { ProfessionalCard } from '@/domain/ProfessionalCard';
 import type { Professional, Service } from '@/lib/mock';
@@ -121,6 +121,7 @@ function Rail({ professional, service, day, time }: { professional: Professional
 
 export function BookingFlow({ professional, services }: { professional: Professional; services: Service[] }) {
   const [step, setStep] = React.useState<Step>('profile');
+  const [profileTab, setProfileTab] = React.useState('servicos');
   const [serviceId, setServiceId] = React.useState<string | null>(null);
   const [day, setDay] = React.useState<number | null>(null);
   const [time, setTime] = React.useState<string | null>(null);
@@ -182,23 +183,55 @@ export function BookingFlow({ professional, services }: { professional: Professi
           )}
 
           {step === 'profile' && (
-            <div className="booking-scroll" style={{ paddingBlock: 'var(--space-5) var(--space-8)', gap: 'var(--space-3)' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)' }}>Escolha o serviço</span>
-              {services.map((s) => (
-                <ServiceCard
-                  key={s.id}
-                  name={s.name}
-                  duration={s.duration}
-                  price={s.price}
-                  description={s.description}
-                  tag={s.tag}
-                  selected={serviceId === s.id}
-                  onSelect={() => setServiceId(s.id)}
-                />
-              ))}
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', lineHeight: 1.5, margin: 'var(--space-2) 0 0' }}>
-                Cancelamentos gratuitos até 24h antes do horário marcado.
-              </p>
+            <div className="booking-scroll" style={{ paddingBlock: 'var(--space-5) var(--space-8)', gap: 0 }}>
+              {/* The public profile's real sections — page-level, exactly what
+                  `underline` is for. Narrow enough on this booking card that
+                  it overflows on its own, no forced narrowing needed. */}
+              <Tabs value={profileTab} onChange={setProfileTab}>
+                <Tabs.List>
+                  <Tabs.Tab value="servicos">Serviços</Tabs.Tab>
+                  <Tabs.Tab value="sobre">Sobre</Tabs.Tab>
+                  <Tabs.Tab value="avaliacoes">Avaliações</Tabs.Tab>
+                  <Tabs.Tab value="localizacao">Localização</Tabs.Tab>
+                  <Tabs.Tab value="horarios">Horários</Tabs.Tab>
+                </Tabs.List>
+
+                <Tabs.Panel value="servicos" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', paddingTop: 'var(--space-4)' }}>
+                  {services.map((s) => (
+                    <ServiceCard
+                      key={s.id}
+                      name={s.name}
+                      duration={s.duration}
+                      price={s.price}
+                      description={s.description}
+                      tag={s.tag}
+                      selected={serviceId === s.id}
+                      onSelect={() => setServiceId(s.id)}
+                    />
+                  ))}
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', lineHeight: 1.5, margin: 'var(--space-2) 0 0' }}>
+                    Cancelamentos gratuitos até 24h antes do horário marcado.
+                  </p>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="sobre" style={{ paddingTop: 'var(--space-4)' }}>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>{professional.bio}</p>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="avaliacoes" style={{ paddingTop: 'var(--space-4)' }}>
+                  <EmptyState icon={<Star size={22} strokeWidth={1.75} />} title="Avaliações em breve" description="Esta área ainda não faz parte deste design system; entra quando o fluxo for definido." />
+                </Tabs.Panel>
+
+                <Tabs.Panel value="localizacao" style={{ paddingTop: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                  <MapPin size={18} strokeWidth={1.75} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>{professional.location}</span>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="horarios" style={{ paddingTop: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                  <Clock size={18} strokeWidth={1.75} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Segunda a sexta, 9h às 18h.</span>
+                </Tabs.Panel>
+              </Tabs>
             </div>
           )}
 
