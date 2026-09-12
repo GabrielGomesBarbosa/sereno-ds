@@ -56,11 +56,12 @@ interface TabsContextValue {
   fullWidth: boolean;
 }
 
-/** Width of the overflow chevron's own reserved space — Tabs.List opens up
- * a margin this wide on whichever edge is scrollable, so the chevron sits in
- * real dead space next to the strip instead of overlaid on top of it. Wider
- * than the 26px button itself on purpose, so it doesn't hug the strip's edge —
- * (CHEVRON_W - 26) / 2 px of clearance on each side of the button. */
+/** Width of the overflow chevron's fade-out + hit area, and how much
+ * scroll-padding the strip keeps on that side so scrollIntoView doesn't land
+ * a tab half-hidden behind it. The chevron overlays this edge rather than
+ * reserving space for itself — reserving space fit fewer tabs on screen at
+ * once, for no benefit once the chevron reliably paints above the tab under
+ * it (see Tab's z-index comment). */
 const CHEVRON_W = 56;
 
 const TabsContext = React.createContext<TabsContextValue | null>(null);
@@ -140,6 +141,8 @@ function List({ children, style, ...rest }: TabsListProps) {
     scrollRef.current?.scrollBy({ left: dir * scrollRef.current.clientWidth * 0.72, behavior: 'smooth' });
   };
 
+  const fade = pill ? 'var(--bg-subtle)' : 'var(--bg-surface)';
+
   return (
     <div
       style={sx({
@@ -167,19 +170,14 @@ function List({ children, style, ...rest }: TabsListProps) {
           overflowX: 'auto',
           gap: pill ? 'var(--space-1)' : 'var(--space-5)',
           padding: pill ? 'var(--space-1)' : 0,
-          // Reserve the chevron's own footprint as real layout space,
-          // outside the scrollable box itself, on whichever edge is
-          // currently scrollable — margin (unlike padding) isn't part of
-          // what scrollWidth/clientWidth measure, so this can't feed back
-          // into the edge-detection above, and it's *why* this works at
-          // all: the chevron's span is absolutely positioned flush with
-          // the outer wrapper's edge, so this margin opens real dead space
-          // there for it to sit in, geometrically outside the scrollable
-          // content rather than floating over whatever tab happens to be
-          // at that edge — which is what let a tab's own (necessarily
-          // interactive, unstyled-behind) box paint over the chevron.
-          marginLeft: edge.left ? CHEVRON_W : 0,
-          marginRight: edge.right ? CHEVRON_W : 0,
+          // The chevron overlays this edge (see ScrollChevron) rather than
+          // reserving permanent space for itself — reserving space fit fewer
+          // tabs on screen at once for no real benefit once the chevron
+          // paints correctly above whatever tab is underneath it (the actual
+          // bug, fixed below on Tab). scroll-padding keeps scrollIntoView
+          // from landing a tab half-behind the chevron's fade.
+          scrollPaddingLeft: CHEVRON_W,
+          scrollPaddingRight: CHEVRON_W,
         })}
       >
         {indicator && (
@@ -205,8 +203,8 @@ function List({ children, style, ...rest }: TabsListProps) {
         {children}
       </div>
 
-      {edge.left && <ScrollChevron side="left" pill={pill} onClick={() => nudge(-1)} />}
-      {edge.right && <ScrollChevron side="right" pill={pill} onClick={() => nudge(1)} />}
+      {edge.left && <ScrollChevron side="left" fade={fade} pill={pill} onClick={() => nudge(-1)} />}
+      {edge.right && <ScrollChevron side="right" fade={fade} pill={pill} onClick={() => nudge(1)} />}
     </div>
   );
 }
@@ -287,7 +285,7 @@ function Panel({ value, children, ...rest }: TabsPanelProps) {
   );
 }
 
-function ScrollChevron({ side, pill, onClick }: { side: 'left' | 'right'; pill: boolean; onClick: () => void }) {
+function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; fade: string; pill: boolean; onClick: () => void }) {
   return (
     <span
       aria-hidden
@@ -299,12 +297,14 @@ function ScrollChevron({ side, pill, onClick }: { side: 'left' | 'right'; pill: 
         width: CHEVRON_W,
         display: 'flex',
         alignItems: 'center',
-        // Centered, not hugging the edge — this span now sits in the
-        // margin gap Tabs.List opens up for it (real dead space, not an
-        // overlay on the scrollable content), so there's no cut-off tab
-        // text underneath it to stay close to anymore.
-        justifyContent: 'center',
+        justifyContent: side === 'left' ? 'flex-start' : 'flex-end',
         pointerEvents: 'none',
+        // Fades the tab it overlays out towards this edge — the button
+        // itself paints above every tab (Tab has no explicit z-index, so
+        // it can't outrank this), so it's never actually hidden by one;
+        // this is purely about not hard-cutting the text right at the
+        // button's boundary.
+        background: `linear-gradient(to ${side === 'left' ? 'right' : 'left'}, ${fade} 55%, transparent)`,
         borderRadius: pill ? 'var(--radius-pill)' : 0,
       })}
     >
