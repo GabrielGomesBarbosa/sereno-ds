@@ -217,8 +217,15 @@ function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
         e.currentTarget.scrollIntoView({ inline: 'nearest', block: 'nearest' });
       }}
       style={sx({
+        // position:relative (no explicit z-index) is enough to paint above
+        // the indicator — both sit in the DOM-order-decided stacking layer,
+        // and this comes later. An explicit z-index would promote this into
+        // its own stacking context ranked ahead of *everything* z-index:auto,
+        // including the unrelated ScrollChevron sibling outside this row —
+        // which is exactly the bug that shipped: the chevron ended up
+        // painted underneath every tab, visible only through the gaps
+        // between glyphs of whichever tab it overlapped.
         position: 'relative',
-        zIndex: 1, // above the sliding indicator, which shares this row
         flex: fullWidth ? 1 : '0 0 auto',
         whiteSpace: 'nowrap',
         display: 'inline-flex',
@@ -300,20 +307,11 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
           height: 26,
           borderRadius: '999px',
           border: '1px solid var(--border-strong)',
-          // White like the DS's other floating circular controls (IconButton,
-          // Menu's trigger chrome) — consistent with that language, and
-          // --shadow-md (real elevation, not the whisper-thin --shadow-sm)
-          // is what actually keeps it visible on a white card, not a fill
-          // color fighting the fade gradient underneath.
+          // White, matching the DS's other floating circular controls.
           background: 'var(--bg-surface)',
           boxShadow: 'var(--shadow-md)',
           color: 'var(--text-secondary)',
           cursor: 'pointer',
-          // Optical, not geometric: text sits in the upper part of the row
-          // (no top padding, space reserved below for the underline), so a
-          // circle dead-centered on the row's full box reads as low against
-          // it. Nudge up a couple px to match where the eye reads the label.
-          transform: 'translateY(-2px)',
         })}
       >
         {side === 'left' ? <ChevronLeft size={16} strokeWidth={2} /> : <ChevronRight size={16} strokeWidth={2} />}
