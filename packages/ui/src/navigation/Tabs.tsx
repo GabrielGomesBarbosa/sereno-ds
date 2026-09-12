@@ -299,8 +299,13 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
           width: 26,
           height: 26,
           borderRadius: '999px',
-          border: '1px solid var(--border-default)',
-          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-strong)',
+          // Opposite of `fade` on purpose: the fade gradient matches the
+          // surrounding card/panel background so the tab strip disappears
+          // under it seamlessly, which means a same-color button fill would
+          // vanish into that same background (underline: white-on-white).
+          // Contrast the button against it instead.
+          background: pill ? 'var(--bg-surface)' : 'var(--bg-subtle)',
           boxShadow: 'var(--shadow-sm)',
           color: 'var(--text-secondary)',
           cursor: 'pointer',
