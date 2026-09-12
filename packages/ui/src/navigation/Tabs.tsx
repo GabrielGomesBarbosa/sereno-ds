@@ -79,7 +79,7 @@ function List({ children, style, ...rest }: TabsListProps) {
   const pill = variant === 'pill';
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [edge, setEdge] = React.useState({ left: false, right: false });
-  const [indicator, setIndicator] = React.useState<{ left: number; width: number } | null>(null);
+  const [indicator, setIndicator] = React.useState<{ left: number; width: number; top: number; height: number } | null>(null);
 
   const measureEdges = React.useCallback(() => {
     const el = scrollRef.current;
@@ -104,7 +104,11 @@ function List({ children, style, ...rest }: TabsListProps) {
     el.querySelectorAll<HTMLElement>('[data-tab-value]').forEach((tab) => {
       if (tab.dataset.tabValue === activeValue) active = tab;
     });
-    setIndicator(active ? { left: (active as HTMLElement).offsetLeft, width: (active as HTMLElement).offsetWidth } : null);
+    setIndicator(
+      active
+        ? { left: (active as HTMLElement).offsetLeft, width: (active as HTMLElement).offsetWidth, top: (active as HTMLElement).offsetTop, height: (active as HTMLElement).offsetHeight }
+        : null,
+    );
   }, [activeValue]);
 
   // Layout effect so the indicator lands in the right spot before paint —
@@ -174,14 +178,16 @@ function List({ children, style, ...rest }: TabsListProps) {
               position: 'absolute',
               left: indicator.left,
               width: indicator.width,
-              top: 0,
-              bottom: 0,
               zIndex: 0,
               pointerEvents: 'none',
-              transition: 'left 200ms ease, width 200ms ease',
+              transition: 'left 200ms ease, width 200ms ease, top 200ms ease, height 200ms ease',
+              // Match the active Tab's own box exactly (offsetTop/offsetHeight,
+              // not top:0/bottom:0) — the latter is relative to the scroll
+              // container's *padding edge*, which for `pill` ignores the
+              // container's own padding and over-fills it top-to-bottom.
               ...(pill
-                ? { borderRadius: 'var(--radius-pill)', background: 'var(--bg-surface)', boxShadow: 'var(--shadow-xs)' }
-                : { top: 'auto', height: 2, background: 'var(--interactive-primary)' }),
+                ? { top: indicator.top, height: indicator.height, borderRadius: 'var(--radius-pill)', background: 'var(--bg-surface)', boxShadow: 'var(--shadow-xs)' }
+                : { top: 'auto', bottom: 0, height: 2, background: 'var(--interactive-primary)' }),
             })}
           />
         )}
