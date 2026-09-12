@@ -138,9 +138,13 @@ package version.
   npm ≥ 11.5.1; `npm@latest` is 12.x / Node 22+). npm has a **Trusted Publisher**
   configured for this repo + `release.yml` on each package. `publishConfig` in
   both `package.json`s carries `access: "public"` + `provenance: true`.
-- **Manual publish** (only the very first time, before the Trusted Publisher can
-  be attached, or to recover): `cd packages/tokens && npm publish` then
-  `cd ../ui && npm publish` — needs your npm login + 2FA. Never commit a token.
+- **Manual publish** (only the very first time — OIDC can't create a package
+  that doesn't exist yet, only publish new versions of one that does — or to
+  recover): `npm publish --workspace=@sereno-ds/tokens --no-provenance` then
+  `--workspace=@sereno-ds/ui`. `--no-provenance` because provenance signing
+  only works from CI; needs your npm login + an OTP (2FA is required to
+  publish — pass `--otp=<code>` if the CLI doesn't prompt). Never commit a
+  token. This is how `0.24.0` shipped (2026-09-12).
 - **`ci.yml` runs `npm publish --dry-run`** for both packages on every PR
   touching `packages/**` — the job log is the tarball contents; a stray file
   shows up there before it can ship.
