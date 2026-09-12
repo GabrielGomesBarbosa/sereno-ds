@@ -560,8 +560,6 @@ function ViewHeader({ title, action }: { title?: string; action?: React.ReactNod
   );
 }
 
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-
 function AppointmentRow({ a, onCancel, onToast }: { a: Appointment; onCancel: () => void; onToast: (m: string) => void }) {
   const first = a.client.split(' ')[0];
   return (
@@ -602,12 +600,6 @@ function AppointmentRow({ a, onCancel, onToast }: { a: Appointment; onCancel: ()
 function DayBlock({ g, onCancel, onToast }: { g: (typeof AGENDA_SCHEDULE)[number]; onCancel: () => void; onToast: (m: string) => void }) {
   return (
     <div style={vcol('var(--space-3)')}>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
-        <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>{g.relative ?? g.weekday}</span>
-        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
-          {(g.relative ? `${g.weekday}, ${g.date}` : g.date) + ' · ' + plural(g.items.length, 'atendimento', 'atendimentos')}
-        </span>
-      </div>
       {g.items.map((a) => (
         <AppointmentRow key={g.key + a.time} a={a} onCancel={onCancel} onToast={onToast} />
       ))}
