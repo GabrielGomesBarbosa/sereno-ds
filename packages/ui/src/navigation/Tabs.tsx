@@ -58,8 +58,10 @@ interface TabsContextValue {
 
 /** Width of the overflow chevron's own reserved space — Tabs.List opens up
  * a margin this wide on whichever edge is scrollable, so the chevron sits in
- * real dead space next to the strip instead of overlaid on top of it. */
-const CHEVRON_W = 44;
+ * real dead space next to the strip instead of overlaid on top of it. Wider
+ * than the 26px button itself on purpose, so it doesn't hug the strip's edge —
+ * (CHEVRON_W - 26) / 2 px of clearance on each side of the button. */
+const CHEVRON_W = 56;
 
 const TabsContext = React.createContext<TabsContextValue | null>(null);
 
