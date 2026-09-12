@@ -53,7 +53,15 @@ const CASES: Record<string, React.ReactElement> = {
   AvatarUpload: <UI.AvatarUpload />,
   SearchInput: <UI.SearchInput placeholder="Search" />,
   TopBar: <UI.TopBar title="Agenda" subtitle="Today" />,
-  Tabs: <UI.Tabs value="a" items={[{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }]} />,
+  Tabs: (
+    <UI.Tabs value="a">
+      <UI.Tabs.List>
+        <UI.Tabs.Tab value="a">A</UI.Tabs.Tab>
+        <UI.Tabs.Tab value="b">B</UI.Tabs.Tab>
+      </UI.Tabs.List>
+      <UI.Tabs.Panel value="a">panel A</UI.Tabs.Panel>
+    </UI.Tabs>
+  ),
   BottomNav: <UI.BottomNav value="a" items={[{ value: 'a', label: 'A', icon }, { value: 'b', label: 'B', icon }]} />,
   SidebarNav: <UI.SidebarNav value="a" sections={[{ items: [{ value: 'a', label: 'A', icon }] }]} />,
   Stepper: <UI.Stepper current={1} steps={[{ label: 'One' }, { label: 'Two' }, { label: 'Three' }]} />,

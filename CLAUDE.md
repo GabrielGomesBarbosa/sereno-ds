@@ -181,16 +181,41 @@ previews (test locally + on the branch).
   `align-items: center`, which centres *boxes*, not baselines — unequal line
   boxes make the affix drift off the value's baseline (this bit us in SS-215:
   `prefix` was hard-coded to `--text-sm` and inherited the body's `line-height`).
-- **Compound components — reference: `Table` (SS-216).** For a component whose
-  shape the consumer composes (`Table` → `Table.Head` / `.Body` / `.Row` /
-  `.HeaderCell` / `.Cell`), the pattern is: a root that renders the semantic
-  element + puts config on it as `data-*` (`data-density`, `data-sticky`,
-  `data-sortable`, `data-interactive`), thin sub-components exported via
-  `Object.assign(Root, { … })`, and **all the structural CSS — dividers,
-  density, hover / focus-visible / sticky / zebra — in `packages/ui/src/styles.css`**
-  keyed off those `data-*`. No React context unless sub-parts genuinely share
-  runtime state. Controlled state (sort, selection) is passed to the sub-part
-  that needs it, explicitly. The broader compound migration is SS-213.
+- **Compound components — two reference patterns, pick by whether sub-parts
+  share *runtime* state.** Both export only the root, via
+  `Object.assign(Root, { … })` — sub-components are plain, unexported
+  `function`s in the same file.
+  - **`data-*` + CSS — reference `Table` (SS-216).** Use this when the
+    sub-parts are mostly structural and their config barely changes across a
+    render (density, sticky, sortable, selected row). The root puts config on
+    the semantic element as `data-*` (`data-density`, `data-sticky`,
+    `data-sortable`, `data-interactive`); **all the structural CSS —
+    dividers, density, hover / focus-visible / sticky / zebra — lives in
+    `packages/ui/src/styles.css`**, keyed off those `data-*`. No React
+    context. Controlled state (sort, selection) is passed to the sub-part
+    that needs it, explicitly, as a prop.
+  - **React Context — reference `Tabs` (SS-213, go from the SS-220 spike).**
+    Use this when sub-parts genuinely coordinate at every interaction — an
+    active `value`, a shared `onChange`, the visual `variant` — the way
+    `Tabs.Tab` and `Tabs.Panel` both need to know which value is active right
+    now. One `createContext` per component (not shared across components); a
+    `useXContext(componentName)` hook that throws
+    `` `<X.Sub> must be rendered inside <X>.` `` when a sub-part renders
+    outside the root — this is the real safety net, not TypeScript, since
+    nothing stops a consumer from importing `Tabs.Tab` alone. The root's
+    context value is `React.useMemo`'d off its props so identity is stable
+    across renders that don't change them. Inline styles (not `data-*` + CSS)
+    are fine here — the compound split is about API ergonomics
+    (`<Tabs.Tab>` reads better than a config array), not about moving styling
+    into the stylesheet.
+  - Either way: `'use client'` at the top (compound components read
+    `React.useContext` or hold interactive state, so they never survive the
+    RSC boundary — see the props-table lesson below), and the root is the
+    **only** named export; `Table.Head` etc. resolve to `undefined` if
+    imported from a Server Component.
+  - The full compound migration (`Tabs`, `SidebarNav`, `BottomNav`, `Stepper`,
+    `Dialog`, `TopBar`) is SS-213; `Select` / `DateTimePicker` stay hand-rolled
+    unless a later spike says otherwise.
 - **Tokens** live in `packages/tokens/*.css`. Adjustments are made and documented
   in the file itself:
   - `typography.css` points the font families at the `--font-*` variables the

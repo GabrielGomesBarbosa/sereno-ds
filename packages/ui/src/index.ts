@@ -36,7 +36,7 @@ export { SearchInput, type SearchInputProps } from './forms/SearchInput';
 
 // navigation
 export { TopBar, type TopBarProps } from './navigation/TopBar';
-export { Tabs, type TabsProps, type TabItem } from './navigation/Tabs';
+export { Tabs, type TabsProps, type TabsListProps, type TabsTabProps, type TabsPanelProps } from './navigation/Tabs';
 export { BottomNav, type BottomNavProps, type BottomNavItem } from './navigation/BottomNav';
 export {
   SidebarNav,

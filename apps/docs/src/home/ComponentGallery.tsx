@@ -19,7 +19,7 @@ const TABS = [
   { value: 'today', label: 'Today' },
   { value: 'week', label: 'Week' },
   { value: 'month', label: 'Month' },
-];
+] as const;
 
 /** A live spread of primitives from every category — a real preview, not a screenshot. */
 export function ComponentGallery() {
@@ -81,7 +81,15 @@ export function ComponentGallery() {
 
       <Card padding="lg" style={cell}>
         <span style={tag}>Navigation</span>
-        <Tabs items={TABS} value={tab} onChange={setTab} />
+        <Tabs value={tab} onChange={setTab}>
+          <Tabs.List>
+            {TABS.map((t) => (
+              <Tabs.Tab key={t.value} value={t.value}>
+                {t.label}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
           <Calendar size={16} strokeWidth={1.75} /> Showing the {tab === 'today' ? 'day' : tab}
         </div>

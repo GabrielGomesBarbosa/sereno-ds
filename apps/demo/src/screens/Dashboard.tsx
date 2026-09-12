@@ -654,16 +654,17 @@ function AgendaView({ onCancel, onToast }: { onCancel: () => void; onToast: (m: 
 
       <div className="dash-agenda-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 320px', gap: 'var(--space-5)', alignItems: 'start' }}>
         <div style={vcol('var(--space-5)')}>
-          <Tabs
-            variant="pill"
-            value={filter}
-            onChange={setFilter}
-            items={[
-              { value: 'hoje', label: 'Hoje', count: AGENDA_SCHEDULE[0].items.length },
-              { value: 'semana', label: 'Semana', count: weekCount },
-              { value: 'mes', label: 'Mês' },
-            ]}
-          />
+          <Tabs variant="pill" value={filter} onChange={setFilter}>
+            <Tabs.List>
+              <Tabs.Tab value="hoje" count={AGENDA_SCHEDULE[0].items.length}>
+                Hoje
+              </Tabs.Tab>
+              <Tabs.Tab value="semana" count={weekCount}>
+                Semana
+              </Tabs.Tab>
+              <Tabs.Tab value="mes">Mês</Tabs.Tab>
+            </Tabs.List>
+          </Tabs>
           {groups.map((g) => (
             <DayBlock key={g.key} g={g} onCancel={onCancel} onToast={onToast} />
           ))}

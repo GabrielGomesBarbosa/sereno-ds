@@ -1297,8 +1297,20 @@ function TabsUnderline() {
   const [v, setV] = React.useState('agenda');
   return (
     <div>
-      <Tabs value={v} onChange={setV} items={TAB_ITEMS} />
-      <div style={tabPanel}>The “{labelOf(TAB_ITEMS, v)}” section — your screen renders this, keyed off the active value.</div>
+      <Tabs value={v} onChange={setV}>
+        <Tabs.List>
+          {TAB_ITEMS.map((t) => (
+            <Tabs.Tab key={t.value} value={t.value}>
+              {t.label}
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
+        {TAB_ITEMS.map((t) => (
+          <Tabs.Panel key={t.value} value={t.value} style={tabPanel}>
+            The “{t.label}” section — your screen renders this, keyed off the active value.
+          </Tabs.Panel>
+        ))}
+      </Tabs>
     </div>
   );
 }
@@ -1311,8 +1323,20 @@ function TabsPill() {
   const [v, setV] = React.useState('today');
   return (
     <div>
-      <Tabs variant="pill" value={v} onChange={setV} items={items} />
-      <div style={tabPanel}>Showing: {labelOf(items, v)}</div>
+      <Tabs variant="pill" value={v} onChange={setV}>
+        <Tabs.List>
+          {items.map((t) => (
+            <Tabs.Tab key={t.value} value={t.value} count={t.count}>
+              {t.label}
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
+        {items.map((t) => (
+          <Tabs.Panel key={t.value} value={t.value} style={tabPanel}>
+            Showing: {t.label}
+          </Tabs.Panel>
+        ))}
+      </Tabs>
     </div>
   );
 }
@@ -1320,8 +1344,20 @@ function TabsFullWidth() {
   const [v, setV] = React.useState('agenda');
   return (
     <div style={{ maxWidth: 360 }}>
-      <Tabs fullWidth value={v} onChange={setV} items={TAB_ITEMS} />
-      <div style={tabPanel}>{labelOf(TAB_ITEMS, v)}</div>
+      <Tabs fullWidth value={v} onChange={setV}>
+        <Tabs.List>
+          {TAB_ITEMS.map((t) => (
+            <Tabs.Tab key={t.value} value={t.value}>
+              {t.label}
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
+        {TAB_ITEMS.map((t) => (
+          <Tabs.Panel key={t.value} value={t.value} style={tabPanel}>
+            {t.label}
+          </Tabs.Panel>
+        ))}
+      </Tabs>
     </div>
   );
 }
@@ -1339,8 +1375,20 @@ function TabsOverflow() {
   const [v, setV] = React.useState('overview');
   return (
     <div style={{ maxWidth: 380 }}>
-      <Tabs value={v} onChange={setV} items={MANY_TABS} />
-      <div style={tabPanel}>{labelOf(MANY_TABS, v)}</div>
+      <Tabs value={v} onChange={setV}>
+        <Tabs.List>
+          {MANY_TABS.map((t) => (
+            <Tabs.Tab key={t.value} value={t.value}>
+              {t.label}
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
+        {MANY_TABS.map((t) => (
+          <Tabs.Panel key={t.value} value={t.value} style={tabPanel}>
+            {t.label}
+          </Tabs.Panel>
+        ))}
+      </Tabs>
     </div>
   );
 }

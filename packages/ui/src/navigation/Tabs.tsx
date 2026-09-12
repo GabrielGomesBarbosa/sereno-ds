@@ -4,27 +4,73 @@ import * as React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { sx } from '../_internal/style';
 
-export interface TabItem {
-  value: string;
-  label: string;
-  icon?: React.ReactNode;
-  count?: number;
-}
-
 /**
- * Horizontal section switcher. `underline` for page-level sections, `pill` for
- * filters inside a panel. When the tabs overflow their width the strip scrolls
- * horizontally, with a chevron on whichever side has more.
+ * Horizontal section switcher — a **compound component**. `underline` for
+ * page-level sections, `pill` for filters inside a panel. When the tabs
+ * overflow their width the strip scrolls horizontally, with a chevron on
+ * whichever side has more; picking a tab scrolls it into view.
+ *
+ * ```tsx
+ * <Tabs value={tab} onChange={setTab} variant="pill">
+ *   <Tabs.List>
+ *     <Tabs.Tab value="today" count={5}>Today</Tabs.Tab>
+ *     <Tabs.Tab value="week" count={23}>Week</Tabs.Tab>
+ *   </Tabs.List>
+ *   <Tabs.Panel value="today">…</Tabs.Panel>
+ *   <Tabs.Panel value="week">…</Tabs.Panel>
+ * </Tabs>
+ * ```
+ *
+ * `Tabs.Panel` is optional — nothing requires it. Render your own content
+ * next to `Tabs.List`, keyed off the controlled `value`, if that reads
+ * better for the screen.
  */
-export interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
-  items: TabItem[];
+export interface TabsProps {
   value?: string;
   onChange?: (value: string) => void;
   variant?: 'underline' | 'pill';
   fullWidth?: boolean;
+  children: React.ReactNode;
 }
 
-export function Tabs({ items = [], value, onChange, variant = 'underline', fullWidth = false, style, ...rest }: TabsProps) {
+export interface TabsListProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+  children: React.ReactNode;
+}
+
+export interface TabsTabProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onClick'> {
+  value: string;
+  icon?: React.ReactNode;
+  count?: number;
+  children: React.ReactNode;
+}
+
+export interface TabsPanelProps extends React.HTMLAttributes<HTMLDivElement> {
+  value: string;
+  children: React.ReactNode;
+}
+
+interface TabsContextValue {
+  value?: string;
+  onChange?: (value: string) => void;
+  variant: 'underline' | 'pill';
+  fullWidth: boolean;
+}
+
+const TabsContext = React.createContext<TabsContextValue | null>(null);
+
+function useTabsContext(component: string): TabsContextValue {
+  const ctx = React.useContext(TabsContext);
+  if (!ctx) throw new Error(`<Tabs.${component}> must be rendered inside <Tabs>.`);
+  return ctx;
+}
+
+function TabsRoot({ value, onChange, variant = 'underline', fullWidth = false, children }: TabsProps) {
+  const ctx = React.useMemo<TabsContextValue>(() => ({ value, onChange, variant, fullWidth }), [value, onChange, variant, fullWidth]);
+  return <TabsContext.Provider value={ctx}>{children}</TabsContext.Provider>;
+}
+
+function List({ children, style, ...rest }: TabsListProps) {
+  const { variant, fullWidth } = useTabsContext('List');
   const pill = variant === 'pill';
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [edge, setEdge] = React.useState({ left: false, right: false });
@@ -49,7 +95,7 @@ export function Tabs({ items = [], value, onChange, variant = 'underline', fullW
       el.removeEventListener('scroll', measure);
       ro.disconnect();
     };
-  }, [measure, items]);
+  }, [measure, children]);
 
   const nudge = (dir: 1 | -1) => {
     scrollRef.current?.scrollBy({ left: dir * scrollRef.current.clientWidth * 0.72, behavior: 'smooth' });
@@ -85,63 +131,80 @@ export function Tabs({ items = [], value, onChange, variant = 'underline', fullW
           padding: pill ? 'var(--space-1)' : 0,
         })}
       >
-        {items.map((it) => {
-          const active = value === it.value;
-          return (
-            <button
-              key={it.value}
-              role="tab"
-              aria-selected={active}
-              onClick={(e) => {
-                onChange?.(it.value);
-                e.currentTarget.scrollIntoView({ inline: 'nearest', block: 'nearest' });
-              }}
-              style={sx({
-                flex: fullWidth ? 1 : '0 0 auto',
-                whiteSpace: 'nowrap',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 'var(--space-2)',
-                border: 'none',
-                cursor: 'pointer',
-                outline: 'none',
-                background: pill ? (active ? 'var(--bg-surface)' : 'transparent') : 'transparent',
-                boxShadow: pill && active ? 'var(--shadow-xs)' : 'none',
-                borderRadius: pill ? 'var(--radius-pill)' : 0,
-                padding: pill ? '8px var(--space-4)' : '0 0 var(--space-3)',
-                borderBottom: pill ? 'none' : '2px solid ' + (active ? 'var(--interactive-primary)' : 'transparent'),
-                marginBottom: pill ? 0 : -1,
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-base)',
-                fontWeight: active ? 'var(--weight-semibold)' : 'var(--weight-medium)',
-                color: active ? (pill ? 'var(--text-primary)' : 'var(--text-brand)') : 'var(--text-secondary)',
-                transition: 'var(--transition-control)',
-              })}
-            >
-              {it.icon}
-              {it.label}
-              {it.count !== undefined && (
-                <span
-                  style={sx({
-                    fontSize: 'var(--text-2xs)',
-                    fontWeight: 'var(--weight-bold)',
-                    padding: '1px 6px',
-                    borderRadius: '999px',
-                    background: active ? 'var(--bg-brand-soft)' : pill ? 'var(--bg-surface)' : 'var(--bg-subtle)',
-                    color: active ? 'var(--text-brand)' : 'var(--text-muted)',
-                  })}
-                >
-                  {it.count}
-                </span>
-              )}
-            </button>
-          );
-        })}
+        {children}
       </div>
 
       {edge.left && <ScrollChevron side="left" fade={fade} pill={pill} onClick={() => nudge(-1)} />}
       {edge.right && <ScrollChevron side="right" fade={fade} pill={pill} onClick={() => nudge(1)} />}
+    </div>
+  );
+}
+
+function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
+  const { value: activeValue, onChange, variant, fullWidth } = useTabsContext('Tab');
+  const pill = variant === 'pill';
+  const active = activeValue === value;
+
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      {...rest}
+      onClick={(e) => {
+        onChange?.(value);
+        e.currentTarget.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+      }}
+      style={sx({
+        flex: fullWidth ? 1 : '0 0 auto',
+        whiteSpace: 'nowrap',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 'var(--space-2)',
+        border: 'none',
+        cursor: 'pointer',
+        outline: 'none',
+        background: pill ? (active ? 'var(--bg-surface)' : 'transparent') : 'transparent',
+        boxShadow: pill && active ? 'var(--shadow-xs)' : 'none',
+        borderRadius: pill ? 'var(--radius-pill)' : 0,
+        padding: pill ? '8px var(--space-4)' : '0 0 var(--space-3)',
+        borderBottom: pill ? 'none' : '2px solid ' + (active ? 'var(--interactive-primary)' : 'transparent'),
+        marginBottom: pill ? 0 : -1,
+        fontFamily: 'var(--font-body)',
+        fontSize: 'var(--text-base)',
+        fontWeight: active ? 'var(--weight-semibold)' : 'var(--weight-medium)',
+        color: active ? (pill ? 'var(--text-primary)' : 'var(--text-brand)') : 'var(--text-secondary)',
+        transition: 'var(--transition-control)',
+        ...style,
+      })}
+    >
+      {icon}
+      {children}
+      {count !== undefined && (
+        <span
+          style={sx({
+            fontSize: 'var(--text-2xs)',
+            fontWeight: 'var(--weight-bold)',
+            padding: '1px 6px',
+            borderRadius: '999px',
+            background: active ? 'var(--bg-brand-soft)' : pill ? 'var(--bg-surface)' : 'var(--bg-subtle)',
+            color: active ? 'var(--text-brand)' : 'var(--text-muted)',
+          })}
+        >
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
+
+function Panel({ value, children, ...rest }: TabsPanelProps) {
+  const { value: activeValue } = useTabsContext('Panel');
+  if (activeValue !== value) return null;
+  return (
+    <div role="tabpanel" {...rest}>
+      {children}
     </div>
   );
 }
@@ -188,3 +251,5 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
     </span>
   );
 }
+
+export const Tabs = Object.assign(TabsRoot, { List, Tab, Panel });
