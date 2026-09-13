@@ -18,9 +18,9 @@ npm workspaces + Turborepo.
 | Path | Name | What |
 |---|---|---|
 | `packages/tokens` | `@sereno-ds/tokens` | the token layer — `*.css` (light × dark) + a `tokens.css` barrel |
-| `packages/ui` | `@sereno-ds/ui` | **29 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) — token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
+| `packages/ui` | `@sereno-ds/ui` | **30 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) — token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
 | `apps/docs` | `docs` | the `/design-system` showcase (Next 16, `output: 'export'`) — MUI-doc-style page per component: live preview, "show code", Do / Don't, "on this page" rail, prev/next, versioned header |
-| `apps/demo` | `demo` | `/demo` hub + `/agendar/[slug]` (public booking) + `/dashboard` + `/onboarding` + `src/screens/` + `src/lib/mock.ts` — fully responsive, components reflow |
+| `apps/demo` | `demo` | `/demo` hub + `/agendar/[slug]` (public booking) + `/dashboard/[[...slug]]` + `/onboarding` + `src/screens/` + `src/lib/mock.ts` — fully responsive, components reflow |
 
 - **`@sereno-ds/ui` / `@sereno-ds/tokens` are consumed as source** through the workspace
   link (`transpilePackages`) — a real package build lands in SS-156.
@@ -58,9 +58,11 @@ npm run lint         # turbo run lint
 npm run typecheck    # turbo run typecheck
 ```
 
-`npm run build` must be green: **docs ≈ 33 routes** (26 component pages + tokens +
-overview + robots) and **demo ≈ 12 routes** (hub + 3 `/agendar` slugs + dashboard
-+ onboarding + robots + sitemap).
+`npm run build` must be green: **docs = 36 routes** (28 component pages + tokens +
+overview + robots) and **demo = 48 routes** (hub + 3 `/agendar` slugs + all 36
+`/dashboard` nav destinations + onboarding + robots + sitemap) — both counts move
+as components / nav items are added, treat them as a sanity check, not a fixed
+target.
 
 ## Layout
 
@@ -70,7 +72,7 @@ packages/
   ui/
     src/
       index.ts            the barrel
-      core/ forms/ navigation/ feedback/   the 29 primitives
+      core/ forms/ navigation/ feedback/   the 30 primitives
       _internal/           Field, CharCount, mask, style helpers
       theme/               ThemeProvider + ThemeToggle
       styles.css           keyframes + :checked / scrollbar / reflow rules
@@ -80,7 +82,7 @@ apps/
     src/design-system/     catalog, demos, ComponentView, DocPage, Sidebar, Shell, version.ts + CHANGELOG.md
   demo/
     app/                   layout.tsx, globals.css, agendar/[slug]/, dashboard/, onboarding/, robots.ts, sitemap.ts
-    src/screens/           BookingFlow, Dashboard, Onboarding
+    src/screens/           BookingFlow, Onboarding, Dashboard/ (one file per view)
     src/domain/            ServiceCard, ProfessionalCard, AppointmentCard, WeeklyScheduleEditor — product cards built on @sereno-ds/ui
     src/lib/mock.ts        mocked data for the 3 screens
 turbo.json                 build / lint / typecheck / dev tasks
@@ -90,7 +92,8 @@ tsconfig.base.json         shared compiler options (each workspace extends it)
 ## Contributing
 
 The full workflow (Jira task per change, branch naming, PR + squash merge,
-version bump rules, tag + release) is in [`CLAUDE.md`](./CLAUDE.md). In short: no
+version bump rules, tag + release) is in [`AGENTS.md`](./AGENTS.md) — the
+project's agent-instructions file (`CLAUDE.md` just points to it). In short: no
 direct push to `main` — every change goes through a PR, and `npm run lint && npm run build`
 must be green.
 
