@@ -1,5 +1,16 @@
 # @sereno-ds/ui
 
+## 0.25.1
+
+### Patch Changes
+
+- 88d896b: `Switch` now applies `aria-label` to its `role="switch"` element — wrapping
+  it in a `<label>` only associates text for _native_ labelable form controls,
+  so a `Switch` with a `label` (or without one at all) previously announced
+  with no accessible name to screen readers. Caught by the new axe-powered
+  test suite (SS-232). New optional `aria-label` prop for label-less usage;
+  existing `label` usage now gets the fix for free, no API change needed.
+
 ## 0.25.0
 
 ### Minor Changes
