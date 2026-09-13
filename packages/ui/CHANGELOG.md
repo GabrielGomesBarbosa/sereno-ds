@@ -1,5 +1,24 @@
 # @sereno-ds/ui
 
+## 0.25.7
+
+### Patch Changes
+
+- f736499: `Card` gains real keyboard semantics (SS-228) when used as its own control —
+  `interactive` + `onClick` together now render `role="button"`, `tabIndex={0}`
+  and a focus ring, with Enter/Space activating it, matching native button
+  behavior. Found live: a clickable `Card` (e.g. `ServiceCard` in the booking
+  flow) rendered as a plain, unfocusable `<div>` — reachable by mouse only.
+  An `interactive` `Card` with no `onClick` (styling borrowed from an outer
+  `<Link>`/`<button>`) is unaffected, on purpose — giving it its own tabIndex
+  would nest one focusable control inside another.
+- f736499: Fixes two remaining spots (SS-228) where an inline `outline: 'none'` had no
+  visible substitute — the same bug already fixed on the DateTimePicker day
+  grid and Tabs, found by auditing every other inline `outline: 'none'` left
+  in the package: `DateTimePicker`'s time-slot buttons, and `BottomNav.Item`.
+  Both now suppress the outline via a CSS class instead, with a
+  `:focus-visible` rule at the same specificity re-enabling it.
+
 ## 0.25.6
 
 ### Patch Changes
