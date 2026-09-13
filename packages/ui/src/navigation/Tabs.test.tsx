@@ -47,6 +47,64 @@ describe('Tabs', () => {
     expect(screen.getByText('3')).toBeInTheDocument();
   });
 
+  it('only the active tab is in the Tab order (roving tabindex)', () => {
+    render(<Basic value="agenda" />);
+    expect(screen.getByRole('tab', { name: 'Agenda' })).toHaveAttribute('tabindex', '0');
+    expect(screen.getByRole('tab', { name: /Clients/ })).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('ArrowRight/ArrowLeft move focus and select — automatic activation, wrapping at the ends', () => {
+    const onChange = vi.fn();
+    function Wrapped() {
+      const [v, setV] = React.useState('agenda');
+      return (
+        <Tabs value={v} onChange={(next) => { setV(next); onChange(next); }}>
+          <Tabs.List>
+            <Tabs.Tab value="agenda">Agenda</Tabs.Tab>
+            <Tabs.Tab value="clientes">Clients</Tabs.Tab>
+            <Tabs.Tab value="financeiro">Finance</Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
+      );
+    }
+    render(<Wrapped />);
+    fireEvent.keyDown(screen.getByRole('tablist'), { key: 'ArrowRight' });
+    expect(onChange).toHaveBeenLastCalledWith('clientes');
+    expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Clients' }));
+
+    fireEvent.keyDown(screen.getByRole('tablist'), { key: 'ArrowRight' });
+    expect(onChange).toHaveBeenLastCalledWith('financeiro');
+
+    // Past the last tab, wraps to the first.
+    fireEvent.keyDown(screen.getByRole('tablist'), { key: 'ArrowRight' });
+    expect(onChange).toHaveBeenLastCalledWith('agenda');
+
+    // Before the first tab, wraps to the last.
+    fireEvent.keyDown(screen.getByRole('tablist'), { key: 'ArrowLeft' });
+    expect(onChange).toHaveBeenLastCalledWith('financeiro');
+  });
+
+  it('Home/End jump to the first/last tab', () => {
+    const onChange = vi.fn();
+    function Wrapped() {
+      const [v, setV] = React.useState('financeiro');
+      return (
+        <Tabs value={v} onChange={(next) => { setV(next); onChange(next); }}>
+          <Tabs.List>
+            <Tabs.Tab value="agenda">Agenda</Tabs.Tab>
+            <Tabs.Tab value="clientes">Clients</Tabs.Tab>
+            <Tabs.Tab value="financeiro">Finance</Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
+      );
+    }
+    render(<Wrapped />);
+    fireEvent.keyDown(screen.getByRole('tablist'), { key: 'Home' });
+    expect(onChange).toHaveBeenLastCalledWith('agenda');
+    fireEvent.keyDown(screen.getByRole('tablist'), { key: 'End' });
+    expect(onChange).toHaveBeenLastCalledWith('financeiro');
+  });
+
   it('throws when a subcomponent is rendered outside <Tabs>', () => {
     // Expected: React logs the error too — this only asserts the throw.
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});

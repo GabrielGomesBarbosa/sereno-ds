@@ -77,8 +77,8 @@ function TabsRoot({ value, onChange, variant = 'underline', fullWidth = false, c
   return <TabsContext.Provider value={ctx}>{children}</TabsContext.Provider>;
 }
 
-function List({ children, style, ...rest }: TabsListProps) {
-  const { value: activeValue, variant, fullWidth } = useTabsContext('List');
+function List({ children, style, onKeyDown, ...rest }: TabsListProps) {
+  const { value: activeValue, onChange, variant, fullWidth } = useTabsContext('List');
   const pill = variant === 'pill';
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [edge, setEdge] = React.useState({ left: false, right: false });
@@ -141,6 +141,34 @@ function List({ children, style, ...rest }: TabsListProps) {
     scrollRef.current?.scrollBy({ left: dir * scrollRef.current.clientWidth * 0.72, behavior: 'smooth' });
   };
 
+  // Roving tabindex (SS-228): only the active Tab is ever tabIndex=0 (below),
+  // so Tab enters/leaves the whole strip in one stop. Left/Right move — and,
+  // matching this component's own "click selects immediately" contract
+  // (automatic activation, not a separate confirm step), also *select* — the
+  // adjacent tab, wrapping at the ends; Home/End jump to the first/last.
+  // Reuses the same data-tab-value DOM query as measureIndicator above rather
+  // than cloning children, for the same reason: List doesn't otherwise need
+  // to know each Tab's position.
+  const onListKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Home' && e.key !== 'End') return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const tabs = Array.from(el.querySelectorAll<HTMLElement>('[data-tab-value]'));
+    if (tabs.length === 0) return;
+    const current = tabs.findIndex((t) => t.dataset.tabValue === activeValue);
+    let next = current;
+    if (e.key === 'ArrowRight') next = current < 0 ? 0 : (current + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft') next = current < 0 ? tabs.length - 1 : (current - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = tabs.length - 1;
+    e.preventDefault();
+    const nextTab = tabs[next];
+    const nextValue = nextTab.dataset.tabValue;
+    if (nextValue !== undefined) onChange?.(nextValue);
+    nextTab.focus();
+    nextTab.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  };
+
   const fade = pill ? 'var(--bg-subtle)' : 'var(--bg-surface)';
 
   return (
@@ -161,6 +189,10 @@ function List({ children, style, ...rest }: TabsListProps) {
         ref={scrollRef}
         role="tablist"
         {...rest}
+        onKeyDown={(e) => {
+          onListKeyDown(e);
+          onKeyDown?.(e);
+        }}
         className={'sereno-tab-scroll' + (rest.className ? ' ' + rest.className : '')}
         style={sx({
           position: 'relative',
@@ -220,7 +252,12 @@ function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
       role="tab"
       aria-selected={active}
       data-tab-value={value}
+      // Roving tabindex (SS-228): only the active tab is a Tab stop — List's
+      // onKeyDown moves *and* focuses between tabs with the arrow keys, so
+      // Tab itself only needs to enter/leave the strip once.
+      tabIndex={active ? 0 : -1}
       {...rest}
+      className={'sereno-tab' + (rest.className ? ' ' + rest.className : '')}
       onClick={(e) => {
         onChange?.(value);
         e.currentTarget.scrollIntoView({ inline: 'nearest', block: 'nearest' });
@@ -243,7 +280,8 @@ function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
         gap: 'var(--space-2)',
         border: 'none',
         cursor: 'pointer',
-        outline: 'none',
+        // Not inline outline:none — see the .sereno-tab rule in styles.css
+        // for why that would permanently beat :focus-visible.
         background: 'transparent',
         borderRadius: pill ? 'var(--radius-pill)' : 0,
         padding: pill ? '8px var(--space-4)' : '0 0 var(--space-3)',
