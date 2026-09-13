@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { CATEGORIES, COMPONENTS } from '@/design-system/catalog';
-import { DocPage, docSectionAnchor } from '@/design-system/DocPage';
+import { DocPage } from '@/design-system/DocPage';
+import { docSectionAnchor } from '@/design-system/TableOfContents';
 import { InlineCode } from '@/design-system/ExampleSection';
 
 export default function DesignSystemOverview() {
