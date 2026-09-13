@@ -1,43 +1,26 @@
 'use client';
 
 import * as React from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   AlertTriangle,
   BarChart3,
   Bell,
-  Calendar,
   CalendarCheck,
-  CalendarOff,
   ChevronDown,
   ChevronRight,
   Clock,
   Copy,
   Download,
-  FileText,
-  Gift,
-  Heart,
-  LifeBuoy,
-  Link2,
   LogOut,
-  Megaphone,
   Menu as MenuIcon,
-  MessageSquare,
   Moon,
-  Package,
-  Percent,
   Plus,
-  Rss,
   Search,
   Settings,
-  Share2,
   Sparkles,
-  Star,
   Sun,
-  Target,
-  Ticket,
-  UserCog,
   UserPlus,
-  Users,
   Video,
   Wallet,
   X,
@@ -86,95 +69,7 @@ import {
   type Appointment,
   type ClientRow,
 } from '@/lib/mock';
-
-const si = (icon: React.ReactNode) => icon;
-
-interface SidebarSubItem {
-  value: string;
-  label: string;
-  count?: number;
-}
-interface SidebarItem {
-  value: string;
-  label: string;
-  icon?: React.ReactNode;
-  count?: number;
-  children?: SidebarSubItem[];
-}
-interface SidebarSection {
-  label?: string;
-  items: SidebarItem[];
-}
-
-const SIDEBAR_SECTIONS: SidebarSection[] = [
-  {
-    label: 'Atendimento',
-    items: [
-      { value: 'agenda', label: 'Agenda', icon: si(<Calendar size={18} strokeWidth={1.75} />) },
-      { value: 'clientes', label: 'Clientes', icon: si(<Users size={18} strokeWidth={1.75} />), count: 128 },
-      { value: 'servicos', label: 'Serviços', icon: si(<Sparkles size={18} strokeWidth={1.75} />) },
-      { value: 'mensagens', label: 'Mensagens', icon: si(<MessageSquare size={18} strokeWidth={1.75} />), count: 3 },
-      { value: 'fila', label: 'Fila de espera', icon: si(<Clock size={18} strokeWidth={1.75} />), count: 2 },
-      { value: 'prontuarios', label: 'Prontuários', icon: si(<FileText size={18} strokeWidth={1.75} />) },
-      { value: 'bloqueios', label: 'Bloqueios', icon: si(<CalendarOff size={18} strokeWidth={1.75} />) },
-    ],
-  },
-  {
-    label: 'Gestão',
-    items: [
-      {
-        value: 'financeiro',
-        label: 'Financeiro',
-        icon: si(<Wallet size={18} strokeWidth={1.75} />),
-        children: [
-          { value: 'financeiro:resumo', label: 'Resumo do mês' },
-          { value: 'financeiro:receber', label: 'A receber', count: 4 },
-          { value: 'financeiro:pagamentos', label: 'Pagamentos' },
-          { value: 'financeiro:repasses', label: 'Repasses' },
-          { value: 'financeiro:notas', label: 'Notas fiscais' },
-        ],
-      },
-      { value: 'comissoes', label: 'Comissões', icon: si(<Percent size={18} strokeWidth={1.75} />) },
-      { value: 'estoque', label: 'Estoque', icon: si(<Package size={18} strokeWidth={1.75} />) },
-      { value: 'metas', label: 'Metas', icon: si(<Target size={18} strokeWidth={1.75} />) },
-      { value: 'relatorios', label: 'Relatórios', icon: si(<BarChart3 size={18} strokeWidth={1.75} />) },
-      { value: 'avaliacoes', label: 'Avaliações', icon: si(<Star size={18} strokeWidth={1.75} />), count: 12 },
-    ],
-  },
-  {
-    label: 'Marketing',
-    items: [
-      { value: 'link-publico', label: 'Link público', icon: si(<Link2 size={18} strokeWidth={1.75} />) },
-      { value: 'campanhas', label: 'Campanhas', icon: si(<Megaphone size={18} strokeWidth={1.75} />) },
-      { value: 'cupons', label: 'Cupons', icon: si(<Ticket size={18} strokeWidth={1.75} />) },
-      { value: 'indicacoes', label: 'Programa de indicação', icon: si(<Gift size={18} strokeWidth={1.75} />) },
-      { value: 'fidelidade', label: 'Fidelidade', icon: si(<Heart size={18} strokeWidth={1.75} />) },
-      { value: 'redes', label: 'Redes sociais', icon: si(<Share2 size={18} strokeWidth={1.75} />) },
-    ],
-  },
-  {
-    label: 'Conta',
-    items: [
-      { value: 'equipe', label: 'Equipe', icon: si(<UserCog size={18} strokeWidth={1.75} />), count: 4 },
-      {
-        value: 'config',
-        label: 'Configurações',
-        icon: si(<Settings size={18} strokeWidth={1.75} />),
-        children: [
-          { value: 'config:perfil', label: 'Perfil público' },
-          { value: 'config:grade', label: 'Grade horária' },
-          { value: 'config:lembretes', label: 'Lembretes' },
-          { value: 'config:notificacoes', label: 'Notificações' },
-          { value: 'config:integracoes', label: 'Integrações' },
-          { value: 'config:cobranca', label: 'Plano e cobrança' },
-          { value: 'config:dominio', label: 'Domínio próprio' },
-        ],
-      },
-      { value: 'novidades', label: 'Novidades', icon: si(<Rss size={18} strokeWidth={1.75} />) },
-      { value: 'ajuda', label: 'Ajuda e suporte', icon: si(<LifeBuoy size={18} strokeWidth={1.75} />) },
-    ],
-  },
-];
+import { SIDEBAR_SECTIONS, pathForView, viewFromPathname } from '@/lib/dashboardNav';
 
 /** `SIDEBAR_SECTIONS` mapped to `SidebarNav`'s compound children — shared by the
  * desktop rail and the mobile drawer below, each its own `<SidebarNav>`. */
@@ -403,7 +298,12 @@ function UserMenu({ onNavigate, onToast }: { onNavigate: (v: string) => void; on
 function DashboardShell() {
   const { toast } = useToast();
   const notify = React.useCallback((m: string) => toast.success(m), [toast]);
-  const [view, setView] = React.useState<string>('agenda');
+  // The view lives in the URL (not React state) so a direct visit or an F5
+  // lands on the right screen with the right nav item — and branch — active.
+  const pathname = usePathname();
+  const router = useRouter();
+  const view = viewFromPathname(pathname);
+  const navigateTo = (v: string) => router.push(pathForView(v));
   const [navCollapsed, setNavCollapsed] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -443,7 +343,7 @@ function DashboardShell() {
   }, [drawerOpen, drawerRender]);
 
   const go = (v: string) => {
-    setView(v);
+    navigateTo(v);
     setDrawerOpen(false);
   };
 
@@ -467,7 +367,7 @@ function DashboardShell() {
         <div className="dash-sidebar">
           <SidebarNav
             value={view}
-            onChange={setView}
+            onChange={navigateTo}
             collapsed={navCollapsed}
             onCollapsedChange={setNavCollapsed}
             labels={{ expand: 'Expandir', collapse: 'Recolher' }}
@@ -515,7 +415,7 @@ function DashboardShell() {
                 </span>
                 <NotificationsMenu onToast={notify} />
                 <span style={{ width: 1, height: 24, background: 'var(--border-default)', margin: '0 var(--space-1)' }} />
-                <UserMenu onNavigate={setView} onToast={notify} />
+                <UserMenu onNavigate={navigateTo} onToast={notify} />
               </div>
             }
           />
