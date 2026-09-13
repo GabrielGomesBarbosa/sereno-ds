@@ -4,6 +4,34 @@ Hand-written narrative of what shipped, per version. The version is the one in
 `packages/ui/package.json` (Changesets); `packages/ui/CHANGELOG.md` is the
 machine log. Add an entry here whenever you add a changeset.
 
+## 0.25.0 — Compound API migration (SS-213)
+
+- **Breaking.** `SidebarNav`, `BottomNav`, `Stepper`, `Dialog` and `TopBar` are
+  now **compound components** — dot-notated sub-parts composed as JSX, joining
+  `Table` (SS-216) and `Tabs`. The old config-array / config-prop APIs are
+  gone; pre-1.0, no external consumer yet (PO decision, 2026-09-12).
+  - `SidebarNav` — `SidebarNav.Section` / `.Item` / `.SubItem` replace the
+    `sections` data prop.
+  - `BottomNav` — `BottomNav.Item` children replace the `items` array.
+  - `Stepper` — `Stepper.Step` children (each with its own `label`) replace
+    the `steps: string[]` prop. Step-change now fades the counter/label row;
+    the active dot/segment grows with a transition.
+  - `Dialog` — `Dialog.Header` (`title` / `description` still live here),
+    `Dialog.Body`, `Dialog.Footer`, `Dialog.Close` replace `title` /
+    `description` / `footer` / `showClose`. Nothing renders a close button
+    unless you place `<Dialog.Close />` yourself; `Header` / `Footer` are both
+    optional.
+  - `TopBar` — `TopBar.Leading` / `TopBar.Title` / `TopBar.Actions` (three
+    independent optional slots) replace the `leading` / `actions` props.
+- **`Select` / `DateTimePicker` stay config-API (SS-225 decision).** Evaluated
+  for the same treatment and kept as-is — neither has a sub-part that needs
+  consumer-authored JSX (an option is `{value, label, disabled}`; a day is
+  just a number), so the compound split wouldn't earn its complexity.
+  Reasoning recorded in `AGENTS.md`.
+- `packages/ui/README.md` gained a "Compound components" section with runnable
+  examples; the showcase's live previews *and* "Show code" samples for every
+  migrated component were swept to match.
+
 ## 0.24.0 — Menu, the toast system, Dialog/Select overlays (SS-153 / SS-60 / SS-61)
 
 - **New `Menu` primitive** (`@sereno-ds/ui`, core) — action menu / dropdown. A
