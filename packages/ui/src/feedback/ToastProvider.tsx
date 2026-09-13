@@ -95,12 +95,32 @@ const EXIT_MS = 180;
 let seq = 0;
 const nextId = () => `t${Date.now().toString(36)}-${(seq++).toString(36)}`;
 
+// Same visually-hidden shape as Table's <caption> (see Table.tsx's srOnlyStyle).
+const srOnlyStyle: React.CSSProperties = {
+  position: 'absolute',
+  width: 1,
+  height: 1,
+  overflow: 'hidden',
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  whiteSpace: 'nowrap',
+};
+
 const norm = (msg: ToastInput): Partial<ToastOptions> => (typeof msg === 'string' ? { title: msg } : msg);
 const timed = (ms: number) => ms > 0 && Number.isFinite(ms);
 
 export function ToastProvider({ children, position = 'bottom-right', max = 3, duration = 4000 }: ToastProviderProps) {
   const [entries, setEntries] = React.useState<Entry[]>([]);
   const [pausedIds, setPausedIds] = React.useState<ReadonlySet<string>>(() => new Set());
+  // A live region announces a *change* to already-present content — a node
+  // that mounts fresh with its text already inside it (which is what each
+  // visual Toast card below does) is not reliably announced by screen
+  // readers, across browsers/AT. So the actual announcement runs through two
+  // persistent, visually-hidden regions instead (one polite, one assertive
+  // for errors) that stay mounted the whole time `ToastProvider` is, and
+  // just get their text replaced on every toast.
+  const [politeMsg, setPoliteMsg] = React.useState('');
+  const [assertiveMsg, setAssertiveMsg] = React.useState('');
 
   const [mounted, setMounted] = React.useState(false);
   // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target is client-only
@@ -165,6 +185,9 @@ export function ToastProvider({ children, position = 'bottom-right', max = 3, du
     (opts: ToastOptions) => {
       const id = nextId();
       const ms = opts.duration ?? duration;
+      const announced = [opts.title, opts.description].filter(Boolean).join('. ');
+      if (opts.tone === 'error') setAssertiveMsg(announced);
+      else setPoliteMsg(announced);
       setEntries((list) => {
         const next: Entry[] = [...list, { ...opts, id, ms }];
         // Cap: hard-drop the oldest that isn't already leaving.
@@ -258,6 +281,18 @@ export function ToastProvider({ children, position = 'bottom-right', max = 3, du
   return (
     <ToastContext.Provider value={value}>
       {children}
+      {mounted &&
+        createPortal(
+          <>
+            <div aria-live="polite" aria-atomic="true" style={srOnlyStyle}>
+              {politeMsg}
+            </div>
+            <div aria-live="assertive" aria-atomic="true" style={srOnlyStyle}>
+              {assertiveMsg}
+            </div>
+          </>,
+          document.body,
+        )}
       {mounted &&
         entries.length > 0 &&
         createPortal(
