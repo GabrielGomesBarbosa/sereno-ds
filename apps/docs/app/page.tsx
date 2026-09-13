@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
-import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, MonitorSmartphone, MoonStar, Palette, Server } from 'lucide-react';
+import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, ListChecks, MonitorSmartphone, MoonStar, Palette, Server } from 'lucide-react';
 import { Brand, Card, ThemeToggle } from '@sereno-ds/ui';
 import { DS_VERSION } from '@/design-system/version';
 import { ComponentGallery } from '@/home/ComponentGallery';
@@ -32,6 +32,7 @@ const FEATURES: { icon: ReactNode; title: string; body: string }[] = [
   { icon: <MoonStar size={20} strokeWidth={1.75} />, title: 'Native dark mode', body: 'One `data-theme` on the root. No theme prop, no variant, no flash.' },
   { icon: <MonitorSmartphone size={20} strokeWidth={1.75} />, title: 'Responsive UI', body: 'Adapts to the pointer, not just the width — Select opens as a bottom sheet on touch, Dialog as a slide-up, the dashboard re-homes its nav.' },
   { icon: <Accessibility size={20} strokeWidth={1.75} />, title: 'Keyboard & focus', body: 'Real focus rings, `:focus-visible`, roving tabindex where it matters — on every control.' },
+  { icon: <ListChecks size={20} strokeWidth={1.75} />, title: 'WCAG 2.1 AA audited', body: 'Every primitive checked for contrast, keyboard access, screen readers and focus management — real issues found and fixed, not a badge.' },
   { icon: <Layers size={20} strokeWidth={1.75} />, title: '30 primitives, 5 categories', body: 'Core, forms, navigation, feedback and the scheduling-domain cards — a live preview for each.' },
   { icon: <Feather size={20} strokeWidth={1.75} />, title: 'Zero runtime', body: 'No CSS-in-JS engine. Plain inline styles reading `var(--token)` — nothing ships but the components.' },
   { icon: <Server size={20} strokeWidth={1.75} />, title: 'RSC-ready', body: "Each primitive keeps its own `'use client'` boundary — server components import them freely; only what's interactive hydrates." },
