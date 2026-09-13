@@ -13,11 +13,28 @@ export interface SwitchProps {
   size?: 'sm' | 'md';
   onChange?: (e: { target: { checked: boolean } }) => void;
   style?: React.CSSProperties;
+  /**
+   * Accessible name for the `role="switch"` element. Wrapping it in a
+   * `<label>` (below) only associates text for *native* labelable controls —
+   * a custom ARIA widget still announces with no name at all otherwise (SS-232
+   * caught this live via axe: `aria-toggle-field-name`). Defaults to `label`;
+   * only pass this separately for a label-less switch (an icon-only row).
+   */
+  'aria-label'?: string;
 }
 
 const TRACK = { sm: { w: 36, h: 22, thumb: 16 }, md: { w: 44, h: 26, thumb: 20 } } as const;
 
-export function Switch({ label, description, checked = false, disabled, size = 'md', onChange, style }: SwitchProps) {
+export function Switch({
+  label,
+  description,
+  checked = false,
+  disabled,
+  size = 'md',
+  onChange,
+  style,
+  'aria-label': ariaLabel,
+}: SwitchProps) {
   const t = TRACK[size];
   const toggle = () => {
     if (!disabled && onChange) onChange({ target: { checked: !checked } });
@@ -45,6 +62,7 @@ export function Switch({ label, description, checked = false, disabled, size = '
       <span
         role="switch"
         aria-checked={checked}
+        aria-label={label ?? ariaLabel}
         aria-disabled={disabled || undefined}
         tabIndex={disabled ? undefined : 0}
         className="sereno-switch"

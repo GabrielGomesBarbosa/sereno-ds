@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render } from '@testing-library/react';
+import { axe } from 'jest-axe';
 import * as UI from '../index';
 
 afterEach(cleanup);
@@ -47,7 +48,7 @@ const CASES: Record<string, React.ReactElement> = {
   Select: <UI.Select label="Plan" options={[{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }]} />,
   Checkbox: <UI.Checkbox label="I accept" />,
   Radio: <UI.Radio name="g" label="One" />,
-  Switch: <UI.Switch />,
+  Switch: <UI.Switch label="Notificações" />,
   DateTimePicker: <UI.DateTimePicker year={2026} month={0} selectedDate={5} times={['09:00', { value: '10:00', disabled: true }]} />,
   FileUpload: <UI.FileUpload />,
   AvatarUpload: <UI.AvatarUpload />,
@@ -121,5 +122,33 @@ describe('component smoke — renders without throwing', () => {
       expect(document.body.textContent ?? '').not.toBe('');
       expect(() => unmount()).not.toThrow();
     });
+  }
+});
+
+// SS-232: an automated floor, not the whole audit — this only sees each
+// component's default render (the same CASES above), so it can't catch
+// state that only exists once open/interactive (a Select's listbox, a
+// Menu's panel) or anything jest-axe can't check in jsdom (colour
+// contrast — see SS-230, done separately against the tokens themselves).
+// Complements the manual keyboard/ARIA/focus passes (SS-228/229/231); it
+// doesn't replace them.
+//
+// `region` is off: it wants the *whole page* wrapped in a landmark, which
+// is a page-composition concern (checked where a real page exists, not
+// here) — every isolated component render trips it by construction.
+const AXE_OPTIONS = { rules: { region: { enabled: false } } };
+
+describe('component accessibility — axe (SS-232)', () => {
+  for (const name of EXPECTED) {
+    it(
+      name,
+      async () => {
+        const el = name === 'ThemeProvider' ? CASES[name] : <UI.ThemeProvider>{CASES[name]}</UI.ThemeProvider>;
+        render(el);
+        const results = await axe(document.body, AXE_OPTIONS);
+        expect(results).toHaveNoViolations();
+      },
+      10000,
+    );
   }
 });
