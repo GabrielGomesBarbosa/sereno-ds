@@ -250,6 +250,18 @@
 }
 .sereno-dtp-grid button:hover { background: var(--interactive-ghost-hover); }
 .sereno-dtp-grid button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
+/* The day grid's own focus ring (SS-228) — was missing entirely: the day
+   button used to set outline:none *inline*, which always wins over a class
+   selector regardless of :focus-visible, so the roving-tabindex cursor was
+   keyboard-functional but completely invisible. Suppressed here instead —
+   same specificity as the :focus-visible rule below, so source order
+   decides and the override actually takes. Separate from .sereno-dtp-grid
+   on purpose — that class is the month/year popover's mini-grid, whose
+   :hover / [data-current] rules don't belong on a day cell (it already has
+   its own selected/today styling driven from React state, not CSS
+   attribute selectors). */
+.sereno-dtp-days button { outline: none; }
+.sereno-dtp-days button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
 .sereno-dtp-grid button[data-current] {
   background: var(--interactive-primary);
   color: var(--interactive-primary-fg);
