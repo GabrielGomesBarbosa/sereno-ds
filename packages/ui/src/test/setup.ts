@@ -1,4 +1,8 @@
+import { expect } from 'vitest';
+import { toHaveNoViolations } from 'jest-axe';
 import '@testing-library/jest-dom/vitest';
+
+expect.extend(toHaveNoViolations);
 
 // jsdom ships neither observer; components use them only for layout side-effects.
 class NoopObserver {

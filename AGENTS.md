@@ -267,6 +267,20 @@ previews (test locally + on the branch).
     context for no ergonomic gain — nothing a consumer would want to author
     per-cell today. Revisit only if a real use case needs custom per-option
     or per-day JSX.
+- **Accessibility testing (SS-227/232).** Every case in `packages/ui/src/test/components.smoke.test.tsx`'s
+  `CASES` map is also run through `jest-axe` (`describe('component accessibility
+  — axe (SS-232)')`) — add a component there and it gets an axe pass for free.
+  It's a floor, not the whole audit: only the default render is checked (not
+  interactive/open state — a `Select` listbox, a `Menu` panel), and colour
+  contrast doesn't work under jsdom (`region` is disabled too — a landmark
+  check that only makes sense scanning a whole page, not one isolated
+  component). `jest-axe` ships no types and its Jest-matcher typing doesn't
+  apply to Vitest's `Assertion` interface, so both are hand-rolled in
+  `packages/ui/src/test/jest-axe-shim.d.ts` (the untyped-module shim — no
+  top-level import/export, or it stops being a fresh ambient declaration) and
+  `vitest-axe-matchers.d.ts` (the `Assertion` augmentation — same `T = any`
+  default as `@testing-library/jest-dom`'s own, or the two merges conflict
+  and silently drop each other's matchers).
 - **Tokens** live in `packages/tokens/*.css`. Adjustments are made and documented
   in the file itself:
   - `typography.css` points the font families at the `--font-*` variables the
