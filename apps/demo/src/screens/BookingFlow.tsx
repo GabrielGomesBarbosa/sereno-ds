@@ -152,21 +152,26 @@ export function BookingFlow({ professional, services }: { professional: Professi
           )}
           {(step === 'schedule' || step === 'details') && (
             <div className="booking-chrome">
-              <TopBar
-                title={step === 'schedule' ? 'Escolha o horário' : 'Seus dados'}
-                subtitle={step === 'schedule' ? service?.name : undefined}
-                leading={
+              <TopBar>
+                <TopBar.Leading>
                   <IconButton label="Voltar" onClick={() => setStep(step === 'schedule' ? 'profile' : 'schedule')}>
                     <ChevronLeft size={20} strokeWidth={1.75} />
                   </IconButton>
-                }
-              />
+                </TopBar.Leading>
+                <TopBar.Title subtitle={step === 'schedule' ? service?.name : undefined}>
+                  {step === 'schedule' ? 'Escolha o horário' : 'Seus dados'}
+                </TopBar.Title>
+              </TopBar>
               <Progress step={step === 'schedule' ? 0 : 1} />
             </div>
           )}
           {step === 'confirmed' && (
             <div className="booking-chrome">
-              <TopBar leading={<Brand variant="lockup" size={22} />} />
+              <TopBar>
+                <TopBar.Leading>
+                  <Brand variant="lockup" size={22} />
+                </TopBar.Leading>
+              </TopBar>
             </div>
           )}
 

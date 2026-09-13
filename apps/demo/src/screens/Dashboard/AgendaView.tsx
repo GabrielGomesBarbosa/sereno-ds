@@ -171,27 +171,23 @@ export function AgendaView({ onToast }: { onToast: (m: string) => void }) {
       </div>
 
       {dialogOpen && (
-        <Dialog
-          title="Cancelar agendamento?"
-          description="A cliente será avisada por WhatsApp e o horário volta a ficar livre."
-          onClose={() => setDialogOpen(false)}
-          footer={
-            <>
-              <Button variant="ghost" onClick={() => setDialogOpen(false)}>
-                Voltar
-              </Button>
-              <Button
-                variant="error"
-                onClick={() => {
-                  setDialogOpen(false);
-                  onToast('Agendamento cancelado. A cliente foi avisada.');
-                }}
-              >
-                Cancelar agendamento
-              </Button>
-            </>
-          }
-        />
+        <Dialog onClose={() => setDialogOpen(false)}>
+          <Dialog.Header title="Cancelar agendamento?" description="A cliente será avisada por WhatsApp e o horário volta a ficar livre." />
+          <Dialog.Footer>
+            <Button variant="ghost" onClick={() => setDialogOpen(false)}>
+              Voltar
+            </Button>
+            <Button
+              variant="error"
+              onClick={() => {
+                setDialogOpen(false);
+                onToast('Agendamento cancelado. A cliente foi avisada.');
+              }}
+            >
+              Cancelar agendamento
+            </Button>
+          </Dialog.Footer>
+        </Dialog>
       )}
     </div>
   );

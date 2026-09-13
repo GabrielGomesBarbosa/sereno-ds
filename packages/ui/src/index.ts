@@ -34,7 +34,7 @@ export { AvatarUpload, type AvatarUploadProps } from './forms/AvatarUpload';
 export { SearchInput, type SearchInputProps } from './forms/SearchInput';
 
 // navigation
-export { TopBar, type TopBarProps } from './navigation/TopBar';
+export { TopBar, type TopBarProps, type TopBarLeadingProps, type TopBarTitleProps, type TopBarActionsProps } from './navigation/TopBar';
 export { Tabs, type TabsProps, type TabsListProps, type TabsTabProps, type TabsPanelProps } from './navigation/Tabs';
 export { BottomNav, type BottomNavProps, type BottomNavItemProps } from './navigation/BottomNav';
 export {
@@ -58,7 +58,7 @@ export {
   type ToastContextValue,
   type ToastPosition,
 } from './feedback/ToastProvider';
-export { Dialog, type DialogProps } from './feedback/Dialog';
+export { Dialog, type DialogProps, type DialogHeaderProps, type DialogBodyProps, type DialogFooterProps } from './feedback/Dialog';
 export { Skeleton, type SkeletonProps } from './feedback/Skeleton';
 export { EmptyState, type EmptyStateProps } from './feedback/EmptyState';
 

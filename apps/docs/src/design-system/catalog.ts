@@ -1354,49 +1354,50 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
     slug: 'top-bar',
     name: 'TopBar',
     category: 'navigation',
-    summary: 'Sticky page header: leading/back slot, title + subtitle, trailing actions. 60px, translucent with blur.',
+    summary: 'Sticky page header — a **compound component**. `Leading` / `Title` / `Actions` are independent, optional slots. 60px, translucent with blur.',
     props: [
-      R('title / subtitle', 'string', 'Title and subtitle.'),
-      R('leading', 'React.ReactNode', 'Usually a back IconButton or the wordmark.'),
-      R('actions', 'React.ReactNode', 'Trailing actions.'),
       R('sticky', 'boolean', 'Sticks to the top on scroll.', 'true'),
       R('transparent', 'boolean', 'Drops the blur/border for hero headers.', 'false'),
+      R('TopBar.Leading', 'React.ReactNode', 'Usually a back `IconButton` or the wordmark. No wrapper of its own — renders exactly what you give it.'),
+      R('TopBar.Title', 'React.ReactNode', 'The title text, as children.'),
+      R('TopBar.Title · subtitle', 'React.ReactNode', 'A second line — plain string in most cases, or a node for e.g. a `<time>` element.'),
+      R('TopBar.Actions', 'React.ReactNode', 'Trailing actions.'),
     ],
-    code: `<TopBar
-  title="Pick a time"
-  subtitle="Therapy session"
-  leading={<IconButton label="Back"><ChevronLeft size={18} /></IconButton>}
-/>`,
+    code: `<TopBar>
+  <TopBar.Leading><IconButton label="Back"><ChevronLeft size={18} /></IconButton></TopBar.Leading>
+  <TopBar.Title subtitle="Therapy session">Pick a time</TopBar.Title>
+</TopBar>`,
     examples: [
       {
         id: 'basic',
         title: 'Title and subtitle',
-        description: '`leading` is usually a back `IconButton`; `actions` sit on the right.',
-        code: `<TopBar
-  title="Your details"
-  leading={<IconButton label="Back"><ChevronLeft size={18} /></IconButton>}
-/>`,
+        description: '`Leading` is usually a back `IconButton`; `Actions` sit on the right.',
+        code: `<TopBar>
+  <TopBar.Leading><IconButton label="Back"><ChevronLeft size={18} /></IconButton></TopBar.Leading>
+  <TopBar.Title>Your details</TopBar.Title>
+</TopBar>`,
       },
       {
         id: 'full',
         title: 'With leading and actions',
-        code: `<TopBar
-  title="Pick a time"
-  subtitle="Therapy session"
-  leading={<IconButton label="Back"><ChevronLeft size={18} /></IconButton>}
-  actions={<IconButton label="Notifications"><Bell size={18} /></IconButton>}
-/>`,
+        code: `<TopBar>
+  <TopBar.Leading><IconButton label="Back"><ChevronLeft size={18} /></IconButton></TopBar.Leading>
+  <TopBar.Title subtitle="Therapy session">Pick a time</TopBar.Title>
+  <TopBar.Actions><IconButton label="Notifications"><Bell size={18} /></IconButton></TopBar.Actions>
+</TopBar>`,
       },
       {
         id: 'transparent',
         title: 'Transparent',
         description: '`transparent` drops the blur and border — for hero headers over a coloured surface.',
-        code: `<TopBar transparent leading={<span className="wordmark">Sereno</span>} />`,
+        code: `<TopBar transparent>
+  <TopBar.Leading><span className="wordmark">Sereno</span></TopBar.Leading>
+</TopBar>`,
       },
     ],
     guidelines: {
-      do: ['60px, `sticky` to the top by default.', '`leading` = back or the wordmark; never both.'],
-      dont: ['More than two `actions` — that becomes a menu.'],
+      do: ['60px, `sticky` to the top by default.', '`Leading` = back or the wordmark; never both.'],
+      dont: ['More than two `Actions` — that becomes a menu.'],
     },
   },
   {
@@ -1828,94 +1829,99 @@ dismiss(id);`,
     name: 'Dialog',
     category: 'feedback',
     summary:
-      'Modal (desktop), bottom sheet (mobile) or full-screen. Portalled to `<body>` and fixed to the viewport; while open it locks page scroll and closes on Escape. Needs the sereno-pop / sereno-slide-up keyframes on the host.',
+      'Modal (desktop), bottom sheet (mobile) or full-screen — a **compound component**. Portalled to `<body>` and fixed to the viewport; while open it locks page scroll and closes on Escape. Needs the sereno-pop / sereno-slide-up keyframes on the host.',
     props: [
       R('open', 'boolean', 'Controls visibility.', 'true'),
-      R('title / description', 'string', 'Dialog header.'),
-      R('footer', 'React.ReactNode', 'Action buttons, right-aligned.'),
-      R('onClose', '() => void', 'Called on scrim click, on Escape, and by the header ✕.'),
+      R('onClose', '() => void', 'Called on scrim click, on Escape, and by `Dialog.Close`.'),
       R('variant', "'center' | 'sheet' | 'fullscreen'", 'sheet slides up from the bottom (mobile default); fullscreen fills the viewport.', "'center'"),
       R('size', "'sm' | 'md' | 'lg' | 'xl'", 'Max width of the centered modal (440 / 600 / 800 / 1000).', "'sm'"),
       R('dividers', 'boolean', 'Hairline rules between header / body / footer; the body scrolls on its own.', 'false'),
-      R('showClose', 'boolean', 'Show a ✕ in the header (needs onClose). Defaults on for fullscreen.', 'false'),
-      R('dismissible', 'boolean', 'When false, a scrim click and Escape no longer close it — only the ✕, a footer action, or open={false}.', 'true'),
+      R('dismissible', 'boolean', 'When false, a scrim click and Escape no longer close it — only `Dialog.Close`, a footer action, or open={false}.', 'true'),
       R('width', 'number', 'Explicit pixel width — overrides size.'),
+      R('Dialog.Header · title / description', 'string', 'Both optional. Put `Dialog.Close` here too, if you want one.'),
+      R('Dialog.Body', 'React.ReactNode', 'The scrolling content area. Optional — a header + footer alone is a valid dialog.'),
+      R('Dialog.Footer', 'React.ReactNode', 'Action buttons, right-aligned.'),
+      R('Dialog.Close', '—', 'A ✕ button that calls the root’s `onClose`. Nothing renders one unless you add it — no more auto-default for `fullscreen`.'),
     ],
-    code: `<Dialog
-  open={open}
-  title="Cancel booking?"
-  description="A cliente será avisada por WhatsApp."
-  onClose={() => setOpen(false)}
-  footer={
-    <>
-      <Button variant="ghost" onClick={() => setOpen(false)}>Back</Button>
-      <Button variant="error">Cancel booking</Button>
-    </>
-  }
-/>`,
+    code: `<Dialog open={open} onClose={() => setOpen(false)}>
+  <Dialog.Header title="Cancel booking?" description="A cliente será avisada por WhatsApp." />
+  <Dialog.Footer>
+    <Button variant="ghost" onClick={() => setOpen(false)}>Back</Button>
+    <Button variant="error">Cancel booking</Button>
+  </Dialog.Footer>
+</Dialog>`,
     examples: [
       {
         id: 'center',
         title: 'Center (desktop)',
-        description: 'The desktop default. `footer` holds the buttons, right-aligned. For destructive actions, the title **names the consequence** before it asks.',
-        code: `<Dialog
-  open={open}
-  title="Cancel booking?"
-  description="The client will be notified via WhatsApp and the slot frees up."
-  onClose={() => setOpen(false)}
-  footer={<>
+        description: 'The desktop default. `Dialog.Footer` holds the buttons, right-aligned. For destructive actions, the title **names the consequence** before it asks.',
+        code: `<Dialog open={open} onClose={() => setOpen(false)}>
+  <Dialog.Header title="Cancel booking?" description="The client will be notified via WhatsApp and the slot frees up." />
+  <Dialog.Footer>
     <Button variant="ghost" onClick={() => setOpen(false)}>Back</Button>
     <Button variant="error">Cancel booking</Button>
-  </>}
-/>`,
+  </Dialog.Footer>
+</Dialog>`,
       },
       {
         id: 'sheet',
         title: 'Sheet (mobile)',
         description: '`variant="sheet"` slides up from the bottom of the screen, with a grabber at the top. It is the mobile default.',
-        code: `<Dialog variant="sheet" open={open} title="Filters" onClose={close} footer={footer}>
-  {/* content */}
+        code: `<Dialog variant="sheet" open={open} onClose={close}>
+  <Dialog.Header title="Filters" />
+  <Dialog.Body>{/* content */}</Dialog.Body>
+  <Dialog.Footer>{footer}</Dialog.Footer>
 </Dialog>`,
       },
       {
         id: 'sizes',
         title: 'Sizes',
         description: '`size` caps the centered modal at a fixed max-width — `sm` (440), `md` (600), `lg` (800), `xl` (1000). It still shrinks to fit narrow screens. `width` takes an explicit pixel value instead.',
-        code: `<Dialog size="lg" open={open} title="Report" onClose={close} footer={footer}>
-  {/* wide content */}
+        code: `<Dialog size="lg" open={open} onClose={close}>
+  <Dialog.Header title="Report" />
+  <Dialog.Body>{/* wide content */}</Dialog.Body>
 </Dialog>`,
       },
       {
         id: 'dividers',
         title: 'Dividers',
-        description: 'Set `dividers` for a hairline rule under the header and above the footer; the body then scrolls between them so the title and actions stay put. Pair with `showClose` for a header ✕.',
-        code: `<Dialog dividers showClose open={open} title="Terms of service" onClose={close} footer={footer}>
-  {/* long, scrolling content */}
+        description: 'Set `dividers` for a hairline rule under the header and above the footer; the body then scrolls between them so the title and actions stay put. Add a `Dialog.Close` inside `Dialog.Header` for a ✕.',
+        code: `<Dialog dividers open={open} onClose={close}>
+  <Dialog.Header title="Terms of service"><Dialog.Close /></Dialog.Header>
+  <Dialog.Body>{/* long, scrolling content */}</Dialog.Body>
+  <Dialog.Footer>{footer}</Dialog.Footer>
 </Dialog>`,
       },
       {
         id: 'form',
         title: 'Form inside',
-        description: 'Inputs, selects and checkboxes sit inside a `Dialog` without ceremony. Keep the form short enough not to need `dividers` — a `Select` menu opens within the panel, so a scrolling body would clip it.',
-        code: `<Dialog showClose size="md" open={open} title="New booking" onClose={close} footer={footer}>
-  <Input label="Client" />
-  <Select label="Service" options={services} />
+        description: 'Inputs, selects and checkboxes sit inside a `Dialog.Body` without ceremony. Keep the form short enough not to need `dividers` — a `Select` menu opens within the panel, so a scrolling body would clip it.',
+        code: `<Dialog size="md" open={open} onClose={close}>
+  <Dialog.Header title="New booking"><Dialog.Close /></Dialog.Header>
+  <Dialog.Body>
+    <Input label="Client" />
+    <Select label="Service" options={services} />
+  </Dialog.Body>
+  <Dialog.Footer>{footer}</Dialog.Footer>
 </Dialog>`,
       },
       {
         id: 'fullscreen',
         title: 'Full screen',
-        description: '`variant="fullscreen"` fills the viewport (no radius, no scrim gap) — for immersive multi-section flows. The header ✕ is on by default here.',
-        code: `<Dialog variant="fullscreen" dividers open={open} title="Edit availability" onClose={close} footer={footer}>
-  {/* full-page form */}
+        description: '`variant="fullscreen"` fills the viewport (no radius, no scrim gap) — for immersive multi-section flows. Add a `Dialog.Close` yourself; nothing shows one automatically.',
+        code: `<Dialog variant="fullscreen" dividers open={open} onClose={close}>
+  <Dialog.Header title="Edit availability"><Dialog.Close /></Dialog.Header>
+  <Dialog.Body>{/* full-page form */}</Dialog.Body>
+  <Dialog.Footer>{footer}</Dialog.Footer>
 </Dialog>`,
       },
       {
         id: 'dismissible',
         title: 'Require a choice',
-        description: '`dismissible={false}` drops the scrim-click and Escape shortcuts, so the user has to pick a footer action (or the ✕). Reserve it for a decision that really can’t be deferred — a stray click shouldn’t trap people.',
-        code: `<Dialog dismissible={false} open={open} title="Discard 3 unsaved changes?" onClose={close} footer={footer}>
-  {/* content */}
+        description: '`dismissible={false}` drops the scrim-click and Escape shortcuts, so the user has to pick a footer action (or a `Dialog.Close`, if you added one). Reserve it for a decision that really can’t be deferred — a stray click shouldn’t trap people.',
+        code: `<Dialog dismissible={false} open={open} onClose={close}>
+  <Dialog.Header title="Discard 3 unsaved changes?" description="…" />
+  <Dialog.Footer>{footer}</Dialog.Footer>
 </Dialog>`,
       },
     ],

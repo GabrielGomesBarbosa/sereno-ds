@@ -121,22 +121,6 @@ function DashboardShell() {
 
         <div className="dash-content">
           <TopBar
-            title={pageTitle}
-            subtitle={
-              base === 'agenda' ? (
-                <>
-                  <span className="dash-date-full">{todayLabel(false)}</span>
-                  <span className="dash-date-short">{todayLabel(true)}</span>
-                </>
-              ) : undefined
-            }
-            leading={
-              <span className="dash-topbar-lead">
-                <IconButton label="Abrir menu" variant="ghost" onClick={openDrawer}>
-                  <MenuIcon size={20} strokeWidth={1.75} />
-                </IconButton>
-              </span>
-            }
             style={{
               height: 'var(--dash-header-h)',
               flex: '0 0 auto',
@@ -146,7 +130,27 @@ function DashboardShell() {
               // max-width gutter + its own inner padding).
               paddingInline: 'max(var(--dash-gutter), calc((100% - var(--container-app)) / 2 + var(--dash-gutter)))',
             }}
-            actions={
+          >
+            <TopBar.Leading>
+              <span className="dash-topbar-lead">
+                <IconButton label="Abrir menu" variant="ghost" onClick={openDrawer}>
+                  <MenuIcon size={20} strokeWidth={1.75} />
+                </IconButton>
+              </span>
+            </TopBar.Leading>
+            <TopBar.Title
+              subtitle={
+                base === 'agenda' ? (
+                  <>
+                    <span className="dash-date-full">{todayLabel(false)}</span>
+                    <span className="dash-date-short">{todayLabel(true)}</span>
+                  </>
+                ) : undefined
+              }
+            >
+              {pageTitle}
+            </TopBar.Title>
+            <TopBar.Actions>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                 {/* Hidden via CSS (not JS) below 900px so it can't flash on reload — the
                     toggle moves into the avatar menu there. See .dash-topbar-theme. */}
@@ -157,8 +161,8 @@ function DashboardShell() {
                 <span style={{ width: 1, height: 24, background: 'var(--border-default)', margin: '0 var(--space-1)' }} />
                 <UserMenu onNavigate={navigateTo} onToast={notify} />
               </div>
-            }
-          />
+            </TopBar.Actions>
+          </TopBar>
           <main className="dash-main">
             {base === 'agenda' && <AgendaView onToast={notify} />}
             {base === 'clientes' && <ClientesView />}
