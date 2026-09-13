@@ -77,6 +77,18 @@
 .sereno-tab-scroll::-webkit-scrollbar {
   display: none;
 }
+/* Tab's own focus ring (SS-228) — it used to set outline:none inline with
+   nothing to replace it, which (as with DateTimePicker's day grid) always
+   beats a class selector's :focus-visible rule no matter what, roving
+   tabindex or not. Suppressed here instead, same specificity as the
+   override below, so source order decides and the override actually wins. */
+.sereno-tab {
+  outline: none;
+}
+.sereno-tab:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
 
 /* ── SidebarNav ──────────────────────────────────────────────────────────────
    Thin scroll area, a keyboard ring on its plain <button> rows, and — when
