@@ -48,6 +48,13 @@ Product-domain cards (`ServiceCard`, `ProfessionalCard`, `AppointmentCard`,
 domain, not reusable UI. They live in `apps/demo/src/domain/` as a reference for
 building product components on top of the DS.
 
+`Table`, `Tabs`, `SidebarNav`, `BottomNav`, `Stepper`, `Dialog` and `TopBar`
+are **compound components** — a root plus dot-notated sub-parts composed as
+JSX (`<Dialog.Header>`, `<Tabs.Tab>`, …), not a config array/prop. Runnable
+examples in [`packages/ui/README.md`](./packages/ui/README.md#compound-components);
+the full pattern (including why `Select` / `DateTimePicker` stay a plain
+config-prop API — SS-225) is in [`AGENTS.md`](./AGENTS.md).
+
 ## Getting started
 
 ```bash

@@ -95,6 +95,53 @@ export function Example() {
 }
 ```
 
+## Compound components
+
+`Table`, `Tabs`, `SidebarNav`, `BottomNav`, `Stepper`, `Dialog` and `TopBar` are
+the root plus dot-notated sub-parts — compose them like JSX, not a config
+object/array:
+
+```tsx
+import { Tabs } from '@sereno-ds/ui';
+
+<Tabs value={tab} onChange={setTab} variant="pill">
+  <Tabs.List>
+    <Tabs.Tab value="today" count={5}>Today</Tabs.Tab>
+    <Tabs.Tab value="week" count={23}>Week</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel value="today">…</Tabs.Panel>
+  <Tabs.Panel value="week">…</Tabs.Panel>
+</Tabs>;
+```
+
+```tsx
+import { Dialog, Button } from '@sereno-ds/ui';
+
+<Dialog open={open} onClose={close}>
+  <Dialog.Header title="Cancel booking?" description="This can't be undone.">
+    <Dialog.Close />
+  </Dialog.Header>
+  <Dialog.Body>…</Dialog.Body>
+  <Dialog.Footer>
+    <Button variant="ghost" onClick={close}>Back</Button>
+    <Button variant="error" onClick={confirm}>Cancel booking</Button>
+  </Dialog.Footer>
+</Dialog>;
+```
+
+- Only the root is exported — `Dialog.Header`, `Tabs.Tab`, etc. resolve to
+  `undefined` if imported from a Server Component. Everything compound needs
+  `'use client'` somewhere above it in the tree.
+- Sub-parts outside their root throw at render (`` <Tabs.Tab> must be
+  rendered inside <Tabs>. ``) instead of failing silently.
+- `Header` / `Footer` (`Dialog`), `List` / `Panel` (`Tabs`), `Section`
+  (`SidebarNav`) are optional — render only the sub-parts a given screen
+  needs.
+- `Select` and `DateTimePicker` are hand-rolled but **not** compound — each
+  option / day is plain data (`options`, `times`), not JSX a consumer
+  composes. See each component's own JSDoc, or the showcase's Props tab, for
+  the rest of the sub-parts per component.
+
 ## Contract
 
 - **Tokens are required.** Components read only CSS custom properties (`--bg-*`, `--text-*`, `--border-*`, `--radius-*`, `--space-*`, `--font-*`, …). They live in `@sereno-ds/tokens`; without it, everything renders unstyled.
