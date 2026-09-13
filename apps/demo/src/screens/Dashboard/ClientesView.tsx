@@ -18,49 +18,54 @@ function ClientDetailDialog({ client, onClose }: { client: ClientRow; onClose: (
   const history = React.useMemo(() => AGENDA_SCHEDULE.flatMap((g) => g.items.filter((a) => a.client === client.name)), [client.name]);
 
   return (
-    <Dialog size="lg" title={client.name} description={CLIENT_STATUS_LABEL[client.status]} dividers showClose onClose={onClose}>
-      <Tabs value={tab} onChange={setTab}>
-        <Tabs.List>
-          <Tabs.Tab value="geral">Visão geral</Tabs.Tab>
-          <Tabs.Tab value="historico" count={history.length || undefined}>
-            Histórico
-          </Tabs.Tab>
-          <Tabs.Tab value="documentos">Documentos</Tabs.Tab>
-        </Tabs.List>
+    <Dialog size="lg" dividers onClose={onClose}>
+      <Dialog.Header title={client.name} description={CLIENT_STATUS_LABEL[client.status]}>
+        <Dialog.Close />
+      </Dialog.Header>
+      <Dialog.Body>
+        <Tabs value={tab} onChange={setTab}>
+          <Tabs.List>
+            <Tabs.Tab value="geral">Visão geral</Tabs.Tab>
+            <Tabs.Tab value="historico" count={history.length || undefined}>
+              Histórico
+            </Tabs.Tab>
+            <Tabs.Tab value="documentos">Documentos</Tabs.Tab>
+          </Tabs.List>
 
-        <Tabs.Panel value="geral" style={{ paddingTop: 'var(--space-4)' }}>
-          <div style={vcol('var(--space-3)')}>
-            <Card padding="md" style={vcol('var(--space-2)')}>
-              {[
-                ['Sessões', client.sessions],
-                ['Última atividade', client.last],
-                ['Status', CLIENT_STATUS_LABEL[client.status]],
-              ].map(([label, value]) => (
-                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-3)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>{label}</span>
-                  <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>{value}</span>
-                </div>
-              ))}
-            </Card>
-          </div>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="historico" style={{ paddingTop: 'var(--space-4)' }}>
-          {history.length === 0 ? (
-            <EmptyState icon={<Clock size={22} strokeWidth={1.75} />} title="Sem sessões registradas" description="Essa semana de exemplo não tem nenhuma sessão para este cliente." />
-          ) : (
-            <div style={vcol('var(--space-2)')}>
-              {history.map((a, i) => (
-                <AppointmentCard key={a.date + a.time + i} compact client={a.client} service={a.service} time={a.time} date={a.date} channel={a.channel} status={a.status} />
-              ))}
+          <Tabs.Panel value="geral" style={{ paddingTop: 'var(--space-4)' }}>
+            <div style={vcol('var(--space-3)')}>
+              <Card padding="md" style={vcol('var(--space-2)')}>
+                {[
+                  ['Sessões', client.sessions],
+                  ['Última atividade', client.last],
+                  ['Status', CLIENT_STATUS_LABEL[client.status]],
+                ].map(([label, value]) => (
+                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-3)' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>{label}</span>
+                    <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>{value}</span>
+                  </div>
+                ))}
+              </Card>
             </div>
-          )}
-        </Tabs.Panel>
+          </Tabs.Panel>
 
-        <Tabs.Panel value="documentos" style={{ paddingTop: 'var(--space-4)' }}>
-          <ComingSoon label="Documentos" />
-        </Tabs.Panel>
-      </Tabs>
+          <Tabs.Panel value="historico" style={{ paddingTop: 'var(--space-4)' }}>
+            {history.length === 0 ? (
+              <EmptyState icon={<Clock size={22} strokeWidth={1.75} />} title="Sem sessões registradas" description="Essa semana de exemplo não tem nenhuma sessão para este cliente." />
+            ) : (
+              <div style={vcol('var(--space-2)')}>
+                {history.map((a, i) => (
+                  <AppointmentCard key={a.date + a.time + i} compact client={a.client} service={a.service} time={a.time} date={a.date} channel={a.channel} status={a.status} />
+                ))}
+              </div>
+            )}
+          </Tabs.Panel>
+
+          <Tabs.Panel value="documentos" style={{ paddingTop: 'var(--space-4)' }}>
+            <ComingSoon label="Documentos" />
+          </Tabs.Panel>
+        </Tabs>
+      </Dialog.Body>
     </Dialog>
   );
 }

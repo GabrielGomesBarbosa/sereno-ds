@@ -52,7 +52,11 @@ const CASES: Record<string, React.ReactElement> = {
   FileUpload: <UI.FileUpload />,
   AvatarUpload: <UI.AvatarUpload />,
   SearchInput: <UI.SearchInput placeholder="Search" />,
-  TopBar: <UI.TopBar title="Agenda" subtitle="Today" />,
+  TopBar: (
+    <UI.TopBar>
+      <UI.TopBar.Title subtitle="Today">Agenda</UI.TopBar.Title>
+    </UI.TopBar>
+  ),
   Tabs: (
     <UI.Tabs value="a">
       <UI.Tabs.List>
@@ -84,7 +88,14 @@ const CASES: Record<string, React.ReactElement> = {
   ),
   Alert: <UI.Alert tone="warning" title="Heads up" onDismiss={() => {}}>Body copy.</UI.Alert>,
   Toast: <UI.Toast tone="success" title="Saved" description="All good" />,
-  Dialog: <UI.Dialog open title="Confirm" description="Sure?">Body</UI.Dialog>,
+  Dialog: (
+    <UI.Dialog open>
+      <UI.Dialog.Header title="Confirm" description="Sure?">
+        <UI.Dialog.Close />
+      </UI.Dialog.Header>
+      <UI.Dialog.Body>Body</UI.Dialog.Body>
+    </UI.Dialog>
+  ),
   Skeleton: <UI.Skeleton />,
   EmptyState: <UI.EmptyState title="Nothing here" description="Add the first one." />,
   ThemeProvider: <UI.ThemeProvider><span>child</span></UI.ThemeProvider>,

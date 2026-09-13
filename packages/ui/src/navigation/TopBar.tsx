@@ -3,20 +3,42 @@
 import * as React from 'react';
 import { sx } from '../_internal/style';
 
-/** Sticky page header: back/leading slot, title + subtitle, trailing actions. 60px tall, blurred translucent. */
+/**
+ * Sticky page header — a **compound component**. 60px tall, blurred
+ * translucent. `Leading` / `Title` / `Actions` are all optional, independent
+ * slots — use whichever the screen needs.
+ *
+ * ```tsx
+ * <TopBar>
+ *   <TopBar.Leading><IconButton label="Back"><ChevronLeft /></IconButton></TopBar.Leading>
+ *   <TopBar.Title subtitle="Therapy session">Pick a time</TopBar.Title>
+ *   <TopBar.Actions><IconButton label="Notifications"><Bell /></IconButton></TopBar.Actions>
+ * </TopBar>
+ * ```
+ */
 export interface TopBarProps extends React.HTMLAttributes<HTMLElement> {
-  title?: string;
-  /** Plain string in most cases; accepts nodes for e.g. a `<time>` element or a responsive date. */
-  subtitle?: React.ReactNode;
-  /** Usually a back IconButton or the wordmark. */
-  leading?: React.ReactNode;
-  actions?: React.ReactNode;
   sticky?: boolean;
   /** Drops the blur/border for hero headers. */
   transparent?: boolean;
+  children?: React.ReactNode;
 }
 
-export function TopBar({ title, subtitle, leading, actions, sticky = true, transparent = false, style, ...rest }: TopBarProps) {
+export interface TopBarLeadingProps {
+  /** Usually a back `IconButton` or the wordmark. */
+  children?: React.ReactNode;
+}
+
+export interface TopBarTitleProps {
+  /** Plain string in most cases; accepts nodes for e.g. a `<time>` element or a responsive date. */
+  subtitle?: React.ReactNode;
+  children?: React.ReactNode;
+}
+
+export interface TopBarActionsProps {
+  children?: React.ReactNode;
+}
+
+function TopBarRoot({ sticky = true, transparent = false, children, style, ...rest }: TopBarProps) {
   return (
     <header
       {...rest}
@@ -35,40 +57,55 @@ export function TopBar({ title, subtitle, leading, actions, sticky = true, trans
         ...style,
       })}
     >
-      {leading}
-      <div style={sx({ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 })}>
-        {title && (
-          <span
-            style={sx({
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-lg)',
-              fontWeight: 'var(--weight-bold)',
-              letterSpacing: 'var(--tracking-tight)',
-              color: 'var(--text-primary)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            })}
-          >
-            {title}
-          </span>
-        )}
-        {subtitle && (
-          <span
-            style={sx({
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-xs)',
-              color: 'var(--text-muted)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            })}
-          >
-            {subtitle}
-          </span>
-        )}
-      </div>
-      {actions && <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' })}>{actions}</div>}
+      {children}
     </header>
   );
 }
+
+/** No wrapper of its own — renders exactly what you give it, first in the row. */
+function Leading({ children }: TopBarLeadingProps) {
+  return <>{children}</>;
+}
+
+function Title({ subtitle, children }: TopBarTitleProps) {
+  return (
+    <div style={sx({ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 })}>
+      {children && (
+        <span
+          style={sx({
+            fontFamily: 'var(--font-display)',
+            fontSize: 'var(--text-lg)',
+            fontWeight: 'var(--weight-bold)',
+            letterSpacing: 'var(--tracking-tight)',
+            color: 'var(--text-primary)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          })}
+        >
+          {children}
+        </span>
+      )}
+      {subtitle && (
+        <span
+          style={sx({
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-xs)',
+            color: 'var(--text-muted)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          })}
+        >
+          {subtitle}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function Actions({ children }: TopBarActionsProps) {
+  return <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' })}>{children}</div>;
+}
+
+export const TopBar = Object.assign(TopBarRoot, { Leading, Title, Actions });

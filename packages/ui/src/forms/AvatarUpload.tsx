@@ -552,48 +552,44 @@ function CropModal({ src, outputSize, labels, onClose, onSave }: { src: string; 
   };
 
   return (
-    <Dialog
-      title={labels.cropTitle}
-      description={labels.cropHint}
-      width={352}
-      onClose={onClose}
-      footer={
-        <>
-          <button type="button" onClick={onClose} style={sx(cancelBtn)}>
-            <X size={16} strokeWidth={2} /> {labels.cancel}
-          </button>
-          <button type="button" onClick={save} style={sx(confirmBtn)}>
-            <Check size={16} strokeWidth={2.5} /> {labels.save}
-          </button>
-        </>
-      }
-    >
-      <CropStage onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onWheel={(e) => setZoomAt(zoom - e.deltaY * 0.002)}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          ref={imgRef}
-          src={src}
-          alt=""
-          draggable={false}
-          onLoad={onImgLoad}
-          style={sx({ position: 'absolute', left: offset.x, top: offset.y, width: dispW, height: dispH, maxWidth: 'none', userSelect: 'none', pointerEvents: 'none' })}
-        />
-      </CropStage>
+    <Dialog width={352} onClose={onClose}>
+      <Dialog.Header title={labels.cropTitle} description={labels.cropHint} />
+      <Dialog.Body>
+        <CropStage onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onWheel={(e) => setZoomAt(zoom - e.deltaY * 0.002)}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            ref={imgRef}
+            src={src}
+            alt=""
+            draggable={false}
+            onLoad={onImgLoad}
+            style={sx({ position: 'absolute', left: offset.x, top: offset.y, width: dispW, height: dispH, maxWidth: 'none', userSelect: 'none', pointerEvents: 'none' })}
+          />
+        </CropStage>
 
-      <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', color: 'var(--text-muted)' })}>
-        <ZoomOut size={16} strokeWidth={1.75} style={{ flex: '0 0 auto' }} />
-        <input
-          type="range"
-          min={1}
-          max={3}
-          step={0.01}
-          value={zoom}
-          onChange={(e) => setZoomAt(Number(e.target.value))}
-          aria-label={labels.zoom}
-          style={sx({ flex: 1, accentColor: 'var(--interactive-primary)' })}
-        />
-        <ZoomIn size={16} strokeWidth={1.75} style={{ flex: '0 0 auto' }} />
-      </div>
+        <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', color: 'var(--text-muted)' })}>
+          <ZoomOut size={16} strokeWidth={1.75} style={{ flex: '0 0 auto' }} />
+          <input
+            type="range"
+            min={1}
+            max={3}
+            step={0.01}
+            value={zoom}
+            onChange={(e) => setZoomAt(Number(e.target.value))}
+            aria-label={labels.zoom}
+            style={sx({ flex: 1, accentColor: 'var(--interactive-primary)' })}
+          />
+          <ZoomIn size={16} strokeWidth={1.75} style={{ flex: '0 0 auto' }} />
+        </div>
+      </Dialog.Body>
+      <Dialog.Footer>
+        <button type="button" onClick={onClose} style={sx(cancelBtn)}>
+          <X size={16} strokeWidth={2} /> {labels.cancel}
+        </button>
+        <button type="button" onClick={save} style={sx(confirmBtn)}>
+          <Check size={16} strokeWidth={2.5} /> {labels.save}
+        </button>
+      </Dialog.Footer>
     </Dialog>
   );
 }
@@ -643,25 +639,21 @@ function CameraModal({ labels, onCapture, onClose, onError }: { labels: AvatarUp
   };
 
   return (
-    <Dialog
-      title={labels.cameraTitle}
-      description={labels.cameraHint}
-      width={352}
-      onClose={onClose}
-      footer={
-        <>
-          <button type="button" onClick={onClose} style={sx(cancelBtn)}>
-            <X size={16} strokeWidth={2} /> {labels.cancel}
-          </button>
-          <button type="button" onClick={shoot} disabled={!ready} style={sx({ ...confirmBtn, opacity: ready ? 1 : 0.6 })}>
-            <Camera size={16} strokeWidth={2} /> {labels.capture}
-          </button>
-        </>
-      }
-    >
-      <CropStage>
-        <video ref={videoRef} autoPlay playsInline muted style={sx({ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' })} />
-      </CropStage>
+    <Dialog width={352} onClose={onClose}>
+      <Dialog.Header title={labels.cameraTitle} description={labels.cameraHint} />
+      <Dialog.Body>
+        <CropStage>
+          <video ref={videoRef} autoPlay playsInline muted style={sx({ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' })} />
+        </CropStage>
+      </Dialog.Body>
+      <Dialog.Footer>
+        <button type="button" onClick={onClose} style={sx(cancelBtn)}>
+          <X size={16} strokeWidth={2} /> {labels.cancel}
+        </button>
+        <button type="button" onClick={shoot} disabled={!ready} style={sx({ ...confirmBtn, opacity: ready ? 1 : 0.6 })}>
+          <Camera size={16} strokeWidth={2} /> {labels.capture}
+        </button>
+      </Dialog.Footer>
     </Dialog>
   );
 }
