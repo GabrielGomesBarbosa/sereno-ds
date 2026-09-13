@@ -187,6 +187,54 @@ describe('Dialog', () => {
     expect(screen.getByText('Just body copy.')).toBeInTheDocument();
   });
 
+  it('traps Tab within the panel — wraps last → first and first → last', () => {
+    render(
+      <Dialog open>
+        <Dialog.Header title="Hi">
+          <Dialog.Close />
+        </Dialog.Header>
+        <Dialog.Footer>
+          <button>OK</button>
+        </Dialog.Footer>
+      </Dialog>,
+    );
+    const closeBtn = screen.getByRole('button', { name: 'Fechar' });
+    const okBtn = screen.getByRole('button', { name: 'OK' });
+
+    okBtn.focus();
+    fireEvent.keyDown(document, { key: 'Tab' });
+    expect(document.activeElement).toBe(closeBtn);
+
+    closeBtn.focus();
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(okBtn);
+  });
+
+  it('restores focus to the trigger element once closed', () => {
+    function Harness() {
+      const [open, setOpen] = React.useState(false);
+      return (
+        <>
+          <button onClick={() => setOpen(true)}>Open</button>
+          <Dialog open={open} onClose={() => setOpen(false)}>
+            <Dialog.Header title="Hi">
+              <Dialog.Close />
+            </Dialog.Header>
+          </Dialog>
+        </>
+      );
+    }
+    render(<Harness />);
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    trigger.focus();
+    fireEvent.click(trigger);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+  });
+
   it('throws when a subcomponent is rendered outside <Dialog>', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => render(<Dialog.Body>x</Dialog.Body>)).toThrow(/must be rendered inside <Dialog>/);
