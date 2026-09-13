@@ -874,6 +874,21 @@ function CheckboxGrupo() {
     </fieldset>
   );
 }
+function CheckboxHorizontal() {
+  const OPTS = ['WhatsApp', 'Email', 'SMS'];
+  const [sel, setSel] = React.useState<string[]>(['WhatsApp']);
+  const toggle = (o: string) => setSel((s) => (s.includes(o) ? s.filter((x) => x !== o) : [...s, o]));
+  return (
+    <fieldset style={{ border: 'none', margin: 0, padding: 0, width: '100%', ...col }}>
+      <legend style={legendStyle}>Preferred contact channels</legend>
+      <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', width: '100%' }}>
+        {OPTS.map((o) => (
+          <Checkbox key={o} label={o} checked={sel.includes(o)} onChange={() => toggle(o)} />
+        ))}
+      </div>
+    </fieldset>
+  );
+}
 
 function RadioVertical() {
   const [v, setV] = React.useState('online');
@@ -2093,6 +2108,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     indeterminate: CheckboxIndeterminado,
     sizes: CheckboxTamanhos,
     group: CheckboxGrupo,
+    horizontal: CheckboxHorizontal,
   },
   radio: { vertical: RadioVertical, horizontal: RadioHorizontal, states: RadioEstados, sizes: RadioTamanhos },
   switch: { basic: SwitchBasico, settings: SwitchSettings, states: SwitchEstados, sizes: SwitchTamanhos },

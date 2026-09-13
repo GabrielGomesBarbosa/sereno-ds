@@ -915,6 +915,19 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
   ))}
 </fieldset>`,
       },
+      {
+        id: 'horizontal',
+        title: 'Horizontal',
+        description: 'Same multi-select group, laid out in a row for short, label-only options. Wrap them in a flex row — `Checkbox` itself does not manage layout. Matches `Radio`\'s own `Horizontal` example.',
+        code: `<fieldset>
+  <legend>Preferred contact channels</legend>
+  <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+    {OPTS.map((o) => (
+      <Checkbox key={o} label={o} checked={sel.includes(o)} onChange={() => toggle(o)} />
+    ))}
+  </div>
+</fieldset>`,
+      },
     ],
     guidelines: {
       do: [
