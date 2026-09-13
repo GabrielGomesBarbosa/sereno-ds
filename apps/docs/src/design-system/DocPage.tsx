@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { TableOfContents } from './TableOfContents';
 
 /**
  * The same three-column shell the component pages use (`.cv-layout`): the nav is
@@ -18,10 +19,6 @@ const sectionLabel: React.CSSProperties = {
   color: 'var(--text-muted)',
   margin: 0,
 };
-
-function scrollToId(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
 
 export interface DocPageProps {
   kicker?: string;
@@ -70,37 +67,7 @@ export function DocPage({ kicker, title, intro, toc, children }: DocPageProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-9)' }}>{children}</div>
       </article>
 
-      <aside className="cv-toc">
-        <span style={{ ...sectionLabel, marginBottom: 'var(--space-2)', display: 'block' }}>On this page</span>
-        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {toc.map((t) => (
-            <li key={t.id}>
-              <button
-                type="button"
-                onClick={() => scrollToId(t.id)}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  textAlign: 'left',
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  padding: '4px 8px',
-                  borderRadius: 'var(--radius-sm)',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-xs)',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                {t.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </aside>
+      <TableOfContents items={toc} />
     </div>
   );
 }
-
-/** Consistent scroll offset for section anchors targeted by the index. */
-export const docSectionAnchor: React.CSSProperties = { scrollMarginTop: 'var(--space-6)' };

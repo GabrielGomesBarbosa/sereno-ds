@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { CalendarClock } from 'lucide-react';
-import { DocPage, docSectionAnchor } from '@/design-system/DocPage';
+import { DocPage } from '@/design-system/DocPage';
+import { docSectionAnchor } from '@/design-system/TableOfContents';
 
 export const metadata: Metadata = {
   title: 'Tokens · Design System',

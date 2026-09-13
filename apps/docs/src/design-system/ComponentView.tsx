@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
 import { Table } from '@sereno-ds/ui';
 import { type ComponentMeta, adjacentComponents, examplesFor } from './catalog';
 import { ExampleSection, InlineCode } from './ExampleSection';
+import { TableOfContents } from './TableOfContents';
 
 const sectionLabel: React.CSSProperties = {
   fontFamily: 'var(--font-body)',
@@ -24,10 +25,6 @@ const h2: React.CSSProperties = {
   color: 'var(--text-primary)',
   margin: 0,
 };
-
-function scrollToId(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
 
 export function ComponentView({ meta }: { meta: ComponentMeta }) {
   const examples = examplesFor(meta);
@@ -131,34 +128,7 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
         </nav>
       </article>
 
-      <aside className="cv-toc">
-        <span style={{ ...sectionLabel, marginBottom: 'var(--space-2)', display: 'block' }}>On this page</span>
-        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {toc.map((t) => (
-            <li key={t.id}>
-              <button
-                type="button"
-                onClick={() => scrollToId(t.id)}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  textAlign: 'left',
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  padding: '4px 8px',
-                  borderRadius: 'var(--radius-sm)',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-xs)',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                {t.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </aside>
+      <TableOfContents items={toc} />
     </div>
   );
 }
