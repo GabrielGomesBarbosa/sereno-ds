@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { BarChart3, Sparkles } from 'lucide-react';
 import { Card, EmptyState } from '@sereno-ds/ui';
+import { cardTitle, vcol } from '@/domain/layout';
 
 /** Small pieces every Dashboard view reaches for — layout helpers, the shared
  * "not built yet" placeholder, and the one hook used both here and by the shell. */
 
-export const cardTitle: React.CSSProperties = { fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' };
-export const vcol = (gap: string): React.CSSProperties => ({ display: 'flex', flexDirection: 'column', gap });
+export { cardTitle, vcol };
 
 export function useMediaQuery(query: string) {
   const [matches, setMatches] = React.useState(false);
