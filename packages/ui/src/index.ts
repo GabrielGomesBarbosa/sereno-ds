@@ -1,8 +1,7 @@
-// Sereno Design System — public component surface.
-// 25 primitives ported 1:1 from the approved DS source, plus FileUpload (SS-49),
-// AvatarUpload (SS-146), SearchInput (SS-50) and SidebarNav (SS-52) — all
-// net-new. Icons are passed in as props (lucide-react), never imported here;
-// theming is 100% CSS custom properties.
+// Sereno Design System — public component surface. See the /design-system
+// showcase for the live catalog, or the barrel smoke test for the full list.
+// Icons are passed in as props (lucide-react), never imported here; theming is
+// 100% CSS custom properties.
 
 // core
 export { Button, type ButtonProps } from './core/Button';
