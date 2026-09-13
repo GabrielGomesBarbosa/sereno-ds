@@ -1,5 +1,26 @@
 # @sereno-ds/ui
 
+## 0.25.6
+
+### Patch Changes
+
+- 8b313e0: `Tabs.Tab`'s `count` badge now uses `--text-secondary` instead of
+  `--text-muted` for its inactive-tab color — on `--bg-subtle` (the
+  `underline` variant's inactive badge background) `--text-muted` lands at
+  ~4.27:1, under the 4.5:1 body-text minimum (WCAG AA), a violation of the
+  Tokens page's own documented rule for that pair ("`--text-muted` on
+  `--bg-subtle`/`--bg-sunken` — large text only; use `--text-secondary` for
+  body copy"). Also now matches the inactive tab label's own color, which was
+  already `--text-secondary`. Part of the SS-227 accessibility audit (SS-230).
+- 1c4ea39: `Tabs` gains proper keyboard navigation (SS-228) — until now `Tabs.Tab` had
+  `role="tab"`/`role="tablist"` but no keyboard support behind it: every tab
+  was its own Tab stop, no arrow-key movement, and (independently) its focus
+  ring was suppressed with nothing replacing it. Now: only the active tab is
+  ever `tabIndex={0}` (Tab enters/leaves the whole strip in one stop), Left/Right
+  move focus between tabs and select them (matching the existing "click selects
+  immediately" contract), wrapping at the ends; Home/End jump to the first/last
+  tab. Matches the WAI-ARIA Tabs (automatic activation) pattern.
+
 ## 0.25.5
 
 ### Patch Changes
