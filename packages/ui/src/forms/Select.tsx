@@ -41,6 +41,15 @@ export interface SelectProps {
   name?: string;
   id?: string;
   containerStyle?: React.CSSProperties;
+  /**
+   * Accessible name for the trigger. Only needed when there's no visible
+   * `label` (e.g. a compact row where the context is already clear visually
+   * — a day name next to a "start time" / "end time" pair): `Field` only
+   * renders a `<label>` when `label` is set, so without either the trigger
+   * has no accessible name at all. Takes precedence over `label` if both are
+   * set — don't pass both.
+   */
+  'aria-label'?: string;
 }
 
 const CONTROL_HEIGHT = {
@@ -97,6 +106,7 @@ function fieldBoxStyle(size: NonNullable<SelectProps['size']>, error: boolean, o
 function CustomSelect({
   rid,
   label,
+  ariaLabel,
   options,
   value,
   placeholder,
@@ -109,6 +119,8 @@ function CustomSelect({
   rid: string;
   /** The field label — shown as the sheet header on touch so the picker has context. */
   label?: string;
+  /** Falls back to `label` when there's no visible one at all. */
+  ariaLabel?: string;
   options: SelectOption[];
   value: string;
   placeholder?: string;
@@ -400,6 +412,7 @@ function CustomSelect({
         aria-expanded={open}
         aria-controls={open ? listboxId : undefined}
         aria-activedescendant={open && activeIndex >= 0 ? `${rid}-opt-${activeIndex}` : undefined}
+        aria-label={ariaLabel}
         aria-disabled={disabled || undefined}
         disabled={disabled}
         onPointerDown={() => {
@@ -578,6 +591,7 @@ export function Select({
   name,
   id,
   containerStyle,
+  'aria-label': ariaLabel,
 }: SelectProps) {
   const reactId = React.useId();
   const rid = id || reactId;
@@ -599,6 +613,7 @@ export function Select({
       <CustomSelect
         rid={rid}
         label={label}
+        ariaLabel={ariaLabel}
         options={options}
         value={value}
         placeholder={placeholder}
