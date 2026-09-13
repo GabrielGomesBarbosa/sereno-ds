@@ -76,6 +76,16 @@ interface DialogContextValue {
 
 const SIZE_W = { sm: 440, md: 600, lg: 800, xl: 1000 } as const;
 
+// Cheap, dependency-free focusable check — matches what most hand-rolled
+// focus traps use. No visibility filtering: nothing inside a Dialog is ever
+// conditionally hidden today, and jsdom doesn't compute layout (offsetParent
+// is always null there), so a visibility check would be untestable dead
+// weight rather than a real safeguard.
+const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+function focusableIn(el: HTMLElement): HTMLElement[] {
+  return Array.from(el.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+}
+
 const DialogContext = React.createContext<DialogContextValue | null>(null);
 
 function useDialogContext(component: string): DialogContextValue {
@@ -106,33 +116,62 @@ function DialogRoot({
   // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target is client-only
   React.useEffect(() => setMounted(true), []);
 
-  // While open: lock page scroll and bind Escape to close. `onClose` / `dismissible`
-  // are read through refs so the lock effect only re-runs when `open` flips.
+  // While open: lock page scroll, bind Escape to close, trap Tab inside the
+  // panel, and restore focus to whatever had it before opening once closed.
+  // `onClose` / `dismissible` are read through refs so the effect only
+  // re-runs when `open` flips.
   const onCloseRef = React.useRef(onClose);
   const dismissibleRef = React.useRef(dismissible);
   React.useEffect(() => {
     onCloseRef.current = onClose;
     dismissibleRef.current = dismissible;
   });
+  const panelRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     if (!open) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
     const root = document.documentElement;
     const prev = { h: root.style.overflow, b: document.body.style.overflow };
     root.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && dismissibleRef.current) onCloseRef.current?.();
+      if (e.key === 'Escape') {
+        if (dismissibleRef.current) onCloseRef.current?.();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const panel = panelRef.current;
+      if (!panel) return;
+      const focusables = focusableIn(panel);
+      // No focusable content (a bare Dialog.Body with plain text): keep
+      // focus pinned on the panel itself rather than leaking to the page.
+      if (focusables.length === 0) {
+        e.preventDefault();
+        return;
+      }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener('keydown', onKey);
     return () => {
       root.style.overflow = prev.h;
       document.body.style.overflow = prev.b;
       document.removeEventListener('keydown', onKey);
+      // The trigger may itself have unmounted (e.g. a row it lived in was
+      // removed) — focus() on a detached element is a silent no-op, not a
+      // throw, so no need to guard beyond the null check.
+      previouslyFocused?.focus();
     };
   }, [open]);
 
   // Pull focus into the dialog when it opens.
-  const panelRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     if (open && mounted) panelRef.current?.focus();
   }, [open, mounted]);
