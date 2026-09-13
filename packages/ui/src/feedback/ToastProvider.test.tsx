@@ -27,7 +27,14 @@ function mount(apiRef: ApiRef, props?: Partial<ToastProviderProps>) {
 }
 
 /** Every visible (non-leaving) toast card in the portal. */
-const cards = () => [...document.body.querySelectorAll('[role="status"], [role="alert"]')];
+const cards = () => [...document.body.querySelectorAll('[role="status"], [role="alert"]')] as HTMLElement[];
+
+/**
+ * The visible card carrying `text` — not the sr-only aria-live announcer,
+ * which deliberately carries the same text (see ToastProvider's two
+ * persistent live regions), so a plain `screen.getByText` now matches both.
+ */
+const cardWithText = (text: string) => cards().find((c) => c.textContent?.includes(text));
 
 describe('ToastProvider / useToast', () => {
   it('throws when useToast is called outside a provider', () => {
@@ -64,9 +71,9 @@ describe('ToastProvider / useToast', () => {
     act(() => {
       api.current!.toast('Link copied');
     });
-    expect(screen.getByText('Link copied')).toBeInTheDocument();
+    expect(cardWithText('Link copied')).toBeTruthy();
     act(() => vi.advanceTimersByTime(3000 + 300));
-    expect(screen.queryByText('Link copied')).toBeNull();
+    expect(cardWithText('Link copied')).toBeUndefined();
   });
 
   it('keeps a toast with duration 0 until it is dismissed', () => {
@@ -78,10 +85,10 @@ describe('ToastProvider / useToast', () => {
       id = api.current!.toast.info('Syncing…', { duration: 0 });
     });
     act(() => vi.advanceTimersByTime(60_000));
-    expect(screen.getByText('Syncing…')).toBeInTheDocument();
+    expect(cardWithText('Syncing…')).toBeTruthy();
     act(() => api.current!.dismiss(id));
     act(() => vi.advanceTimersByTime(300));
-    expect(screen.queryByText('Syncing…')).toBeNull();
+    expect(cardWithText('Syncing…')).toBeUndefined();
   });
 
   it('dismiss(id) removes one; dismiss() clears the rest', () => {
@@ -97,8 +104,8 @@ describe('ToastProvider / useToast', () => {
     expect(cards()).toHaveLength(3);
     act(() => api.current!.dismiss(first));
     act(() => vi.advanceTimersByTime(300));
-    expect(screen.queryByText('One')).toBeNull();
-    expect(screen.getByText('Two')).toBeInTheDocument();
+    expect(cardWithText('One')).toBeUndefined();
+    expect(cardWithText('Two')).toBeTruthy();
     act(() => api.current!.dismiss());
     act(() => vi.advanceTimersByTime(300));
     expect(cards()).toHaveLength(0);
@@ -114,9 +121,9 @@ describe('ToastProvider / useToast', () => {
       api.current!.toast('a3');
     });
     act(() => vi.advanceTimersByTime(300)); // let the evicted one finish leaving
-    expect(screen.queryByText('a1')).toBeNull();
-    expect(screen.getByText('a2')).toBeInTheDocument();
-    expect(screen.getByText('a3')).toBeInTheDocument();
+    expect(cardWithText('a1')).toBeUndefined();
+    expect(cardWithText('a2')).toBeTruthy();
+    expect(cardWithText('a3')).toBeTruthy();
     expect(cards()).toHaveLength(2);
   });
 
@@ -127,13 +134,13 @@ describe('ToastProvider / useToast', () => {
     act(() => {
       api.current!.toast('Hover me');
     });
-    const item = screen.getByText('Hover me').closest('.sereno-toast-item')!;
+    const item = cardWithText('Hover me')!.closest('.sereno-toast-item')!;
     fireEvent.mouseEnter(item);
     act(() => vi.advanceTimersByTime(10_000));
-    expect(screen.getByText('Hover me')).toBeInTheDocument(); // frozen
+    expect(cardWithText('Hover me')).toBeTruthy(); // frozen
     fireEvent.mouseLeave(item);
     act(() => vi.advanceTimersByTime(3000 + 300));
-    expect(screen.queryByText('Hover me')).toBeNull();
+    expect(cardWithText('Hover me')).toBeUndefined();
   });
 
   it('shows a countdown bar for timed toasts and freezes it on hover', () => {
@@ -146,7 +153,7 @@ describe('ToastProvider / useToast', () => {
     const bar = () => document.body.querySelector('.sereno-toast-bar');
     expect(bar()).toBeInTheDocument();
     expect((bar() as HTMLElement).style.animationDuration).toBe('3000ms');
-    const item = screen.getByText('Timed').closest('.sereno-toast-item')!;
+    const item = cardWithText('Timed')!.closest('.sereno-toast-item')!;
     fireEvent.mouseEnter(item);
     expect(bar()!.getAttribute('data-paused')).toBe('true');
     fireEvent.mouseLeave(item);
@@ -159,7 +166,7 @@ describe('ToastProvider / useToast', () => {
     act(() => {
       api.current!.toast.info('Sticky', { duration: 0 });
     });
-    expect(screen.getByText('Sticky')).toBeInTheDocument();
+    expect(cardWithText('Sticky')).toBeTruthy();
     expect(document.body.querySelector('.sereno-toast-bar')).toBeNull();
   });
 
@@ -192,6 +199,37 @@ describe('ToastProvider / useToast', () => {
     });
     fireEvent.click(within(document.body).getByRole('button', { name: 'Fechar' }));
     act(() => vi.advanceTimersByTime(300));
-    expect(screen.queryByText('Close me')).toBeNull();
+    expect(cardWithText('Close me')).toBeUndefined();
+  });
+
+  it('announces through a persistent aria-live region, not just the freshly-mounted card', () => {
+    const api: ApiRef = { current: null };
+    mount(api);
+    // The polite region exists from the start (mount), before any toast fires —
+    // that persistence is the whole point: a live region only reliably
+    // announces a *change*, not a node that mounts already carrying content.
+    const polite = document.body.querySelector('[aria-live="polite"]');
+    const assertive = document.body.querySelector('[aria-live="assertive"]');
+    expect(polite).toBeInTheDocument();
+    expect(assertive).toBeInTheDocument();
+    expect(polite).toHaveTextContent('');
+
+    act(() => {
+      api.current!.toast.success('Booking confirmed', { description: 'The client was notified.' });
+    });
+    expect(polite).toHaveTextContent('Booking confirmed. The client was notified.');
+    expect(assertive).toHaveTextContent('');
+  });
+
+  it('routes an error tone through the assertive region instead of the polite one', () => {
+    const api: ApiRef = { current: null };
+    mount(api);
+    const polite = document.body.querySelector('[aria-live="polite"]');
+    const assertive = document.body.querySelector('[aria-live="assertive"]');
+    act(() => {
+      api.current!.toast.error('Payment failed');
+    });
+    expect(assertive).toHaveTextContent('Payment failed');
+    expect(polite).toHaveTextContent('');
   });
 });
