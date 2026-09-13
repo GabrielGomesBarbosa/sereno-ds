@@ -8,6 +8,11 @@ import { sx } from '../_internal/style';
  * Group by giving every option the same `name`. Visually matched to `Checkbox` — same 20px
  * box, same hover and label/description rhythm — differing only in the pill radius and dot.
  * Host must include the `.sereno-radio:checked` rule (see globals.css).
+ *
+ * Wrap every group in a `<fieldset>` / `<legend>` — `name` alone makes the browser treat
+ * the options as one native group (arrow keys move between them, only one can be checked),
+ * but without a `<legend>` a screen reader has no accessible name for what the choice is
+ * between, only "Online, radio button, 1 of 3" with no context.
  */
 export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
   label?: string;
