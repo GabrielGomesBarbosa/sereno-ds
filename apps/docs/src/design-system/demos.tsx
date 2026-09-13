@@ -51,7 +51,6 @@ import {
   SearchInput,
   Select,
   SidebarNav,
-  type SidebarNavSection,
   Skeleton,
   Stepper,
   Switch,
@@ -1406,7 +1405,11 @@ function BottomNavBasico() {
         <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)' }}>{labelOf(items, tab)}</span>
         <BodyLines />
       </div>
-      <BottomNav value={tab} onChange={setTab} items={items} />
+      <BottomNav value={tab} onChange={setTab}>
+        {items.map((it) => (
+          <BottomNav.Item key={it.value} value={it.value} label={it.label} icon={it.icon} />
+        ))}
+      </BottomNav>
     </PhoneFrame>
   );
 }
@@ -1423,12 +1426,33 @@ function BottomNavBadge() {
         <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)' }}>{labelOf(items, tab)}</span>
         <BodyLines />
       </div>
-      <BottomNav value={tab} onChange={setTab} items={items} />
+      <BottomNav value={tab} onChange={setTab}>
+        {items.map((it) => (
+          <BottomNav.Item key={it.value} value={it.value} label={it.label} icon={it.icon} badge={it.badge} />
+        ))}
+      </BottomNav>
     </PhoneFrame>
   );
 }
 
-const SIDE_SECTIONS: SidebarNavSection[] = [
+interface SideSubItem {
+  value: string;
+  label: string;
+  count?: number;
+}
+interface SideItem {
+  value: string;
+  label: string;
+  icon?: React.ReactNode;
+  count?: number;
+  children?: SideSubItem[];
+}
+interface SideSection {
+  label?: string;
+  items: SideItem[];
+}
+
+const SIDE_SECTIONS: SideSection[] = [
   {
     label: 'Workspace',
     items: [
@@ -1508,11 +1532,31 @@ function sidePaneLabel(v: string) {
   }
   return v;
 }
+/** `SIDE_SECTIONS` mapped to `SidebarNav`'s compound children — shared by both demos below. */
+function SideSections() {
+  return (
+    <>
+      {SIDE_SECTIONS.map((section, i) => (
+        <SidebarNav.Section key={section.label ?? i} label={section.label}>
+          {section.items.map((item) => (
+            <SidebarNav.Item key={item.value} value={item.value} label={item.label} icon={item.icon} count={item.count}>
+              {item.children?.map((sub) => (
+                <SidebarNav.SubItem key={sub.value} value={sub.value} label={sub.label} count={sub.count} />
+              ))}
+            </SidebarNav.Item>
+          ))}
+        </SidebarNav.Section>
+      ))}
+    </>
+  );
+}
 function SidebarNavBasico() {
   const [view, setView] = React.useState('finance:payouts');
   return (
     <SideFrame>
-      <SidebarNav collapsible={false} value={view} onChange={setView} header={<Wordmark />} sections={SIDE_SECTIONS} />
+      <SidebarNav collapsible={false} value={view} onChange={setView} header={<Wordmark />}>
+        <SideSections />
+      </SidebarNav>
       <SidePane label={sidePaneLabel(view)} />
     </SideFrame>
   );
@@ -1530,8 +1574,9 @@ function SidebarNavColapsavel() {
         onChange={setView}
         header={<Wordmark compact={collapsed} />}
         footer={<SideUser />}
-        sections={SIDE_SECTIONS}
-      />
+      >
+        <SideSections />
+      </SidebarNav>
       <SidePane label={sidePaneLabel(view)} />
     </SideFrame>
   );

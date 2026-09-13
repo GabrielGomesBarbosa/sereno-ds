@@ -62,8 +62,19 @@ const CASES: Record<string, React.ReactElement> = {
       <UI.Tabs.Panel value="a">panel A</UI.Tabs.Panel>
     </UI.Tabs>
   ),
-  BottomNav: <UI.BottomNav value="a" items={[{ value: 'a', label: 'A', icon }, { value: 'b', label: 'B', icon }]} />,
-  SidebarNav: <UI.SidebarNav value="a" sections={[{ items: [{ value: 'a', label: 'A', icon }] }]} />,
+  BottomNav: (
+    <UI.BottomNav value="a">
+      <UI.BottomNav.Item value="a" label="A" icon={icon} />
+      <UI.BottomNav.Item value="b" label="B" icon={icon} />
+    </UI.BottomNav>
+  ),
+  SidebarNav: (
+    <UI.SidebarNav value="a">
+      <UI.SidebarNav.Section>
+        <UI.SidebarNav.Item value="a" label="A" icon={icon} />
+      </UI.SidebarNav.Section>
+    </UI.SidebarNav>
+  ),
   Stepper: <UI.Stepper current={1} steps={[{ label: 'One' }, { label: 'Two' }, { label: 'Three' }]} />,
   Alert: <UI.Alert tone="warning" title="Heads up" onDismiss={() => {}}>Body copy.</UI.Alert>,
   Toast: <UI.Toast tone="success" title="Saved" description="All good" />,

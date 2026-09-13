@@ -6,32 +6,28 @@ import { ChevronDown, ChevronLeft } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { useInteract } from '../core/Button';
 
-export interface SidebarNavSubItem {
-  value: string;
-  label: string;
-  count?: number;
-}
-
-export interface SidebarNavItem {
-  value: string;
-  label: string;
-  /** A Lucide icon passed as a node — sized by the caller. */
-  icon?: React.ReactNode;
-  count?: number;
-  /** Render this leaf as a real link (routing, new-tab, SSR-active) via `linkComponent`. */
-  href?: string;
-  /** Second-level items. A parent with children toggles them; it is not a destination itself. */
-  children?: SidebarNavSubItem[];
-}
-
-export interface SidebarNavSection {
-  /** Small uppercase heading above the block. Omit for an unlabelled group — the divider still shows. */
-  label?: string;
-  items: SidebarNavItem[];
-}
-
+/**
+ * Desktop primary navigation — a **compound component**, the counterpart to
+ * `BottomNav`. Grouped sections with dividers, an optional second level per
+ * item, and a collapse toggle that drops it to a 72px icon rail.
+ *
+ * ```tsx
+ * <SidebarNav value={view} onChange={setView} header={<Wordmark />}>
+ *   <SidebarNav.Section label="Workspace">
+ *     <SidebarNav.Item value="agenda" label="Calendar" icon={<Calendar size={18} />} />
+ *     <SidebarNav.Item value="finance" label="Finance" icon={<Wallet size={18} />}>
+ *       <SidebarNav.SubItem value="finance:incoming" label="Incoming" />
+ *       <SidebarNav.SubItem value="finance:payouts" label="Payouts" count={3} />
+ *     </SidebarNav.Item>
+ *   </SidebarNav.Section>
+ * </SidebarNav>
+ * ```
+ *
+ * `Item` is not a destination once it has `SubItem` children — it toggles
+ * them instead (an inline accordion when expanded, a hover flyout on the
+ * collapsed rail).
+ */
 export interface SidebarNavProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onChange'> {
-  sections: SidebarNavSection[];
   value?: string;
   onChange?: (value: string) => void;
   /** Controlled collapse (icon-only rail). */
@@ -47,6 +43,48 @@ export interface SidebarNavProps extends Omit<React.HTMLAttributes<HTMLElement>,
   labels?: { expand?: string; collapse?: string };
   /** Component used to render items that carry `href` (e.g. Next's `Link`). Defaults to `'a'`. */
   linkComponent?: React.ElementType;
+  children: React.ReactNode;
+}
+
+export interface SidebarNavSectionProps {
+  /** Small uppercase heading above the block. Omit for an unlabelled group — the divider still shows. */
+  label?: string;
+  children: React.ReactNode;
+}
+
+export interface SidebarNavItemProps {
+  value: string;
+  label: string;
+  /** A Lucide icon passed as a node — sized by the caller. */
+  icon?: React.ReactNode;
+  count?: number;
+  /** Render this leaf as a real link (routing, new-tab, SSR-active) via `linkComponent`. */
+  href?: string;
+  /** `SidebarNav.SubItem`s — a second level. Present ⇒ this item is not a destination itself, it toggles them. */
+  children?: React.ReactNode;
+}
+
+export interface SidebarNavSubItemProps {
+  value: string;
+  label: string;
+  count?: number;
+  /** Set by the parent `Item` when rendering this into the collapsed rail's flyout popover — not for consumers to pass. */
+  compact?: boolean;
+}
+
+interface SidebarNavContextValue {
+  value?: string;
+  /** Closes any open flyout, then calls the root's `onChange`. What `Item` / `SubItem` call on click. */
+  select: (value: string) => void;
+  collapsed: boolean;
+  linkComponent?: React.ElementType;
+  /** Which item's collapsed-rail flyout is open, if any — single, cross-item (opening one closes another). */
+  flyoutValue: string | null;
+  openFlyout: (value: string) => void;
+  closeFlyoutSoon: () => void;
+  closeFlyoutNow: () => void;
+  showTip: (label: string, rect: DOMRect) => void;
+  hideTip: () => void;
 }
 
 const EXPANDED = 248;
@@ -78,14 +116,24 @@ const countPill = (active: boolean) =>
     boxShadow: 'inset 0 0 0 1px ' + (active ? 'var(--border-brand)' : 'var(--border-default)'),
   });
 
-/**
- * Desktop primary navigation — the counterpart to `BottomNav`. Grouped sections
- * with dividers, an optional second level per item, and a collapse toggle that
- * drops it to a 72px icon rail. Controlled: `value` / `onChange` for the active
- * destination, `collapsed` / `onCollapsedChange` for the rail state.
- */
-export function SidebarNav({
-  sections,
+const SidebarNavContext = React.createContext<SidebarNavContextValue | null>(null);
+
+function useSidebarNavContext(component: string): SidebarNavContextValue {
+  const ctx = React.useContext(SidebarNavContext);
+  if (!ctx) throw new Error(`<SidebarNav.${component}> must be rendered inside <SidebarNav>.`);
+  return ctx;
+}
+
+/** The `value`s of a node's `SidebarNav.SubItem` children — used for "does this branch hold the active leaf". */
+function childValuesOf(children: React.ReactNode): string[] {
+  const out: string[] = [];
+  React.Children.forEach(children, (child) => {
+    if (React.isValidElement<{ value?: unknown }>(child) && typeof child.props.value === 'string') out.push(child.props.value);
+  });
+  return out;
+}
+
+function SidebarNavRoot({
   value,
   onChange,
   collapsed: collapsedProp,
@@ -96,6 +144,7 @@ export function SidebarNav({
   footer,
   labels,
   linkComponent,
+  children,
   style,
   ...rest
 }: SidebarNavProps) {
@@ -119,45 +168,33 @@ export function SidebarNav({
   const showTip = (label: string, r: DOMRect) => setTip({ label, top: r.top + r.height / 2, left: r.right + 10 });
   const hideTip = () => setTip(null);
 
-  // Expanded: the second level is an inline accordion (seeded open on the active
-  // branch, user-toggled after). Collapsed: it's a hover flyout instead.
-  const [openSet, setOpenSet] = React.useState<Set<string>>(() => {
-    const parent = sections.flatMap((s) => s.items).find((it) => it.children?.some((c) => c.value === value))?.value;
-    return new Set(parent ? [parent] : []);
-  });
-  const toggleAccordion = (v: string) =>
-    setOpenSet((prev) => {
-      const next = new Set(prev);
-      if (next.has(v)) next.delete(v);
-      else next.add(v);
-      return next;
-    });
-
-  const [flyout, setFlyout] = React.useState<string | null>(null);
+  // Single cross-item flyout for the collapsed rail (only one open at a time).
+  const [flyoutValue, setFlyoutValue] = React.useState<string | null>(null);
   const flyoutTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const openFlyout = (v: string) => {
     clearTimeout(flyoutTimer.current);
-    setFlyout(v);
+    setFlyoutValue(v);
   };
   const closeFlyoutSoon = () => {
     clearTimeout(flyoutTimer.current);
-    flyoutTimer.current = setTimeout(() => setFlyout(null), 140);
+    flyoutTimer.current = setTimeout(() => setFlyoutValue(null), 140);
   };
   const closeFlyoutNow = () => {
     clearTimeout(flyoutTimer.current);
-    setFlyout(null);
+    setFlyoutValue(null);
   };
   React.useEffect(() => () => clearTimeout(flyoutTimer.current), []);
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- drop a stale flyout when the rail expands
-    if (!collapsed) setFlyout(null);
+    if (!collapsed) setFlyoutValue(null);
   }, [collapsed]);
 
-  const handleSelect = (v: string) => {
-    clearTimeout(flyoutTimer.current);
-    setFlyout(null);
+  const select = (v: string) => {
+    closeFlyoutNow();
     onChange?.(v);
   };
+
+  const ctx: SidebarNavContextValue = { value, select, collapsed, linkComponent, flyoutValue, openFlyout, closeFlyoutSoon, closeFlyoutNow, showTip, hideTip };
 
   // The collapse control straddles the sidebar's right edge, level with the logo.
   const toggleLabel = collapsed ? labels?.expand ?? 'Expand' : labels?.collapse ?? 'Collapse';
@@ -198,188 +235,155 @@ export function SidebarNav({
   ) : null;
 
   return (
-    <nav
-      {...rest}
-      className={['sereno-sidenav-root', rest.className].filter(Boolean).join(' ')}
-      data-collapsed={collapsed ? '' : undefined}
-      style={sx({
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        flex: '0 0 auto',
-        width: collapsed ? COLLAPSED : EXPANDED,
-        height: '100%',
-        background: 'var(--bg-surface)',
-        borderRight: 'var(--border-width-hairline) solid var(--border-default)',
-        transition: 'width var(--duration-normal) var(--ease-out)',
-        ...style,
-      })}
-    >
-      {toggleBtn}
-
-      {header !== undefined && (
-        <div
-          style={sx({
-            flex: '0 0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            height: 'var(--sidenav-header-h, 56px)',
-            padding: collapsed ? '0' : '0 var(--space-4)',
-          })}
-        >
-          <div style={sx({ minWidth: 0, overflow: 'hidden', display: 'flex', alignItems: 'center' })}>{header}</div>
-        </div>
-      )}
-
-      <div
-        className="sereno-sidenav"
+    <SidebarNavContext.Provider value={ctx}>
+      <nav
+        {...rest}
+        className={['sereno-sidenav-root', rest.className].filter(Boolean).join(' ')}
+        data-collapsed={collapsed ? '' : undefined}
         style={sx({
-          flex: 1,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          padding: 'var(--space-2) var(--space-3)',
+          position: 'relative',
           display: 'flex',
           flexDirection: 'column',
+          flex: '0 0 auto',
+          width: collapsed ? COLLAPSED : EXPANDED,
+          height: '100%',
+          background: 'var(--bg-surface)',
+          borderRight: 'var(--border-width-hairline) solid var(--border-default)',
+          transition: 'width var(--duration-normal) var(--ease-out)',
+          ...style,
         })}
       >
-        {sections.map((section, i) => (
+        {toggleBtn}
+
+        {header !== undefined && (
           <div
-            key={section.label ?? i}
             style={sx({
+              flex: '0 0 auto',
               display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-              marginTop: i ? 'var(--space-3)' : 0,
-              paddingTop: i ? 'var(--space-3)' : 0,
-              borderTop: i ? 'var(--border-width-hairline) solid var(--border-default)' : 'none',
+              alignItems: 'center',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              height: 'var(--sidenav-header-h, 56px)',
+              padding: collapsed ? '0' : '0 var(--space-4)',
             })}
           >
-            {section.label && !collapsed && <span style={groupHead}>{section.label}</span>}
-            {section.items.map((item) => (
-              <ItemRow
-                key={item.value}
-                item={item}
-                collapsed={collapsed}
-                activeValue={value}
-                open={collapsed ? flyout === item.value : openSet.has(item.value)}
-                onToggle={() =>
-                  collapsed
-                    ? flyout === item.value
-                      ? setFlyout(null)
-                      : openFlyout(item.value)
-                    : toggleAccordion(item.value)
-                }
-                onFlyoutEnter={() => openFlyout(item.value)}
-                onFlyoutLeave={closeFlyoutSoon}
-                onFlyoutClose={closeFlyoutNow}
-                onSelect={handleSelect}
-                onTip={showTip}
-                onTipHide={hideTip}
-                linkComponent={linkComponent}
-              />
-            ))}
+            <div style={sx({ minWidth: 0, overflow: 'hidden', display: 'flex', alignItems: 'center' })}>{header}</div>
           </div>
-        ))}
-      </div>
+        )}
 
-      {footer && !collapsed && (
         <div
+          className="sereno-sidenav"
           style={sx({
-            borderTop: 'var(--border-width-hairline) solid var(--border-subtle)',
-            padding: 'var(--space-3)',
+            flex: 1,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            padding: 'var(--space-2) var(--space-3)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 'var(--space-2)',
           })}
         >
-          {footer}
+          {children}
         </div>
-      )}
 
-      {mounted &&
-        tip &&
-        createPortal(
+        {footer && !collapsed && (
           <div
-            role="tooltip"
             style={sx({
-              position: 'fixed',
-              top: tip.top,
-              left: tip.left,
-              transform: 'translateY(-50%)',
-              padding: '5px 9px',
-              borderRadius: 'var(--radius-sm)',
-              background: 'var(--bg-inverse)',
-              color: 'var(--text-inverse)',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-xs)',
-              fontWeight: 'var(--weight-medium)',
-              lineHeight: 1,
-              whiteSpace: 'nowrap',
-              boxShadow: 'var(--shadow-md)',
-              pointerEvents: 'none',
-              zIndex: 1000,
-              animation: 'sereno-fade-in var(--duration-fast) var(--ease-out)',
+              borderTop: 'var(--border-width-hairline) solid var(--border-subtle)',
+              padding: 'var(--space-3)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--space-2)',
             })}
           >
-            <span
-              aria-hidden
-              style={sx({
-                position: 'absolute',
-                left: -3,
-                top: '50%',
-                width: 6,
-                height: 6,
-                background: 'var(--bg-inverse)',
-                transform: 'translateY(-50%) rotate(45deg)',
-                borderRadius: 1,
-              })}
-            />
-            {tip.label}
-          </div>,
-          document.body,
+            {footer}
+          </div>
         )}
-    </nav>
+
+        {mounted &&
+          tip &&
+          createPortal(
+            <div
+              role="tooltip"
+              style={sx({
+                position: 'fixed',
+                top: tip.top,
+                left: tip.left,
+                transform: 'translateY(-50%)',
+                padding: '5px 9px',
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--bg-inverse)',
+                color: 'var(--text-inverse)',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-xs)',
+                fontWeight: 'var(--weight-medium)',
+                lineHeight: 1,
+                whiteSpace: 'nowrap',
+                boxShadow: 'var(--shadow-md)',
+                pointerEvents: 'none',
+                zIndex: 1000,
+                animation: 'sereno-fade-in var(--duration-fast) var(--ease-out)',
+              })}
+            >
+              <span
+                aria-hidden
+                style={sx({
+                  position: 'absolute',
+                  left: -3,
+                  top: '50%',
+                  width: 6,
+                  height: 6,
+                  background: 'var(--bg-inverse)',
+                  transform: 'translateY(-50%) rotate(45deg)',
+                  borderRadius: 1,
+                })}
+              />
+              {tip.label}
+            </div>,
+            document.body,
+          )}
+      </nav>
+    </SidebarNavContext.Provider>
   );
 }
 
-function ItemRow({
-  item,
-  collapsed,
-  activeValue,
-  open,
-  onToggle,
-  onFlyoutEnter,
-  onFlyoutLeave,
-  onFlyoutClose,
-  onSelect,
-  onTip,
-  onTipHide,
-  linkComponent,
-}: {
-  item: SidebarNavItem;
-  collapsed: boolean;
-  activeValue?: string;
-  /** Accordion-open when expanded, flyout-open when collapsed. */
-  open: boolean;
-  onToggle: () => void;
-  onFlyoutEnter: () => void;
-  onFlyoutLeave: () => void;
-  onFlyoutClose: () => void;
-  onSelect?: (value: string) => void;
-  onTip: (label: string, rect: DOMRect) => void;
-  onTipHide: () => void;
-  linkComponent?: React.ElementType;
-}) {
+function Section({ label, children }: SidebarNavSectionProps) {
+  const { collapsed } = useSidebarNavContext('Section');
+  return (
+    <div className="sereno-sidenav-section" style={sx({ display: 'flex', flexDirection: 'column', gap: 2 })}>
+      {label && !collapsed && <span style={groupHead}>{label}</span>}
+      {children}
+    </div>
+  );
+}
+
+function Item({ value, label, icon, count, href, children }: SidebarNavItemProps) {
+  const { value: activeValue, select, collapsed, linkComponent, flyoutValue, openFlyout, closeFlyoutSoon, closeFlyoutNow, showTip, hideTip } =
+    useSidebarNavContext('Item');
   const st = useInteract(false);
   const btnRef = React.useRef<HTMLButtonElement>(null);
-  const hasChildren = !!item.children?.length;
-  const selfActive = activeValue === item.value && !hasChildren;
-  const childActive = hasChildren && item.children!.some((c) => c.value === activeValue);
+  const hasChildren = React.Children.count(children) > 0;
+  const childVals = hasChildren ? childValuesOf(children) : [];
+  const selfActive = activeValue === value && !hasChildren;
+  const childActive = hasChildren && childVals.includes(activeValue ?? '');
   const highlight = selfActive || (collapsed && childActive);
   const railFlyout = collapsed && hasChildren;
-  const asLink = !hasChildren && !!item.href && !!linkComponent;
+  const asLink = !hasChildren && !!href && !!linkComponent;
   const Link = linkComponent ?? 'a';
+
+  // Expanded: an inline accordion, local per-item and seeded open once (on
+  // mount) for the branch holding the active child. Collapsed: a hover
+  // flyout instead — that one is cross-item (only one open at a time), so it
+  // lives in the root's flyoutValue, not here.
+  const [localOpen, setLocalOpen] = React.useState(() => childActive);
+  const open = collapsed ? flyoutValue === value : localOpen;
+
+  const onToggle = () => {
+    if (collapsed) {
+      if (flyoutValue === value) closeFlyoutNow();
+      else openFlyout(value);
+    } else {
+      setLocalOpen((o) => !o);
+    }
+  };
 
   const rowStyle = sx({
     position: 'relative',
@@ -405,12 +409,10 @@ function ItemRow({
 
   const inner = (
     <>
-      {item.icon && (
-        <span style={sx({ flex: '0 0 auto', display: 'inline-flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center' })}>
-          {item.icon}
-        </span>
+      {icon && (
+        <span style={sx({ flex: '0 0 auto', display: 'inline-flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center' })}>{icon}</span>
       )}
-      {collapsed && (item.count !== undefined || childActive) && (
+      {collapsed && (count !== undefined || childActive) && (
         <span
           aria-hidden
           style={sx({
@@ -426,8 +428,8 @@ function ItemRow({
       )}
       {!collapsed && (
         <>
-          <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{item.label}</span>
-          {item.count !== undefined && <span style={countPill(highlight)}>{item.count}</span>}
+          <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{label}</span>
+          {count !== undefined && <span style={countPill(highlight)}>{count}</span>}
           {hasChildren && (
             <ChevronDown
               size={16}
@@ -445,27 +447,33 @@ function ItemRow({
     onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
       st.handlers.onMouseEnter?.(e);
       if (!collapsed) return;
-      if (railFlyout) onFlyoutEnter();
-      else onTip(item.label, e.currentTarget.getBoundingClientRect());
+      if (railFlyout) openFlyout(value);
+      else showTip(label, e.currentTarget.getBoundingClientRect());
     },
     onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
       st.handlers.onMouseLeave?.(e);
-      if (railFlyout) onFlyoutLeave();
-      else onTipHide();
+      if (railFlyout) closeFlyoutSoon();
+      else hideTip();
     },
   };
+
+  // The flyout popover reuses the same SubItem elements, just 2px shorter to
+  // read as a compact menu rather than the accordion's own row height.
+  const compactChildren = React.Children.map(children, (child) =>
+    React.isValidElement<SidebarNavSubItemProps>(child) ? React.cloneElement(child, { compact: true }) : child,
+  );
 
   return (
     <div style={sx({ display: 'flex', flexDirection: 'column' })}>
       {asLink ? (
         <Link
-          href={item.href}
+          href={href}
           className="sereno-sidenav-btn"
-          aria-label={collapsed ? item.label : undefined}
+          aria-label={collapsed ? label : undefined}
           aria-current={selfActive ? 'page' : undefined}
           onClick={() => {
-            onTipHide();
-            onSelect?.(item.value);
+            hideTip();
+            select(value);
           }}
           {...hoverHandlers}
           style={rowStyle}
@@ -477,14 +485,14 @@ function ItemRow({
           ref={btnRef}
           type="button"
           className="sereno-sidenav-btn"
-          aria-label={collapsed ? item.label : undefined}
+          aria-label={collapsed ? label : undefined}
           aria-current={selfActive ? 'page' : undefined}
           aria-haspopup={hasChildren ? 'menu' : undefined}
           aria-expanded={hasChildren ? open : undefined}
           onClick={() => {
-            onTipHide();
+            hideTip();
             if (hasChildren) onToggle();
-            else onSelect?.(item.value);
+            else select(value);
           }}
           {...hoverHandlers}
           style={rowStyle}
@@ -505,47 +513,69 @@ function ItemRow({
             borderLeft: 'var(--border-width-hairline) solid var(--border-default)',
           })}
         >
-          {item.children!.map((sub) => (
-            <SubRow key={sub.value} sub={sub} active={activeValue === sub.value} onSelect={onSelect} />
-          ))}
+          {children}
         </div>
       )}
 
       {/* Collapsed rail: hover flyout. */}
       {railFlyout && open && (
-        <SubmenuPopover
-          anchorRef={btnRef}
-          parentLabel={item.label}
-          parentIcon={item.icon}
-          items={item.children!}
-          activeValue={activeValue}
-          onSelect={onSelect}
-          onMouseEnter={onFlyoutEnter}
-          onMouseLeave={onFlyoutLeave}
-          onClose={onFlyoutClose}
-        />
+        <SubmenuPopover anchorRef={btnRef} label={label} icon={icon} onClose={closeFlyoutNow} onMouseEnter={() => openFlyout(value)} onMouseLeave={closeFlyoutSoon}>
+          {compactChildren}
+        </SubmenuPopover>
       )}
     </div>
   );
 }
 
+function SubItem({ value, label, count, compact = false }: SidebarNavSubItemProps) {
+  const { value: activeValue, select } = useSidebarNavContext('SubItem');
+  const active = activeValue === value;
+  const st = useInteract(false);
+  return (
+    <button
+      type="button"
+      className="sereno-sidenav-btn"
+      aria-current={active ? 'page' : undefined}
+      onClick={() => select(value)}
+      {...st.handlers}
+      style={sx({
+        display: 'flex',
+        alignItems: 'center',
+        gap: 'var(--space-2)',
+        width: '100%',
+        height: compact ? 32 : 34,
+        padding: '0 var(--space-2)',
+        border: 'none',
+        borderRadius: 'var(--radius-sm)',
+        cursor: 'pointer',
+        textAlign: 'left',
+        fontFamily: 'var(--font-body)',
+        fontSize: 'var(--text-sm)',
+        fontWeight: active ? 'var(--weight-semibold)' : 'var(--weight-medium)',
+        background: active ? 'var(--bg-brand-soft)' : st.hover ? 'var(--interactive-ghost-hover)' : 'transparent',
+        color: active ? 'var(--text-brand)' : 'var(--text-secondary)',
+        transition: 'var(--transition-control)',
+      })}
+    >
+      <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{label}</span>
+      {count !== undefined && <span style={countPill(active)}>{count}</span>}
+    </button>
+  );
+}
+
 function SubmenuPopover({
   anchorRef,
-  parentLabel,
-  parentIcon,
-  items,
-  activeValue,
-  onSelect,
+  label,
+  icon,
+  children,
   onClose,
   onMouseEnter,
   onMouseLeave,
 }: {
   anchorRef: React.RefObject<HTMLButtonElement | null>;
-  parentLabel: string;
-  parentIcon?: React.ReactNode;
-  items: SidebarNavSubItem[];
-  activeValue?: string;
-  onSelect?: (value: string) => void;
+  label: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
   onClose: () => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
@@ -593,7 +623,7 @@ function SubmenuPopover({
     <div
       ref={ref}
       role="menu"
-      aria-label={parentLabel}
+      aria-label={label}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={sx({
@@ -642,65 +672,20 @@ function SubmenuPopover({
           color: 'var(--text-primary)',
         })}
       >
-        {parentIcon && (
-          <span style={sx({ flex: '0 0 auto', display: 'inline-flex', width: 16, height: 16, alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' })}>
-            {parentIcon}
+        {icon && (
+          <span
+            style={sx({ flex: '0 0 auto', display: 'inline-flex', width: 16, height: 16, alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' })}
+          >
+            {icon}
           </span>
         )}
-        <span style={sx({ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{parentLabel}</span>
+        <span style={sx({ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{label}</span>
       </div>
 
-      <div style={sx({ display: 'flex', flexDirection: 'column', gap: 1 })}>
-        {items.map((sub) => (
-          <SubRow key={sub.value} sub={sub} active={activeValue === sub.value} onSelect={onSelect} inPopover />
-        ))}
-      </div>
+      <div style={sx({ display: 'flex', flexDirection: 'column', gap: 1 })}>{children}</div>
     </div>,
     document.body,
   );
 }
 
-function SubRow({
-  sub,
-  active,
-  onSelect,
-  inPopover = false,
-}: {
-  sub: SidebarNavSubItem;
-  active: boolean;
-  onSelect?: (value: string) => void;
-  inPopover?: boolean;
-}) {
-  const st = useInteract(false);
-  return (
-    <button
-      type="button"
-      className="sereno-sidenav-btn"
-      aria-current={active ? 'page' : undefined}
-      onClick={() => onSelect?.(sub.value)}
-      {...st.handlers}
-      style={sx({
-        display: 'flex',
-        alignItems: 'center',
-        gap: 'var(--space-2)',
-        width: '100%',
-        height: inPopover ? 32 : 34,
-        padding: '0 var(--space-2)',
-        border: 'none',
-        borderRadius: 'var(--radius-sm)',
-        cursor: 'pointer',
-        textAlign: 'left',
-        fontFamily: 'var(--font-body)',
-        fontSize: 'var(--text-sm)',
-        fontWeight: active ? 'var(--weight-semibold)' : 'var(--weight-medium)',
-        background: active ? 'var(--bg-brand-soft)' : st.hover ? 'var(--interactive-ghost-hover)' : 'transparent',
-        color: active ? 'var(--text-brand)' : 'var(--text-secondary)',
-        transition: 'var(--transition-control)',
-      })}
-    >
-      <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{sub.label}</span>
-      {sub.count !== undefined && <span style={countPill(active)}>{sub.count}</span>}
-    </button>
-  );
-}
-
+export const SidebarNav = Object.assign(SidebarNavRoot, { Section, Item, SubItem });

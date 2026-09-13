@@ -37,13 +37,13 @@ export { SearchInput, type SearchInputProps } from './forms/SearchInput';
 // navigation
 export { TopBar, type TopBarProps } from './navigation/TopBar';
 export { Tabs, type TabsProps, type TabsListProps, type TabsTabProps, type TabsPanelProps } from './navigation/Tabs';
-export { BottomNav, type BottomNavProps, type BottomNavItem } from './navigation/BottomNav';
+export { BottomNav, type BottomNavProps, type BottomNavItemProps } from './navigation/BottomNav';
 export {
   SidebarNav,
   type SidebarNavProps,
-  type SidebarNavSection,
-  type SidebarNavItem,
-  type SidebarNavSubItem,
+  type SidebarNavSectionProps,
+  type SidebarNavItemProps,
+  type SidebarNavSubItemProps,
 } from './navigation/SidebarNav';
 export { Stepper, type StepperProps, type StepperStep } from './navigation/Stepper';
 
