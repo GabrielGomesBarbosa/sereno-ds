@@ -442,6 +442,7 @@ export function DateTimePicker({
         key={viewIndex}
         ref={gridRef}
         onKeyDown={onGridKeyDown}
+        className="sereno-dtp-days"
         style={sx({ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 'var(--space-1)' })}
       >
         {cells.map((d, i) => {
@@ -493,7 +494,11 @@ export function DateTimePicker({
                 fontWeight: sel ? 'var(--weight-bold)' : 'var(--weight-medium)',
                 textDecoration: off ? 'line-through' : 'none',
                 transition: 'var(--transition-control)',
-                outline: 'none',
+                // Not inline outline:none — that would always beat the
+                // .sereno-dtp-days:focus-visible rule below no matter what
+                // it says (inline style always outranks a class selector).
+                // Suppressed as a class rule instead, same specificity as
+                // the :focus-visible override that re-enables it.
               })}
             >
               <span>{d}</span>
