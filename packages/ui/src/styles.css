@@ -99,6 +99,13 @@
 .sereno-sidenav-root[data-collapsed] .sereno-sidenav::-webkit-scrollbar {
   display: none;
 }
+/* The section break — every `SidebarNav.Section` but the first gets the gap +
+   divider; `Section` itself doesn't know its own position among siblings. */
+.sereno-sidenav-section:not(:first-child) {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--border-width-hairline) solid var(--border-default);
+}
 .sereno-sidenav-btn {
   outline: none;
 }

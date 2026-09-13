@@ -1481,42 +1481,33 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
     slug: 'bottom-nav',
     name: 'BottomNav',
     category: 'navigation',
-    summary: 'Mobile primary navigation — 3 to 5 destinations, 64px, translucent blurred surface.',
+    summary: 'Mobile primary navigation — a **compound component**. 3 to 5 destinations, 64px, translucent blurred surface.',
     props: [
-      R('items', 'BottomNavItem[]', 'List of { value, label, icon?, badge? }.'),
-      R('value / onChange', 'string / (value) => void', 'Active destination and callback.'),
+      R('value / onChange', 'string / (value) => void', 'Active destination and callback. Lives on the root — `BottomNav.Item` reads it from context.'),
+      R('BottomNav.Item · value / label / icon', 'string / string / ReactNode', 'This destination’s identity, label, and icon.'),
+      R('BottomNav.Item · badge', 'boolean', 'An accent dot on the icon corner — "there’s something new here".'),
     ],
-    code: `<BottomNav
-  value={tab}
-  onChange={setTab}
-  items={[
-    { value: 'agenda', label: 'Calendar', icon: <Calendar size={22} /> },
-    { value: 'clientes', label: 'Clients', icon: <Users size={22} />, badge: true },
-  ]}
-/>`,
+    code: `<BottomNav value={tab} onChange={setTab}>
+  <BottomNav.Item value="agenda" label="Calendar" icon={<Calendar size={22} />} />
+  <BottomNav.Item value="clientes" label="Clients" icon={<Users size={22} />} badge />
+</BottomNav>`,
     examples: [
       {
         id: 'basic',
         title: 'Basic',
         description: '22px icon per item. The active one is in `text-brand`. Use 3 to 5 destinations.',
-        code: `<BottomNav
-  value={tab}
-  onChange={setTab}
-  items={[
-    { value: 'agenda', label: 'Calendar', icon: <Calendar size={22} /> },
-    { value: 'clientes', label: 'Clients', icon: <Users size={22} /> },
-    { value: 'servicos', label: 'Services', icon: <Sparkles size={22} /> },
-  ]}
-/>`,
+        code: `<BottomNav value={tab} onChange={setTab}>
+  <BottomNav.Item value="agenda" label="Calendar" icon={<Calendar size={22} />} />
+  <BottomNav.Item value="clientes" label="Clients" icon={<Users size={22} />} />
+  <BottomNav.Item value="servicos" label="Services" icon={<Sparkles size={22} />} />
+</BottomNav>`,
       },
       {
         id: 'with-badge',
         title: 'With badge',
-        description: '`badge: true` puts an accent dot on the icon corner — for "there’s something new here".',
-        code: `items={[
-  { value: 'agenda', label: 'Calendar', icon: <Calendar size={22} /> },
-  { value: 'clientes', label: 'Clients', icon: <Users size={22} />, badge: true },
-]}`,
+        description: '`badge` puts an accent dot on the icon corner — for "there’s something new here".',
+        code: `<BottomNav.Item value="agenda" label="Calendar" icon={<Calendar size={22} />} />
+<BottomNav.Item value="clientes" label="Clients" icon={<Users size={22} />} badge />`,
       },
     ],
     guidelines: {
@@ -1528,62 +1519,60 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
     slug: 'sidebar-nav',
     name: 'SidebarNav',
     category: 'navigation',
-    summary: 'Desktop primary navigation — the counterpart to `BottomNav`. Grouped sections with dividers, an inline second level (a hover flyout on the rail), and an edge toggle that drops it to a 72px icon rail.',
+    summary:
+      'Desktop primary navigation — a **compound component**, the counterpart to `BottomNav`. Grouped sections with dividers, an inline second level (a hover flyout on the rail), and an edge toggle that drops it to a 72px icon rail.',
     props: [
-      R('sections', 'SidebarNavSection[]', 'Groups of `{ label?, items }`. A hairline divider sits between groups; `label` is the uppercase heading above it.'),
-      R('value / onChange', 'string / (value) => void', 'Active destination and callback. A parent with `children` is not a destination — it toggles its submenu.'),
+      R(
+        'value / onChange',
+        'string / (value) => void',
+        'Active destination and callback. Lives on the root — every subcomponent reads it from context. An `Item` with `SubItem` children is not a destination itself — it toggles its submenu.',
+      ),
       R('linkComponent', 'React.ElementType', 'Items with an `href` render through this (e.g. Next `Link`) instead of a `<button>` — routing, new-tab, SSR-active.'),
       R('collapsed / onCollapsedChange', 'boolean / (c) => void', 'Rail state. Uncontrolled via `defaultCollapsed`.', 'false'),
       R('collapsible', 'boolean', 'Show the round collapse toggle on the sidebar’s right edge.', 'true'),
       R('header', 'React.ReactNode', 'Brand / logo slot at the top.'),
       R('footer', 'React.ReactNode', 'Slot pinned to the bottom (user card, plan nudge). Hidden while collapsed.'),
       R('labels', '{ expand?, collapse? }', 'Text for the collapse toggle.'),
+      R('SidebarNav.Section · label', 'string', 'Small uppercase heading above the block. Omit for an unlabelled group — the divider still shows.'),
+      R('SidebarNav.Item · value / label / icon / count', 'string / string / ReactNode / number', 'This destination’s identity, label, leading icon, and a trailing count chip.'),
+      R('SidebarNav.Item · href', 'string', 'Renders this leaf through `linkComponent` instead of a `<button>`.'),
+      R('SidebarNav.SubItem · value / label / count', 'string / string / number', 'A second-level destination, nested inside an `Item`.'),
     ],
-    code: `<SidebarNav
-  value={view}
-  onChange={setView}
-  header={<Wordmark />}
-  footer={<UserCard />}
-  sections={[
-    { label: 'Workspace', items: [
-      { value: 'agenda', label: 'Calendar', icon: <Calendar size={18} /> },
-      { value: 'clients', label: 'Clients', icon: <Users size={18} />, count: 12 },
-    ]},
-    { label: 'Management', items: [
-      { value: 'finance', label: 'Finance', icon: <Wallet size={18} />, children: [
-        { value: 'finance:incoming', label: 'Incoming' },
-        { value: 'finance:payouts', label: 'Payouts' },
-      ]},
-    ]},
-  ]}
-/>`,
+    code: `<SidebarNav value={view} onChange={setView} header={<Wordmark />} footer={<UserCard />}>
+  <SidebarNav.Section label="Workspace">
+    <SidebarNav.Item value="agenda" label="Calendar" icon={<Calendar size={18} />} />
+    <SidebarNav.Item value="clients" label="Clients" icon={<Users size={18} />} count={12} />
+  </SidebarNav.Section>
+  <SidebarNav.Section label="Management">
+    <SidebarNav.Item value="finance" label="Finance" icon={<Wallet size={18} />}>
+      <SidebarNav.SubItem value="finance:incoming" label="Incoming" />
+      <SidebarNav.SubItem value="finance:payouts" label="Payouts" />
+    </SidebarNav.Item>
+  </SidebarNav.Section>
+</SidebarNav>`,
     examples: [
       {
         id: 'basic',
         title: 'Groups and second level',
         description:
-          'Each `section` is a divided block with an optional uppercase `label`. An item with `children` is not a destination — it opens an inline second level (the branch holding the active child starts open). On the collapsed rail the same list opens as a hover flyout instead.',
-        code: `<SidebarNav
-  value={view}
-  onChange={setView}
-  sections={[
-    { label: 'Workspace', items: [
-      { value: 'agenda', label: 'Calendar', icon: <Calendar size={18} /> },
-      { value: 'clients', label: 'Clients', icon: <Users size={18} />, count: 12 },
-      { value: 'services', label: 'Services', icon: <Sparkles size={18} /> },
-    ]},
-    { label: 'Management', items: [
-      { value: 'finance', label: 'Finance', icon: <Wallet size={18} />, children: [
-        { value: 'finance:incoming', label: 'Incoming' },
-        { value: 'finance:payouts', label: 'Payouts', count: 3 },
-      ]},
-      { value: 'reports', label: 'Reports', icon: <BarChart3 size={18} /> },
-    ]},
-    { label: 'Account', items: [
-      { value: 'settings', label: 'Settings', icon: <Settings size={18} /> },
-    ]},
-  ]}
-/>`,
+          'Each `SidebarNav.Section` is a divided block with an optional uppercase `label`. An `Item` with `SubItem` children is not a destination — it opens an inline second level (the branch holding the active child starts open). On the collapsed rail the same list opens as a hover flyout instead.',
+        code: `<SidebarNav value={view} onChange={setView}>
+  <SidebarNav.Section label="Workspace">
+    <SidebarNav.Item value="agenda" label="Calendar" icon={<Calendar size={18} />} />
+    <SidebarNav.Item value="clients" label="Clients" icon={<Users size={18} />} count={12} />
+    <SidebarNav.Item value="services" label="Services" icon={<Sparkles size={18} />} />
+  </SidebarNav.Section>
+  <SidebarNav.Section label="Management">
+    <SidebarNav.Item value="finance" label="Finance" icon={<Wallet size={18} />}>
+      <SidebarNav.SubItem value="finance:incoming" label="Incoming" />
+      <SidebarNav.SubItem value="finance:payouts" label="Payouts" count={3} />
+    </SidebarNav.Item>
+    <SidebarNav.Item value="reports" label="Reports" icon={<BarChart3 size={18} />} />
+  </SidebarNav.Section>
+  <SidebarNav.Section label="Account">
+    <SidebarNav.Item value="settings" label="Settings" icon={<Settings size={18} />} />
+  </SidebarNav.Section>
+</SidebarNav>`,
       },
       {
         id: 'collapsible',
@@ -1600,8 +1589,9 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
   footer={<UserCard />}
   value={view}
   onChange={setView}
-  sections={sections}
-/>`,
+>
+  {sections}
+</SidebarNav>`,
       },
     ],
     guidelines: {

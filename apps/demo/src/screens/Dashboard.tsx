@@ -59,7 +59,6 @@ import {
   SearchInput,
   Select,
   SidebarNav,
-  type SidebarNavSection,
   Switch,
   Table,
   type TableSort,
@@ -89,7 +88,25 @@ import {
 } from '@/lib/mock';
 
 const si = (icon: React.ReactNode) => icon;
-const SIDEBAR_SECTIONS: SidebarNavSection[] = [
+
+interface SidebarSubItem {
+  value: string;
+  label: string;
+  count?: number;
+}
+interface SidebarItem {
+  value: string;
+  label: string;
+  icon?: React.ReactNode;
+  count?: number;
+  children?: SidebarSubItem[];
+}
+interface SidebarSection {
+  label?: string;
+  items: SidebarItem[];
+}
+
+const SIDEBAR_SECTIONS: SidebarSection[] = [
   {
     label: 'Atendimento',
     items: [
@@ -158,6 +175,26 @@ const SIDEBAR_SECTIONS: SidebarNavSection[] = [
     ],
   },
 ];
+
+/** `SIDEBAR_SECTIONS` mapped to `SidebarNav`'s compound children — shared by the
+ * desktop rail and the mobile drawer below, each its own `<SidebarNav>`. */
+function SidebarSections() {
+  return (
+    <>
+      {SIDEBAR_SECTIONS.map((section, i) => (
+        <SidebarNav.Section key={section.label ?? i} label={section.label}>
+          {section.items.map((item) => (
+            <SidebarNav.Item key={item.value} value={item.value} label={item.label} icon={item.icon} count={item.count}>
+              {item.children?.map((sub) => (
+                <SidebarNav.SubItem key={sub.value} value={sub.value} label={sub.label} count={sub.count} />
+              ))}
+            </SidebarNav.Item>
+          ))}
+        </SidebarNav.Section>
+      ))}
+    </>
+  );
+}
 
 const KNOWN_BASES = new Set(['agenda', 'clientes', 'servicos', 'financeiro', 'relatorios', 'config']);
 const KNOWN_CONFIG = new Set(['perfil', 'grade', 'lembretes']);
@@ -434,11 +471,12 @@ function DashboardShell() {
             collapsed={navCollapsed}
             onCollapsedChange={setNavCollapsed}
             labels={{ expand: 'Expandir', collapse: 'Recolher' }}
-            sections={SIDEBAR_SECTIONS}
             style={{ ['--sidenav-header-h' as string]: 'var(--dash-header-h)' } as React.CSSProperties}
             header={navCollapsed ? <Brand variant="symbol" size={26} /> : brandFull}
             footer={planFooter}
-          />
+          >
+            <SidebarSections />
+          </SidebarNav>
         </div>
 
         <div className="dash-content">
@@ -506,11 +544,12 @@ function DashboardShell() {
               collapsible={false}
               value={view}
               onChange={go}
-              sections={SIDEBAR_SECTIONS}
               header={brandFull}
               footer={planFooter}
               style={{ width: '100%', borderRight: 'none', ['--sidenav-header-h' as string]: 'var(--dash-header-h)' } as React.CSSProperties}
-            />
+            >
+              <SidebarSections />
+            </SidebarNav>
           </aside>
         </>
       )}

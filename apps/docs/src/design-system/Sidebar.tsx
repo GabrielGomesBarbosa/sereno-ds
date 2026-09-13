@@ -2,24 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Brand, SidebarNav, type SidebarNavSection } from '@sereno-ds/ui';
+import { Brand, SidebarNav } from '@sereno-ds/ui';
 import { CATEGORIES, COMPONENTS } from './catalog';
-
-const SECTIONS: SidebarNavSection[] = [
-  {
-    items: [
-      { value: '/design-system', label: 'Overview', href: '/design-system' },
-      { value: '/design-system/tokens', label: 'Tokens', href: '/design-system/tokens' },
-    ],
-  },
-  ...CATEGORIES.map((cat) => ({
-    label: cat.label,
-    items: COMPONENTS.filter((c) => c.category === cat.id).map((c) => {
-      const href = `/design-system/${c.category}/${c.slug}`;
-      return { value: href, label: c.name, href };
-    }),
-  })),
-];
 
 /**
  * The showcase's own left nav — the SidebarNav component rendering real links.
@@ -31,7 +15,6 @@ export function Sidebar() {
   const active = pathname.replace(/\/$/, '') || '/design-system';
   return (
     <SidebarNav
-      sections={SECTIONS}
       value={active}
       linkComponent={Link}
       collapsible={false}
@@ -41,6 +24,19 @@ export function Sidebar() {
         </Link>
       }
       style={{ width: '100%', height: '100%' }}
-    />
+    >
+      <SidebarNav.Section>
+        <SidebarNav.Item value="/design-system" label="Overview" href="/design-system" />
+        <SidebarNav.Item value="/design-system/tokens" label="Tokens" href="/design-system/tokens" />
+      </SidebarNav.Section>
+      {CATEGORIES.map((cat) => (
+        <SidebarNav.Section key={cat.id} label={cat.label}>
+          {COMPONENTS.filter((c) => c.category === cat.id).map((c) => {
+            const href = `/design-system/${c.category}/${c.slug}`;
+            return <SidebarNav.Item key={href} value={href} label={c.name} href={href} />;
+          })}
+        </SidebarNav.Section>
+      ))}
+    </SidebarNav>
   );
 }
