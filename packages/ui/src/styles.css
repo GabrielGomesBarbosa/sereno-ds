@@ -274,6 +274,15 @@
    attribute selectors). */
 .sereno-dtp-days button { outline: none; }
 .sereno-dtp-days button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
+/* Time-slot grid (SS-228 sweep) — same bug, same fix: an inline outline:none
+   with nothing to replace it, found auditing every remaining inline
+   outline:none in the package after the day-grid and Tabs fixes above. */
+.sereno-dtp-time button { outline: none; }
+.sereno-dtp-time button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
+/* BottomNav.Item (SS-228 sweep) — identical bug: outline suppressed inline
+   with no substitute at all (no useInteract-style box-shadow ring either). */
+.sereno-bottom-nav-item { outline: none; }
+.sereno-bottom-nav-item:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
 .sereno-dtp-grid button[data-current] {
   background: var(--interactive-primary);
   color: var(--interactive-primary-fg);

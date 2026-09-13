@@ -533,6 +533,7 @@ export function DateTimePicker({
                   type="button"
                   disabled={dis}
                   onClick={() => onSelectTime && onSelectTime(val)}
+                  className="sereno-dtp-time"
                   style={sx({
                     height: 'var(--control-height-md)',
                     borderRadius: 'var(--radius-control)',
@@ -544,7 +545,7 @@ export function DateTimePicker({
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--weight-semibold)',
                     transition: 'var(--transition-control)',
-                    outline: 'none',
+                    // Not inline outline:none — see .sereno-dtp-time in styles.css.
                   })}
                 >
                   {val}

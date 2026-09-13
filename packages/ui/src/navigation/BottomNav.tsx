@@ -70,6 +70,7 @@ function Item({ value, label, icon, badge }: BottomNavItemProps) {
       type="button"
       aria-current={active ? 'page' : undefined}
       onClick={() => onChange?.(value)}
+      className="sereno-bottom-nav-item"
       style={sx({
         flex: 1,
         display: 'flex',
@@ -80,7 +81,7 @@ function Item({ value, label, icon, badge }: BottomNavItemProps) {
         border: 'none',
         background: 'transparent',
         cursor: 'pointer',
-        outline: 'none',
+        // Not inline outline:none — see .sereno-bottom-nav-item in styles.css.
         position: 'relative',
         color: active ? 'var(--text-brand)' : 'var(--text-muted)',
         transition: 'var(--transition-control)',
