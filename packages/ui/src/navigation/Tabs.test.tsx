@@ -105,6 +105,11 @@ describe('Tabs', () => {
     expect(onChange).toHaveBeenLastCalledWith('financeiro');
   });
 
+  it('the active panel has tabIndex 0 — Tab from the tablist lands in the content, not whatever follows it in the DOM', () => {
+    render(<Basic value="agenda" />);
+    expect(screen.getByText('Agenda panel')).toHaveAttribute('tabindex', '0');
+  });
+
   it('throws when a subcomponent is rendered outside <Tabs>', () => {
     // Expected: React logs the error too — this only asserts the throw.
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});

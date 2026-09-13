@@ -284,7 +284,14 @@ function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
         // for why that would permanently beat :focus-visible.
         background: 'transparent',
         borderRadius: pill ? 'var(--radius-pill)' : 0,
-        padding: pill ? '8px var(--space-4)' : '0 0 var(--space-3)',
+        // Symmetric top/bottom (SS-228 follow-up): this used to be `0 0
+        // var(--space-3)` — no top padding, all the reserved space for the
+        // underline bar's gap on the bottom — which left the label sitting
+        // visibly above the button's own box center (and by extension above
+        // center of the focus-ring outline, which traces that box). Equal
+        // padding centers the label; ScrollChevron no longer needs its old
+        // -6px compensation for this (see its own comment).
+        padding: pill ? '8px var(--space-4)' : 'var(--space-3) 0',
         fontFamily: 'var(--font-body)',
         fontSize: 'var(--text-base)',
         fontWeight: active ? 'var(--weight-semibold)' : 'var(--weight-medium)',
@@ -317,7 +324,12 @@ function Panel({ value, children, ...rest }: TabsPanelProps) {
   const { value: activeValue } = useTabsContext('Panel');
   if (activeValue !== value) return null;
   return (
-    <div role="tabpanel" {...rest}>
+    // tabIndex=0 (WAI-ARIA APG Tabs pattern): the panel itself is the next
+    // Tab stop after the tablist, so keyboard users land in the tab's own
+    // content next — not in whatever unrelated element happens to follow it
+    // in the DOM (e.g. this docs site's own "Show Code" toggle). A consumer
+    // rendering focusable content of its own can override via `rest`.
+    <div role="tabpanel" tabIndex={0} {...rest}>
       {children}
     </div>
   );
@@ -364,16 +376,9 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
           boxShadow: 'var(--shadow-md)',
           color: 'var(--text-secondary)',
           cursor: 'pointer',
-          // `underline`-only correction, measured against the actual glyph
-          // box (Range.getBoundingClientRect on the label's text node, not
-          // the row's own padded box): that variant's label sits ~6px above
-          // the row's geometric center, since the row reserves padding-bottom
-          // for the underline bar that the text itself doesn't use. `pill`
-          // pads top and bottom equally, so its label is already centered —
-          // applying this there overshoots (confirmed live on the Dashboard's
-          // pill filter: the same -6px landed 6px too high once the row
-          // wasn't underline's asymmetric one).
-          transform: pill ? undefined : 'translateY(-6px)',
+          // No vertical correction needed here anymore — Tab's own padding
+          // is symmetric top/bottom for both variants now, so the row's
+          // geometric center already matches the label's center.
         })}
       >
         {side === 'left' ? <ChevronLeft size={16} strokeWidth={2} /> : <ChevronRight size={16} strokeWidth={2} />}
