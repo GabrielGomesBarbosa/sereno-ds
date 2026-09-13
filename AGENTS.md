@@ -251,8 +251,22 @@ previews (test locally + on the branch).
     **only** named export; `Table.Head` etc. resolve to `undefined` if
     imported from a Server Component.
   - The full compound migration (`Tabs`, `SidebarNav`, `BottomNav`, `Stepper`,
-    `Dialog`, `TopBar`) is SS-213; `Select` / `DateTimePicker` stay hand-rolled
-    unless a later spike says otherwise (decision tracked in SS-225).
+    `Dialog`, `TopBar`) is SS-213.
+  - **`Select` / `DateTimePicker` stay config-API, not compound (SS-225
+    decision).** The compound split earns its complexity when sub-parts need
+    consumer-authored JSX (`Dialog.Header`'s children, `Tabs.Tab`'s content)
+    or must read a sibling's data before render. Neither component has that:
+    a `Select` option is a `{value, label, disabled}` row the root renders
+    itself — there's no per-option custom content to hand back to the
+    consumer, so `options` stays a plain array (like a native `<select>`).
+    `DateTimePicker` is one tightly-coupled view — `viewIndex` (month nav),
+    `selectionIndex` (which month a `selectedDate` highlight belongs to), the
+    inline/fixed popover placement and the touch-vs-mouse day grid all read
+    off each other inside a single component; splitting the calendar and the
+    time-slot list into sub-parts would just relay that shared state through
+    context for no ergonomic gain — nothing a consumer would want to author
+    per-cell today. Revisit only if a real use case needs custom per-option
+    or per-day JSX.
 - **Tokens** live in `packages/tokens/*.css`. Adjustments are made and documented
   in the file itself:
   - `typography.css` points the font families at the `--font-*` variables the
