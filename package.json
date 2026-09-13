@@ -17,6 +17,7 @@
     "version-packages": "changeset version",
     "release": "turbo run build --filter=\"./packages/*\" && changeset publish",
     "gen:brand-images": "node scripts/generate-brand-images.mjs",
+    "gen:component-docs": "tsx scripts/generate-design-system-docs.ts",
     "build:docs": "turbo run build --filter=docs",
     "build:demo": "turbo run build --filter=demo",
     "serve:docs": "serve apps/docs/out -l ${PORT:-3000} --no-clipboard --no-port-switching",
@@ -29,6 +30,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
+    "tsx": "4.23.13",
     "turbo": "^2.5.8",
     "typescript": "^5"
   },

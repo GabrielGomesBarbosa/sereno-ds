@@ -14,9 +14,19 @@ For any coding agent working in this repo (Claude, Gemini, Codex, Cursor, …) �
 `CLAUDE.md` at the repo root is just `@AGENTS.md`, so this file is the single
 source of truth regardless of which agent reads it.
 
+Sereno DS is a token-driven React component library (`@sereno-ds/ui` +
+`@sereno-ds/tokens`) for the Sereno scheduling/booking platform — 30
+primitives as inline styles reading CSS custom properties, no UI base
+library, native light/dark theming. This file is the short orientation:
+layout, unbreakable rules, versioning, board flow. For the full per-component
+reference — every prop, every example, every do/don't — see
+[`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) (SS-102), generated from
+`apps/docs/src/design-system/catalog.ts` via `npm run gen:component-docs` —
+edit the catalog, not the generated file, and re-run after.
+
 Full context and scope: Jira card **SS-39** (project SS). The DS is being turned
-into a publishable package — Epic **SS-153**. Read the relevant card before any
-large change.
+into a publishable package — Epic **SS-153** (now Done). Read the relevant
+card before any large change.
 
 ## Monorepo layout
 
@@ -295,6 +305,21 @@ previews (test locally + on the branch).
   `peerDependency` (only `ThemeToggle` imports it directly). Never a CDN.
 - **Fonts:** `next/font/google` only, per app. The `--font-inter` /
   `--font-manrope` / `--font-jetbrains-mono` vars are the `@sereno-ds/ui` contract.
+- **Theming:** always through `next-themes`, via `@sereno-ds/ui`'s own
+  `ThemeProvider` (`packages/ui/src/theme/ThemeProvider.tsx`) — it writes
+  `data-theme="light|dark"` on `<html>`, the exact hook every token file
+  switches on. Never a custom theme context, a `dark` prop, or a second
+  theme mechanism living in an app's own code.
+- **A new component must be accessible the day it's created — not fixed in a
+  later audit.** Keyboard-operable (logical tab order, a visible focus
+  indicator, Enter/Space/Escape/arrows per the WAI-ARIA APG pattern for that
+  widget), correct ARIA roles/labels, WCAG AA contrast. SS-227 exists only
+  because earlier components shipped without this and had to be retrofitted
+  one by one — don't add to that backlog. It also needs a Vitest +
+  `@testing-library/react` smoke test: add its case to
+  `packages/ui/src/test/components.smoke.test.tsx`'s `CASES` map (see the
+  next bullet) — everything there renders, gets a basic interaction check,
+  and an automatic `jest-axe` pass, so one line of setup buys three checks.
 - **Component keyframes / pseudo-class rules** (`sereno-spin`, `-pop`, `-slide-up`,
   `-pulse`, `-flyout-in`, `-fade-in`; `.sereno-check` / `.sereno-radio` /
   `.sereno-switch` states; `.sereno-tab-scroll` and `.sereno-sidenav*` scrollbar
