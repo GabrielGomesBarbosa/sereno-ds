@@ -127,9 +127,13 @@ package version.
   3. Commits the bump straight to `main` (`chore: release [skip ci]`, pushed
      with `GITHUB_TOKEN` so it doesn't re-trigger), then `changeset publish` →
      `npm publish` for each package whose version isn't on the registry, then
-     pushes the `@sereno-ds/ui@X.Y.Z` / `@sereno-ds/tokens@X.Y.Z` tags. Cut a
-     GitHub release on the `@sereno-ds/ui` tag, notes = the new
-     `apps/docs/src/design-system/CHANGELOG.md` section.
+     pushes the `@sereno-ds/ui@X.Y.Z` / `@sereno-ds/tokens@X.Y.Z` tags. Also
+     tags that commit `vX.Y.Z` and cuts a GitHub Release from it — **title is
+     always just `vX.Y.Z`**, no description in the title. Notes body comes
+     from `.github/scripts/build-release-notes.mjs`: the
+     `apps/docs/src/design-system/CHANGELOG.md` narrative section for that
+     version (falls back to the machine `packages/*/CHANGELOG.md`s if that
+     entry is missing).
   The version review happens on the **feature PR** — `ci.yml` runs
   `changeset status` + `npm publish --dry-run` there — not in a dedicated PR.
 - **npm auth is OIDC trusted publishing — there is no `NPM_TOKEN`.** `release.yml`
