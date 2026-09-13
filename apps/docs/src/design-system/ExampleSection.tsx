@@ -122,9 +122,16 @@ export function glueDash(text: string): string {
 }
 
 /** Render `backtick` spans in an authored caption as inline <code>. */
-/** Minimal inline markdown: `code` and **bold**. */
+/**
+ * Minimal inline markdown: `code`, **bold**, and *italic*. The alternation
+ * tries backtick and **bold** first — matching single-`*` italic first
+ * would swallow `**bold**` as two adjacent (and unclosed-looking) italics
+ * instead. Single-asterisk emphasis was authored all over catalog.ts
+ * (`*initial*`, `*starting*`, …) with nothing to render it — every one
+ * showed up as literal, un-italicised asterisks.
+ */
 export function InlineCode({ text }: { text: string }) {
-  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
+  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*)/g);
   return (
     <>
       {parts.map((p, i) => {
@@ -141,6 +148,9 @@ export function InlineCode({ text }: { text: string }) {
               {p.slice(2, -2)}
             </strong>
           );
+        }
+        if (p.startsWith('*') && p.endsWith('*')) {
+          return <em key={i}>{p.slice(1, -1)}</em>;
         }
         return <React.Fragment key={i}>{glueDash(p)}</React.Fragment>;
       })}

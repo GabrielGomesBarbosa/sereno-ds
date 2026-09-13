@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
 import { Table } from '@sereno-ds/ui';
 import { type ComponentMeta, adjacentComponents, examplesFor } from './catalog';
-import { ExampleSection, glueDash, InlineCode } from './ExampleSection';
+import { ExampleSection, InlineCode } from './ExampleSection';
 import { TableOfContents } from './TableOfContents';
 
 const sectionLabel: React.CSSProperties = {
@@ -95,7 +95,7 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
                       {p.default ?? '—'}
                     </Table.Cell>
                     <Table.Cell wrap style={{ ...propCell, color: 'var(--text-secondary)' }}>
-                      {glueDash(p.description)}
+                      <InlineCode text={p.description} />
                     </Table.Cell>
                   </Table.Row>
                 ))}
