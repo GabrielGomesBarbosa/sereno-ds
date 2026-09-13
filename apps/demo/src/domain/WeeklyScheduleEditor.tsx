@@ -121,9 +121,17 @@ export function WeeklyScheduleEditor({
               <Switch label={d.label} checked={row.enabled} onChange={(e) => patch(d.key, { enabled: e.target.checked })} />
               {row.enabled ? (
                 <div className="sereno-week-times" style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' })}>
-                  <Select options={HOUR_OPTS} value={row.start} size="sm" onValueChange={(v) => patch(d.key, { start: v })} containerStyle={{ width: 104 }} />
+                  <Select
+                    aria-label={`Horário de início, ${d.label}`}
+                    options={HOUR_OPTS}
+                    value={row.start}
+                    size="sm"
+                    onValueChange={(v) => patch(d.key, { start: v })}
+                    containerStyle={{ width: 104 }}
+                  />
                   <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' })}>até</span>
                   <Select
+                    aria-label={`Horário de término, ${d.label}`}
                     options={HOUR_OPTS}
                     value={row.end}
                     size="sm"

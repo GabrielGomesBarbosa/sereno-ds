@@ -150,4 +150,9 @@ describe('Select (custom listbox)', () => {
     // clip-aware placement resolves maxHeight to a concrete px value.
     expect(listbox.style.maxHeight).toMatch(/^\d+px$/);
   });
+
+  it('aria-label gives the trigger an accessible name when there is no visible label', () => {
+    render(<Select aria-label="Horário de início, Segunda" options={OPTS} />);
+    expect(screen.getByRole('combobox', { name: 'Horário de início, Segunda' })).toBeInTheDocument();
+  });
 });
