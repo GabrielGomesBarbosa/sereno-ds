@@ -9,8 +9,16 @@ name: Release
 #      package.json + CHANGELOG, deletes the consumed changesets), commits the
 #      bump straight to main, then `changeset publish` → `npm publish` for each
 #      package whose version isn't on the registry yet + pushes the
-#      `@sereno-ds/*@x.y.z` git tags.
-#   3. A push with no pending changesets is a no-op (the config-only PRs, the
+#      `@sereno-ds/*@x.y.z` git tags changesets creates natively.
+#   3. It then also tags that same commit `vX.Y.Z` (the two packages are
+#      version-locked via `fixed` in .changeset/config.json, so one tag covers
+#      both) and creates the GitHub Release from it — title is just `vX.Y.Z`;
+#      body is built by `.github/scripts/build-release-notes.mjs` from
+#      `apps/docs/src/design-system/CHANGELOG.md`'s narrative section for that
+#      version (falls back to the machine `packages/*/CHANGELOG.md`s if that
+#      entry is missing). Keeps every release's title in the same `vX.Y.Z`
+#      format, no manual step.
+#   4. A push with no pending changesets is a no-op (the config-only PRs, the
 #      bump commit itself).
 #
 # The bump commit is pushed with GITHUB_TOKEN, which by design does not trigger
@@ -81,3 +89,18 @@ jobs:
           # (which finds no changesets) retries just the publish.
           npx changeset publish
           git push origin --tags
+
+          VERSION="$(node -p "require('./packages/ui/package.json').version")"
+          TAG="v${VERSION}"
+
+          # Re-runs after a partial failure land here again — both checks are
+          # against the remote, so they still no-op correctly.
+          if ! git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            node .github/scripts/build-release-notes.mjs "$VERSION" /tmp/release-notes.md
+            gh release create "$TAG" --title "$TAG" --notes-file /tmp/release-notes.md
+          fi
