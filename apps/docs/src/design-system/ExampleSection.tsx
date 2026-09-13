@@ -109,6 +109,18 @@ export function ExampleSection({ slug, example }: { slug: string; example: Examp
   );
 }
 
+/**
+ * An em dash glued only to the word *before* it (a non-breaking space, not a
+ * regular one) — so it can never end up stranded alone at the end of a
+ * wrapped line, the way "…true } —\nthey keep…" reads. The space *after*
+ * stays breakable, so the dash starts a fresh line together with whatever
+ * follows it, which reads fine — only a trailing, disconnected dash looks
+ * broken.
+ */
+export function glueDash(text: string): string {
+  return text.replace(/ — /g, ' — ');
+}
+
 /** Render `backtick` spans in an authored caption as inline <code>. */
 /** Minimal inline markdown: `code` and **bold**. */
 export function InlineCode({ text }: { text: string }) {
@@ -130,7 +142,7 @@ export function InlineCode({ text }: { text: string }) {
             </strong>
           );
         }
-        return <React.Fragment key={i}>{p}</React.Fragment>;
+        return <React.Fragment key={i}>{glueDash(p)}</React.Fragment>;
       })}
     </>
   );
