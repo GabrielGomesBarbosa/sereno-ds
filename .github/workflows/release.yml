@@ -6,11 +6,17 @@ name: Release
 # Direct-publish flow (no intermediate "Version Packages" PR):
 #   1. A feature PR lands on main carrying a `.changeset/*.md` file.
 #   2. On that push this workflow runs `changeset version` (bumps
-#      package.json + CHANGELOG, deletes the consumed changesets), commits the
-#      bump straight to main, then `changeset publish` → `npm publish` for each
-#      package whose version isn't on the registry yet + pushes the
+#      package.json + CHANGELOG, deletes the consumed changesets) and commits
+#      the bump straight to main IF there's a diff to commit.
+#   3. `changeset publish` always runs next (even when step 2 had nothing to
+#      commit) — it's idempotent per package: `npm publish`s whatever local
+#      version isn't on the registry yet, skips whatever already is. This is
+#      what makes the workflow safely retryable after a partial failure (e.g.
+#      the bump commit landed but the actual `npm publish` 403'd) — just push
+#      any new commit to main (or re-run this job) and it'll pick up publishing
+#      right where it left off, with no pending changeset required. Pushes the
 #      `@sereno-ds/*@x.y.z` git tags changesets creates natively.
-#   3. It then also tags that same commit `vX.Y.Z` (the two packages are
+#   4. It then also tags that same commit `vX.Y.Z` (the two packages are
 #      version-locked via `fixed` in .changeset/config.json, so one tag covers
 #      both) and creates the GitHub Release from it — title is just `vX.Y.Z`;
 #      body is built by `.github/scripts/build-release-notes.mjs` from
@@ -18,8 +24,9 @@ name: Release
 #      version (falls back to the machine `packages/*/CHANGELOG.md`s if that
 #      entry is missing). Keeps every release's title in the same `vX.Y.Z`
 #      format, no manual step.
-#   4. A push with no pending changesets is a no-op (the config-only PRs, the
-#      bump commit itself).
+#   5. A push with nothing new to bump AND nothing new to publish is a fast
+#      no-op (two `npm view` calls) — the config-only PRs, the bump commit
+#      itself.
 #
 # The bump commit is pushed with GITHUB_TOKEN, which by design does not trigger
 # another workflow run, so there's no loop. `changeset status` + the
@@ -76,17 +83,19 @@ jobs:
           npx changeset version
           git add -A
           if git diff --staged --quiet; then
-            echo "No pending changesets — nothing to release."
-            exit 0
+            echo "No pending changesets to bump."
+          else
+            git config user.name  "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore: release [skip ci]"
+            git push origin HEAD:main
           fi
 
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: release [skip ci]"
-          git push origin HEAD:main
-
-          # publish first fails safe: main already carries the bump, so a re-run
-          # (which finds no changesets) retries just the publish.
+          # Always attempt publish, bump or not — changeset publish checks each
+          # package's local version against the registry and skips whatever's
+          # already there, so this is what makes a retry after a partial
+          # failure (bump committed, publish itself failed) safe with no fresh
+          # changeset needed.
           npx changeset publish
           git push origin --tags
 
