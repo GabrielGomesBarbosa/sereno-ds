@@ -1601,7 +1601,11 @@ function StepperWizard({
   const last = STEP_ITEMS.length - 1;
   return (
     <div style={{ ...col, maxWidth: variant === 'dots' ? 340 : 460 }}>
-      <Stepper steps={STEP_ITEMS} current={step} variant={variant} onStepClick={clickable ? setStep : undefined} stepLabel={stepLabel} />
+      <Stepper current={step} variant={variant} onStepClick={clickable ? setStep : undefined} stepLabel={stepLabel}>
+        {STEP_ITEMS.map((s) => (
+          <Stepper.Step key={s.value} value={s.value} label={s.label} />
+        ))}
+      </Stepper>
       <div
         style={{
           marginTop: 'var(--space-1)',

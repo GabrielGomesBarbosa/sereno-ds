@@ -75,7 +75,13 @@ const CASES: Record<string, React.ReactElement> = {
       </UI.SidebarNav.Section>
     </UI.SidebarNav>
   ),
-  Stepper: <UI.Stepper current={1} steps={[{ label: 'One' }, { label: 'Two' }, { label: 'Three' }]} />,
+  Stepper: (
+    <UI.Stepper current={1}>
+      <UI.Stepper.Step label="One" />
+      <UI.Stepper.Step label="Two" />
+      <UI.Stepper.Step label="Three" />
+    </UI.Stepper>
+  ),
   Alert: <UI.Alert tone="warning" title="Heads up" onDismiss={() => {}}>Body copy.</UI.Alert>,
   Toast: <UI.Toast tone="success" title="Saved" description="All good" />,
   Dialog: <UI.Dialog open title="Confirm" description="Sure?">Body</UI.Dialog>,

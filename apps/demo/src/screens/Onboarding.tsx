@@ -5,15 +5,9 @@ import { Calendar, CheckCircle2, Link2, Share2, Sparkles, User } from 'lucide-re
 import { AvatarUpload, Badge, Brand, Button, Card, Input, Select, Stepper, Textarea } from '@sereno-ds/ui';
 import { ServiceCard } from '@/domain/ServiceCard';
 import { WeeklyScheduleEditor, type WeekSchedule } from '@/domain/WeeklyScheduleEditor';
+import { vcol } from '@/domain/layout';
 import { DEFAULT_WEEK } from '@/lib/mock';
 
-const STEPS = [
-  { value: 'perfil', label: 'Seu perfil' },
-  { value: 'servico', label: 'Primeiro serviço' },
-  { value: 'grade', label: 'Sua grade' },
-];
-
-const vcol = (gap: string): React.CSSProperties => ({ display: 'flex', flexDirection: 'column', gap });
 const h1: React.CSSProperties = {
   fontFamily: 'var(--font-display)',
   fontSize: 'var(--text-2xl)',
@@ -92,7 +86,11 @@ export function Onboarding() {
           />
         ) : (
           <>
-            <Stepper steps={STEPS} current={step} onStepClick={setStep} stepLabel={(c, t) => `Passo ${c} de ${t}`} />
+            <Stepper current={step} onStepClick={setStep} stepLabel={(c, t) => `Passo ${c} de ${t}`}>
+              <Stepper.Step value="perfil" label="Seu perfil" />
+              <Stepper.Step value="servico" label="Primeiro serviço" />
+              <Stepper.Step value="grade" label="Sua grade" />
+            </Stepper>
             {step === 0 && <PerfilStep data={data} set={set} />}
             {step === 1 && <ServicoStep data={data} set={set} />}
             {step === 2 && <GradeStep data={data} set={set} />}
