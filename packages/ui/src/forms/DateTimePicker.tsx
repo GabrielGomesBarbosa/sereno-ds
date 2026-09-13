@@ -467,6 +467,12 @@ export function DateTimePicker({
               onClick={() => {
                 if (off) return;
                 setSelectionIndex(viewIndex);
+                // Keep the roving cursor in sync with a mouse pick too — a
+                // click already moves real DOM focus onto this button
+                // natively, so without this the *next* arrow press would
+                // jump from wherever the keyboard cursor was left instead
+                // of from the day the user can see is focused/selected.
+                setActiveDay(d);
                 onSelectDate?.(d);
               }}
               style={sx({

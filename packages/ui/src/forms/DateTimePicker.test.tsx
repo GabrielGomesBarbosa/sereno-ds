@@ -98,4 +98,15 @@ describe('DateTimePicker — keyboard grid navigation', () => {
     fireEvent.click(day(container, 12));
     expect(onSelectDate).toHaveBeenCalledWith(12);
   });
+
+  it('a mouse click re-syncs the roving cursor, so the next arrow press moves from there', () => {
+    // Regression: found live in the showcase — a click used to leave the
+    // roving cursor state wherever it was before (initialized from
+    // selectedDate={5} here), so the *next* arrow key jumped from that
+    // stale position (day 6) instead of the cell the user just clicked.
+    const { container } = render(<DateTimePicker {...OCT} selectedDate={5} />);
+    fireEvent.click(day(container, 20));
+    fireEvent.keyDown(day(container, 20), { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(day(container, 21));
+  });
 });
