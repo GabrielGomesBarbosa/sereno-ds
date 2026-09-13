@@ -66,6 +66,19 @@ import {
 
 const row: React.CSSProperties = { display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' };
 const col: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 12 };
+// A <fieldset>/<legend> gives a Checkbox/Radio group its accessible name — without
+// it a screen reader announces just "Online, radio button, 1 of 3" with no sense
+// of what the choice is between. `border: none` etc. strip the default fieldset
+// chrome; the legend keeps the same look as every other section kicker.
+const legendStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-body)',
+  fontSize: 'var(--text-2xs)',
+  fontWeight: 700,
+  letterSpacing: '0.07em',
+  textTransform: 'uppercase',
+  color: 'var(--text-muted)',
+  marginBottom: 4,
+};
 
 function ButtonBasico() {
   return (
@@ -854,19 +867,7 @@ function CheckboxGrupo() {
   const toggle = (o: string) => setSel((s) => (s.includes(o) ? s.filter((x) => x !== o) : [...s, o]));
   return (
     <fieldset style={{ border: 'none', margin: 0, padding: 0, ...col }}>
-      <legend
-        style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-2xs)',
-          fontWeight: 700,
-          letterSpacing: '0.07em',
-          textTransform: 'uppercase',
-          color: 'var(--text-muted)',
-          marginBottom: 4,
-        }}
-      >
-        Filter by specialty
-      </legend>
+      <legend style={legendStyle}>Filter by specialty</legend>
       {OPTS.map((o) => (
         <Checkbox key={o} label={o} checked={sel.includes(o)} onChange={() => toggle(o)} />
       ))}
@@ -877,28 +878,35 @@ function CheckboxGrupo() {
 function RadioVertical() {
   const [v, setV] = React.useState('online');
   return (
-    <div style={col}>
+    <fieldset style={{ border: 'none', margin: 0, padding: 0, width: '100%', ...col }}>
+      <legend style={legendStyle}>Appointment format</legend>
       <Radio name="fmt-v" label="Online" description="By video call." checked={v === 'online'} onChange={() => setV('online')} />
       <Radio name="fmt-v" label="In person" description="At the office, in Pinheiros." checked={v === 'inperson'} onChange={() => setV('inperson')} />
       <Radio name="fmt-v" label="Hybrid" description="First session in person, the rest online." checked={v === 'hybrid'} onChange={() => setV('hybrid')} />
-    </div>
+    </fieldset>
   );
 }
 function RadioHorizontal() {
   const [v, setV] = React.useState('30');
   return (
-    <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', width: '100%' }}>
-      {['30', '45', '60'].map((m) => (
-        <Radio key={m} name="dur-h" label={`${m} min`} checked={v === m} onChange={() => setV(m)} />
-      ))}
-    </div>
+    <fieldset style={{ border: 'none', margin: 0, padding: 0, width: '100%', ...col }}>
+      <legend style={legendStyle}>Session duration</legend>
+      <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', width: '100%' }}>
+        {['30', '45', '60'].map((m) => (
+          <Radio key={m} name="dur-h" label={`${m} min`} checked={v === m} onChange={() => setV(m)} />
+        ))}
+      </div>
+    </fieldset>
   );
 }
 function RadioEstados() {
   return (
     <div style={col}>
-      <Radio name="plan-d" label="Free" defaultChecked />
-      <Radio name="plan-d" label="Pro — coming soon" disabled />
+      <fieldset style={{ border: 'none', margin: 0, padding: 0, ...col }}>
+        <legend style={legendStyle}>Plan</legend>
+        <Radio name="plan-d" label="Free" defaultChecked />
+        <Radio name="plan-d" label="Pro — coming soon" disabled />
+      </fieldset>
       <Radio name="plan2-d" label="Locked selection" disabled defaultChecked />
     </div>
   );
@@ -906,10 +914,11 @@ function RadioEstados() {
 function RadioTamanhos() {
   const [v, setV] = React.useState('a');
   return (
-    <div style={col}>
+    <fieldset style={{ border: 'none', margin: 0, padding: 0, width: '100%', ...col }}>
+      <legend style={legendStyle}>Box size</legend>
       <Radio name="sz" size="sm" label="Small (16px)" checked={v === 'a'} onChange={() => setV('a')} />
       <Radio name="sz" label="Medium (20px, default)" checked={v === 'b'} onChange={() => setV('b')} />
-    </div>
+    </fieldset>
   );
 }
 
