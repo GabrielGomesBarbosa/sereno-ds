@@ -95,7 +95,7 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
                       {p.default ?? '—'}
                     </Table.Cell>
                     <Table.Cell wrap style={{ ...propCell, color: 'var(--text-secondary)' }}>
-                      {p.description}
+                      <InlineCode text={p.description} />
                     </Table.Cell>
                   </Table.Row>
                 ))}
