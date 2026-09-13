@@ -18,6 +18,14 @@ export interface TimeSlot {
  * popover to jump straight to a month or year. `year` / `month` set the *initial*
  * view; the component then owns it. Pass `onMonthChange` to react to navigation
  * (e.g. fetch the new month's availability).
+ *
+ * The day grid uses roving tabindex (SS-228) — only one cell is ever in the
+ * Tab order, so Tab enters/leaves it in one stop instead of one per day.
+ * Arrow keys move by day/week and cross month boundaries on overflow;
+ * Home/End move within the current week row; PageUp/PageDown step the
+ * month. An `unavailable` day stays focusable (`aria-disabled`, not the
+ * native `disabled` — a disabled button can't receive focus at all) so the
+ * cursor can still land on it, just not select it.
  */
 export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   /** Initial year. Defaults to the current year. */
@@ -88,6 +96,24 @@ export function DateTimePicker({
   const rootRef = React.useRef<HTMLDivElement>(null);
   const titleRef = React.useRef<HTMLButtonElement>(null);
   const popRef = React.useRef<HTMLDivElement>(null);
+  const gridRef = React.useRef<HTMLDivElement>(null);
+
+  // Roving tabindex for the day grid: only one cell is ever in the Tab
+  // order (below), so Tab enters/leaves the whole grid in one stop instead
+  // of one per day. `activeDay` is the day-of-month that cell represents —
+  // clamped to the visible month's length at render (below), since it
+  // persists across a month change (‹ / › or an arrow-key crossing) where
+  // the same day number may no longer exist (e.g. the 31st, into February).
+  const [activeDay, setActiveDay] = React.useState(() => {
+    if (selectedDate) return selectedDate;
+    const todayIndex = now.getFullYear() * 12 + now.getMonth();
+    return todayIndex === initialIndex ? now.getDate() : 1;
+  });
+  // Set right before a keyboard move changes activeDay/viewIndex; consumed
+  // by the layout effect below to focus the new cell once it's in the DOM —
+  // never on an unrelated render (a prop change, a re-render from the
+  // parent) or the initial mount.
+  const shouldFocusDayRef = React.useRef(false);
 
   // Notify on navigation — never on mount, always with the settled value.
   const onMonthChangeRef = React.useRef(onMonthChange);
@@ -140,6 +166,71 @@ export function DateTimePicker({
   while (cells.length < 42) cells.push(null);
   const cellH = renderDay ? 48 : 38;
   const years = Array.from({ length: 12 }, (_, i) => yearBase + i);
+  const rovingDay = Math.min(Math.max(1, activeDay), total);
+
+  // Arrow keys move the roving cursor by real calendar days — crossing into
+  // the adjacent month's grid when they overflow the visible one, rather
+  // than stopping dead at the edge. Home/End stay within the current week
+  // row; PageUp/PageDown step the month (reusing the same ‹ / › state
+  // change, so onMonthChange fires identically either way).
+  const onGridKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    let delta = 0;
+    switch (e.key) {
+      case 'ArrowRight':
+        delta = 1;
+        break;
+      case 'ArrowLeft':
+        delta = -1;
+        break;
+      case 'ArrowDown':
+        delta = 7;
+        break;
+      case 'ArrowUp':
+        delta = -7;
+        break;
+      case 'Home': {
+        e.preventDefault();
+        const row = Math.floor((first + rovingDay - 1) / 7);
+        shouldFocusDayRef.current = true;
+        setActiveDay(Math.max(1, row * 7 - first + 1));
+        return;
+      }
+      case 'End': {
+        e.preventDefault();
+        const row = Math.floor((first + rovingDay - 1) / 7);
+        shouldFocusDayRef.current = true;
+        setActiveDay(Math.min(total, row * 7 + 7 - first));
+        return;
+      }
+      case 'PageUp':
+        e.preventDefault();
+        shouldFocusDayRef.current = true;
+        setViewIndex((i) => i - 1);
+        return;
+      case 'PageDown':
+        e.preventDefault();
+        shouldFocusDayRef.current = true;
+        setViewIndex((i) => i + 1);
+        return;
+      default:
+        return;
+    }
+    e.preventDefault();
+    const next = new Date(viewYear, viewMonth, rovingDay + delta);
+    const nextViewIndex = next.getFullYear() * 12 + next.getMonth();
+    shouldFocusDayRef.current = true;
+    if (nextViewIndex !== viewIndex) setViewIndex(nextViewIndex);
+    setActiveDay(next.getDate());
+  };
+
+  // Runs after the grid above (keyed on viewIndex, so a month change remounts
+  // it) has committed the DOM for the new activeDay/viewIndex — only then
+  // does the target cell actually exist to focus.
+  React.useLayoutEffect(() => {
+    if (!shouldFocusDayRef.current) return;
+    shouldFocusDayRef.current = false;
+    gridRef.current?.querySelector<HTMLButtonElement>(`[data-day="${rovingDay}"]`)?.focus();
+  }, [viewIndex, rovingDay]);
 
   return (
     <div
@@ -347,7 +438,12 @@ export function DateTimePicker({
       </div>
       {/* keyed on the month so cells remount cleanly — no bg transition when a
           slot morphs from one day to another on navigation. */}
-      <div key={viewIndex} style={sx({ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 'var(--space-1)' })}>
+      <div
+        key={viewIndex}
+        ref={gridRef}
+        onKeyDown={onGridKeyDown}
+        style={sx({ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 'var(--space-1)' })}
+      >
         {cells.map((d, i) => {
           // Blank cells still take the row height so the 6-row grid can't collapse.
           if (d === null) return <span key={i} aria-hidden style={{ height: cellH }} />;
@@ -358,9 +454,18 @@ export function DateTimePicker({
             <button
               key={i}
               type="button"
-              disabled={off}
+              data-day={d}
+              // Not the native `disabled` — an unavailable day stays a real,
+              // focusable stop on the roving cursor (aria-disabled only) so
+              // arrow-key navigation can still land on it and the user can
+              // tell it exists, matching the WAI-ARIA date-grid pattern. A
+              // truly `disabled` button can't receive focus at all, which
+              // would make the roving tabindex below silently break.
+              aria-disabled={off || undefined}
+              tabIndex={d === rovingDay ? 0 : -1}
               aria-pressed={sel}
               onClick={() => {
+                if (off) return;
                 setSelectionIndex(viewIndex);
                 onSelectDate?.(d);
               }}
