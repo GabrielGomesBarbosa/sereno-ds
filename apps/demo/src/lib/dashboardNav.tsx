@@ -137,3 +137,15 @@ export function viewFromPathname(pathname: string): string {
   const slug = pathname.replace(/^\/dashboard\/?/, '').split('/').filter(Boolean);
   return slug.length ? slug.join(':') : 'agenda';
 }
+
+/** Page title from the nav data: leaf → its label, child → `Parent · Child`. */
+export function titleForView(view: string): string {
+  for (const s of SIDEBAR_SECTIONS) {
+    for (const it of s.items) {
+      if (it.value === view) return it.label;
+      const c = it.children?.find((ch) => ch.value === view);
+      if (c) return `${it.label} · ${c.label}`;
+    }
+  }
+  return 'Sereno';
+}
