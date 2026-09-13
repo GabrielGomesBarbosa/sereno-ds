@@ -265,7 +265,10 @@ function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
             padding: '1px 6px',
             borderRadius: '999px',
             background: active ? 'var(--bg-brand-soft)' : pill ? 'var(--bg-surface)' : 'var(--bg-subtle)',
-            color: active ? 'var(--text-brand)' : 'var(--text-muted)',
+            // text-muted here was < 4.5:1 on bg-subtle (SS-230) — text-secondary
+            // both fixes that and matches the inactive tab label's own color
+            // (line ~253), which was already text-secondary, not text-muted.
+            color: active ? 'var(--text-brand)' : 'var(--text-secondary)',
           })}
         >
           {count}
