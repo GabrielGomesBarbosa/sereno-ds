@@ -67,32 +67,33 @@ export function ScheduleExceptions({ value, defaultValue, onChange }: ScheduleEx
       <div
         style={sx({
           display: 'flex',
+          flexDirection: 'column',
           gap: 'var(--space-3)',
-          alignItems: 'flex-end',
-          flexWrap: 'wrap',
           padding: 'var(--space-4)',
           background: 'var(--bg-subtle)',
           borderRadius: 'var(--radius-card)',
         })}
       >
-        <Input
-          label="Data"
-          type="date"
-          min={min}
-          value={date}
-          onChange={(e) => setDate(e.currentTarget.value)}
-          error={duplicate ? 'Essa data já está bloqueada.' : undefined}
-          containerStyle={{ width: 176 }}
-        />
-        <Input
-          label="Motivo"
-          hint="Opcional"
-          placeholder="Feriado, viagem…"
-          value={reason}
-          onChange={(e) => setReason(e.currentTarget.value)}
-          containerStyle={{ flex: 1, minWidth: 180 }}
-        />
-        <Button onClick={add} disabled={!canAdd}>
+        <div style={sx({ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', flexWrap: 'wrap' })}>
+          <Input
+            label="Data"
+            type="date"
+            min={min}
+            value={date}
+            onChange={(e) => setDate(e.currentTarget.value)}
+            error={duplicate ? 'Essa data já está bloqueada.' : undefined}
+            containerStyle={{ width: 176 }}
+          />
+          <Input
+            label="Motivo"
+            hint="Opcional"
+            placeholder="Feriado, viagem…"
+            value={reason}
+            onChange={(e) => setReason(e.currentTarget.value)}
+            containerStyle={{ flex: 1, minWidth: 180 }}
+          />
+        </div>
+        <Button onClick={add} disabled={!canAdd} style={{ alignSelf: 'flex-end' }}>
           Bloquear data
         </Button>
       </div>
@@ -123,7 +124,7 @@ export function ScheduleExceptions({ value, defaultValue, onChange }: ScheduleEx
                 </span>
                 {e.reason && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' })}>{e.reason}</span>}
               </div>
-              <IconButton label={`Remover bloqueio de ${formatDate(e.date)}`} size="sm" onClick={() => remove(e.date)}>
+              <IconButton label={`Remover bloqueio de ${formatDate(e.date)}`} variant="error" size="sm" onClick={() => remove(e.date)}>
                 <Trash2 size={16} strokeWidth={1.75} />
               </IconButton>
             </div>
