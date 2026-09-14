@@ -1,11 +1,28 @@
 import * as React from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { ScheduleExceptions } from './ScheduleExceptions';
 
 afterEach(cleanup);
 
+/** Opens the "Data" DatePicker and clicks a day in the (frozen-"now") current month. */
+function pickDay(day: string | number) {
+  fireEvent.click(screen.getByRole('button', { name: 'Data' }));
+  fireEvent.click(screen.getByRole('button', { name: String(day) }));
+}
+
 describe('ScheduleExceptions', () => {
+  // DatePicker's add-form opens on today's month by default — freeze "now" so
+  // clicking a day resolves to a fixed, known ISO date without navigating
+  // months in the test.
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 10, 1)); // November 2026
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('renders an empty state when there are no exceptions', () => {
     render(<ScheduleExceptions />);
     expect(screen.getByText('Nenhuma data bloqueada')).toBeInTheDocument();
@@ -32,27 +49,27 @@ describe('ScheduleExceptions', () => {
 
   it('adds a new exception with a date and optional reason, uncontrolled', () => {
     render(<ScheduleExceptions />);
-    fireEvent.change(screen.getByLabelText('Data'), { target: { value: '2026-11-20' } });
+    pickDay(20);
     fireEvent.change(screen.getByLabelText('Motivo'), { target: { value: 'Viagem' } });
     fireEvent.click(screen.getByRole('button', { name: 'Bloquear data' }));
 
     expect(screen.queryByText('Nenhuma data bloqueada')).toBeNull();
     expect(screen.getByText('Viagem')).toBeInTheDocument();
-    // The date input resets after a successful add.
-    expect(screen.getByLabelText('Data')).toHaveValue('');
+    // The date resets to the placeholder after a successful add.
+    expect(screen.getByRole('button', { name: 'Data' })).toHaveTextContent('Selecionar data');
   });
 
   it('calls onChange with the new list (controlled)', () => {
     const onChange = vi.fn();
     render(<ScheduleExceptions value={[]} onChange={onChange} />);
-    fireEvent.change(screen.getByLabelText('Data'), { target: { value: '2026-11-20' } });
+    pickDay(20);
     fireEvent.click(screen.getByRole('button', { name: 'Bloquear data' }));
     expect(onChange).toHaveBeenCalledWith([{ date: '2026-11-20', reason: undefined }]);
   });
 
   it('rejects a duplicate date — Add stays disabled and shows an error', () => {
     render(<ScheduleExceptions defaultValue={[{ date: '2026-11-20' }]} />);
-    fireEvent.change(screen.getByLabelText('Data'), { target: { value: '2026-11-20' } });
+    pickDay(20);
     expect(screen.getByRole('button', { name: 'Bloquear data' })).toBeDisabled();
     expect(screen.getByText('Essa data já está bloqueada.')).toBeInTheDocument();
   });

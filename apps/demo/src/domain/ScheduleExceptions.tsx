@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { CalendarOff, Trash2 } from 'lucide-react';
-import { Button, EmptyState, IconButton, Input } from '@sereno-ds/ui';
+import { Button, DatePicker, EmptyState, IconButton, Input } from '@sereno-ds/ui';
 import { sx } from './sx';
 
 export interface DateException {
@@ -75,12 +75,11 @@ export function ScheduleExceptions({ value, defaultValue, onChange }: ScheduleEx
         })}
       >
         <div style={sx({ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', flexWrap: 'wrap' })}>
-          <Input
+          <DatePicker
             label="Data"
-            type="date"
             min={min}
             value={date}
-            onChange={(e) => setDate(e.currentTarget.value)}
+            onChange={setDate}
             error={duplicate ? 'Essa data já está bloqueada.' : undefined}
             containerStyle={{ width: 176 }}
           />

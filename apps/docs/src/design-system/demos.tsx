@@ -39,6 +39,7 @@ import {
   Button,
   Card,
   Checkbox,
+  DatePicker,
   DateTimePicker,
   Dialog,
   EmptyState,
@@ -1195,6 +1196,34 @@ function DateTimeRenderDay() {
   );
 }
 
+function DatePickerBasico() {
+  const [date, setDate] = React.useState('');
+  return (
+    <div style={{ maxWidth: 260 }}>
+      <DatePicker label="Data de nascimento" value={date} onChange={setDate} />
+    </div>
+  );
+}
+
+// Local YYYY-MM-DD — not toISOString(), which is UTC and can land on the
+// *next* day for anyone west of it (e.g. 22:00 in São Paulo is already
+// tomorrow in UTC), marking "today" itself as unavailable below.
+const localISO = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+function DatePickerFaixa() {
+  const today = new Date();
+  const min = localISO(today);
+  const maxDate = new Date(today);
+  maxDate.setDate(maxDate.getDate() + 30);
+  const max = localISO(maxDate);
+  const [date, setDate] = React.useState('');
+  return (
+    <div style={{ maxWidth: 260 }}>
+      <DatePicker label="Agendar para" hint="Só os próximos 30 dias." min={min} max={max} value={date} onChange={setDate} />
+    </div>
+  );
+}
+
 // A phone-screen frame — the bars sit flush to its edges, so their border reads
 // as an in-screen divider, not a broken frame edge.
 // A phone-screen frame. box-shadow for the outline (a real border + radius +
@@ -2132,6 +2161,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     disabled: SearchInputDesabilitado,
   },
   'date-time-picker': { calendar: DateTimeCalendario, 'render-day': DateTimeRenderDay, 'with-times': DateTimeComHorarios },
+  'date-picker': { basic: DatePickerBasico, range: DatePickerFaixa },
   'top-bar': { basic: TopBarBasico, full: TopBarCompleto, transparent: TopBarTransparente },
   tabs: { underline: TabsUnderline, pill: TabsPill, 'full-width': TabsFullWidth, overflow: TabsOverflow },
   'bottom-nav': { basic: BottomNavBasico, 'with-badge': BottomNavBadge },
