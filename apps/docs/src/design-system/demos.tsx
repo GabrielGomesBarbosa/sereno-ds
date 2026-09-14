@@ -1167,6 +1167,7 @@ function DateTimeCapacidade() {
         selectedTime={time}
         onSelectDate={setDay}
         onSelectTime={setTime}
+        locale="en"
       />
     </div>
   );

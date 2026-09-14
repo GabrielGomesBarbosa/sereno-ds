@@ -4,6 +4,23 @@ import * as React from 'react';
 import { sx } from '../_internal/style';
 import { CalendarGrid } from './_internal/CalendarGrid';
 
+const TEXT = {
+  'pt-BR': {
+    timeLabel: 'Horários disponíveis',
+    full: 'Lotado',
+    fullInline: 'lotado',
+    available: 'Disponível',
+    vagas: (booked: number, capacity: number) => `${booked} de ${capacity} vagas`,
+  },
+  en: {
+    timeLabel: 'Available times',
+    full: 'Full',
+    fullInline: 'full',
+    available: 'Available',
+    vagas: (booked: number, capacity: number) => `${booked} of ${capacity} spots`,
+  },
+} as const;
+
 export interface TimeSlot {
   value: string;
   /** Hard-blocked — unclickable regardless of `capacity`/`booked`. */
@@ -17,7 +34,8 @@ export interface TimeSlot {
 
 /**
  * Month calendar plus available time slots — the heart of the public booking flow.
- * Day names and month names render in pt-BR.
+ * Day names and month names render in pt-BR by default — the real Sereno
+ * product always uses it; `locale="en"` exists only for docs/demo purposes.
  *
  * The header navigates: ‹ / › step the month, and the centred title opens a
  * popover to jump straight to a month or year. `year` / `month` set the *initial*
@@ -65,7 +83,14 @@ export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivEl
    * grid even. It's the caller's job to scope this (e.g. future days only).
    */
   renderDay?: (day: number) => React.ReactNode;
+  /** Defaults to the `locale`-appropriate label ("Horários disponíveis" / "Available times"). */
   timeLabel?: string;
+  /**
+   * The real Sereno product always renders pt-BR — this only exists so the
+   * docs showcase can demo an English-speaking consumer without forking the
+   * component. Default stays `'pt-BR'`.
+   */
+  locale?: 'pt-BR' | 'en';
 }
 
 export function DateTimePicker({
@@ -79,10 +104,17 @@ export function DateTimePicker({
   onSelectTime,
   onMonthChange,
   renderDay,
-  timeLabel = 'Horários disponíveis',
+  timeLabel,
+  locale = 'pt-BR',
   style,
   ...rest
 }: DateTimePickerProps) {
+  const copy = TEXT[locale];
+  const label = timeLabel ?? copy.timeLabel;
+  // If any slot in the list tracks capacity, plain slots grow the same
+  // two-line layout with a generic "available" filler instead of leaving a
+  // shorter, blank-looking card next to its neighbors (SS-64 follow-up).
+  const anyCapacity = times.some((s) => typeof s === 'object' && s.capacity !== undefined);
   return (
     <div
       {...rest}
@@ -104,6 +136,7 @@ export function DateTimePicker({
         onSelectDate={onSelectDate}
         onMonthChange={onMonthChange}
         renderDay={renderDay}
+        locale={locale}
       />
       {times.length > 0 && (
         <div style={sx({ marginTop: 'var(--space-4)', paddingTop: 'var(--space-4)', borderTop: 'var(--border-width-hairline) solid var(--border-subtle)' })}>
@@ -118,36 +151,41 @@ export function DateTimePicker({
               marginBottom: 'var(--space-3)',
             })}
           >
-            {timeLabel}
+            {label}
           </div>
           <div style={sx({ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(76px,1fr))', gap: 'var(--space-2)' })}>
-            {times.map((t) => {
-              const val = typeof t === 'string' ? t : t.value;
-              const dis = typeof t === 'object' && t.disabled;
-              const capacity = typeof t === 'object' ? t.capacity : undefined;
-              const booked = typeof t === 'object' ? (t.booked ?? 0) : 0;
+            {times.map((slot) => {
+              const val = typeof slot === 'string' ? slot : slot.value;
+              const dis = typeof slot === 'object' && slot.disabled;
+              const capacity = typeof slot === 'object' ? slot.capacity : undefined;
+              const booked = typeof slot === 'object' ? (slot.booked ?? 0) : 0;
+              const hasOwnCapacity = capacity !== undefined;
               // Full ≠ blocked: a full slot is still pickable (a deliberate
               // overbook) unless the caller *also* set `disabled` — that's
               // the actual hard "no" (SS-64).
-              const full = capacity !== undefined && booked >= capacity;
+              const full = hasOwnCapacity && booked >= capacity;
               const sel = selectedTime === val;
-              const vagasLabel = capacity !== undefined ? `${booked} de ${capacity} vagas` : undefined;
+              // A slot with no capacity of its own still grows the two-line
+              // layout when a *sibling* slot tracks capacity, so the row
+              // reads consistently instead of one short card among tall ones.
+              const showSecondLine = hasOwnCapacity || anyCapacity;
+              const secondLine = hasOwnCapacity ? (full ? copy.full : copy.vagas(booked, capacity)) : copy.available;
               return (
                 <button
                   key={val}
                   type="button"
                   disabled={dis}
-                  aria-label={vagasLabel ? `${val} — ${full ? 'lotado, ' : ''}${vagasLabel}` : undefined}
+                  aria-label={hasOwnCapacity ? `${val} — ${full ? copy.fullInline + ', ' : ''}${copy.vagas(booked, capacity)}` : undefined}
                   onClick={() => onSelectTime && onSelectTime(val)}
                   className="sereno-dtp-time"
                   style={sx({
-                    height: capacity !== undefined ? 'auto' : 'var(--control-height-md)',
+                    height: showSecondLine ? 'auto' : 'var(--control-height-md)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 2,
-                    padding: capacity !== undefined ? 'var(--space-2) 0' : 0,
+                    padding: showSecondLine ? 'var(--space-2) 0' : 0,
                     borderRadius: 'var(--radius-control)',
                     cursor: dis ? 'not-allowed' : 'pointer',
                     border:
@@ -174,10 +212,10 @@ export function DateTimePicker({
                     // Not inline outline:none — see .sereno-dtp-time in styles.css.
                   })}
                 >
-                  <span aria-hidden={!!vagasLabel}>{val}</span>
-                  {vagasLabel && (
+                  <span aria-hidden={hasOwnCapacity}>{val}</span>
+                  {showSecondLine && (
                     <span
-                      aria-hidden
+                      aria-hidden={hasOwnCapacity}
                       style={sx({
                         fontSize: 'var(--text-2xs)',
                         fontWeight: 'var(--weight-medium)',
@@ -185,7 +223,7 @@ export function DateTimePicker({
                         opacity: sel ? 0.85 : 1,
                       })}
                     >
-                      {full ? 'Lotado' : vagasLabel}
+                      {secondLine}
                     </span>
                   )}
                 </button>

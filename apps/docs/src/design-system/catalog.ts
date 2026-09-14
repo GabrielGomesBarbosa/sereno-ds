@@ -1105,6 +1105,13 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       R('onSelectDate / onSelectTime', '(v) => void', 'Selection callbacks.'),
       R('onMonthChange', '(year, month) => void', 'Fires on ‹ / › or the month/year popover — recompute `unavailable` / `renderDay` for the new month here.'),
       R('renderDay', '(day) => ReactNode', 'Content under each day number (a count, a dot). Return `null` for nothing. Every cell grows to stay even — scope it yourself (e.g. future days only).'),
+      R('timeLabel', 'string', 'Overrides the section heading above the slots.', 'locale-dependent'),
+      R(
+        'locale',
+        "'pt-BR' | 'en'",
+        "The real Sereno product always renders pt-BR — `'en'` exists for an English-speaking docs/demo audience, not for the product itself.",
+        "'pt-BR'",
+      ),
     ],
     code: `<DateTimePicker
   year={2026}
@@ -1166,7 +1173,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         id: 'capacity',
         title: 'Capacity / overbooking',
         description:
-          'Group sessions and classes hold more than one person. Set `capacity` and `booked` on a slot to show "booked de capacity vagas"; once `booked` reaches `capacity` it switches to a warning look and reads "Lotado" — but stays clickable, since a full slot is a deliberate overbook the caller can still allow. Add `disabled: true` on top for the actual hard "no".',
+          'Group sessions and classes hold more than one person. Set `capacity` and `booked` on a slot to show "booked of capacity spots"; once `booked` reaches `capacity` it switches to a warning look and reads "Full" — but stays clickable, since a full slot is a deliberate overbook the caller can still allow. Add `disabled: true` on top for the actual hard "no". A plain slot mixed into the same list (no `capacity` at all) grows the same two-line layout with a generic "Available" filler instead of looking short next to its neighbors. Shown here with `locale="en"` — the real product always renders pt-BR ("Lotado", "de vagas"); this prop exists only for an English-speaking docs audience.',
         code: `<DateTimePicker
   year={2026}
   month={7}
@@ -1175,11 +1182,13 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
     { value: '10:00', capacity: 8, booked: 8 },
     { value: '11:00', capacity: 4, booked: 4, disabled: true },
     '14:00',
+    { value: '15:00', capacity: 6, booked: 5 },
   ]}
   selectedDate={day}
   selectedTime={time}
   onSelectDate={setDay}
   onSelectTime={setTime}
+  locale="en"
 />`,
       },
     ],
@@ -1195,6 +1204,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         'Removing unavailable slots from the list — the grid "jumps".',
         'Putting `renderDay` counts in the public booking flow — that’s the pro’s private data.',
         'Treating "full" as "disabled" — they mean different things; disable it explicitly when it truly can\'t be booked.',
+        'Setting `locale="en"` in the real product — Sereno is pt-BR only; the prop exists for this docs site.',
       ],
     },
   },
