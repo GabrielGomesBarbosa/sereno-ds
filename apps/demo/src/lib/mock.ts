@@ -175,14 +175,16 @@ export interface ClientRow {
   sessions: string;
   last: string;
   status: 'success' | 'warning' | 'error';
+  /** "+55 11 9####-####" — international format, ready for a WhatsApp deep link. */
+  phone: string;
 }
 
 export const CLIENTS: ClientRow[] = [
-  { name: 'Marina Alves', sessions: '12 sessões', last: 'Última: 24 ago', status: 'success' },
-  { name: 'Carlos Dias', sessions: '1 sessão', last: 'Primeira consulta hoje', status: 'warning' },
-  { name: 'Juliana Prado', sessions: '7 sessões', last: 'Última: 24 ago', status: 'success' },
-  { name: 'Helena Costa', sessions: '3 sessões', last: 'Faltou em 24 ago', status: 'error' },
-  { name: 'Rafael e Bia', sessions: '2 sessões', last: 'Última: 17 ago', status: 'success' },
+  { name: 'Marina Alves', sessions: '12 sessões', last: 'Última: 24 ago', status: 'success', phone: '+55 11 99821-4477' },
+  { name: 'Carlos Dias', sessions: '1 sessão', last: 'Primeira consulta hoje', status: 'warning', phone: '+55 11 98213-5590' },
+  { name: 'Juliana Prado', sessions: '7 sessões', last: 'Última: 24 ago', status: 'success', phone: '+55 11 97740-2213' },
+  { name: 'Helena Costa', sessions: '3 sessões', last: 'Faltou em 24 ago', status: 'error', phone: '+55 11 96612-8834' },
+  { name: 'Rafael e Bia', sessions: '2 sessões', last: 'Última: 17 ago', status: 'success', phone: '+55 11 95504-7761' },
 ];
 
 export const CLIENT_STATUS_LABEL: Record<ClientRow['status'], string> = {
