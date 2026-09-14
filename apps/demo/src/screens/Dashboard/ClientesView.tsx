@@ -20,8 +20,16 @@ function ClientDetailDialog({ client, onClose }: { client: ClientRow; onClose: (
 
   return (
     <Dialog size="lg" dividers onClose={onClose}>
-      <Dialog.Header title={client.name} description={CLIENT_STATUS_LABEL[client.status]}>
-        <WhatsAppButton phone={client.phone} message={`Olá, ${client.name.split(' ')[0]}! `} label="Conversar no WhatsApp" />
+      <Dialog.Header title={client.name}>
+        <Badge tone={client.status} style={{ alignSelf: 'flex-start' }}>
+          {CLIENT_STATUS_LABEL[client.status]}
+        </Badge>
+        <WhatsAppButton
+          phone={client.phone}
+          message={`Olá, ${client.name.split(' ')[0]}! `}
+          label="Conversar no WhatsApp"
+          style={{ alignSelf: 'flex-start' }}
+        />
         <Dialog.Close />
       </Dialog.Header>
       <Dialog.Body>
