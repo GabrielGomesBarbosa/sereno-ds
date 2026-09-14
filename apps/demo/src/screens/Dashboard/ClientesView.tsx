@@ -4,6 +4,7 @@ import * as React from 'react';
 import { ChevronRight, Clock, Download, Search } from 'lucide-react';
 import { Avatar, Badge, Button, Card, Dialog, EmptyState, SearchInput, Select, Table, Tabs, type TableSort } from '@sereno-ds/ui';
 import { AppointmentCard } from '@/domain/AppointmentCard';
+import { WhatsAppButton } from '@/domain/WhatsAppButton';
 import { AGENDA_SCHEDULE, CLIENTS, CLIENT_STATUS_LABEL, type ClientRow } from '@/lib/mock';
 import { cardTitle, vcol, ComingSoon, ViewHeader } from './shared';
 
@@ -19,7 +20,16 @@ function ClientDetailDialog({ client, onClose }: { client: ClientRow; onClose: (
 
   return (
     <Dialog size="lg" dividers onClose={onClose}>
-      <Dialog.Header title={client.name} description={CLIENT_STATUS_LABEL[client.status]}>
+      <Dialog.Header title={client.name}>
+        <Badge tone={client.status} style={{ alignSelf: 'flex-start' }}>
+          {CLIENT_STATUS_LABEL[client.status]}
+        </Badge>
+        <WhatsAppButton
+          phone={client.phone}
+          message={`Olá, ${client.name.split(' ')[0]}! `}
+          label="Conversar no WhatsApp"
+          style={{ alignSelf: 'flex-start' }}
+        />
         <Dialog.Close />
       </Dialog.Header>
       <Dialog.Body>
