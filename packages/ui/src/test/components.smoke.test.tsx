@@ -9,7 +9,7 @@ afterEach(cleanup);
 /** Every component the barrel is meant to export. */
 const EXPECTED = [
   'Button', 'IconButton', 'Badge', 'Card', 'Avatar', 'Brand', 'Menu', 'Table',
-  'Input', 'Textarea', 'Select', 'Checkbox', 'Radio', 'Switch', 'DateTimePicker',
+  'Input', 'Textarea', 'Select', 'Checkbox', 'Radio', 'Switch', 'DateTimePicker', 'DatePicker',
   'FileUpload', 'AvatarUpload', 'SearchInput',
   'TopBar', 'Tabs', 'BottomNav', 'SidebarNav', 'Stepper',
   'Alert', 'Toast', 'Dialog', 'Skeleton', 'EmptyState',
@@ -50,6 +50,7 @@ const CASES: Record<string, React.ReactElement> = {
   Radio: <UI.Radio name="g" label="One" />,
   Switch: <UI.Switch label="Notificações" />,
   DateTimePicker: <UI.DateTimePicker year={2026} month={0} selectedDate={5} times={['09:00', { value: '10:00', disabled: true }]} />,
+  DatePicker: <UI.DatePicker label="Data" defaultValue="2026-10-12" />,
   FileUpload: <UI.FileUpload />,
   AvatarUpload: <UI.AvatarUpload />,
   SearchInput: <UI.SearchInput placeholder="Search" />,

@@ -1172,6 +1172,57 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
     },
   },
   {
+    slug: 'date-picker',
+    name: 'DatePicker',
+    category: 'forms',
+    summary: 'A single date, no time, no slots — that’s `DateTimePicker`. A text-field-styled trigger opens the same calendar grid in a popover.',
+    props: [
+      R('label / hint / error / required', 'string / boolean', 'Same label contract as Input.'),
+      R('placeholder', 'string', 'Trigger text with no value.', "'Selecionar data'"),
+      R('size', "'sm' | 'md' | 'lg'", '', "'md'"),
+      R('value / defaultValue', 'string', 'ISO `"YYYY-MM-DD"` — controlled / uncontrolled, same contract as every other field.'),
+      R('onChange', '(value: string) => void', 'Fires with the new ISO date on pick.'),
+      R('min / max', 'string', 'ISO date bounds — every day outside the range is unavailable.'),
+      R('disabled', 'boolean', '', 'false'),
+    ],
+    code: `<DatePicker
+  label="Data de nascimento"
+  value={date}
+  onChange={setDate}
+/>`,
+    examples: [
+      {
+        id: 'basic',
+        title: 'Basic',
+        description: 'Value is a plain ISO `"YYYY-MM-DD"` string, same shape `<input type="date">` uses — drops into a form the same way, themed and in pt-BR instead of the browser\'s own date picker.',
+        code: `<DatePicker label="Data de nascimento" value={date} onChange={setDate} />`,
+      },
+      {
+        id: 'range',
+        title: 'Bounded range',
+        description: '`min` / `max` mark every day outside the range unavailable (struck through, unclickable) — recomputed for whichever month the popover is currently showing.',
+        code: `<DatePicker
+  label="Agendar para"
+  hint="Só os próximos 30 dias."
+  min={today}
+  max={in30Days}
+  value={date}
+  onChange={setDate}
+/>`,
+      },
+    ],
+    guidelines: {
+      do: [
+        'A single date with no time component — birth date, a deadline, a one-off blocked day.',
+        '`min` / `max` instead of validating the picked date after the fact.',
+      ],
+      dont: [
+        'A date **and** a time in the same control — that’s `DateTimePicker`.',
+        'Multiple dates or a range picker — not this component\'s job.',
+      ],
+    },
+  },
+  {
     slug: 'file-upload',
     name: 'FileUpload',
     category: 'forms',

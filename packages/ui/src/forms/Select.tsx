@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { fieldBoxStyle } from './_internal/fieldBoxStyle';
 
 export interface SelectOption {
   value: string;
@@ -52,12 +53,6 @@ export interface SelectProps {
   'aria-label'?: string;
 }
 
-const CONTROL_HEIGHT = {
-  sm: 'var(--control-height-sm)',
-  md: 'var(--control-height-md)',
-  lg: 'var(--control-height-lg)',
-} as const;
-
 const OPTION_PAD_Y = { sm: 6, md: 8, lg: 10 } as const;
 
 const useIsoLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
@@ -73,33 +68,6 @@ function useCoarsePointer(): boolean {
     () => window.matchMedia('(pointer: coarse)').matches,
     () => false,
   );
-}
-
-function fieldBoxStyle(size: NonNullable<SelectProps['size']>, error: boolean, open: boolean, disabled: boolean): React.CSSProperties {
-  const active = open && !error;
-  return sx({
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'var(--space-2)',
-    width: '100%',
-    height: CONTROL_HEIGHT[size],
-    // Longhand (not the `padding` shorthand) so callers can override one side
-    // — e.g. NativeSelect's right pad — without React leaving the others blank.
-    paddingTop: 0,
-    paddingRight: 'var(--space-3)',
-    paddingBottom: 0,
-    paddingLeft: 'var(--space-3)',
-    borderRadius: 'var(--radius-control)',
-    background: disabled ? 'var(--interactive-disabled-bg)' : 'var(--bg-surface)',
-    border: 'var(--border-width-hairline) solid ' + (error ? 'var(--interactive-error)' : open ? 'var(--border-focus)' : 'var(--border-default)'),
-    boxShadow: active ? 'var(--focus-ring)' : 'none',
-    fontFamily: 'var(--font-body)',
-    fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)',
-    color: disabled ? 'var(--text-disabled)' : 'var(--text-primary)',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    transition: 'var(--transition-control)',
-    textAlign: 'left',
-  });
 }
 
 // ── Custom listbox ──────────────────────────────────────────────────────────
