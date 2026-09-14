@@ -1112,6 +1112,7 @@ function DateTimeCalendario() {
         onMonthChange={(y, m) => setOff(weekendsOf(y, m))}
         selectedDate={day}
         onSelectDate={setDay}
+        locale="en"
       />
     </div>
   );
@@ -1139,6 +1140,36 @@ function DateTimeComHorarios() {
         selectedTime={time}
         onSelectDate={setDay}
         onSelectTime={setTime}
+        locale="en"
+      />
+    </div>
+  );
+}
+
+// Group-session slots: some room left, some full (but still pickable — a
+// deliberate overbook), one full AND hard-blocked (SS-64).
+const GROUP_SLOTS = [
+  { value: '09:00', capacity: 8, booked: 3 },
+  { value: '10:00', capacity: 8, booked: 8 },
+  { value: '11:00', capacity: 4, booked: 4, disabled: true },
+  '14:00',
+  { value: '15:00', capacity: 6, booked: 5 },
+];
+
+function DateTimeCapacidade() {
+  const [day, setDay] = React.useState<number | undefined>(14);
+  const [time, setTime] = React.useState<string | undefined>(undefined);
+  return (
+    <div style={{ maxWidth: 380 }}>
+      <DateTimePicker
+        year={2026}
+        month={7}
+        times={GROUP_SLOTS}
+        selectedDate={day}
+        selectedTime={time}
+        onSelectDate={setDay}
+        onSelectTime={setTime}
+        locale="en"
       />
     </div>
   );
@@ -1191,6 +1222,7 @@ function DateTimeRenderDay() {
         }
         selectedDate={day}
         onSelectDate={setDay}
+        locale="en"
       />
     </div>
   );
@@ -1200,7 +1232,7 @@ function DatePickerBasico() {
   const [date, setDate] = React.useState('');
   return (
     <div style={{ maxWidth: 260 }}>
-      <DatePicker label="Data de nascimento" value={date} onChange={setDate} />
+      <DatePicker label="Date of birth" value={date} onChange={setDate} locale="en" />
     </div>
   );
 }
@@ -1219,7 +1251,7 @@ function DatePickerFaixa() {
   const [date, setDate] = React.useState('');
   return (
     <div style={{ maxWidth: 260 }}>
-      <DatePicker label="Agendar para" hint="Só os próximos 30 dias." min={min} max={max} value={date} onChange={setDate} />
+      <DatePicker label="Schedule for" hint="Only the next 30 days." min={min} max={max} value={date} onChange={setDate} locale="en" />
     </div>
   );
 }
@@ -2160,7 +2192,12 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     sizes: SearchInputTamanhos,
     disabled: SearchInputDesabilitado,
   },
-  'date-time-picker': { calendar: DateTimeCalendario, 'render-day': DateTimeRenderDay, 'with-times': DateTimeComHorarios },
+  'date-time-picker': {
+    calendar: DateTimeCalendario,
+    'render-day': DateTimeRenderDay,
+    'with-times': DateTimeComHorarios,
+    capacity: DateTimeCapacidade,
+  },
   'date-picker': { basic: DatePickerBasico, range: DatePickerFaixa },
   'top-bar': { basic: TopBarBasico, full: TopBarCompleto, transparent: TopBarTransparente },
   tabs: { underline: TabsUnderline, pill: TabsPill, 'full-width': TabsFullWidth, overflow: TabsOverflow },

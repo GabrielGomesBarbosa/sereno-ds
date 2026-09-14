@@ -1,17 +1,23 @@
 'use client';
 
 import * as React from 'react';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, X } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
 import { CalendarGrid } from './_internal/CalendarGrid';
 import { fieldBoxStyle } from './_internal/fieldBoxStyle';
+
+const TEXT = {
+  'pt-BR': { placeholder: 'Selecionar data', dialogLabel: 'Escolher data', clearLabel: 'Limpar data' },
+  en: { placeholder: 'Pick a date', dialogLabel: 'Choose a date', clearLabel: 'Clear date' },
+} as const;
 
 export interface DatePickerProps {
   label?: string;
   hint?: string;
   error?: string;
   required?: boolean;
+  /** Defaults to the `locale`-appropriate text ("Selecionar data" / "Pick a date"). */
   placeholder?: string;
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
@@ -26,6 +32,14 @@ export interface DatePickerProps {
   max?: string;
   id?: string;
   containerStyle?: React.CSSProperties;
+  /** aria-label for the clear (×) button. Defaults to the `locale`-appropriate text. */
+  clearLabel?: string;
+  /**
+   * The real Sereno product always renders pt-BR — this only exists so the
+   * docs showcase can demo an English-speaking consumer without forking the
+   * component. Default stays `'pt-BR'`.
+   */
+  locale?: 'pt-BR' | 'en';
 }
 
 interface YMD {
@@ -45,10 +59,12 @@ function toISO(year: number, month: number, day: number): string {
   return `${String(year).padStart(4, '0')}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
-function formatDisplay(iso: string): string {
+function formatDisplay(iso: string, locale: 'pt-BR' | 'en'): string {
   const d = parseISO(iso);
   if (!d) return iso;
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(d.year, d.month, d.day));
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
+    new Date(d.year, d.month, d.day),
+  );
 }
 
 function daysIn(year: number, month: number): number {
@@ -83,15 +99,17 @@ function unavailableForMonth(year: number, month: number, min?: string, max?: st
  *
  * Value contract matches the rest of the forms package: `value` /
  * `defaultValue` + `onChange(value)`, a plain ISO "YYYY-MM-DD" string —
- * drops in wherever `<input type="date">` would go, but themed and in
- * pt-BR instead of the browser's own (English, unstyled) date picker.
+ * drops in wherever `<input type="date">` would go, but themed instead of
+ * the browser's own, and in pt-BR by default (the real Sereno product
+ * always uses it; `locale="en"` exists only for docs/demo purposes). A
+ * clear (×) button appears once a value is set.
  */
 export function DatePicker({
   label,
   hint,
   error,
   required,
-  placeholder = 'Selecionar data',
+  placeholder,
   size = 'md',
   disabled = false,
   value,
@@ -101,7 +119,10 @@ export function DatePicker({
   max,
   id,
   containerStyle,
+  clearLabel,
+  locale = 'pt-BR',
 }: DatePickerProps) {
+  const copy = TEXT[locale];
   const [inner, setInner] = React.useState(defaultValue ?? '');
   const iso = value !== undefined ? value : inner;
   const parsed = parseISO(iso);
@@ -163,40 +184,89 @@ export function DatePicker({
     triggerRef.current?.focus();
   };
 
+  const clear = () => {
+    if (value === undefined) setInner('');
+    onChange?.('');
+    triggerRef.current?.focus();
+  };
+
   const unavailable = React.useMemo(() => unavailableForMonth(viewYear, viewMonth, min, max), [viewYear, viewMonth, min, max]);
 
   return (
     <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle}>
       <div ref={rootRef} style={{ position: 'relative', width: '100%' }}>
-        <button
-          ref={triggerRef}
-          id={rid}
-          type="button"
-          disabled={disabled}
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          onClick={() => (open ? setOpen(false) : openPopover())}
-          style={fieldBoxStyle(size, !!error, open, disabled)}
-        >
-          <CalendarIcon size={16} strokeWidth={1.75} style={{ flex: '0 0 auto', opacity: 0.7 }} />
-          <span
+        {/* The bordered box lives on this wrapper `div`, not on a `<button>`
+            — the open-trigger and the clear (×) button are real, independent
+            sibling buttons inside it, since a button can't nest another. */}
+        <div style={fieldBoxStyle(size, !!error, open, disabled)}>
+          <button
+            ref={triggerRef}
+            id={rid}
+            type="button"
+            disabled={disabled}
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            onClick={() => (open ? setOpen(false) : openPopover())}
             style={sx({
               flex: 1,
+              minWidth: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              border: 'none',
+              background: 'transparent',
+              padding: 0,
+              font: 'inherit',
+              color: 'inherit',
+              cursor: 'inherit',
               textAlign: 'left',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              color: iso ? 'inherit' : 'var(--text-muted)',
             })}
           >
-            {iso ? formatDisplay(iso) : placeholder}
-          </span>
-        </button>
+            <CalendarIcon size={16} strokeWidth={1.75} style={{ flex: '0 0 auto', opacity: 0.7 }} />
+            <span
+              style={sx({
+                flex: 1,
+                textAlign: 'left',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                color: iso ? 'inherit' : 'var(--text-muted)',
+              })}
+            >
+              {iso ? formatDisplay(iso, locale) : (placeholder ?? copy.placeholder)}
+            </span>
+          </button>
+          {iso && !disabled && (
+            <button
+              type="button"
+              aria-label={clearLabel ?? copy.clearLabel}
+              onClick={(e) => {
+                e.stopPropagation();
+                clear();
+              }}
+              style={sx({
+                flex: '0 0 auto',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: -4,
+                padding: 4,
+                border: 'none',
+                borderRadius: 'var(--radius-sm)',
+                background: 'transparent',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+              })}
+            >
+              <X size={14} strokeWidth={2} />
+            </button>
+          )}
+        </div>
 
         {open && (
           <div
             role="dialog"
-            aria-label={label || 'Escolher data'}
+            aria-label={label || copy.dialogLabel}
             tabIndex={-1}
             style={sx({
               position: 'absolute',
@@ -229,6 +299,7 @@ export function DatePicker({
               onSelectDate={commit}
               squareCells
               trimEmptyRows
+              locale={locale}
             />
           </div>
         )}

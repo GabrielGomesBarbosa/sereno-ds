@@ -1094,12 +1094,24 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
     props: [
       R('year / month', 'number', 'The *initial* month (`month` is 0-indexed). The component then owns navigation — re-mount with a `key` to force a new start.'),
       R('selectedDate', 'number', 'Selected day.'),
-      R('times', '(string | { value, disabled })[]', 'Time-slot labels or objects with `disabled`.', '[]'),
+      R(
+        'times',
+        '(string | { value, disabled, capacity, booked })[]',
+        'Time-slot labels or objects. `disabled` hard-blocks it. `capacity`/`booked` show "booked de capacity vagas" and switch to a warning look once full — a full slot stays pickable (a deliberate overbook) unless also `disabled`.',
+        '[]',
+      ),
       R('selectedTime', 'string', 'Selected time (marked in turquoise).'),
       R('unavailable', 'number[]', 'Days with no availability — struck through and unclickable.'),
       R('onSelectDate / onSelectTime', '(v) => void', 'Selection callbacks.'),
       R('onMonthChange', '(year, month) => void', 'Fires on ‹ / › or the month/year popover — recompute `unavailable` / `renderDay` for the new month here.'),
       R('renderDay', '(day) => ReactNode', 'Content under each day number (a count, a dot). Return `null` for nothing. Every cell grows to stay even — scope it yourself (e.g. future days only).'),
+      R('timeLabel', 'string', 'Overrides the section heading above the slots.', 'locale-dependent'),
+      R(
+        'locale',
+        "'pt-BR' | 'en'",
+        "The real Sereno product always renders pt-BR — `'en'` exists for an English-speaking docs/demo audience, not for the product itself.",
+        "'pt-BR'",
+      ),
     ],
     code: `<DateTimePicker
   year={2026}
@@ -1116,7 +1128,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         id: 'calendar',
         title: 'Calendar only',
         description:
-          'Without `times`, it’s just the calendar. `month` (0-indexed) is only the *starting* view — the header navigates from there, and the grid stays 6 rows so nothing below it shifts. `onMonthChange` keeps `unavailable` in sync — here, the weekends of whatever month you land on.',
+          'Without `times`, it’s just the calendar. `month` (0-indexed) is only the *starting* view — the header navigates from there, and the grid stays 6 rows so nothing below it shifts. `onMonthChange` keeps `unavailable` in sync — here, the weekends of whatever month you land on. Shown here with `locale="en"` — the real product always renders pt-BR.',
         code: `const [off, setOff] = useState(() => weekendsOf(2026, 7));
 
 <DateTimePicker
@@ -1126,12 +1138,14 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
   onMonthChange={(y, m) => setOff(weekendsOf(y, m))}
   selectedDate={day}
   onSelectDate={setDay}
+  locale="en"
 />`,
       },
       {
         id: 'render-day',
         title: 'Content under each day',
-        description: '`renderDay` drops a node under the day number — a booking count, a dot. Return `null` for days with nothing. Scope it in the consumer (this one shows counts for **future** days only). Every cell grows so the grid stays even.',
+        description:
+          '`renderDay` drops a node under the day number — a booking count, a dot. Return `null` for days with nothing. Scope it in the consumer (this one shows counts for **future** days only). Every cell grows so the grid stays even. Shown here with `locale="en"` — the real product always renders pt-BR.',
         code: `<DateTimePicker
   year={2026}
   month={7}
@@ -1141,12 +1155,14 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
   }
   selectedDate={day}
   onSelectDate={setDay}
+  locale="en"
 />`,
       },
       {
         id: 'with-times',
         title: 'With time slots',
-        description: 'Pass `times` as strings or `{ value, disabled }`. The selected time is the only turquoise (accent) element — the moment of decision in the flow.',
+        description:
+          'Pass `times` as strings or `{ value, disabled }`. The selected time is the only turquoise (accent) element — the moment of decision in the flow. Shown here with `locale="en"` — the real product always renders pt-BR.',
         code: `<DateTimePicker
   year={2026}
   month={7}
@@ -1155,6 +1171,29 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
   selectedTime={time}
   onSelectDate={setDay}
   onSelectTime={setTime}
+  locale="en"
+/>`,
+      },
+      {
+        id: 'capacity',
+        title: 'Capacity / overbooking',
+        description:
+          'Group sessions and classes hold more than one person. Set `capacity` and `booked` on a slot to show "booked of capacity spots"; once `booked` reaches `capacity` it switches to a warning look and reads "Full" — but stays clickable, since a full slot is a deliberate overbook the caller can still allow. Add `disabled: true` on top for the actual hard "no". A plain slot mixed into the same list (no `capacity` at all) grows the same two-line layout with a generic "Available" filler instead of looking short next to its neighbors. Shown here with `locale="en"` — the real product always renders pt-BR ("Lotado", "de vagas"); this prop exists only for an English-speaking docs audience.',
+        code: `<DateTimePicker
+  year={2026}
+  month={7}
+  times={[
+    { value: '09:00', capacity: 8, booked: 3 },
+    { value: '10:00', capacity: 8, booked: 8 },
+    { value: '11:00', capacity: 4, booked: 4, disabled: true },
+    '14:00',
+    { value: '15:00', capacity: 6, booked: 5 },
+  ]}
+  selectedDate={day}
+  selectedTime={time}
+  onSelectDate={setDay}
+  onSelectTime={setTime}
+  locale="en"
 />`,
       },
     ],
@@ -1164,10 +1203,13 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         'Recompute `unavailable` / `renderDay` inside `onMonthChange` so they track the visible month.',
         'Unavailable slots as `{ value, disabled: true }` — they keep their place in the grid.',
         'Let the accent time marker be the only one on the screen.',
+        'A full (`booked >= capacity`) slot stays pickable unless you also set `disabled` — that is the real "no".',
       ],
       dont: [
         'Removing unavailable slots from the list — the grid "jumps".',
         'Putting `renderDay` counts in the public booking flow — that’s the pro’s private data.',
+        'Treating "full" as "disabled" — they mean different things; disable it explicitly when it truly can\'t be booked.',
+        'Setting `locale="en"` in the real product — Sereno is pt-BR only; the prop exists for this docs site.',
       ],
     },
   },
@@ -1184,9 +1226,16 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       R('onChange', '(value: string) => void', 'Fires with the new ISO date on pick.'),
       R('min / max', 'string', 'ISO date bounds — every day outside the range is unavailable.'),
       R('disabled', 'boolean', '', 'false'),
+      R('clearLabel', 'string', 'aria-label for the clear (×) button that appears once a value is set.', 'locale-dependent'),
+      R(
+        'locale',
+        "'pt-BR' | 'en'",
+        "The real Sereno product always renders pt-BR — `'en'` exists for an English-speaking docs/demo audience, not for the product itself.",
+        "'pt-BR'",
+      ),
     ],
     code: `<DatePicker
-  label="Data de nascimento"
+  label="Date of birth"
   value={date}
   onChange={setDate}
 />`,
@@ -1194,20 +1243,23 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       {
         id: 'basic',
         title: 'Basic',
-        description: 'Value is a plain ISO `"YYYY-MM-DD"` string, same shape `<input type="date">` uses — drops into a form the same way, themed and in pt-BR instead of the browser\'s own date picker.',
-        code: `<DatePicker label="Data de nascimento" value={date} onChange={setDate} />`,
+        description:
+          'Value is a plain ISO `"YYYY-MM-DD"` string, same shape `<input type="date">` uses — drops into a form the same way, themed instead of the browser\'s own date picker. A clear (×) button appears once a value is set. Shown here with `locale="en"` — the real product always renders pt-BR.',
+        code: `<DatePicker label="Date of birth" value={date} onChange={setDate} locale="en" />`,
       },
       {
         id: 'range',
         title: 'Bounded range',
-        description: '`min` / `max` mark every day outside the range unavailable (struck through, unclickable) — recomputed for whichever month the popover is currently showing.',
+        description:
+          '`min` / `max` mark every day outside the range unavailable (struck through, unclickable) — recomputed for whichever month the popover is currently showing.',
         code: `<DatePicker
-  label="Agendar para"
-  hint="Só os próximos 30 dias."
+  label="Schedule for"
+  hint="Only the next 30 days."
   min={today}
   max={in30Days}
   value={date}
   onChange={setDate}
+  locale="en"
 />`,
       },
     ],
@@ -1219,6 +1271,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       dont: [
         'A date **and** a time in the same control — that’s `DateTimePicker`.',
         'Multiple dates or a range picker — not this component\'s job.',
+        'Setting `locale="en"` in the real product — Sereno is pt-BR only; the prop exists for this docs site.',
       ],
     },
   },

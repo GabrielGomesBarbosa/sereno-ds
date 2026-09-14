@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { DateTimePicker } from './DateTimePicker';
 
 afterEach(cleanup);
@@ -108,5 +108,59 @@ describe('DateTimePicker — keyboard grid navigation', () => {
     fireEvent.click(day(container, 20));
     fireEvent.keyDown(day(container, 20), { key: 'ArrowRight' });
     expect(document.activeElement).toBe(day(container, 21));
+  });
+});
+
+describe('DateTimePicker — time slot capacity/overbooking (SS-64)', () => {
+  it('a plain string slot renders and behaves exactly as before (no aria-label override)', () => {
+    const onSelectTime = vi.fn();
+    render(<DateTimePicker {...OCT} times={['09:00']} onSelectTime={onSelectTime} />);
+    const btn = screen.getByRole('button', { name: '09:00' });
+    expect(btn).not.toBeDisabled();
+    fireEvent.click(btn);
+    expect(onSelectTime).toHaveBeenCalledWith('09:00');
+  });
+
+  it('a `{value, disabled}` slot with no capacity still renders/behaves as before', () => {
+    const onSelectTime = vi.fn();
+    render(<DateTimePicker {...OCT} times={[{ value: '10:00', disabled: true }]} onSelectTime={onSelectTime} />);
+    const btn = screen.getByRole('button', { name: '10:00' });
+    expect(btn).toBeDisabled();
+    fireEvent.click(btn);
+    expect(onSelectTime).not.toHaveBeenCalled();
+  });
+
+  it('a slot with capacity shows "X de Y vagas" and stays clickable', () => {
+    const onSelectTime = vi.fn();
+    render(<DateTimePicker {...OCT} times={[{ value: '11:00', capacity: 5, booked: 3 }]} onSelectTime={onSelectTime} />);
+    expect(screen.getByText('3 de 5 vagas')).toBeInTheDocument();
+    const btn = screen.getByRole('button', { name: '11:00 — 3 de 5 vagas' });
+    expect(btn).not.toBeDisabled();
+    fireEvent.click(btn);
+    expect(onSelectTime).toHaveBeenCalledWith('11:00');
+  });
+
+  it('a full slot (booked >= capacity) shows "Lotado" but remains clickable — full ≠ blocked', () => {
+    const onSelectTime = vi.fn();
+    render(<DateTimePicker {...OCT} times={[{ value: '12:00', capacity: 4, booked: 4 }]} onSelectTime={onSelectTime} />);
+    expect(screen.getByText('Lotado')).toBeInTheDocument();
+    const btn = screen.getByRole('button', { name: '12:00 — lotado, 4 de 4 vagas' });
+    expect(btn).not.toBeDisabled();
+    fireEvent.click(btn);
+    expect(onSelectTime).toHaveBeenCalledWith('12:00');
+  });
+
+  it('a full slot that is ALSO explicitly disabled is genuinely non-interactive', () => {
+    const onSelectTime = vi.fn();
+    render(<DateTimePicker {...OCT} times={[{ value: '13:00', capacity: 2, booked: 2, disabled: true }]} onSelectTime={onSelectTime} />);
+    const btn = screen.getByRole('button', { name: '13:00 — lotado, 2 de 2 vagas' });
+    expect(btn).toBeDisabled();
+    fireEvent.click(btn);
+    expect(onSelectTime).not.toHaveBeenCalled();
+  });
+
+  it('booked defaults to 0 when omitted alongside capacity', () => {
+    render(<DateTimePicker {...OCT} times={[{ value: '14:00', capacity: 6 }]} />);
+    expect(screen.getByText('0 de 6 vagas')).toBeInTheDocument();
   });
 });

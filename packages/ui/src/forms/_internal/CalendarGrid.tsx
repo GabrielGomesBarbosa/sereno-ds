@@ -40,11 +40,40 @@ export interface CalendarGridProps {
    * dead empty row (e.g. a 30-day month starting on Sunday only needs 5).
    */
   trimEmptyRows?: boolean;
+  /**
+   * The product itself (Sereno's real booking app) always renders pt-BR —
+   * this only exists so the docs showcase can demo an English-speaking
+   * consumer without forking the component. Default stays `'pt-BR'`.
+   */
+  locale?: 'pt-BR' | 'en';
 }
 
-const DOW = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
-const MONTHS = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-const MONTHS_SHORT = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const I18N = {
+  'pt-BR': {
+    dow: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+    months: ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'],
+    monthsShort: ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'],
+    prevMonth: 'Mês anterior',
+    nextMonth: 'Próximo mês',
+    prevYear: 'Ano anterior',
+    prevYears: 'Anos anteriores',
+    nextYear: 'Próximo ano',
+    nextYears: 'Próximos anos',
+    pickerLabel: 'Escolher mês e ano',
+  },
+  en: {
+    dow: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+    months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    prevMonth: 'Previous month',
+    nextMonth: 'Next month',
+    prevYear: 'Previous year',
+    prevYears: 'Previous years',
+    nextYear: 'Next year',
+    nextYears: 'Next years',
+    pickerLabel: 'Choose month and year',
+  },
+} as const;
 
 function daysIn(y: number, m: number): number {
   return new Date(y, m + 1, 0).getDate();
@@ -60,7 +89,9 @@ export function CalendarGrid({
   renderDay,
   squareCells = false,
   trimEmptyRows = false,
+  locale = 'pt-BR',
 }: CalendarGridProps) {
+  const t = I18N[locale];
   const now = React.useMemo(() => new Date(), []);
   // One integer for the visible month — `year*12 + month`. Keeps ‹ / › arithmetic
   // (and rapid clicks) correct across year boundaries with no Date() juggling.
@@ -239,7 +270,7 @@ export function CalendarGrid({
           marginBottom: 'var(--space-3)',
         })}
       >
-        <IconButton label="Mês anterior" size="sm" onClick={() => setViewIndex((i) => i - 1)}>
+        <IconButton label={t.prevMonth} size="sm" onClick={() => setViewIndex((i) => i - 1)}>
           <ChevronLeft size={18} strokeWidth={1.75} />
         </IconButton>
 
@@ -268,11 +299,11 @@ export function CalendarGrid({
             textTransform: 'capitalize',
           })}
         >
-          {MONTHS[viewMonth]} {viewYear}
+          {t.months[viewMonth]} {viewYear}
           <ChevronDown size={15} strokeWidth={2} style={{ opacity: 0.6 }} />
         </button>
 
-        <IconButton label="Próximo mês" size="sm" onClick={() => setViewIndex((i) => i + 1)}>
+        <IconButton label={t.nextMonth} size="sm" onClick={() => setViewIndex((i) => i + 1)}>
           <ChevronRight size={18} strokeWidth={1.75} />
         </IconButton>
 
@@ -280,7 +311,7 @@ export function CalendarGrid({
           <div
             ref={popRef}
             role="dialog"
-            aria-label="Escolher mês e ano"
+            aria-label={t.pickerLabel}
             tabIndex={-1}
             onKeyDown={(e) => {
               if (e.key === 'Escape') {
@@ -314,7 +345,7 @@ export function CalendarGrid({
               })}
             >
               <IconButton
-                label={picker === 'month' ? 'Ano anterior' : 'Anos anteriores'}
+                label={picker === 'month' ? t.prevYear : t.prevYears}
                 size="sm"
                 onClick={() => (picker === 'month' ? setViewIndex((i) => i - 12) : setYearBase((b) => b - 12))}
               >
@@ -359,7 +390,7 @@ export function CalendarGrid({
               )}
 
               <IconButton
-                label={picker === 'month' ? 'Próximo ano' : 'Próximos anos'}
+                label={picker === 'month' ? t.nextYear : t.nextYears}
                 size="sm"
                 onClick={() => (picker === 'month' ? setViewIndex((i) => i + 12) : setYearBase((b) => b + 12))}
               >
@@ -369,7 +400,7 @@ export function CalendarGrid({
 
             <div className="sereno-dtp-grid" style={sx({ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-1)' })}>
               {picker === 'month'
-                ? MONTHS_SHORT.map((mo, i) => (
+                ? t.monthsShort.map((mo, i) => (
                     <button
                       key={mo}
                       type="button"
@@ -403,7 +434,7 @@ export function CalendarGrid({
       </div>
 
       <div style={sx({ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 'var(--space-1)', marginBottom: 'var(--space-1)' })}>
-        {DOW.map((d, i) => (
+        {t.dow.map((d, i) => (
           <span
             key={i}
             style={sx({
