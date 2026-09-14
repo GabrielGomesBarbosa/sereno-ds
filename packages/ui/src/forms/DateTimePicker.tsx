@@ -6,7 +6,13 @@ import { CalendarGrid } from './_internal/CalendarGrid';
 
 export interface TimeSlot {
   value: string;
+  /** Hard-blocked — unclickable regardless of `capacity`/`booked`. */
   disabled?: boolean;
+  /** Total spots this slot holds — a group session, a class. Omit for a
+   *  plain 1:1 slot with no capacity tracking (the original contract). */
+  capacity?: number;
+  /** How many are already booked into it. */
+  booked?: number;
 }
 
 /**
@@ -38,7 +44,13 @@ export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivEl
   /** Selected day-of-month. The highlight only shows in the month it was picked
    *  in — navigating away and back to a *different* month never re-highlights it. */
   selectedDate?: number;
-  /** Slot labels ("09:00") or objects with `disabled`. */
+  /**
+   * Slot labels ("09:00") or `TimeSlot` objects. A slot with `capacity` set
+   * shows "booked/capacity" and switches to a full/overbook-warning look
+   * once reached (SS-64) — still pickable unless also `disabled`, since a
+   * full slot and a *blocked* one are different things: the first is a
+   * deliberate "yes, overbook it" the caller can still choose to allow.
+   */
   times?: (string | TimeSlot)[];
   selectedTime?: string;
   /** Day numbers with no availability — struck through and unclickable. */
@@ -112,21 +124,49 @@ export function DateTimePicker({
             {times.map((t) => {
               const val = typeof t === 'string' ? t : t.value;
               const dis = typeof t === 'object' && t.disabled;
+              const capacity = typeof t === 'object' ? t.capacity : undefined;
+              const booked = typeof t === 'object' ? (t.booked ?? 0) : 0;
+              // Full ≠ blocked: a full slot is still pickable (a deliberate
+              // overbook) unless the caller *also* set `disabled` — that's
+              // the actual hard "no" (SS-64).
+              const full = capacity !== undefined && booked >= capacity;
               const sel = selectedTime === val;
+              const vagasLabel = capacity !== undefined ? `${booked} de ${capacity} vagas` : undefined;
               return (
                 <button
                   key={val}
                   type="button"
                   disabled={dis}
+                  aria-label={vagasLabel ? `${val} — ${full ? 'lotado, ' : ''}${vagasLabel}` : undefined}
                   onClick={() => onSelectTime && onSelectTime(val)}
                   className="sereno-dtp-time"
                   style={sx({
-                    height: 'var(--control-height-md)',
+                    height: capacity !== undefined ? 'auto' : 'var(--control-height-md)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 2,
+                    padding: capacity !== undefined ? 'var(--space-2) 0' : 0,
                     borderRadius: 'var(--radius-control)',
                     cursor: dis ? 'not-allowed' : 'pointer',
-                    border: 'var(--border-width-hairline) solid ' + (sel ? 'transparent' : 'var(--border-default)'),
-                    background: sel ? 'var(--interactive-accent)' : dis ? 'var(--interactive-disabled-bg)' : 'var(--bg-surface)',
-                    color: sel ? 'var(--interactive-accent-fg)' : dis ? 'var(--interactive-disabled-fg)' : 'var(--text-primary)',
+                    border:
+                      'var(--border-width-hairline) solid ' +
+                      (sel ? 'transparent' : full && !dis ? 'var(--interactive-warning)' : 'var(--border-default)'),
+                    background: sel
+                      ? 'var(--interactive-accent)'
+                      : dis
+                        ? 'var(--interactive-disabled-bg)'
+                        : full
+                          ? 'var(--status-warning-bg)'
+                          : 'var(--bg-surface)',
+                    color: sel
+                      ? 'var(--interactive-accent-fg)'
+                      : dis
+                        ? 'var(--interactive-disabled-fg)'
+                        : full
+                          ? 'var(--status-warning-fg)'
+                          : 'var(--text-primary)',
                     fontFamily: 'var(--font-body)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--weight-semibold)',
@@ -134,7 +174,20 @@ export function DateTimePicker({
                     // Not inline outline:none — see .sereno-dtp-time in styles.css.
                   })}
                 >
-                  {val}
+                  <span aria-hidden={!!vagasLabel}>{val}</span>
+                  {vagasLabel && (
+                    <span
+                      aria-hidden
+                      style={sx({
+                        fontSize: 'var(--text-2xs)',
+                        fontWeight: 'var(--weight-medium)',
+                        color: sel ? 'inherit' : full ? 'var(--status-warning-fg)' : 'var(--text-muted)',
+                        opacity: sel ? 0.85 : 1,
+                      })}
+                    >
+                      {full ? 'Lotado' : vagasLabel}
+                    </span>
+                  )}
                 </button>
               );
             })}

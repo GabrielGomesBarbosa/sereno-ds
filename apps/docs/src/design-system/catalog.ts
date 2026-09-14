@@ -1094,7 +1094,12 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
     props: [
       R('year / month', 'number', 'The *initial* month (`month` is 0-indexed). The component then owns navigation — re-mount with a `key` to force a new start.'),
       R('selectedDate', 'number', 'Selected day.'),
-      R('times', '(string | { value, disabled })[]', 'Time-slot labels or objects with `disabled`.', '[]'),
+      R(
+        'times',
+        '(string | { value, disabled, capacity, booked })[]',
+        'Time-slot labels or objects. `disabled` hard-blocks it. `capacity`/`booked` show "booked de capacity vagas" and switch to a warning look once full — a full slot stays pickable (a deliberate overbook) unless also `disabled`.',
+        '[]',
+      ),
       R('selectedTime', 'string', 'Selected time (marked in turquoise).'),
       R('unavailable', 'number[]', 'Days with no availability — struck through and unclickable.'),
       R('onSelectDate / onSelectTime', '(v) => void', 'Selection callbacks.'),
@@ -1157,6 +1162,26 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
   onSelectTime={setTime}
 />`,
       },
+      {
+        id: 'capacity',
+        title: 'Capacity / overbooking',
+        description:
+          'Group sessions and classes hold more than one person. Set `capacity` and `booked` on a slot to show "booked de capacity vagas"; once `booked` reaches `capacity` it switches to a warning look and reads "Lotado" — but stays clickable, since a full slot is a deliberate overbook the caller can still allow. Add `disabled: true` on top for the actual hard "no".',
+        code: `<DateTimePicker
+  year={2026}
+  month={7}
+  times={[
+    { value: '09:00', capacity: 8, booked: 3 },
+    { value: '10:00', capacity: 8, booked: 8 },
+    { value: '11:00', capacity: 4, booked: 4, disabled: true },
+    '14:00',
+  ]}
+  selectedDate={day}
+  selectedTime={time}
+  onSelectDate={setDay}
+  onSelectTime={setTime}
+/>`,
+      },
     ],
     guidelines: {
       do: [
@@ -1164,10 +1189,12 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         'Recompute `unavailable` / `renderDay` inside `onMonthChange` so they track the visible month.',
         'Unavailable slots as `{ value, disabled: true }` — they keep their place in the grid.',
         'Let the accent time marker be the only one on the screen.',
+        'A full (`booked >= capacity`) slot stays pickable unless you also set `disabled` — that is the real "no".',
       ],
       dont: [
         'Removing unavailable slots from the list — the grid "jumps".',
         'Putting `renderDay` counts in the public booking flow — that’s the pro’s private data.',
+        'Treating "full" as "disabled" — they mean different things; disable it explicitly when it truly can\'t be booked.',
       ],
     },
   },

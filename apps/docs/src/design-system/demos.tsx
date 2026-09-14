@@ -1144,6 +1144,34 @@ function DateTimeComHorarios() {
   );
 }
 
+// Group-session slots: some room left, some full (but still pickable — a
+// deliberate overbook), one full AND hard-blocked (SS-64).
+const GROUP_SLOTS = [
+  { value: '09:00', capacity: 8, booked: 3 },
+  { value: '10:00', capacity: 8, booked: 8 },
+  { value: '11:00', capacity: 4, booked: 4, disabled: true },
+  '14:00',
+  { value: '15:00', capacity: 6, booked: 5 },
+];
+
+function DateTimeCapacidade() {
+  const [day, setDay] = React.useState<number | undefined>(14);
+  const [time, setTime] = React.useState<string | undefined>(undefined);
+  return (
+    <div style={{ maxWidth: 380 }}>
+      <DateTimePicker
+        year={2026}
+        month={7}
+        times={GROUP_SLOTS}
+        selectedDate={day}
+        selectedTime={time}
+        onSelectDate={setDay}
+        onSelectTime={setTime}
+      />
+    </div>
+  );
+}
+
 // Deterministic sample booking counts for a month — weekdays only, and only
 // from a fixed "today" forward, so `renderDay` scoping is visible.
 const DEMO_TODAY = { y: 2026, m: 7, d: 14 };
@@ -2160,7 +2188,12 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     sizes: SearchInputTamanhos,
     disabled: SearchInputDesabilitado,
   },
-  'date-time-picker': { calendar: DateTimeCalendario, 'render-day': DateTimeRenderDay, 'with-times': DateTimeComHorarios },
+  'date-time-picker': {
+    calendar: DateTimeCalendario,
+    'render-day': DateTimeRenderDay,
+    'with-times': DateTimeComHorarios,
+    capacity: DateTimeCapacidade,
+  },
   'date-picker': { basic: DatePickerBasico, range: DatePickerFaixa },
   'top-bar': { basic: TopBarBasico, full: TopBarCompleto, transparent: TopBarTransparente },
   tabs: { underline: TabsUnderline, pill: TabsPill, 'full-width': TabsFullWidth, overflow: TabsOverflow },
