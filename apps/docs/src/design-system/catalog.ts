@@ -1128,7 +1128,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         id: 'calendar',
         title: 'Calendar only',
         description:
-          'Without `times`, it’s just the calendar. `month` (0-indexed) is only the *starting* view — the header navigates from there, and the grid stays 6 rows so nothing below it shifts. `onMonthChange` keeps `unavailable` in sync — here, the weekends of whatever month you land on.',
+          'Without `times`, it’s just the calendar. `month` (0-indexed) is only the *starting* view — the header navigates from there, and the grid stays 6 rows so nothing below it shifts. `onMonthChange` keeps `unavailable` in sync — here, the weekends of whatever month you land on. Shown here with `locale="en"` — the real product always renders pt-BR.',
         code: `const [off, setOff] = useState(() => weekendsOf(2026, 7));
 
 <DateTimePicker
@@ -1138,12 +1138,14 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
   onMonthChange={(y, m) => setOff(weekendsOf(y, m))}
   selectedDate={day}
   onSelectDate={setDay}
+  locale="en"
 />`,
       },
       {
         id: 'render-day',
         title: 'Content under each day',
-        description: '`renderDay` drops a node under the day number — a booking count, a dot. Return `null` for days with nothing. Scope it in the consumer (this one shows counts for **future** days only). Every cell grows so the grid stays even.',
+        description:
+          '`renderDay` drops a node under the day number — a booking count, a dot. Return `null` for days with nothing. Scope it in the consumer (this one shows counts for **future** days only). Every cell grows so the grid stays even. Shown here with `locale="en"` — the real product always renders pt-BR.',
         code: `<DateTimePicker
   year={2026}
   month={7}
@@ -1153,12 +1155,14 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
   }
   selectedDate={day}
   onSelectDate={setDay}
+  locale="en"
 />`,
       },
       {
         id: 'with-times',
         title: 'With time slots',
-        description: 'Pass `times` as strings or `{ value, disabled }`. The selected time is the only turquoise (accent) element — the moment of decision in the flow.',
+        description:
+          'Pass `times` as strings or `{ value, disabled }`. The selected time is the only turquoise (accent) element — the moment of decision in the flow. Shown here with `locale="en"` — the real product always renders pt-BR.',
         code: `<DateTimePicker
   year={2026}
   month={7}
@@ -1167,6 +1171,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
   selectedTime={time}
   onSelectDate={setDay}
   onSelectTime={setTime}
+  locale="en"
 />`,
       },
       {

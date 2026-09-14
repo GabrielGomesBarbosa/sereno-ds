@@ -1112,6 +1112,7 @@ function DateTimeCalendario() {
         onMonthChange={(y, m) => setOff(weekendsOf(y, m))}
         selectedDate={day}
         onSelectDate={setDay}
+        locale="en"
       />
     </div>
   );
@@ -1139,6 +1140,7 @@ function DateTimeComHorarios() {
         selectedTime={time}
         onSelectDate={setDay}
         onSelectTime={setTime}
+        locale="en"
       />
     </div>
   );
@@ -1220,6 +1222,7 @@ function DateTimeRenderDay() {
         }
         selectedDate={day}
         onSelectDate={setDay}
+        locale="en"
       />
     </div>
   );
