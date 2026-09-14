@@ -1232,7 +1232,7 @@ function DatePickerBasico() {
   const [date, setDate] = React.useState('');
   return (
     <div style={{ maxWidth: 260 }}>
-      <DatePicker label="Data de nascimento" value={date} onChange={setDate} />
+      <DatePicker label="Date of birth" value={date} onChange={setDate} locale="en" />
     </div>
   );
 }
@@ -1251,7 +1251,7 @@ function DatePickerFaixa() {
   const [date, setDate] = React.useState('');
   return (
     <div style={{ maxWidth: 260 }}>
-      <DatePicker label="Agendar para" hint="Só os próximos 30 dias." min={min} max={max} value={date} onChange={setDate} />
+      <DatePicker label="Schedule for" hint="Only the next 30 days." min={min} max={max} value={date} onChange={setDate} locale="en" />
     </div>
   );
 }

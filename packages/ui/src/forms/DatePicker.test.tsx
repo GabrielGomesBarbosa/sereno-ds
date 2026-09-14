@@ -78,4 +78,38 @@ describe('DatePicker', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(trigger).toHaveFocus();
   });
+
+  it('has no clear button with no value', () => {
+    render(<DatePicker />);
+    expect(screen.queryByRole('button', { name: 'Limpar data' })).toBeNull();
+  });
+
+  it('a value shows a clear button that resets to the placeholder (uncontrolled) and refocuses the trigger', () => {
+    render(<DatePicker defaultValue="2026-10-12" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar data' }));
+    expect(screen.getByRole('button', { name: 'Selecionar data' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Selecionar data' })).toHaveFocus();
+    expect(screen.queryByRole('button', { name: 'Limpar data' })).toBeNull();
+  });
+
+  it('clearing a controlled value calls onChange with an empty string, without clicking through to the trigger', () => {
+    const onChange = vi.fn();
+    render(<DatePicker value="2026-10-12" onChange={onChange} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar data' }));
+    expect(onChange).toHaveBeenCalledWith('');
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('disabled hides the clear button even with a value', () => {
+    render(<DatePicker defaultValue="2026-10-12" disabled />);
+    expect(screen.queryByRole('button', { name: 'Limpar data' })).toBeNull();
+  });
+
+  it('locale="en" renders English placeholder, date format, weekday/month header, and clear label', () => {
+    render(<DatePicker locale="en" defaultValue="2026-10-12" />);
+    expect(screen.getByRole('button', { name: /10\/12\/2026/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /10\/12\/2026/ }));
+    expect(screen.getByText(/October 2026/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Clear date' })).toBeInTheDocument();
+  });
 });

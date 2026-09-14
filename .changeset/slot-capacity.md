@@ -17,8 +17,13 @@ same two-line layout with a generic "Disponível"/"Available" filler instead
 of looking short next to their neighbors. Fully backward compatible for a
 `times` list with no capacity anywhere.
 
-Also adds a `locale?: 'pt-BR' | 'en'` prop to `DateTimePicker` (and the
-shared internal `CalendarGrid`), defaulting to `'pt-BR'` — the real Sereno
-product always renders in Portuguese; `'en'` exists only so the docs
+Also adds a `locale?: 'pt-BR' | 'en'` prop to `DateTimePicker`, `DatePicker`,
+and the shared internal `CalendarGrid`, defaulting to `'pt-BR'` — the real
+Sereno product always renders in Portuguese; `'en'` exists only so the docs
 showcase can demo an English-speaking consumer without forking the
 component.
+
+`DatePicker` also gets a clear (×) button once a value is set — there was
+previously no way to empty the field back to its placeholder short of an
+external "reset" control. Clicking it resets to `''` (calling `onChange('')`
+when controlled) and refocuses the trigger; it's hidden while `disabled`.

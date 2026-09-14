@@ -1226,9 +1226,16 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       R('onChange', '(value: string) => void', 'Fires with the new ISO date on pick.'),
       R('min / max', 'string', 'ISO date bounds — every day outside the range is unavailable.'),
       R('disabled', 'boolean', '', 'false'),
+      R('clearLabel', 'string', 'aria-label for the clear (×) button that appears once a value is set.', 'locale-dependent'),
+      R(
+        'locale',
+        "'pt-BR' | 'en'",
+        "The real Sereno product always renders pt-BR — `'en'` exists for an English-speaking docs/demo audience, not for the product itself.",
+        "'pt-BR'",
+      ),
     ],
     code: `<DatePicker
-  label="Data de nascimento"
+  label="Date of birth"
   value={date}
   onChange={setDate}
 />`,
@@ -1236,20 +1243,23 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       {
         id: 'basic',
         title: 'Basic',
-        description: 'Value is a plain ISO `"YYYY-MM-DD"` string, same shape `<input type="date">` uses — drops into a form the same way, themed and in pt-BR instead of the browser\'s own date picker.',
-        code: `<DatePicker label="Data de nascimento" value={date} onChange={setDate} />`,
+        description:
+          'Value is a plain ISO `"YYYY-MM-DD"` string, same shape `<input type="date">` uses — drops into a form the same way, themed instead of the browser\'s own date picker. A clear (×) button appears once a value is set. Shown here with `locale="en"` — the real product always renders pt-BR.',
+        code: `<DatePicker label="Date of birth" value={date} onChange={setDate} locale="en" />`,
       },
       {
         id: 'range',
         title: 'Bounded range',
-        description: '`min` / `max` mark every day outside the range unavailable (struck through, unclickable) — recomputed for whichever month the popover is currently showing.',
+        description:
+          '`min` / `max` mark every day outside the range unavailable (struck through, unclickable) — recomputed for whichever month the popover is currently showing.',
         code: `<DatePicker
-  label="Agendar para"
-  hint="Só os próximos 30 dias."
+  label="Schedule for"
+  hint="Only the next 30 days."
   min={today}
   max={in30Days}
   value={date}
   onChange={setDate}
+  locale="en"
 />`,
       },
     ],
@@ -1261,6 +1271,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       dont: [
         'A date **and** a time in the same control — that’s `DateTimePicker`.',
         'Multiple dates or a range picker — not this component\'s job.',
+        'Setting `locale="en"` in the real product — Sereno is pt-BR only; the prop exists for this docs site.',
       ],
     },
   },
