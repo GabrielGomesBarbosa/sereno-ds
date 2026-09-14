@@ -1,6 +1,6 @@
 /** Which nav destinations have a real screen — everything else falls back to `ComingSoonView` /
  * `ComingSoon`. Kept as `Set`s next to the views that actually read them. */
-export const KNOWN_BASES = new Set(['agenda', 'clientes', 'servicos', 'financeiro', 'relatorios', 'config']);
+export const KNOWN_BASES = new Set(['agenda', 'clientes', 'servicos', 'financeiro', 'relatorios', 'config', 'bloqueios']);
 export const KNOWN_CONFIG = new Set(['perfil', 'grade', 'lembretes']);
 export const KNOWN_FINANCE = new Set(['resumo', 'receber']);
 

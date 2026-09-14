@@ -3,6 +3,7 @@
 // 24h times, "R$ 180" with a non-breaking space, closed status vocabulary.
 
 import type { WeekSchedule } from '@/domain/WeeklyScheduleEditor';
+import type { DateException } from '@/domain/ScheduleExceptions';
 
 export interface Professional {
   slug: string;
@@ -241,6 +242,11 @@ export const NOTIFICATIONS: NotificationItem[] = [
   { id: 'n3', kind: 'client', title: 'Diego Martins agendou uma primeira consulta', time: 'há 3 h', unread: true },
   { id: 'n4', kind: 'alert', title: 'Helena Costa faltou ao atendimento de 24 ago', time: 'ontem', unread: false },
   { id: 'n5', kind: 'booking', title: 'Lembrete: você tem 5 atendimentos amanhã', time: 'ontem', unread: false },
+];
+
+export const DEFAULT_EXCEPTIONS: DateException[] = [
+  { date: '2026-10-12', reason: 'Feriado' },
+  { date: '2026-12-25', reason: 'Feriado' },
 ];
 
 export const DEFAULT_WEEK: WeekSchedule = {
