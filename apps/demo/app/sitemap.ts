@@ -7,7 +7,7 @@ const SITE = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3001';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
-  const staticRoutes = ['', '/dashboard', '/onboarding'].map((path) => ({
+  const staticRoutes = ['', '/dashboard', '/onboarding', '/kiosk'].map((path) => ({
     url: `${SITE}${path}`,
     lastModified: now,
     changeFrequency: 'monthly' as const,

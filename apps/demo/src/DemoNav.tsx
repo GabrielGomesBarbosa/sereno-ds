@@ -10,6 +10,7 @@ const SCREENS = [
   { href: '/agendar/ana-ramos', label: 'Booking', match: '/agendar' },
   { href: '/dashboard', label: 'Dashboard', match: '/dashboard' },
   { href: '/onboarding', label: 'Onboarding', match: '/onboarding' },
+  { href: '/kiosk', label: 'Kiosk', match: '/kiosk' },
 ];
 
 const linkBase: React.CSSProperties = {
