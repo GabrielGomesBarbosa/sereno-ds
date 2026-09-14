@@ -14,6 +14,7 @@ import { ServicosView } from './ServicosView';
 import { FinanceiroView } from './FinanceiroView';
 import { RelatoriosView } from './RelatoriosView';
 import { ConfigView } from './ConfigView';
+import { BloqueiosView } from './BloqueiosView';
 import { ComingSoonView } from './shared';
 
 /** `SIDEBAR_SECTIONS` mapped to `SidebarNav`'s compound children — shared by the
@@ -170,6 +171,7 @@ function DashboardShell() {
             {base === 'financeiro' && <FinanceiroView section={sub ?? 'resumo'} title={pageTitle} />}
             {base === 'relatorios' && <RelatoriosView />}
             {base === 'config' && <ConfigView section={sub ?? 'perfil'} title={pageTitle} />}
+            {base === 'bloqueios' && <BloqueiosView />}
             {!KNOWN_BASES.has(base) && <ComingSoonView title={pageTitle} />}
           </main>
         </div>

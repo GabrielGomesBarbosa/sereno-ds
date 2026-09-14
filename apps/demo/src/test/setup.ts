@@ -14,3 +14,18 @@ globalThis.IntersectionObserver ??= NoopObserver as unknown as typeof Intersecti
 
 // jsdom doesn't implement scrollIntoView (Select scrolls the active option into view).
 Element.prototype.scrollIntoView ??= () => {};
+
+// jsdom doesn't implement matchMedia — Select reads it to detect a coarse
+// (touch) pointer, next-themes reads it on mount.
+if (!window.matchMedia) {
+  window.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
+}
