@@ -140,6 +140,97 @@ html, body { padding: 0; margin: 0; }
   .onb-row, .onb-row-2 { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* ── Check-in kiosk / waiting-room call panel (SS-66) ───────────────────────
+   Watched from across a room, not held in a hand — bigger type than the
+   desk/phone screens, but every value still comes from the DS's own scale
+   (`--text-5xl` is the biggest size token there is); no kiosk-only tokens
+   invented here. That ceiling is itself the finding: this exploration is
+   about whether the current scale reads at a step back, not about shipping
+   a fourth type scale.
+
+   Shows only a first name + last initial and a time — never the service
+   ("Sessão de psicoterapia" is sensitive health data under LGPD Art. 5º II)
+   and never a browsable list of everyone booked today. See CheckInKiosk.tsx
+   for why that was the first draft and got redone. */
+.kiosk-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-canvas);
+}
+.kiosk-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--gutter-mobile);
+}
+@media (min-width: 768px) { .kiosk-topbar { padding: var(--space-6) var(--space-8); } }
+.kiosk-topbar-right { align-items: flex-end; }
+.kiosk-clock {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.kiosk-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--gutter-mobile) var(--space-9);
+}
+
+.kiosk-eyebrow { font-family: var(--font-body); font-size: var(--text-sm); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+.kiosk-h2 { font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 800; letter-spacing: -0.015em; color: var(--text-primary); margin: 0; }
+.kiosk-sub { font-family: var(--font-body); font-size: var(--text-lg); color: var(--text-secondary); line-height: 1.5; margin: 0; }
+
+.kiosk-panel { display: flex; flex-direction: column; gap: var(--space-8); width: 100%; max-width: 640px; }
+.kiosk-panel-center { align-items: center; text-align: center; }
+
+.kiosk-now { display: flex; align-items: baseline; gap: var(--space-4); flex-wrap: wrap; }
+.kiosk-now-name { font-family: var(--font-display); font-size: var(--text-5xl); font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+.kiosk-now-time { font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 700; color: var(--text-brand); font-variant-numeric: tabular-nums; }
+
+.kiosk-next-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.kiosk-next-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  box-shadow: 0 0 0 1px var(--border-subtle);
+}
+.kiosk-next-name { font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+.kiosk-next-time { font-family: var(--font-body); font-size: var(--text-base); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+.kiosk-success-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-brand-soft);
+  color: var(--text-brand);
+}
+
+/* Stands in for a receptionist's own control surface — demo-only, not part
+   of the public panel a client/waiting-room would ever see. */
+.kiosk-staff-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--gutter-mobile);
+  border-top: 1px dashed var(--border-default);
+  background: var(--bg-subtle);
+}
+.kiosk-staff-label { font-family: var(--font-body); font-size: var(--text-xs); color: var(--text-muted); }
+
 /* ── WeeklyScheduleEditor (src/domain — a product component, not the DS) ───────
    The day rows are an inline grid; this is the only breakpoint where they
    reflow to a single column. */

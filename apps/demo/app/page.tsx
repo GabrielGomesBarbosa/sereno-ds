@@ -32,6 +32,12 @@ const SCREENS = [
     title: '3-step onboarding',
     body: 'Profile, first service and weekly schedule. At the end, the public link already accepts bookings.',
   },
+  {
+    href: '/kiosk',
+    kicker: 'Waiting room',
+    title: 'Call panel',
+    body: 'A screen mounted in the waiting room announcing who’s up next — a ticket code and a time, bank-panel style, no client-identifying data at all.',
+  },
 ];
 
 const eyebrow: CSSProperties = {
@@ -131,7 +137,7 @@ export default function DemoHome() {
             The Sereno app, built on the Design System.
           </h1>
           <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-lg)', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0, maxWidth: 520 }}>
-            Three real product screens — a public booking flow, the professional dashboard and onboarding — assembled from{' '}
+            Four real product screens — a public booking flow, the professional dashboard, onboarding and a reception kiosk — assembled from{' '}
             <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85em', padding: '0.12em 0.4em', borderRadius: 'var(--radius-sm)', background: 'var(--bg-subtle)' }}>@sereno-ds/ui</code>{' '}
             primitives and navigable end to end on mocked data.
           </p>
