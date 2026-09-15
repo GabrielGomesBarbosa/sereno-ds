@@ -1,5 +1,11 @@
 # @sereno-ds/ui
 
+## 0.27.1
+
+### Patch Changes
+
+- 2b01d9d: Fix `dist/**/*.js` relative imports missing `.js` extensions (SS-252). tsup's `bundle: false` mode never rewrote them, which is valid per bundler resolution (Next/webpack/Vite) but violates the Node ESM spec — breaking plain Node, ts-node, and Vitest consumers with `Cannot find module` errors. A postbuild step now adds the missing extensions.
+
 ## 0.27.0
 
 ### Minor Changes
