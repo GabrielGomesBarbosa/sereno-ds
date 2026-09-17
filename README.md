@@ -59,7 +59,7 @@ config-prop API — SS-225) is in [`AGENTS.md`](./AGENTS.md).
 
 ```bash
 npm install
-npm run dev          # turbo run dev — docs on :3000, demo on :3001
+npm run dev          # turbo run dev — docs on :3001, demo on :3002
 npm run build        # turbo run build — each app writes its own out/
 npm run lint         # turbo run lint
 npm run typecheck    # turbo run typecheck

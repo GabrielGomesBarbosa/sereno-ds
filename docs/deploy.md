@@ -80,7 +80,7 @@ the generated domains directly:
 
 Order: both services exist → both domains generated → set the four variables →
 **Redeploy both** (values bake in at build). Without them everything falls back to
-`http://localhost:3000` / `:3001`.
+`http://localhost:3001` / `:3002`.
 
 No `NODE_VERSION` pin is needed — Railway's Node 20+ is fine.
 

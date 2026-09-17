@@ -5,8 +5,8 @@ import { ArrowRight, ExternalLink } from 'lucide-react';
 import { Brand, Card, ThemeToggle } from '@sereno-ds/ui';
 
 // The Design System lives in a separate app (apps/docs). SS-158 sets
-// NEXT_PUBLIC_DS_URL for the deployed build; locally it runs on :3000.
-const DS_URL = process.env.NEXT_PUBLIC_DS_URL ?? 'http://localhost:3000';
+// NEXT_PUBLIC_DS_URL for the deployed build; locally it runs on :3001.
+const DS_URL = process.env.NEXT_PUBLIC_DS_URL ?? 'http://localhost:3001';
 
 // Title / description / OG all come from the root layout (SS-204) — this is `/`.
 export const metadata: Metadata = {

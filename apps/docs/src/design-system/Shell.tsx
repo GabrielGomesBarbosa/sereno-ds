@@ -6,8 +6,8 @@ import { DS_VERSION } from './version';
 import { ThemeToggle } from '@sereno-ds/ui';
 
 // The demo is a separate app (apps/demo). SS-158 sets NEXT_PUBLIC_DEMO_URL for
-// the deployed build; locally it runs on :3001.
-const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3001';
+// the deployed build; locally it runs on :3002.
+const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3002';
 
 /**
  * Shell — same structure as the dashboard: a full-height sidebar on the left,

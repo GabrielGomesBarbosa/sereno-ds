@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 export const dynamic = 'force-static';
 
-const SITE = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3001';
+const SITE = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3002';
 
 export default function robots(): MetadataRoute.Robots {
   return {
