@@ -12,11 +12,19 @@ export interface FieldProps {
   htmlFor?: string;
   /** Right-aligned node on the hint row (e.g. a character counter). */
   counter?: React.ReactNode;
+  /**
+   * Reserve the hint/error row's height even when there's nothing to show —
+   * keeps the field's own height stable as `error`/`hint` come and go (e.g.
+   * several fields in a form invalidating at once), instead of every field
+   * growing the moment a message appears. Off by default: most fields don't
+   * need the empty gap when there's nothing under them.
+   */
+  preserveHelperSpace?: boolean;
   children?: React.ReactNode;
   style?: React.CSSProperties;
 }
 
-export function Field({ label, hint, error, required, htmlFor, counter, children, style }: FieldProps) {
+export function Field({ label, hint, error, required, htmlFor, counter, preserveHelperSpace = false, children, style }: FieldProps) {
   return (
     <div style={sx({ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', ...style })}>
       {label && (
@@ -35,12 +43,15 @@ export function Field({ label, hint, error, required, htmlFor, counter, children
         </label>
       )}
       {children}
-      {(error || hint || counter) && (
+      {(error || hint || counter || preserveHelperSpace) && (
         <div
           style={sx({
             display: 'flex',
             alignItems: 'baseline',
             gap: 'var(--space-3)',
+            // One line's worth of height, reserved up front — so text
+            // appearing/disappearing never changes the row's own size.
+            minHeight: preserveHelperSpace ? 'calc(var(--text-xs) * 1.45)' : undefined,
             justifyContent: error || hint ? 'space-between' : 'flex-end',
           })}
         >

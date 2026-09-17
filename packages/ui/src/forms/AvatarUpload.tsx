@@ -79,6 +79,9 @@ export interface AvatarUploadProps {
   disabled?: boolean;
   id?: string;
   containerStyle?: React.CSSProperties;
+  /** Reserve the hint/error row's height even with neither set — stops the
+   *  field from growing the moment a validation message appears. */
+  preserveHelperSpace?: boolean;
 }
 
 function initials(name: string): string {
@@ -108,6 +111,7 @@ export function AvatarUpload({
   disabled,
   id,
   containerStyle,
+  preserveHelperSpace,
 }: AvatarUploadProps) {
   const t = React.useMemo<AvatarUploadLabels>(() => ({ ...EN, ...labelsProp }), [labelsProp]);
   const autoId = React.useId();
@@ -255,7 +259,7 @@ export function AvatarUpload({
   const cameraBtn = Math.max(30, Math.round(size * 0.34));
 
   return (
-    <Field label={label} hint={hint} error={error || rejected || undefined} required={required} htmlFor={rid} style={containerStyle}>
+    <Field label={label} hint={hint} error={error || rejected || undefined} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
       <input ref={libRef} id={rid} type="file" accept="image/*" disabled={disabled} onChange={(e) => pick(e.target.files)} style={{ display: 'none' }} />
 
       <div style={sx({ position: 'relative', width: size, height: size, flex: '0 0 auto', opacity: disabled ? 0.6 : 1 })}>

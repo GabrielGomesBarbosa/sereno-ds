@@ -706,6 +706,14 @@ function InputTamanhos() {
     </div>
   );
 }
+function InputSemLayoutShift() {
+  return (
+    <div style={fieldCol}>
+      <Input label="Email" required error="This field is required." preserveHelperSpace />
+      <Input label="Password" type="password" required error="This field is required." preserveHelperSpace />
+    </div>
+  );
+}
 
 function TextareaBasico() {
   return (
@@ -2160,6 +2168,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     count: InputContador,
     states: InputEstados,
     sizes: InputTamanhos,
+    'no-layout-shift': InputSemLayoutShift,
   },
   textarea: { basic: TextareaBasico, count: TextareaContador, error: TextareaErro },
   select: { basic: SelectBasico, placeholder: SelectHint, error: SelectErro, disabled: SelectDesabilitado, sizes: SelectTamanhos, long: SelectLista },

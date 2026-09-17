@@ -625,6 +625,12 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       R('mask', "'phone' | 'cpf' | 'cep' | 'currency' | string", "Format as you type — a preset or a custom `#`-per-digit pattern (`(##) #####-####`). Sets `inputMode` + `maxLength`."),
       R('type', "'text' | 'password' | 'email' | …", 'Native input type. `password` adds a show/hide eye toggle at the end of the field.', "'text'"),
       R('showCount', 'boolean', 'Show a `n / max` character counter on the hint row. Implied when `maxLength` is set.', 'false'),
+      R(
+        'preserveHelperSpace',
+        'boolean',
+        'Reserve the hint/error row\'s height even with neither set — several fields validating at once (e.g. a login form submitted empty) then invalidate in place instead of the whole form growing under the user.',
+        'false',
+      ),
     ],
     code: `<Input
   label="WhatsApp"
@@ -687,12 +693,21 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
 <Input label="Field" size="md" />
 <Input label="Field" size="lg" />`,
       },
+      {
+        id: 'no-layout-shift',
+        title: 'No layout shift on validation',
+        description:
+          'Submit a form with several fields at once and every one of them can invalidate in the same instant — a login form with nothing filled in is the classic case. Without `preserveHelperSpace`, each field only grows once its own error text mounts, so the whole form jumps in height right under the user\'s cursor. With it, the hint/error row\'s height is reserved from the start; the error just fills a slot that was already there.',
+        code: `<Input label="Email" required error="This field is required." preserveHelperSpace />
+<Input label="Password" type="password" required error="This field is required." preserveHelperSpace />`,
+      },
     ],
     guidelines: {
       do: [
         'Always a `label` — never `placeholder` alone.',
         '`size="lg"` on mobile and in the public flow.',
         'Full error sentence with a period: "Enter a valid email."',
+        '`preserveHelperSpace` on every field of a form that validates several at once (e.g. on submit) — keeps the layout still while errors appear.',
       ],
       dont: ['Placeholder instead of the label.', 'An error with no text (just the red border).'],
     },
@@ -706,6 +721,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       R('label / hint / error / required', 'string / string / string / boolean', 'Same label contract as Input.'),
       R('rows', 'number', 'Initial height in lines.', '4'),
       R('showCount', 'boolean', 'Show a `n / max` character counter on the hint row. Implied when `maxLength` is set.', 'false'),
+      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set — see Input.", 'false'),
     ],
     code: `<Textarea label="Any notes?" rows={3} hint="Optional." />`,
     examples: [
@@ -752,6 +768,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       R('size', "'sm' | 'md' | 'lg'", 'Control height.', "'md'"),
       R('disabled', 'boolean', 'Disabled fill and text, not-allowed cursor.', 'false'),
       R('name', 'string', 'Mirrored to a hidden input so the value can be submitted in a form.'),
+      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set — see Input.", 'false'),
     ],
     code: `<Select
   label="Duration"
@@ -1233,6 +1250,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         "The real Sereno product always renders pt-BR — `'en'` exists for an English-speaking docs/demo audience, not for the product itself.",
         "'pt-BR'",
       ),
+      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set — see Input.", 'false'),
     ],
     code: `<DatePicker
   label="Date of birth"
@@ -1289,6 +1307,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       R('shape', "'circle' | 'square'", 'Thumbnail shape for image previews — `circle` for avatars (single only).', "'square'"),
       R('prompt', 'string', 'Text inside the empty drop area.'),
       R('label / hint / error / required / disabled', '—', 'Same label contract as Input.'),
+      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set — see Input.", 'false'),
     ],
     code: `<FileUpload
   label="Profile photo"
@@ -1368,6 +1387,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       R('maxSizeMB', 'number', 'Picks larger than this are rejected (before crop).', '8'),
       R('labels', 'Partial<AvatarUploadLabels>', 'Override the English UI strings — menu, crop dialog, error messages.'),
       R('label / hint / error / required / disabled', '—', 'Same label contract as Input.'),
+      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set — see Input.", 'false'),
     ],
     code: `<AvatarUpload
   label="Profile photo"

@@ -35,6 +35,9 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
    */
   showCount?: boolean;
   containerStyle?: React.CSSProperties;
+  /** Reserve the hint/error row's height even with neither set — stops the
+   *  field from growing the moment a validation message appears. */
+  preserveHelperSpace?: boolean;
 }
 
 const H = { sm: 'var(--control-height-sm)', md: 'var(--control-height-md)', lg: 'var(--control-height-lg)' } as const;
@@ -54,6 +57,7 @@ export function Input({
   containerStyle,
   mask,
   showCount,
+  preserveHelperSpace,
   type,
   onChange,
   inputMode,
@@ -107,6 +111,7 @@ export function Input({
       htmlFor={rid}
       style={containerStyle}
       counter={showCounter ? <CharCount count={count} max={maxLength ?? undefined} /> : undefined}
+      preserveHelperSpace={preserveHelperSpace}
     >
       <div
         style={sx({

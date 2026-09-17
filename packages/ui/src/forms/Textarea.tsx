@@ -18,9 +18,12 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
    */
   showCount?: boolean;
   containerStyle?: React.CSSProperties;
+  /** Reserve the hint/error row's height even with neither set — stops the
+   *  field from growing the moment a validation message appears. */
+  preserveHelperSpace?: boolean;
 }
 
-export function Textarea({ label, hint, error, required, rows = 4, showCount, disabled, id, style, containerStyle, ...rest }: TextareaProps) {
+export function Textarea({ label, hint, error, required, rows = 4, showCount, preserveHelperSpace, disabled, id, style, containerStyle, ...rest }: TextareaProps) {
   const [focus, setFocus] = React.useState(false);
   // SSR-stable id (the DS source used Math.random(), which breaks hydration).
   const autoId = React.useId();
@@ -48,6 +51,7 @@ export function Textarea({ label, hint, error, required, rows = 4, showCount, di
       htmlFor={rid}
       style={containerStyle}
       counter={showCounter ? <CharCount count={count} max={max} /> : undefined}
+      preserveHelperSpace={preserveHelperSpace}
     >
       <textarea
         id={rid}

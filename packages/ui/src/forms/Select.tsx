@@ -51,6 +51,9 @@ export interface SelectProps {
    * set — don't pass both.
    */
   'aria-label'?: string;
+  /** Reserve the hint/error row's height even with neither set — stops the
+   *  field from growing the moment a validation message appears. */
+  preserveHelperSpace?: boolean;
 }
 
 const OPTION_PAD_Y = { sm: 6, md: 8, lg: 10 } as const;
@@ -560,6 +563,7 @@ export function Select({
   id,
   containerStyle,
   'aria-label': ariaLabel,
+  preserveHelperSpace,
 }: SelectProps) {
   const reactId = React.useId();
   const rid = id || reactId;
@@ -577,7 +581,7 @@ export function Select({
   );
 
   return (
-    <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle}>
+    <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
       <CustomSelect
         rid={rid}
         label={label}

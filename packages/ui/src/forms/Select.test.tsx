@@ -155,4 +155,24 @@ describe('Select (custom listbox)', () => {
     render(<Select aria-label="Horário de início, Segunda" options={OPTS} />);
     expect(screen.getByRole('combobox', { name: 'Horário de início, Segunda' })).toBeInTheDocument();
   });
+
+  it('without preserveHelperSpace, no hint/error row renders when there is nothing to show', () => {
+    render(<Select options={OPTS} />);
+    const root = screen.getByRole('combobox').parentElement; // CustomSelect's own wrapper
+    expect(root?.nextElementSibling).toBeNull();
+  });
+
+  it('preserveHelperSpace reserves the hint/error row even with neither set', () => {
+    render(<Select options={OPTS} preserveHelperSpace />);
+    const root = screen.getByRole('combobox').parentElement;
+    const row = root?.nextElementSibling as HTMLElement | null;
+    expect(row).not.toBeNull();
+    expect(row?.style.minHeight).toBe('calc(var(--text-xs) * 1.45)');
+    expect(row?.textContent).toBe('');
+  });
+
+  it('preserveHelperSpace still shows the error text when set', () => {
+    render(<Select options={OPTS} error="Campo obrigatório." preserveHelperSpace />);
+    expect(screen.getByText('Campo obrigatório.')).toBeInTheDocument();
+  });
 });

@@ -40,6 +40,9 @@ export interface DatePickerProps {
    * component. Default stays `'pt-BR'`.
    */
   locale?: 'pt-BR' | 'en';
+  /** Reserve the hint/error row's height even with neither set — stops the
+   *  field from growing the moment a validation message appears. */
+  preserveHelperSpace?: boolean;
 }
 
 interface YMD {
@@ -121,6 +124,7 @@ export function DatePicker({
   containerStyle,
   clearLabel,
   locale = 'pt-BR',
+  preserveHelperSpace,
 }: DatePickerProps) {
   const copy = TEXT[locale];
   const [inner, setInner] = React.useState(defaultValue ?? '');
@@ -193,7 +197,7 @@ export function DatePicker({
   const unavailable = React.useMemo(() => unavailableForMonth(viewYear, viewMonth, min, max), [viewYear, viewMonth, min, max]);
 
   return (
-    <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle}>
+    <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
       <div ref={rootRef} style={{ position: 'relative', width: '100%' }}>
         {/* The bordered box lives on this wrapper `div`, not on a `<button>`
             — the open-trigger and the clear (×) button are real, independent
