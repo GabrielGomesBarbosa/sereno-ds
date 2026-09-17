@@ -1449,7 +1449,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       R('debounce', 'number', 'Debounce for `onSearch`, ms.', '250'),
       R('clearLabel', 'string', 'aria-label for the × button.', "'Clear search'"),
       R('placeholder', 'string', '', "'Search…'"),
-      R('label / hint / error / size / disabled', '—', 'Passed through to `Input`.'),
+      R('label / hint / error / size / disabled / preserveHelperSpace', '—', 'Passed through to `Input`.'),
     ],
     code: `<SearchInput
   placeholder="Buscar cliente"
