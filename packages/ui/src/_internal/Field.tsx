@@ -26,7 +26,9 @@ export interface FieldProps {
 
 export function Field({ label, hint, error, required, htmlFor, counter, preserveHelperSpace = false, children, style }: FieldProps) {
   return (
-    <div style={sx({ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', ...style })}>
+    // No `gap` here — the label→field and field→helper gaps are deliberately
+    // different sizes (below), not one uniform rhythm.
+    <div style={sx({ display: 'flex', flexDirection: 'column', ...style })}>
       {label && (
         <label
           htmlFor={htmlFor}
@@ -36,6 +38,7 @@ export function Field({ label, hint, error, required, htmlFor, counter, preserve
             fontWeight: 'var(--weight-semibold)',
             color: 'var(--text-primary)',
             letterSpacing: 'var(--tracking-snug)',
+            marginBottom: 'var(--space-2)',
           })}
         >
           {label}
@@ -49,6 +52,7 @@ export function Field({ label, hint, error, required, htmlFor, counter, preserve
             display: 'flex',
             alignItems: 'baseline',
             gap: 'var(--space-3)',
+            marginTop: 'var(--space-1)',
             // One line's worth of height, reserved up front — so text
             // appearing/disappearing never changes the row's own size.
             minHeight: preserveHelperSpace ? 'calc(var(--text-xs) * 1.45)' : undefined,
