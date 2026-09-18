@@ -870,6 +870,13 @@ function CheckboxTamanhos() {
     </div>
   );
 }
+function CheckboxErro() {
+  return (
+    <div style={col}>
+      <Checkbox label="I accept the terms" error="You must accept the terms to continue." />
+    </div>
+  );
+}
 function CheckboxGrupo() {
   const OPTS = ['Psychology', 'Nutrition', 'Physiotherapy', 'Speech therapy'];
   const [sel, setSel] = React.useState<string[]>(['Psychology', 'Nutrition']);
@@ -942,6 +949,17 @@ function RadioTamanhos() {
       <legend style={legendStyle}>Box size</legend>
       <Radio name="sz" size="sm" label="Small (16px)" checked={v === 'a'} onChange={() => setV('a')} />
       <Radio name="sz" label="Medium (20px, default)" checked={v === 'b'} onChange={() => setV('b')} />
+    </fieldset>
+  );
+}
+
+function RadioErro() {
+  return (
+    <fieldset style={{ border: 'none', margin: 0, padding: 0, width: '100%', ...col }}>
+      <legend style={legendStyle}>Payment method</legend>
+      <Radio name="pay-error" label="Credit card" />
+      <Radio name="pay-error" label="Pix" />
+      <Radio name="pay-error" label="Bank transfer" error="Select a payment method." />
     </fieldset>
   );
 }
@@ -2177,10 +2195,11 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     states: CheckboxEstados,
     indeterminate: CheckboxIndeterminado,
     sizes: CheckboxTamanhos,
+    error: CheckboxErro,
     group: CheckboxGrupo,
     horizontal: CheckboxHorizontal,
   },
-  radio: { vertical: RadioVertical, horizontal: RadioHorizontal, states: RadioEstados, sizes: RadioTamanhos },
+  radio: { vertical: RadioVertical, horizontal: RadioHorizontal, states: RadioEstados, sizes: RadioTamanhos, error: RadioErro },
   switch: { basic: SwitchBasico, settings: SwitchSettings, states: SwitchEstados, sizes: SwitchTamanhos },
   'file-upload': {
     basic: FileUploadBasico,
