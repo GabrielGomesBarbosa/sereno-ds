@@ -854,10 +854,12 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
     summary: 'Opt-in control for consents and multi-select filters. The host needs the `.sereno-check:checked` / `:indeterminate` rules.',
     props: [
       R('label', 'string', 'Label next to the box.'),
-      R('description', 'string', 'Secondary line below the label.'),
+      R('description', 'string', 'Secondary line below the label. Replaced by `error` when present.'),
+      R('error', 'string', 'Error message — tints the box and the secondary line red. Replaces `description`.'),
       R('indeterminate', 'boolean', 'Mixed state (some children selected). Visual only — a form still submits it as unchecked.', 'false'),
       R('size', "'sm' | 'md'", 'Box size — `sm` is 16px for dense filter lists.', "'md'"),
       R('checked / defaultChecked / disabled', 'boolean', 'Native input props passed through.'),
+      R('preserveHelperSpace', 'boolean', "Reserve the description/error row's height even with neither set — see Input.", 'false'),
     ],
     code: `<Checkbox
   label="Send me WhatsApp reminders"
@@ -905,6 +907,12 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
 <Checkbox label="Medium (20px, default)" defaultChecked />`,
       },
       {
+        id: 'error',
+        title: 'Error',
+        description: '`error` replaces `description` and tints the box red — a required consent left unchecked on submit is the classic case.',
+        code: `<Checkbox label="I accept the terms" error="You must accept the terms to continue." />`,
+      },
+      {
         id: 'group',
         title: 'Group',
         description: 'Multi-select: independent boxes sharing a `<fieldset>` / `<legend>`. This is the filter-list pattern — for a single yes/no, one `Checkbox` is enough.',
@@ -935,6 +943,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         'Affirmative label ("I accept…", "I want…").',
         '`indeterminate` for a "select all" parent — never a plain third state.',
         '`size="sm"` in dense filter panels; `md` in forms.',
+        '`error` for a required consent left unchecked on submit — full sentence, same as `Input`.',
       ],
       dont: [
         'A mutually exclusive single choice — use `Radio`.',
@@ -950,10 +959,12 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
     summary: 'Single choice among mutually exclusive options. Group by the same `name`. The host needs the `.sereno-radio:checked` rule.',
     props: [
       R('label', 'string', 'Label next to the circle.'),
-      R('description', 'string', 'Secondary line below the label.'),
+      R('description', 'string', 'Secondary line below the label. Replaced by `error` when present.'),
+      R('error', 'string', 'Error message — tints the circle and the secondary line red. Replaces `description`.'),
       R('name', 'string', 'Same value on every option in the group.'),
       R('size', "'sm' | 'md'", 'Circle size — `sm` is 16px. Matches `Checkbox`.', "'md'"),
       R('checked / defaultChecked / disabled', 'boolean', 'Native input props passed through.'),
+      R('preserveHelperSpace', 'boolean', "Reserve the description/error row's height even with neither set — see Input.", 'false'),
     ],
     code: `<>
   <Radio name="format" label="Online" description="By video." defaultChecked />
@@ -1005,6 +1016,18 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
   <Radio name="sz" label="Medium (20px, default)" />
 </fieldset>`,
       },
+      {
+        id: 'error',
+        title: 'Error',
+        description:
+          '`error` replaces `description` and tints the circle red. There\'s no separate "group error" slot — pass it to one option (the last one reads naturally) to show a single message for the whole required group.',
+        code: `<fieldset>
+  <legend>Payment method</legend>
+  <Radio name="pay" label="Credit card" />
+  <Radio name="pay" label="Pix" />
+  <Radio name="pay" label="Bank transfer" error="Select a payment method." />
+</fieldset>`,
+      },
     ],
     guidelines: {
       do: [
@@ -1012,6 +1035,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         'A `<fieldset>`/`<legend>` around every group — the accessible name for what the choice is between.',
         'A `description` per option when the difference is not obvious.',
         'Horizontal only for short, label-only options.',
+        '`error` on one option (the last reads naturally) for a required group left unselected.',
       ],
       dont: [
         'A single lone `Radio` — if it is yes/no, use `Checkbox` or `Switch`.',
