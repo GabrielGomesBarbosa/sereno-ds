@@ -10,7 +10,7 @@ const manrope = Manrope({ subsets: ['latin'], weight: ['500', '600', '700', '800
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-jetbrains-mono', display: 'swap' });
 
 // Canonical origin for metadata / OG — set per Railway service (SS-158).
-const SITE = process.env.NEXT_PUBLIC_DS_URL ?? 'http://localhost:3000';
+const SITE = process.env.NEXT_PUBLIC_DS_URL ?? 'http://localhost:3001';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),

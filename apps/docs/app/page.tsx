@@ -12,8 +12,8 @@ import { CopyCode } from '@/home/CopyCode';
 const REPO = 'https://github.com/GabrielGomesBarbosa/sereno-ds';
 
 // The demo is a separate app (apps/demo). SS-158 sets NEXT_PUBLIC_DEMO_URL for
-// the deployed build; locally it runs on :3001.
-const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3001';
+// the deployed build; locally it runs on :3002.
+const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3002';
 
 const pageTitle = 'Sereno Design System';
 const pageDescription =

@@ -3,7 +3,7 @@ import { PROFESSIONALS } from '@/lib/mock';
 
 export const dynamic = 'force-static';
 
-const SITE = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3001';
+const SITE = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3002';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

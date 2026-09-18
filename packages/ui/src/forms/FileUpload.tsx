@@ -29,6 +29,9 @@ interface BaseProps {
   disabled?: boolean;
   id?: string;
   containerStyle?: React.CSSProperties;
+  /** Reserve the hint/error row's height even with neither set — stops the
+   *  field from growing the moment a validation message appears. */
+  preserveHelperSpace?: boolean;
 }
 
 export type FileUploadProps = BaseProps &
@@ -159,6 +162,7 @@ export function FileUpload(props: FileUploadProps) {
     disabled,
     id,
     containerStyle,
+    preserveHelperSpace,
   } = props;
   const multiple = props.multiple === true;
 
@@ -322,7 +326,7 @@ export function FileUpload(props: FileUploadProps) {
   );
 
   return (
-    <Field label={label} hint={hint} error={error || (multiple ? undefined : rejected) || undefined} required={required} htmlFor={rid} style={containerStyle}>
+    <Field label={label} hint={hint} error={error || (multiple ? undefined : rejected) || undefined} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
       <input
         ref={inputRef}
         id={rid}
