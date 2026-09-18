@@ -1,5 +1,35 @@
 # @sereno-ds/ui
 
+## 0.28.0
+
+### Minor Changes
+
+- f2dcc54: Adds `error?: string` (SS-259) to `Checkbox` and `Radio` — replaces
+  `description` and tints the box/circle border red, same contract as
+  `Input`'s `error`. Neither control had any validation state before; only a
+  static `description` line.
+
+  `Switch` intentionally does not get this — it's documented as an
+  instant-apply settings toggle, never inside a form that needs validation, so
+  there's no "invalid" state for it to have.
+
+  Also adds `preserveHelperSpace?: boolean` to both (default `false`), the
+  same layout-shift-prevention mechanism `Input`/`Textarea`/`Select`/
+  `DatePicker`/`FileUpload`/`AvatarUpload` got in SS-258.
+
+- 35f5f98: Adds `preserveHelperSpace?: boolean` (SS-258) to `Input`, `Textarea`, `Select`,
+  `DatePicker`, `FileUpload` and `AvatarUpload` — reserves the hint/error row's
+  height even when neither is set, instead of the row only existing once there's
+  something to show.
+
+  Without it, a form where several fields invalidate at once (e.g. submitted
+  empty) grows every field's height in the same instant, jumping the whole
+  layout under the user. With `preserveHelperSpace` on, the space is already
+  there — the error just fills a slot that was reserved from the start.
+
+  Off by default: existing usage is unaffected, and most fields don't need the
+  extra reserved gap when there's nothing under them.
+
 ## 0.27.1
 
 ### Patch Changes
