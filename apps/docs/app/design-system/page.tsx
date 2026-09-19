@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Typography } from '@sereno-ds/ui';
 import { CATEGORIES, COMPONENTS } from '@/design-system/catalog';
 import { DocPage } from '@/design-system/DocPage';
 import { docSectionAnchor } from '@/design-system/TableOfContents';
@@ -31,8 +32,12 @@ export default function DesignSystemOverview() {
       {CATEGORIES.map((cat) => (
         <section key={cat.id} id={cat.id} style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{cat.label}</h2>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', margin: 0 }}>{cat.blurb}</p>
+            <Typography variant="h2" style={{ letterSpacing: 'normal' }}>
+              {cat.label}
+            </Typography>
+            <Typography variant="bodySm" color="muted" style={{ lineHeight: 'normal' }}>
+              {cat.blurb}
+            </Typography>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 'var(--space-3)' }}>
             {COMPONENTS.filter((c) => c.category === cat.id).map((c) => (
@@ -51,10 +56,12 @@ export default function DesignSystemOverview() {
                   textDecoration: 'none',
                 }}
               >
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--text-primary)' }}>{c.name}</span>
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                <Typography as="span" variant="h3" style={{ letterSpacing: 'normal', lineHeight: 'normal' }}>
+                  {c.name}
+                </Typography>
+                <Typography as="span" variant="caption" color="secondary">
                   <InlineCode text={c.summary} />
-                </span>
+                </Typography>
               </Link>
             ))}
           </div>

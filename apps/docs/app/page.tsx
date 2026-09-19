@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
 import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, ListChecks, MonitorSmartphone, MoonStar, Palette, Server } from 'lucide-react';
-import { Brand, Card, ThemeToggle } from '@sereno-ds/ui';
+import { Brand, Card, ThemeToggle, Typography } from '@sereno-ds/ui';
 import { DS_VERSION } from '@/design-system/version';
 import { ComponentGallery } from '@/home/ComponentGallery';
 import { HeroPreview } from '@/home/HeroPreview';
@@ -38,14 +38,7 @@ const FEATURES: { icon: ReactNode; title: string; body: string }[] = [
   { icon: <Server size={20} strokeWidth={1.75} />, title: 'RSC-ready', body: "Each primitive keeps its own `'use client'` boundary — server components import them freely; only what's interactive hydrates." },
 ];
 
-const eyebrow: CSSProperties = {
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-2xs)',
-  fontWeight: 700,
-  letterSpacing: '0.1em',
-  textTransform: 'uppercase',
-  color: 'var(--text-muted)',
-};
+const EYEBROW_OVERRIDE: CSSProperties = { fontWeight: 'var(--weight-bold)', letterSpacing: '0.1em' };
 
 const code: CSSProperties = {
   fontFamily: 'var(--font-mono)',
@@ -78,15 +71,6 @@ const cta = (primary: boolean): CSSProperties => ({
     ? { background: 'var(--interactive-primary)', color: 'var(--interactive-primary-fg)' }
     : { background: 'var(--bg-surface)', color: 'var(--text-primary)', boxShadow: 'inset 0 0 0 1px var(--border-default)' }),
 });
-
-const tech: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 'var(--space-2)',
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-sm)',
-  color: 'var(--text-secondary)',
-};
 
 export default function Home() {
   return (
@@ -154,30 +138,22 @@ export default function Home() {
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
-            <span style={eyebrow}>Sereno · Design System</span>
-            <h1
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'var(--text-5xl)',
-                fontWeight: 800,
-                letterSpacing: '-0.035em',
-                lineHeight: 1.04,
-                color: 'var(--text-primary)',
-                margin: 0,
-              }}
-            >
+            <Typography as="span" variant="eyebrow" style={EYEBROW_OVERRIDE}>
+              Sereno · Design System
+            </Typography>
+            <Typography variant="display" style={{ letterSpacing: '-0.035em', lineHeight: 1.04 }}>
               The UI behind Sereno, as a system.
-            </h1>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-lg)', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0, maxWidth: 460 }}>
+            </Typography>
+            <Typography variant="body" color="secondary" style={{ fontSize: 'var(--text-lg)', lineHeight: 1.6, maxWidth: 460 }}>
               30 token-driven React primitives — native dark mode, no UI base library, one live preview per component.
-            </p>
+            </Typography>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
-              <span style={tech}>
+              <Typography as="span" variant="bodySm" style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                 <ReactMark size={18} /> React 18 &amp; 19
-              </span>
-              <span style={tech}>
+              </Typography>
+              <Typography as="span" variant="bodySm" style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                 <NextMark size={18} /> Next.js App Router
-              </span>
+              </Typography>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', marginTop: 'var(--space-1)' }}>
               <Link href="/design-system" style={cta(true)}>
@@ -199,13 +175,19 @@ export default function Home() {
         </section>
 
         <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
-          <span style={eyebrow}>What it is</span>
+          <Typography as="span" variant="eyebrow" style={EYEBROW_OVERRIDE}>
+            What it is
+          </Typography>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--space-4)' }}>
             {FEATURES.map((f) => (
               <div key={f.title} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 'var(--radius-md)', background: 'var(--bg-brand-soft)', color: 'var(--text-brand)' }}>{f.icon}</span>
-                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--text-primary)', margin: 'var(--space-1) 0 0' }}>{f.title}</h2>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: 1.55, color: 'var(--text-secondary)', margin: 0 }}>{withCode(f.body)}</p>
+                <Typography as="h2" variant="h3" style={{ letterSpacing: 'normal', lineHeight: 'normal', margin: 'var(--space-1) 0 0' }}>
+                  {f.title}
+                </Typography>
+                <Typography variant="bodySm" style={{ lineHeight: 1.55 }}>
+                  {withCode(f.body)}
+                </Typography>
               </div>
             ))}
           </div>
@@ -213,7 +195,9 @@ export default function Home() {
 
         <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
-            <span style={eyebrow}>The primitives</span>
+            <Typography as="span" variant="eyebrow" style={EYEBROW_OVERRIDE}>
+              The primitives
+            </Typography>
             <Link href="/design-system" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-brand)', textDecoration: 'none' }}>
               Browse all 30 <ArrowRight size={16} strokeWidth={2} />
             </Link>
@@ -224,27 +208,33 @@ export default function Home() {
         <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--space-4)' }}>
           <Link href="/design-system" style={{ textDecoration: 'none' }}>
             <Card padding="lg" interactive style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-              <span style={eyebrow}>Components</span>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Open the Design System</h2>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: 1.55, color: 'var(--text-secondary)', margin: 0 }}>
+              <Typography as="span" variant="eyebrow" style={EYEBROW_OVERRIDE}>
+                Components
+              </Typography>
+              <Typography variant="h2" style={{ letterSpacing: 'normal' }}>
+                Open the Design System
+              </Typography>
+              <Typography variant="bodySm" style={{ lineHeight: 1.55 }}>
                 Every primitive across 5 categories, the tokens page in light &times; dark, and a page per component — live preview, code, do and don&rsquo;t.
-              </p>
+              </Typography>
             </Card>
           </Link>
           <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
             <Card padding="lg" interactive style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-              <span style={eyebrow}>Product</span>
-              <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+              <Typography as="span" variant="eyebrow" style={EYEBROW_OVERRIDE}>
+                Product
+              </Typography>
+              <Typography variant="h2" style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', letterSpacing: 'normal' }}>
                 See the app <ExternalLink size={15} strokeWidth={2} style={{ color: 'var(--text-muted)' }} />
-              </h2>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: 1.55, color: 'var(--text-secondary)', margin: 0 }}>
+              </Typography>
+              <Typography variant="bodySm" style={{ lineHeight: 1.55 }}>
                 The three real screens — public booking flow, professional dashboard and onboarding — built from these primitives, on mocked data.
-              </p>
+              </Typography>
             </Card>
           </a>
         </section>
 
-        <footer style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-3)', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)' }}>
+        <Typography as="footer" variant="caption" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-3)' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
             <Brand variant="symbol" size={16} mono />
             Sereno Design System · v{DS_VERSION}
@@ -252,7 +242,7 @@ export default function Home() {
           <a href={REPO} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
             <GithubMark size={14} /> GitHub
           </a>
-        </footer>
+        </Typography>
       </div>
     </main>
   );

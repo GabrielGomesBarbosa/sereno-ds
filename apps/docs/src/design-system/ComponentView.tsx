@@ -3,28 +3,10 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
-import { Table } from '@sereno-ds/ui';
+import { Table, Typography } from '@sereno-ds/ui';
 import { type ComponentMeta, adjacentComponents, examplesFor } from './catalog';
 import { ExampleSection, InlineCode } from './ExampleSection';
 import { TableOfContents } from './TableOfContents';
-
-const sectionLabel: React.CSSProperties = {
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-2xs)',
-  fontWeight: 700,
-  letterSpacing: '0.07em',
-  textTransform: 'uppercase',
-  color: 'var(--text-muted)',
-  margin: 0,
-};
-const h2: React.CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 'var(--text-xl)',
-  fontWeight: 700,
-  letterSpacing: '-0.01em',
-  color: 'var(--text-primary)',
-  margin: 0,
-};
 
 export function ComponentView({ meta }: { meta: ComponentMeta }) {
   const examples = examplesFor(meta);
@@ -40,22 +22,15 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
     <div className="cv-layout">
       <article className="cv-article">
         <header style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', marginBottom: 'var(--space-8)' }}>
-          <span style={sectionLabel}>{meta.category}</span>
-          <h1
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-3xl)',
-              fontWeight: 800,
-              letterSpacing: '-0.02em',
-              color: 'var(--text-primary)',
-              margin: 0,
-            }}
-          >
+          <Typography as="span" variant="eyebrow" style={{ fontWeight: 'var(--weight-bold)' }}>
+            {meta.category}
+          </Typography>
+          <Typography variant="h1" style={{ fontWeight: 'var(--weight-extrabold)' }}>
             {meta.name}
-          </h1>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-md)', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0, maxWidth: 620 }}>
+          </Typography>
+          <Typography variant="body" color="secondary" style={{ fontSize: 'var(--text-md)', lineHeight: 1.6, maxWidth: 620 }}>
             <InlineCode text={meta.summary} />
-          </p>
+          </Typography>
         </header>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-9)' }}>
@@ -65,7 +40,9 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
 
           {meta.guidelines && (
             <section id="usage" style={{ scrollMarginTop: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-              <h2 style={h2}>Usage</h2>
+              <Typography variant="h2" style={{ letterSpacing: '-0.01em' }}>
+                Usage
+              </Typography>
               <div className="cv-guidelines">
                 <GuidelineList tone="do" items={meta.guidelines.do} />
                 <GuidelineList tone="dont" items={meta.guidelines.dont} />
@@ -74,7 +51,9 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
           )}
 
           <section id="props" style={{ scrollMarginTop: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-            <h2 style={h2}>Props</h2>
+            <Typography variant="h2" style={{ letterSpacing: '-0.01em' }}>
+              Props
+            </Typography>
             <Table caption={`${meta.name} props`} minWidth={520}>
               <Table.Head>
                 <Table.Row>
@@ -109,8 +88,12 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
             <Link href={`/design-system/${prev.category}/${prev.slug}`} style={prevNextLink}>
               <ArrowLeft size={16} strokeWidth={1.75} />
               <span style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={prevNextKicker}>Previous</span>
-                <span style={prevNextName}>{prev.name}</span>
+                <Typography as="span" variant="caption" style={{ fontSize: 'var(--text-2xs)', fontWeight: 'var(--weight-semibold)' }}>
+                  Previous
+                </Typography>
+                <Typography as="span" variant="h3" color="brand" style={{ fontSize: 'var(--text-base)', letterSpacing: 'normal', lineHeight: 'normal' }}>
+                  {prev.name}
+                </Typography>
               </span>
             </Link>
           ) : (
@@ -119,8 +102,12 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
           {next && (
             <Link href={`/design-system/${next.category}/${next.slug}`} style={{ ...prevNextLink, justifyContent: 'flex-end', textAlign: 'right' }}>
               <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                <span style={prevNextKicker}>Next</span>
-                <span style={prevNextName}>{next.name}</span>
+                <Typography as="span" variant="caption" style={{ fontSize: 'var(--text-2xs)', fontWeight: 'var(--weight-semibold)' }}>
+                  Next
+                </Typography>
+                <Typography as="span" variant="h3" color="brand" style={{ fontSize: 'var(--text-base)', letterSpacing: 'normal', lineHeight: 'normal' }}>
+                  {next.name}
+                </Typography>
               </span>
               <ArrowRight size={16} strokeWidth={1.75} />
             </Link>
@@ -147,27 +134,27 @@ function GuidelineList({ tone, items }: { tone: 'do' | 'dont'; items: string[] }
         background: isDo ? 'var(--status-success-bg)' : 'var(--status-error-bg)',
       }}
     >
-      <span
+      <Typography
+        as="span"
+        variant="eyebrow"
         style={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: 6,
-          fontFamily: 'var(--font-body)',
           fontSize: 'var(--text-xs)',
-          fontWeight: 700,
+          fontWeight: 'var(--weight-bold)',
           letterSpacing: '0.04em',
-          textTransform: 'uppercase',
           color: isDo ? 'var(--status-success-fg)' : 'var(--status-error-fg)',
         }}
       >
         {isDo ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2.5} />}
         {isDo ? 'Do' : "Don't"}
-      </span>
+      </Typography>
       <ul style={{ margin: 0, paddingLeft: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 6 }}>
         {items.map((it, i) => (
-          <li key={i} style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: 1.55, color: 'var(--text-primary)' }}>
+          <Typography as="li" key={i} variant="bodySm" color="primary" style={{ lineHeight: 1.55 }}>
             <InlineCode text={it} />
-          </li>
+          </Typography>
         ))}
       </ul>
     </div>
@@ -187,5 +174,3 @@ const prevNextLink: React.CSSProperties = {
   color: 'var(--text-primary)',
   textDecoration: 'none',
 };
-const prevNextKicker: React.CSSProperties = { fontFamily: 'var(--font-body)', fontSize: 'var(--text-2xs)', color: 'var(--text-muted)', fontWeight: 600 };
-const prevNextName: React.CSSProperties = { fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--text-brand)' };

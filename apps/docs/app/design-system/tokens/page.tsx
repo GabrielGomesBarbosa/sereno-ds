@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { CalendarClock } from 'lucide-react';
+import { Typography } from '@sereno-ds/ui';
 import { DocPage } from '@/design-system/DocPage';
 import { docSectionAnchor } from '@/design-system/TableOfContents';
 
@@ -112,45 +113,22 @@ const CONTRAST: { pair: string; need: string; light: string; dark: string }[] = 
   { pair: 'Focus ring on surface', need: '3.0', light: '4.7', dark: '5.2' },
 ];
 
-const label: React.CSSProperties = {
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-2xs)',
-  fontWeight: 700,
-  letterSpacing: '0.07em',
-  textTransform: 'uppercase',
-  color: 'var(--text-muted)',
-  margin: 0,
-};
-
-const note: React.CSSProperties = {
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-sm)',
-  lineHeight: 1.6,
-  color: 'var(--text-secondary)',
-  margin: 0,
-  maxWidth: 560,
-};
-
 const mono: React.CSSProperties = {
   fontFamily: 'var(--font-mono)',
   fontSize: '0.92em',
   color: 'var(--text-primary)',
 };
 
-const sublabel: React.CSSProperties = {
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-xs)',
-  fontWeight: 600,
-  color: 'var(--text-secondary)',
-  margin: 0,
-};
+const SECTION_LABEL_OVERRIDE: React.CSSProperties = { fontWeight: 'var(--weight-bold)' };
 
 function Swatch({ varName, name }: { varName: string; name: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       <div style={{ height: 56, borderRadius: 'var(--radius-md)', background: `var(${varName})`, border: '1px solid var(--border-default)' }} />
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-primary)', fontWeight: 600 }}>{name}</span>
+        <Typography as="span" variant="caption" color="primary" style={{ fontWeight: 'var(--weight-semibold)', lineHeight: 'normal' }}>
+          {name}
+        </Typography>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>{varName}</span>
       </div>
     </div>
@@ -172,12 +150,14 @@ function ThemePanel({ theme }: { theme: 'light' | 'dark' }) {
         gap: 'var(--space-6)',
       }}
     >
-      <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 800, color: 'var(--text-primary)' }}>
+      <Typography as="span" variant="h3" style={{ fontWeight: 'var(--weight-extrabold)', letterSpacing: 'normal', lineHeight: 'normal' }}>
         {theme === 'light' ? 'Light' : 'Dark'}
-      </span>
+      </Typography>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-        <p style={label}>Surfaces</p>
+        <Typography as="p" variant="eyebrow" style={SECTION_LABEL_OVERRIDE}>
+          Surfaces
+        </Typography>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 'var(--space-3)' }}>
           {SURFACES.map(([v, n]) => (
             <Swatch key={v} varName={v} name={n} />
@@ -186,35 +166,43 @@ function ThemePanel({ theme }: { theme: 'light' | 'dark' }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-        <p style={label}>Interactive & borders</p>
+        <Typography as="p" variant="eyebrow" style={SECTION_LABEL_OVERRIDE}>
+          Interactive & borders
+        </Typography>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 'var(--space-3)' }}>
           {INTERACTIVE.map(([v, n]) => (
             <Swatch key={v} varName={v} name={n} />
           ))}
         </div>
-        <p style={note}>
+        <Typography variant="bodySm" style={{ lineHeight: 1.6, maxWidth: 560 }}>
           Solid fills for <code style={mono}>Button</code> / <code style={mono}>IconButton</code>. No <code style={mono}>--interactive-info</code>:
           on an action, &ldquo;info&rdquo; is the brand indigo, i.e. <code style={mono}>--interactive-primary</code>.
-        </p>
+        </Typography>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-        <p style={label}>Text</p>
+        <Typography as="p" variant="eyebrow" style={SECTION_LABEL_OVERRIDE}>
+          Text
+        </Typography>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {TEXTS.map(([v, n]) => (
-            <span key={v} style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: `var(${v})`, fontWeight: 600 }}>
+            <Typography as="span" key={v} variant="body" style={{ fontWeight: 'var(--weight-semibold)', lineHeight: 'normal', color: `var(${v})` }}>
               {n} — {v}
-            </span>
+            </Typography>
           ))}
         </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-        <p style={label}>Status tones</p>
+        <Typography as="p" variant="eyebrow" style={SECTION_LABEL_OVERRIDE}>
+          Status tones
+        </Typography>
         <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
           {STATUS.map(([bg, fg, n]) => (
-            <span
+            <Typography
+              as="span"
               key={n}
+              variant="caption"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -222,20 +210,18 @@ function ThemePanel({ theme }: { theme: 'light' | 'dark' }) {
                 borderRadius: 'var(--radius-chip)',
                 background: `var(${bg})`,
                 color: `var(${fg})`,
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-xs)',
-                fontWeight: 600,
+                fontWeight: 'var(--weight-semibold)',
               }}
             >
               {n}
-            </span>
+            </Typography>
           ))}
         </div>
-        <p style={note}>
+        <Typography variant="bodySm" style={{ lineHeight: 1.6, maxWidth: 560 }}>
           The five-word tone family — <code style={mono}>success</code>, <code style={mono}>warning</code>, <code style={mono}>error</code>,{' '}
           <code style={mono}>info</code>, <code style={mono}>neutral</code> — shared by <code style={mono}>Badge</code>, <code style={mono}>Alert</code>{' '}
           and <code style={mono}>Toast</code>. Each has <code style={mono}>-bg</code>, <code style={mono}>-fg</code> and <code style={mono}>-dot</code> tokens.
-        </p>
+        </Typography>
       </div>
     </div>
   );
@@ -254,7 +240,9 @@ export default function TokensPage() {
       }
     >
       <section id="colours" style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-        <h2 style={label}>Colours — light × dark</h2>
+        <Typography as="h2" variant="eyebrow" style={SECTION_LABEL_OVERRIDE}>
+          Colours — light × dark
+        </Typography>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4)' }}>
           <ThemePanel theme="light" />
           <ThemePanel theme="dark" />
@@ -262,23 +250,27 @@ export default function TokensPage() {
       </section>
 
       <section id="type-scale" style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-        <h2 style={label}>Type scale</h2>
+        <Typography as="h2" variant="eyebrow" style={SECTION_LABEL_OVERRIDE}>
+          Type scale
+        </Typography>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', borderTop: '1px solid var(--border-default)' }}>
           {TYPE_SCALE.map(([v, px]) => (
             <div key={v} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 'var(--space-2) var(--space-4)', borderBottom: '1px solid var(--border-default)', paddingBottom: 'var(--space-3)' }}>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', width: 132, flex: '0 0 auto', whiteSpace: 'nowrap' }}>
                 {v} · {px}px
               </span>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: `var(${v})`, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: 1.15, minWidth: 0, overflowWrap: 'anywhere' }}>
+              <Typography as="span" variant="h1" style={{ fontSize: `var(${v})`, minWidth: 0, overflowWrap: 'anywhere' }}>
                 Confirmed
-              </span>
+              </Typography>
             </div>
           ))}
         </div>
       </section>
 
       <section id="spacing-scale" style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-        <h2 style={label}>Spacing scale</h2>
+        <Typography as="h2" variant="eyebrow" style={SECTION_LABEL_OVERRIDE}>
+          Spacing scale
+        </Typography>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
           {SPACE_SCALE.map(([v, px]) => (
             <div key={v} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
@@ -292,26 +284,34 @@ export default function TokensPage() {
       </section>
 
       <section id="grid" style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-        <h2 style={label}>Grid &amp; iconography</h2>
-        <p style={note}>
+        <Typography as="h2" variant="eyebrow" style={SECTION_LABEL_OVERRIDE}>
+          Grid &amp; iconography
+        </Typography>
+        <Typography variant="bodySm" style={{ lineHeight: 1.6, maxWidth: 560 }}>
           There is no column-grid system: layout is flex / CSS grid, kept within one of three max content widths. The
           breakpoints are the fixed set of widths where the layout switches between phone, tablet and desktop.
-        </p>
+        </Typography>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-          <p style={sublabel}>Content widths</p>
+          <Typography as="p" variant="caption" color="secondary" style={{ fontWeight: 'var(--weight-semibold)', lineHeight: 'normal' }}>
+            Content widths
+          </Typography>
           {CONTAINERS.map(([v, px, use]) => (
             <div key={v} style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-primary)', minWidth: 210 }}>
                 {v} · {px}px
               </span>
-              <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{use}</span>
+              <Typography as="span" variant="caption">
+                {use}
+              </Typography>
             </div>
           ))}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-          <p style={sublabel}>Breakpoints</p>
+          <Typography as="p" variant="caption" color="secondary" style={{ fontWeight: 'var(--weight-semibold)', lineHeight: 'normal' }}>
+            Breakpoints
+          </Typography>
           <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
             {BREAKPOINTS.map(([v, px]) => (
               <span
@@ -336,11 +336,13 @@ export default function TokensPage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <p style={sublabel}>Icon sizes</p>
-          <p style={note}>
+          <Typography as="p" variant="caption" color="secondary" style={{ fontWeight: 'var(--weight-semibold)', lineHeight: 'normal' }}>
+            Icon sizes
+          </Typography>
+          <Typography variant="bodySm" style={{ lineHeight: 1.6, maxWidth: 560 }}>
             <code style={mono}>lucide-react</code> at <code style={mono}>strokeWidth&#123;1.75&#125;</code>. <code style={mono}>sm</code>/
             <code style={mono}>md</code> controls use 16, <code style={mono}>lg</code> uses 18, standalone icons 20.
-          </p>
+          </Typography>
           <div style={{ display: 'flex', gap: 'var(--space-5)', alignItems: 'flex-end', flexWrap: 'wrap' }}>
             {ICON_SIZES.map(([v, px]) => (
               <div key={v} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, color: 'var(--text-primary)' }}>
@@ -355,11 +357,13 @@ export default function TokensPage() {
       </section>
 
       <section id="contrast" style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-        <h2 style={label}>Contrast (WCAG 2.1 AA)</h2>
-        <p style={note}>
+        <Typography as="h2" variant="eyebrow" style={SECTION_LABEL_OVERRIDE}>
+          Contrast (WCAG 2.1 AA)
+        </Typography>
+        <Typography variant="bodySm" style={{ lineHeight: 1.6, maxWidth: 560 }}>
           Worst-case ratio per group, light × dark. Body text needs <code style={mono}>4.5:1</code>, large text and non-text UI
           need <code style={mono}>3:1</code>. Every pair below passes for its use.
-        </p>
+        </Typography>
 
         <div style={{ overflowX: 'auto' }}>
           <table style={{ borderCollapse: 'collapse', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', minWidth: 460 }}>
@@ -384,13 +388,13 @@ export default function TokensPage() {
           </table>
         </div>
 
-        <p style={note}>
+        <Typography variant="bodySm" style={{ lineHeight: 1.6, maxWidth: 560 }}>
           <strong>Exemptions:</strong> disabled text (<code style={mono}>--text-disabled</code>, ~2.5:1) — WCAG 1.4.3 excludes
           inactive controls. Resting <code style={mono}>--border-default</code> / <code style={mono}>--border-strong</code> —
           decorative, and never the only affordance (fields also carry a label, fill and focus ring).{' '}
           <code style={mono}>--text-muted</code> on <code style={mono}>--bg-subtle</code> / <code style={mono}>--bg-sunken</code>{' '}
           lands ~4.2:1 → large text only; use <code style={mono}>--text-secondary</code> there for body copy.
-        </p>
+        </Typography>
       </section>
     </DocPage>
   );
