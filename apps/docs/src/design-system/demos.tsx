@@ -131,6 +131,18 @@ function TypographyTruncate() {
     </div>
   );
 }
+function TypographyNumeric() {
+  return (
+    <div style={row}>
+      <Typography variant="display" numeric>
+        A002
+      </Typography>
+      <Typography variant="h1" color="brand" numeric>
+        11:00
+      </Typography>
+    </div>
+  );
+}
 
 function ButtonBasico() {
   return (
@@ -2206,6 +2218,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     colors: TypographyCores,
     as: TypographyComoTag,
     truncate: TypographyTruncate,
+    numeric: TypographyNumeric,
   },
   button: {
     basic: ButtonBasico,

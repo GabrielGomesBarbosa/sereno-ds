@@ -15,6 +15,10 @@ export interface TypographyProps extends React.HTMLAttributes<HTMLElement> {
   as?: React.ElementType;
   /** Single-line ellipsis. Needs a width-constrained ancestor to actually clip. */
   truncate?: boolean;
+  /** Tabular (fixed-width) figures — digits line up column-to-column instead of
+   *  each taking their own width. For a value that updates or stacks with others
+   *  at the same position: countdowns, ticket/queue numbers, times, prices. */
+  numeric?: boolean;
   children?: React.ReactNode;
 }
 
@@ -97,7 +101,7 @@ const COLOR_TOKEN: Record<TypographyColor, string> = {
  * heading-styled label that isn't really a document heading, or a caption in
  * the brand color, are one-prop changes, not a new style object.
  */
-export function Typography({ variant = 'body', color, as, truncate, style, children, ...rest }: TypographyProps) {
+export function Typography({ variant = 'body', color, as, truncate, numeric, style, children, ...rest }: TypographyProps) {
   const v = VARIANTS[variant];
   const Tag = as ?? v.as;
   return (
@@ -111,6 +115,7 @@ export function Typography({ variant = 'body', color, as, truncate, style, child
         // default for the `span`-tagged variants) — `block` makes the
         // element actually respect a constrained-width ancestor.
         ...(truncate ? { display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : null),
+        ...(numeric ? { fontVariantNumeric: 'tabular-nums' } : null),
         ...style,
       })}
     >

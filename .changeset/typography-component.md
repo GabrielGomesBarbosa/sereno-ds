@@ -11,7 +11,10 @@ hand, as one component instead of a new inline style object each time.
 `color` overrides the variant's own sensible default (every value a text
 color token, never a raw color); `as` swaps the rendered tag without
 touching the variant's styling (a heading-styled label that shouldn't enter
-the document outline); `truncate` clips to one line with an ellipsis.
+the document outline); `truncate` clips to one line with an ellipsis;
+`numeric` sets tabular figures for a value that updates in place or stacks
+with others at the same position — countdowns, queue/ticket numbers,
+clocks, prices in a column.
 
 The variant set isn't an invented scale — it's extracted from the font
 combos already repeated across the real product app (`schedule-system`):

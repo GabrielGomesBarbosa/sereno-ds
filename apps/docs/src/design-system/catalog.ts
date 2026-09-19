@@ -76,6 +76,7 @@ export const COMPONENTS: ComponentMeta[] = [
       ),
       R('as', 'React.ElementType', 'Render as a different tag without changing the variant\'s styling — a heading-styled label that should not enter the document outline.'),
       R('truncate', 'boolean', 'Single-line ellipsis. Needs a width-constrained ancestor to actually clip.', 'false'),
+      R('numeric', 'boolean', 'Tabular (fixed-width) figures. For a value that updates or stacks with others at the same position: countdowns, ticket/queue numbers, times, prices.', 'false'),
     ],
     code: `<Typography variant="h2">Section title</Typography>
 <Typography variant="bodySm">Supporting text.</Typography>`,
@@ -123,12 +124,21 @@ export const COMPONENTS: ComponentMeta[] = [
   </Typography>
 </div>`,
       },
+      {
+        id: 'numeric',
+        title: 'Numeric (tabular figures)',
+        description:
+          '`numeric` fixes every digit to the same width, so a value that changes in place — or several stacked at the same x-position — doesn\'t jiggle. Use it for countdowns, queue/ticket numbers, clocks, prices in a column.',
+        code: `<Typography variant="display" numeric>A002</Typography>
+<Typography variant="h1" color="brand" numeric>11:00</Typography>`,
+      },
     ],
     guidelines: {
       do: [
         'Reach for a variant instead of retyping `fontFamily`/`fontSize`/`fontWeight` inline.',
         '`as` when the visual weight of a heading is right but the tag would break the document outline (e.g. two `h1`-styled titles on one page).',
         '`color` for state (an error message, a muted secondary line) — never a raw color value.',
+        '`numeric` on any figure that updates in place or lines up with others — a queue number, a countdown, a price column.',
       ],
       dont: [
         'A `variant` chosen for its color instead of its size/weight — use `color` for that axis, they\'re independent.',

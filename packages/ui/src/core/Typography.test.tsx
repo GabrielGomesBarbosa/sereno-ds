@@ -75,6 +75,20 @@ describe('Typography', () => {
     expect(el.style.textOverflow).toBe('');
   });
 
+  it('`numeric` applies tabular-nums, for figures that need to line up (queue numbers, times, prices)', () => {
+    render(
+      <Typography variant="display" numeric>
+        A002
+      </Typography>,
+    );
+    expect(screen.getByText('A002').style.fontVariantNumeric).toBe('tabular-nums');
+  });
+
+  it('without `numeric`, no font-variant-numeric styling is applied', () => {
+    render(<Typography>Plain text</Typography>);
+    expect(screen.getByText('Plain text').style.fontVariantNumeric).toBe('');
+  });
+
   it('a caller-provided style wins over the variant/color defaults', () => {
     render(
       <Typography variant="h1" color="error" style={{ color: 'red', fontSize: '10px' }}>
