@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 import { Calendar, CalendarPlus, CheckCircle2, ChevronLeft, Clock, CreditCard, HelpCircle, Info, Mail, MapPin, Navigation, Phone, Share2, ShieldCheck, Star, User, Video } from 'lucide-react';
-import { Avatar, Badge, Brand, Button, Card, Checkbox, DateTimePicker, IconButton, Input, Tabs, Textarea, TopBar } from '@sereno-ds/ui';
+import { Avatar, Badge, Brand, Button, Card, Checkbox, DateTimePicker, IconButton, Input, Tabs, Textarea, TopBar, Typography } from '@sereno-ds/ui';
 import { ServiceCard } from '@/domain/ServiceCard';
 import { ProfessionalCard } from '@/domain/ProfessionalCard';
-import { cardTitle, vcol } from '@/domain/layout';
+import { vcol } from '@/domain/layout';
 import type { Professional, Service } from '@/lib/mock';
 import { BOOKING_MONTH, PROFESSIONAL_FAQ, PROFESSIONAL_INSURANCE, REVIEWS, TIME_SLOTS, UNAVAILABLE_DAYS } from '@/lib/mock';
 
@@ -13,21 +13,6 @@ type Step = 'profile' | 'schedule' | 'details' | 'confirmed';
 
 const DATE_LONG = '14 de agosto de 2026, sexta';
 
-const display = (size: string, weight = 800): React.CSSProperties => ({
-  fontFamily: 'var(--font-display)',
-  fontSize: size,
-  fontWeight: weight,
-  letterSpacing: '-0.02em',
-  color: 'var(--text-primary)',
-});
-const railLabel: React.CSSProperties = {
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-2xs)',
-  fontWeight: 700,
-  letterSpacing: '0.07em',
-  textTransform: 'uppercase',
-  color: 'var(--text-muted)',
-};
 function Progress({ step }: { step: number }) {
   return (
     <div style={{ display: 'flex', gap: 6, padding: '0 var(--gutter-mobile) var(--space-3)' }}>
@@ -99,19 +84,21 @@ function Rail({ professional, service, day, time }: { professional: Professional
         <div style={{ ...vcol('var(--space-4)'), paddingTop: 'var(--space-5)', borderTop: '1px solid var(--border-default)' }}>
           {service && (
             <div style={vcol('4px')}>
-              <span style={railLabel}>Serviço</span>
-              <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>{service.name}</span>
-              <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+              <Typography variant="eyebrow">Serviço</Typography>
+              <Typography variant="h3" style={{ fontSize: 'var(--text-base)' }}>
+                {service.name}
+              </Typography>
+              <Typography variant="bodySm">
                 {service.duration} · {service.price}
-              </span>
+              </Typography>
             </div>
           )}
           {day && time && (
             <div style={vcol('4px')}>
-              <span style={railLabel}>Quando</span>
-              <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+              <Typography variant="eyebrow">Quando</Typography>
+              <Typography variant="bodySm">
                 {day} de agosto · {time}
-              </span>
+              </Typography>
             </div>
           )}
         </div>
@@ -219,13 +206,15 @@ export function BookingFlow({ professional, services }: { professional: Professi
                       onSelect={() => setServiceId(s.id)}
                     />
                   ))}
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', lineHeight: 1.5, margin: 'var(--space-2) 0 0' }}>
+                  <Typography variant="caption" as="p" style={{ margin: 'var(--space-2) 0 0' }}>
                     Cancelamentos gratuitos até 24h antes do horário marcado.
-                  </p>
+                  </Typography>
                 </Tabs.Panel>
 
                 <Tabs.Panel value="sobre" style={{ ...vcol('var(--space-4)'), paddingTop: 'var(--space-4)' }}>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>{professional.bio}</p>
+                  <Typography variant="bodySm" style={{ lineHeight: 1.6 }}>
+                    {professional.bio}
+                  </Typography>
                   <Card padding="md" style={vcol('var(--space-2)')}>
                     {[
                       ['Especialidade', professional.specialty],
@@ -233,8 +222,12 @@ export function BookingFlow({ professional, services }: { professional: Professi
                       ['Atendimento', professional.channels.join(' · ')],
                     ].map(([label, value]) => (
                       <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-3)' }}>
-                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{label}</span>
-                        <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>{value}</span>
+                        <Typography variant="bodySm" color="muted">
+                          {label}
+                        </Typography>
+                        <Typography variant="h3" style={{ fontSize: 'var(--text-sm)' }}>
+                          {value}
+                        </Typography>
                       </div>
                     ))}
                   </Card>
@@ -243,10 +236,12 @@ export function BookingFlow({ professional, services }: { professional: Professi
                 <Tabs.Panel value="avaliacoes" style={{ ...vcol('var(--space-4)'), paddingTop: 'var(--space-4)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                     <Star size={20} strokeWidth={1.75} fill="currentColor" style={{ color: 'var(--status-warning-dot)' }} />
-                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-lg)', color: 'var(--text-primary)' }}>
+                    <Typography as="span" variant="h2" style={{ fontSize: 'var(--text-lg)', fontWeight: 800 }}>
                       {(REVIEWS.reduce((sum, r) => sum + r.rating, 0) / REVIEWS.length).toFixed(1)}
-                    </span>
-                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>· {REVIEWS.length} avaliações</span>
+                    </Typography>
+                    <Typography variant="bodySm" color="muted">
+                      · {REVIEWS.length} avaliações
+                    </Typography>
                   </div>
                   <div style={vcol('var(--space-3)')}>
                     {REVIEWS.map((r) => (
@@ -254,16 +249,18 @@ export function BookingFlow({ professional, services }: { professional: Professi
                         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                           <Avatar name={r.name} size="sm" />
                           <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-                            <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>{r.name}</span>
+                            <Typography variant="h3" style={{ fontSize: 'var(--text-sm)' }}>
+                              {r.name}
+                            </Typography>
                             <span style={{ display: 'flex', gap: 1 }}>
                               {Array.from({ length: 5 }, (_, i) => (
                                 <Star key={i} size={12} strokeWidth={1.75} fill={i < r.rating ? 'currentColor' : 'none'} style={{ color: 'var(--status-warning-dot)' }} />
                               ))}
                             </span>
                           </div>
-                          <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{r.date}</span>
+                          <Typography variant="caption">{r.date}</Typography>
                         </div>
-                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>{r.comment}</p>
+                        <Typography variant="bodySm">{r.comment}</Typography>
                       </Card>
                     ))}
                   </div>
@@ -273,15 +270,17 @@ export function BookingFlow({ professional, services }: { professional: Professi
                   <Card padding="md" style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start' }}>
                     <MapPin size={20} strokeWidth={1.75} style={{ color: 'var(--text-brand)', flexShrink: 0, marginTop: 2 }} />
                     <div style={vcol('2px')}>
-                      <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Consultório — {professional.location}</span>
-                      <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Rua Fradique Coutinho, 501 — Pinheiros</span>
+                      <Typography variant="h3" style={{ fontSize: 'var(--text-sm)' }}>
+                        Consultório — {professional.location}
+                      </Typography>
+                      <Typography variant="bodySm">Rua Fradique Coutinho, 501 — Pinheiros</Typography>
                     </div>
                   </Card>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                     <Navigation size={16} strokeWidth={1.75} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                    <Typography variant="bodySm">
                       {professional.channels.includes('Online') ? 'Também atende por videochamada, em qualquer cidade.' : 'Atendimento só presencial, neste endereço.'}
-                    </span>
+                    </Typography>
                   </div>
                 </Tabs.Panel>
 
@@ -293,14 +292,16 @@ export function BookingFlow({ professional, services }: { professional: Professi
                       ['Domingo', 'Fechado'],
                     ].map(([day, hours]) => (
                       <div key={day} style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-3)' }}>
-                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>{day}</span>
-                        <span style={{ ...cardTitle, fontSize: 'var(--text-sm)', color: hours === 'Fechado' ? 'var(--text-muted)' : 'var(--text-primary)' }}>{hours}</span>
+                        <Typography variant="bodySm">{day}</Typography>
+                        <Typography variant="h3" style={{ fontSize: 'var(--text-sm)' }} color={hours === 'Fechado' ? 'muted' : 'primary'}>
+                          {hours}
+                        </Typography>
                       </div>
                     ))}
                   </Card>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                  <Typography as="span" variant="caption" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                     <Clock size={14} strokeWidth={1.75} /> Horário de Brasília.
-                  </span>
+                  </Typography>
                 </Tabs.Panel>
 
                 <Tabs.Panel value="convenios" style={{ ...vcol('var(--space-3)'), paddingTop: 'var(--space-4)' }}>
@@ -308,24 +309,28 @@ export function BookingFlow({ professional, services }: { professional: Professi
                     {PROFESSIONAL_INSURANCE.map((plan) => (
                       <div key={plan} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                         <CheckCircle2 size={16} strokeWidth={1.75} style={{ color: 'var(--status-success-dot)', flexShrink: 0 }} />
-                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>{plan}</span>
+                        <Typography variant="bodySm" color="primary">
+                          {plan}
+                        </Typography>
                       </div>
                     ))}
                   </Card>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                     <ShieldCheck size={16} strokeWidth={1.75} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Consulta particular também disponível, com recibo para reembolso.</span>
+                    <Typography variant="bodySm">Consulta particular também disponível, com recibo para reembolso.</Typography>
                   </div>
                 </Tabs.Panel>
 
                 <Tabs.Panel value="faq" style={{ ...vcol('var(--space-4)'), paddingTop: 'var(--space-4)' }}>
                   {PROFESSIONAL_FAQ.map((item) => (
                     <div key={item.question} style={vcol('4px')}>
-                      <span style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2)', ...cardTitle, fontSize: 'var(--text-sm)' }}>
+                      <Typography as="span" variant="h3" style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2)', fontSize: 'var(--text-sm)' }}>
                         <HelpCircle size={16} strokeWidth={1.75} style={{ color: 'var(--text-brand)', flexShrink: 0, marginTop: 2 }} />
                         {item.question}
-                      </span>
-                      <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5, paddingLeft: 24 }}>{item.answer}</span>
+                      </Typography>
+                      <Typography variant="bodySm" style={{ paddingLeft: 24 }}>
+                        {item.answer}
+                      </Typography>
                     </div>
                   ))}
                 </Tabs.Panel>
@@ -335,9 +340,9 @@ export function BookingFlow({ professional, services }: { professional: Professi
 
           {step === 'schedule' && service && (
             <div className="booking-scroll" style={{ paddingBlock: '0 var(--space-8)' }}>
-              <span className="booking-step-title" style={{ ...display('var(--text-xl)'), marginBottom: 'var(--space-4)' }}>
+              <Typography as="span" variant="h2" className="booking-step-title" style={{ fontSize: 'var(--text-xl)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 'var(--space-4)' }}>
                 Escolha o horário
-              </span>
+              </Typography>
               <DateTimePicker
                 year={BOOKING_MONTH.year}
                 month={BOOKING_MONTH.month}
@@ -350,25 +355,27 @@ export function BookingFlow({ professional, services }: { professional: Professi
               />
               <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', marginTop: 'var(--space-4)', color: 'var(--text-muted)' }}>
                 <Info size={16} strokeWidth={1.75} />
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)' }}>Horários no fuso de Brasília (GMT-3).</span>
+                <Typography variant="caption">Horários no fuso de Brasília (GMT-3).</Typography>
               </div>
             </div>
           )}
 
           {step === 'details' && service && (
             <div className="booking-scroll" style={{ paddingBlock: '0 var(--space-8)', gap: 'var(--space-4)' }}>
-              <span className="booking-step-title" style={{ ...display('var(--text-xl)'), marginBottom: 'var(--space-2)' }}>
+              <Typography as="span" variant="h2" className="booking-step-title" style={{ fontSize: 'var(--text-xl)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 'var(--space-2)' }}>
                 Seus dados
-              </span>
+              </Typography>
               {/* Recap of the choice so far — the desktop rail already shows it, so mobile/tablet only. */}
               <div className="booking-chrome">
                 <Card padding="md" style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', background: 'var(--bg-brand-soft)', border: '1px solid transparent' }}>
                   <Calendar size={20} strokeWidth={1.75} />
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>{service.name}</span>
-                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                    <Typography variant="h3" style={{ fontSize: 'var(--text-base)' }}>
+                      {service.name}
+                    </Typography>
+                    <Typography variant="bodySm">
                       {day ?? 14} de agosto · {time} · {service.duration}
-                    </span>
+                    </Typography>
                   </div>
                 </Card>
               </div>
@@ -409,13 +416,15 @@ export function BookingFlow({ professional, services }: { professional: Professi
               >
                 <CheckCircle2 size={30} strokeWidth={1.75} />
               </span>
-              <span style={display('var(--text-2xl)')}>Agendamento confirmado</span>
-              <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: 320 }}>
+              <Typography as="span" variant="h2" style={{ fontSize: 'var(--text-2xl)', fontWeight: 800 }}>
+                Agendamento confirmado
+              </Typography>
+              <Typography variant="body" color="secondary" style={{ maxWidth: 320 }}>
                 Enviamos os detalhes no seu WhatsApp. {professional.name.split(' ')[0]} já foi avisada.
-              </span>
+              </Typography>
               <Card padding="md" style={{ ...vcol('var(--space-3)'), width: '100%', maxWidth: 380, textAlign: 'left', marginTop: 'var(--space-2)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ ...cardTitle, fontSize: 'var(--text-md)' }}>{service.name}</span>
+                  <Typography variant="h3">{service.name}</Typography>
                   <Badge tone="success">Confirmado</Badge>
                 </div>
                 {(
@@ -428,7 +437,7 @@ export function BookingFlow({ professional, services }: { professional: Professi
                 ).map(([icon, text], i) => (
                   <div key={i} style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', color: 'var(--text-secondary)' }}>
                     {icon}
-                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>{text}</span>
+                    <Typography variant="bodySm">{text}</Typography>
                   </div>
                 ))}
               </Card>
@@ -460,9 +469,9 @@ export function BookingFlow({ professional, services }: { professional: Professi
                   <Button variant="accent" size="lg" fullWidth onClick={() => setStep('confirmed')}>
                     Confirmar agendamento
                   </Button>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-2xs)', color: 'var(--text-muted)', textAlign: 'center', margin: 'var(--space-2) 0 0' }}>
+                  <Typography variant="caption" as="p" style={{ fontSize: 'var(--text-2xs)', textAlign: 'center', margin: 'var(--space-2) 0 0' }}>
                     Ao confirmar, você aceita os termos de uso.
-                  </p>
+                  </Typography>
                 </>
               )}
             </div>

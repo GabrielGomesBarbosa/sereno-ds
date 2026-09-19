@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Badge, Avatar } from '@sereno-ds/ui';
+import { Card, Badge, Avatar, Typography } from '@sereno-ds/ui';
 import { sx } from './sx';
 
 /**
@@ -54,39 +54,30 @@ export function AppointmentCard({ client, service, time, date, status = 'confirm
           background: 'var(--bg-brand-soft)',
         })}
       >
-        <span
-          style={sx({
-            fontFamily: 'var(--font-display)',
-            fontSize: 'var(--text-lg)',
-            fontWeight: 'var(--weight-extrabold)',
-            color: 'var(--text-brand)',
-            letterSpacing: 'var(--tracking-tight)',
-          })}
+        <Typography
+          as="span"
+          variant="h2"
+          color="brand"
+          style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--weight-extrabold)', letterSpacing: 'var(--tracking-tight)' }}
         >
           {time}
-        </span>
-        {date && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-2xs)', color: 'var(--text-brand)', opacity: 0.8 })}>{date}</span>}
+        </Typography>
+        {date && (
+          <Typography as="span" variant="caption" color="brand" style={{ fontSize: 'var(--text-2xs)', opacity: 0.8 }}>
+            {date}
+          </Typography>
+        )}
       </div>
       <div style={sx({ flex: '1 1 140px', minWidth: 140, display: 'flex', flexDirection: 'column', gap: 4 })}>
         <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' })}>
           <Avatar name={client} size="xs" />
-          <span
-            style={sx({
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-base)',
-              fontWeight: 'var(--weight-bold)',
-              color: 'var(--text-primary)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            })}
-          >
+          <Typography as="span" variant="h3" truncate style={{ fontSize: 'var(--text-base)' }}>
             {client}
-          </span>
+          </Typography>
         </div>
         <div style={sx({ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', flexWrap: 'wrap' })}>
-          {service && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' })}>{service}</span>}
-          {channel && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' })}>· {channel}</span>}
+          {service && <Typography variant="bodySm">{service}</Typography>}
+          {channel && <Typography variant="caption">· {channel}</Typography>}
         </div>
       </div>
       <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginLeft: 'auto' })}>

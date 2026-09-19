@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 import { Copy, Plus, Video, Wallet, X } from 'lucide-react';
-import { Alert, Avatar, Button, Card, DateTimePicker, Dialog, IconButton, Input, Switch, Tabs } from '@sereno-ds/ui';
+import { Alert, Avatar, Button, Card, DateTimePicker, Dialog, IconButton, Input, Switch, Tabs, Typography } from '@sereno-ds/ui';
 import { AppointmentCard } from '@/domain/AppointmentCard';
 import { AGENDA_SCHEDULE, DASHBOARD_STATS, UNAVAILABLE_DAYS, bookingCountsOf, weekendsOf, type Appointment } from '@/lib/mock';
-import { cardTitle, vcol, Stat, StatRow, ViewHeader } from './shared';
+import { vcol, Stat, StatRow, ViewHeader } from './shared';
 
 function AppointmentRow({ a, onCancel, onToast }: { a: Appointment; onCancel: () => void; onToast: (m: string) => void }) {
   const first = a.client.split(' ')[0];
@@ -114,16 +114,18 @@ export function AgendaView({ onToast }: { onToast: (m: string) => void }) {
         <div style={vcol('var(--space-4)')} className="dash-agenda-aside">
           {next && (
             <Card padding="md" style={vcol('var(--space-3)')}>
-              <span style={{ fontSize: 'var(--text-2xs)', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 600 }}>Próximo atendimento</span>
+              <Typography variant="eyebrow" style={{ letterSpacing: '0.05em' }}>
+                Próximo atendimento
+              </Typography>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                 <Avatar name={next.client} size="sm" />
                 <div style={{ ...vcol('2px'), minWidth: 0 }}>
-                  <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>
+                  <Typography variant="h3" style={{ fontSize: 'var(--text-base)' }}>
                     {next.time} · {next.client}
-                  </span>
-                  <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                  </Typography>
+                  <Typography variant="bodySm">
                     {next.service} · {next.channel}
-                  </span>
+                  </Typography>
                 </div>
               </div>
               <Button size="sm" variant="secondary" fullWidth onClick={() => onToast(`Abrindo o atendimento de ${next.client.split(' ')[0]}…`)}>
@@ -143,7 +145,9 @@ export function AgendaView({ onToast }: { onToast: (m: string) => void }) {
             renderDay={(d) => (calCounts[d] ? <span className="dash-cal-count">{calCounts[d]}</span> : null)}
           />
           <Card padding="md" style={vcol('var(--space-3)')}>
-            <span style={{ ...cardTitle, fontSize: 'var(--text-base)' }}>Seu link público</span>
+            <Typography variant="h3" style={{ fontSize: 'var(--text-base)' }}>
+              Seu link público
+            </Typography>
             <Input
               defaultValue="sereno.app/ana-ramos"
               readOnly

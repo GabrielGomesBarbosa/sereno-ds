@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Switch, Select } from '@sereno-ds/ui';
+import { Switch, Select, Typography } from '@sereno-ds/ui';
 import { sx } from './sx';
 
 export interface DaySchedule {
@@ -129,7 +129,9 @@ export function WeeklyScheduleEditor({
                     onValueChange={(v) => patch(d.key, { start: v })}
                     containerStyle={{ width: 104 }}
                   />
-                  <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' })}>até</span>
+                  <Typography as="span" variant="bodySm" color="muted">
+                    até
+                  </Typography>
                   <Select
                     aria-label={`Horário de término, ${d.label}`}
                     options={HOUR_OPTS}
@@ -141,7 +143,9 @@ export function WeeklyScheduleEditor({
                   />
                 </div>
               ) : (
-                <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' })}>Sem atendimento</span>
+                <Typography as="span" variant="bodySm" color="muted">
+                  Sem atendimento
+                </Typography>
               )}
             </div>
           );
@@ -171,15 +175,13 @@ export function WeeklyScheduleEditor({
             background: 'var(--bg-brand-soft)',
             borderRadius: 'var(--radius-card)',
             padding: 'var(--space-3) var(--space-4)',
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-sm)',
-            color: 'var(--text-secondary)',
-            lineHeight: 1.5,
           })}
         >
-          {active.length === 0
-            ? 'Nenhum dia ativo — seu link público não vai mostrar horários.'
-            : 'Você atende ' + active.map((d) => d.short).join(', ') + (buf !== '0' ? ', com ' + buf + ' min de intervalo entre atendimentos.' : '.')}
+          <Typography variant="bodySm">
+            {active.length === 0
+              ? 'Nenhum dia ativo — seu link público não vai mostrar horários.'
+              : 'Você atende ' + active.map((d) => d.short).join(', ') + (buf !== '0' ? ', com ' + buf + ' min de intervalo entre atendimentos.' : '.')}
+          </Typography>
         </div>
       )}
     </div>

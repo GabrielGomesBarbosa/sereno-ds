@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Avatar } from '@sereno-ds/ui';
+import { Card, Avatar, Typography } from '@sereno-ds/ui';
 import { sx } from './sx';
 
 /** Identity card for a professional — public directory, booking header, team lists. */
@@ -33,23 +33,15 @@ export function ProfessionalCard({ name, specialty, credential, location, rating
     >
       <Avatar name={name} src={photo} size="lg" />
       <div style={sx({ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3 })}>
-        <span
-          style={sx({
-            fontFamily: 'var(--font-display)',
-            fontSize: 'var(--text-md)',
-            fontWeight: 'var(--weight-bold)',
-            color: 'var(--text-primary)',
-            letterSpacing: 'var(--tracking-snug)',
-          })}
-        >
-          {name}
-        </span>
-        {specialty && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' })}>{specialty}</span>}
+        <Typography variant="h3">{name}</Typography>
+        {specialty && <Typography variant="bodySm">{specialty}</Typography>}
         <div style={sx({ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', marginTop: 2 })}>
-          {credential && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' })}>{credential}</span>}
-          {location && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' })}>{location}</span>}
+          {credential && <Typography variant="caption">{credential}</Typography>}
+          {location && <Typography variant="caption">{location}</Typography>}
           {rating && (
-            <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-brand)', fontWeight: 'var(--weight-semibold)' })}>{rating}</span>
+            <Typography variant="caption" color="brand" style={{ fontWeight: 'var(--weight-semibold)' }}>
+              {rating}
+            </Typography>
           )}
         </div>
       </div>
