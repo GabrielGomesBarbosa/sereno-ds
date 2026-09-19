@@ -1,17 +1,18 @@
 import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
-import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, ListChecks, MonitorSmartphone, MoonStar, Package, Palette, Server } from 'lucide-react';
+import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, ListChecks, MonitorSmartphone, MoonStar, Palette, Server } from 'lucide-react';
 import { Brand, Card, ThemeToggle, Typography } from '@sereno-ds/ui';
 import { DS_VERSION } from '@/design-system/version';
 import { ComponentGallery } from '@/home/ComponentGallery';
 import { HeroPreview } from '@/home/HeroPreview';
-import { GithubMark, NextMark, ReactMark } from '@/home/tech';
+import { GithubMark, NextMark, NpmMark, ReactMark } from '@/home/tech';
 import { CopyCode } from '@/home/CopyCode';
 
 const REPO = 'https://github.com/GabrielGomesBarbosa/sereno-ds';
 const NPM_UI = 'https://www.npmjs.com/package/@sereno-ds/ui';
 const NPM_TOKENS = 'https://www.npmjs.com/package/@sereno-ds/tokens';
+const NPM_SEARCH = 'https://www.npmjs.com/search?q=%40sereno-ds';
 
 // The demo is a separate app (apps/demo). SS-158 sets NEXT_PUBLIC_DEMO_URL for
 // the deployed build; locally it runs on :3002.
@@ -122,6 +123,16 @@ export default function Home() {
             </a>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <a
+              href={NPM_SEARCH}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="@sereno-ds packages on npm"
+              title="@sereno-ds packages on npm"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 'var(--control-height-sm)', height: 'var(--control-height-sm)', borderRadius: 'var(--radius-control)', color: 'var(--text-secondary)' }}
+            >
+              <NpmMark size={18} />
+            </a>
             <a
               href={REPO}
               target="_blank"
@@ -250,10 +261,10 @@ export default function Home() {
             <GithubMark size={14} /> GitHub
           </a>
           <a href={NPM_UI} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
-            <Package size={14} strokeWidth={1.75} /> npm · ui
+            <NpmMark size={13} /> npm · ui
           </a>
           <a href={NPM_TOKENS} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
-            <Package size={14} strokeWidth={1.75} /> npm · tokens
+            <NpmMark size={13} /> npm · tokens
           </a>
         </Typography>
       </div>
