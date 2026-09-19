@@ -175,4 +175,19 @@ describe('Select (custom listbox)', () => {
     render(<Select options={OPTS} error="Campo obrigatório." preserveHelperSpace />);
     expect(screen.getByText('Campo obrigatório.')).toBeInTheDocument();
   });
+
+  it('forwards ref to the hidden mirror input when `name` is set', () => {
+    const ref = React.createRef<HTMLInputElement>();
+    render(<Select label="Fruit" options={OPTS} name="fruit" defaultValue="b" ref={ref} />);
+    expect(ref.current).toBeInstanceOf(HTMLInputElement);
+    expect(ref.current?.type).toBe('hidden');
+    expect(ref.current?.name).toBe('fruit');
+    expect(ref.current?.value).toBe('b');
+  });
+
+  it('ref is null when `name` is not set — there is no hidden input to forward to', () => {
+    const ref = React.createRef<HTMLInputElement>();
+    render(<Select label="Fruit" options={OPTS} ref={ref} />);
+    expect(ref.current).toBeNull();
+  });
 });

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { DatePicker } from './DatePicker';
+import { DatePicker, type DatePickerHandle } from './DatePicker';
 
 afterEach(cleanup);
 
@@ -111,5 +111,12 @@ describe('DatePicker', () => {
     fireEvent.click(screen.getByRole('button', { name: /10\/12\/2026/ }));
     expect(screen.getByText(/October 2026/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Clear date' })).toBeInTheDocument();
+  });
+
+  it('ref exposes an imperative focus() that lands on the trigger — no native element to read a value from', () => {
+    const ref = React.createRef<DatePickerHandle>();
+    render(<DatePicker label="Data" defaultValue="2026-10-12" ref={ref} />);
+    ref.current?.focus();
+    expect(screen.getByRole('button', { name: 'Data' })).toHaveFocus();
   });
 });

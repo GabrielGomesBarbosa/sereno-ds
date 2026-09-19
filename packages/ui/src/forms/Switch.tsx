@@ -25,7 +25,15 @@ export interface SwitchProps {
 
 const TRACK = { sm: { w: 36, h: 22, thumb: 16 }, md: { w: 44, h: 26, thumb: 20 } } as const;
 
-export function Switch({
+/**
+ * `ref` reaches the `<span role="switch">` — there's no native form element
+ * underneath, so this only gives you `.focus()` (useful for
+ * `setFocus()`-on-error), never `.value`/`.checked`. Switch is documented as
+ * "never use inside a form that needs Save" already; it isn't a
+ * `react-hook-form` `register()` candidate regardless of `ref` — use
+ * `Controller` if one genuinely needs to live in a saved form.
+ */
+export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>(function Switch({
   label,
   description,
   checked = false,
@@ -34,7 +42,7 @@ export function Switch({
   onChange,
   style,
   'aria-label': ariaLabel,
-}: SwitchProps) {
+}: SwitchProps, ref) {
   const t = TRACK[size];
   const toggle = () => {
     if (!disabled && onChange) onChange({ target: { checked: !checked } });
@@ -60,6 +68,7 @@ export function Switch({
         )}
       </span>
       <span
+        ref={ref}
         role="switch"
         aria-checked={checked}
         aria-label={label ?? ariaLabel}
@@ -99,4 +108,6 @@ export function Switch({
       </span>
     </label>
   );
-}
+});
+
+Switch.displayName = 'Switch';

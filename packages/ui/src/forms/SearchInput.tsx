@@ -23,17 +23,10 @@ export interface SearchInputProps
   clearLabel?: string;
 }
 
-export function SearchInput({
-  value,
-  defaultValue,
-  onValueChange,
-  onSearch,
-  debounce = 250,
-  clearLabel = 'Clear search',
-  placeholder = 'Search…',
-  disabled,
-  ...rest
-}: SearchInputProps) {
+export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(function SearchInput(
+  { value, defaultValue, onValueChange, onSearch, debounce = 250, clearLabel = 'Clear search', placeholder = 'Search…', disabled, ...rest },
+  ref,
+) {
   const [internal, setInternal] = React.useState(defaultValue ?? '');
   const text = value !== undefined ? value : internal;
 
@@ -56,6 +49,7 @@ export function SearchInput({
 
   return (
     <Input
+      ref={ref}
       {...rest}
       role="searchbox"
       enterKeyHint="search"
@@ -88,4 +82,6 @@ export function SearchInput({
       }
     />
   );
-}
+});
+
+SearchInput.displayName = 'SearchInput';

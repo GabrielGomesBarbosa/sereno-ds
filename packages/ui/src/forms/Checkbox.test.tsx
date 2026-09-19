@@ -38,4 +38,12 @@ describe('Checkbox', () => {
     expect(row?.style.minHeight).toBe('calc(var(--text-xs) * 1.45)');
     expect(row?.textContent).toBe('');
   });
+
+  it('forwards ref to the native checkbox input, still applying `indeterminate` itself', () => {
+    const ref = React.createRef<HTMLInputElement>();
+    render(<Checkbox label="Termos" ref={ref} indeterminate />);
+    expect(ref.current).toBeInstanceOf(HTMLInputElement);
+    expect(ref.current?.type).toBe('checkbox');
+    expect(ref.current?.indeterminate).toBe(true);
+  });
 });

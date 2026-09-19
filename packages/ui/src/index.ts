@@ -30,7 +30,7 @@ export { Checkbox, type CheckboxProps } from './forms/Checkbox';
 export { Radio, type RadioProps } from './forms/Radio';
 export { Switch, type SwitchProps } from './forms/Switch';
 export { DateTimePicker, type DateTimePickerProps, type TimeSlot } from './forms/DateTimePicker';
-export { DatePicker, type DatePickerProps } from './forms/DatePicker';
+export { DatePicker, type DatePickerProps, type DatePickerHandle } from './forms/DatePicker';
 export { FileUpload, type FileUploadProps } from './forms/FileUpload';
 export { AvatarUpload, type AvatarUploadProps } from './forms/AvatarUpload';
 export { SearchInput, type SearchInputProps } from './forms/SearchInput';

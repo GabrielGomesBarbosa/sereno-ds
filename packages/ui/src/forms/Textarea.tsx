@@ -23,7 +23,10 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
   preserveHelperSpace?: boolean;
 }
 
-export function Textarea({ label, hint, error, required, rows = 4, showCount, preserveHelperSpace, disabled, id, style, containerStyle, ...rest }: TextareaProps) {
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
+  { label, hint, error, required, rows = 4, showCount, preserveHelperSpace, disabled, id, style, containerStyle, ...rest },
+  ref,
+) {
   const [focus, setFocus] = React.useState(false);
   // SSR-stable id (the DS source used Math.random(), which breaks hydration).
   const autoId = React.useId();
@@ -55,6 +58,7 @@ export function Textarea({ label, hint, error, required, rows = 4, showCount, pr
     >
       <textarea
         id={rid}
+        ref={ref}
         rows={rows}
         disabled={disabled}
         onFocus={() => setFocus(true)}
@@ -80,4 +84,6 @@ export function Textarea({ label, hint, error, required, rows = 4, showCount, pr
       />
     </Field>
   );
-}
+});
+
+Textarea.displayName = 'Textarea';
