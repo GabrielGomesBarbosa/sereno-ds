@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
-import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, ListChecks, MonitorSmartphone, MoonStar, Palette, Server } from 'lucide-react';
+import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, ListChecks, MonitorSmartphone, MoonStar, Package, Palette, Server } from 'lucide-react';
 import { Brand, Card, ThemeToggle, Typography } from '@sereno-ds/ui';
 import { DS_VERSION } from '@/design-system/version';
 import { ComponentGallery } from '@/home/ComponentGallery';
@@ -10,6 +10,8 @@ import { GithubMark, NextMark, ReactMark } from '@/home/tech';
 import { CopyCode } from '@/home/CopyCode';
 
 const REPO = 'https://github.com/GabrielGomesBarbosa/sereno-ds';
+const NPM_UI = 'https://www.npmjs.com/package/@sereno-ds/ui';
+const NPM_TOKENS = 'https://www.npmjs.com/package/@sereno-ds/tokens';
 
 // The demo is a separate app (apps/demo). SS-158 sets NEXT_PUBLIC_DEMO_URL for
 // the deployed build; locally it runs on :3002.
@@ -99,8 +101,12 @@ export default function Home() {
         <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 'var(--topbar-height)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
             <Brand variant="lockup" size={26} />
-            <span
-              title="Design System version"
+            <a
+              href={NPM_UI}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="@sereno-ds/ui on npm"
+              aria-label="@sereno-ds/ui on npm"
               style={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: 'var(--text-2xs)',
@@ -109,10 +115,11 @@ export default function Home() {
                 padding: '2px 6px',
                 borderRadius: 'var(--radius-sm)',
                 background: 'var(--bg-subtle)',
+                textDecoration: 'none',
               }}
             >
               v{DS_VERSION}
-            </span>
+            </a>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
             <a
@@ -241,6 +248,12 @@ export default function Home() {
           </span>
           <a href={REPO} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
             <GithubMark size={14} /> GitHub
+          </a>
+          <a href={NPM_UI} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
+            <Package size={14} strokeWidth={1.75} /> npm · ui
+          </a>
+          <a href={NPM_TOKENS} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
+            <Package size={14} strokeWidth={1.75} /> npm · tokens
           </a>
         </Typography>
       </div>
