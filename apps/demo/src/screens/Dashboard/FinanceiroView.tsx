@@ -1,6 +1,6 @@
-import { Avatar, Badge, Table } from '@sereno-ds/ui';
+import { Avatar, Badge, Table, Typography } from '@sereno-ds/ui';
 import { CLIENTS } from '@/lib/mock';
-import { cardTitle, vcol, ChartsComingSoon, ComingSoon, Stat, StatRow, ViewHeader } from './shared';
+import { vcol, ChartsComingSoon, ComingSoon, Stat, StatRow, ViewHeader } from './shared';
 import { KNOWN_FINANCE } from './constants';
 
 const PENDING_PAYMENTS = CLIENTS.slice(0, 4).map((c, i) => ({
@@ -41,13 +41,19 @@ export function FinanceiroView({ section, title }: { section: string; title: str
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                       <Avatar name={p.name} size="sm" />
                       <span style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>{p.name}</span>
-                        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{p.service}</span>
+                        <Typography variant="h3" style={{ fontSize: 'var(--text-sm)' }}>
+                          {p.name}
+                        </Typography>
+                        <Typography variant="caption" color="secondary">
+                          {p.service}
+                        </Typography>
                       </span>
                     </span>
                   </Table.Cell>
                   <Table.Cell align="right">
-                    <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>{p.amount}</span>
+                    <Typography variant="h3" style={{ fontSize: 'var(--text-sm)' }}>
+                      {p.amount}
+                    </Typography>
                   </Table.Cell>
                   <Table.Cell>
                     <Badge tone={p.late ? 'error' : 'warning'}>{p.due}</Badge>

@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu as MenuIcon, X } from 'lucide-react';
-import { Brand, Button, Card, IconButton, SidebarNav, ThemeToggle, ToastProvider, TopBar, useToast } from '@sereno-ds/ui';
+import { Brand, Button, Card, IconButton, SidebarNav, ThemeToggle, ToastProvider, TopBar, Typography, useToast } from '@sereno-ds/ui';
 import { SIDEBAR_SECTIONS, pathForView, titleForView, viewFromPathname } from '@/lib/dashboardNav';
-import { cardTitle, useMediaQuery, vcol } from './shared';
+import { useMediaQuery, vcol } from './shared';
 import { KNOWN_BASES, todayLabel } from './constants';
 import { NotificationsMenu, UserMenu } from './TopBarMenus';
 import { AgendaView } from './AgendaView';
@@ -94,8 +94,12 @@ function DashboardShell() {
   const brandFull = <Brand variant="lockup" size={22} />;
   const planFooter = (
     <Card padding="sm" elevation="none" style={{ background: 'var(--bg-accent-soft)', ...vcol('6px') }}>
-      <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Plano gratuito</span>
-      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.4 }}>18 de 20 agendamentos usados este mês.</span>
+      <Typography variant="h3" style={{ fontSize: 'var(--text-sm)' }}>
+        Plano gratuito
+      </Typography>
+      <Typography variant="caption" color="secondary" style={{ lineHeight: 1.4 }}>
+        18 de 20 agendamentos usados este mês.
+      </Typography>
       <Button variant="accent" size="sm" fullWidth style={{ marginTop: 4 }} onClick={() => notify('Redirecionando para os planos…')}>
         Assinar agora
       </Button>

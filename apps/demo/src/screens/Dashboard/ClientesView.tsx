@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 import { ChevronRight, Clock, Download, Search } from 'lucide-react';
-import { Avatar, Badge, Button, Card, Dialog, EmptyState, SearchInput, Select, Table, Tabs, type TableSort } from '@sereno-ds/ui';
+import { Avatar, Badge, Button, Card, Dialog, EmptyState, SearchInput, Select, Table, Tabs, type TableSort, Typography } from '@sereno-ds/ui';
 import { AppointmentCard } from '@/domain/AppointmentCard';
 import { WhatsAppButton } from '@/domain/WhatsAppButton';
 import { AGENDA_SCHEDULE, CLIENTS, CLIENT_STATUS_LABEL, type ClientRow } from '@/lib/mock';
-import { cardTitle, vcol, ComingSoon, ViewHeader } from './shared';
+import { vcol, ComingSoon, ViewHeader } from './shared';
 
 /**
  * A client's profile — Tabs' real-world use case for the `underline`
@@ -51,8 +51,12 @@ function ClientDetailDialog({ client, onClose }: { client: ClientRow; onClose: (
                   ['Status', CLIENT_STATUS_LABEL[client.status]],
                 ].map(([label, value]) => (
                   <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-3)' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>{label}</span>
-                    <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>{value}</span>
+                    <Typography variant="bodySm" color="muted">
+                      {label}
+                    </Typography>
+                    <Typography variant="h3" style={{ fontSize: 'var(--text-sm)' }}>
+                      {value}
+                    </Typography>
                   </div>
                 ))}
               </Card>
@@ -126,11 +130,15 @@ export function ClientesView() {
                 <Table.Cell>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                     <Avatar name={c.name} size="sm" />
-                    <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>{c.name}</span>
+                    <Typography variant="h3" style={{ fontSize: 'var(--text-sm)' }}>
+                      {c.name}
+                    </Typography>
                   </span>
                 </Table.Cell>
                 <Table.Cell>
-                  <span style={{ color: 'var(--text-secondary)' }}>{c.sessions} · {c.last}</span>
+                  <Typography variant="bodySm">
+                    {c.sessions} · {c.last}
+                  </Typography>
                 </Table.Cell>
                 <Table.Cell>
                   <Badge tone={c.status}>{CLIENT_STATUS_LABEL[c.status]}</Badge>

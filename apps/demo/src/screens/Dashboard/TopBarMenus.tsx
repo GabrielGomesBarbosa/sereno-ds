@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { useTheme } from 'next-themes';
 import { AlertTriangle, Bell, CalendarCheck, ChevronDown, LogOut, Moon, Settings, Sun, UserPlus, Wallet } from 'lucide-react';
-import { Avatar, Button, IconButton, Menu, type MenuEntry } from '@sereno-ds/ui';
+import { Avatar, Button, IconButton, Menu, type MenuEntry, Typography } from '@sereno-ds/ui';
 import { NOTIFICATIONS } from '@/lib/mock';
-import { cardTitle, vcol, useMediaQuery } from './shared';
+import { vcol, useMediaQuery } from './shared';
 
 // ── TopBar menus ────────────────────────────────────────────────────────────────
 const NOTIF_ICON: Record<(typeof NOTIFICATIONS)[number]['kind'], React.ReactNode> = {
@@ -61,7 +61,9 @@ export function NotificationsMenu({ onToast }: { onToast: (m: string) => void })
       width={360}
       header={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-2)' }}>
-          <span style={{ ...cardTitle, fontSize: 'var(--text-sm)' }}>Notificações</span>
+          <Typography variant="h3" style={{ fontSize: 'var(--text-sm)' }}>
+            Notificações
+          </Typography>
           {unread > 0 && (
             <Button variant="link" size="sm" onClick={() => setItems((xs) => xs.map((n) => ({ ...n, unread: false })))}>
               Marcar todas como lidas
@@ -86,8 +88,12 @@ export function NotificationsMenu({ onToast }: { onToast: (m: string) => void })
               >
                 <span style={{ flex: '0 0 auto', color: NOTIF_TONE[n.kind], marginTop: 1 }}>{NOTIF_ICON[n.kind]}</span>
                 <div style={{ ...vcol('2px'), minWidth: 0 }}>
-                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-primary)', lineHeight: 1.4 }}>{n.title}</span>
-                  <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>{n.time}</span>
+                  <Typography variant="bodySm" color="primary" style={{ lineHeight: 1.4 }}>
+                    {n.title}
+                  </Typography>
+                  <Typography variant="caption" style={{ fontSize: 'var(--text-2xs)' }}>
+                    {n.time}
+                  </Typography>
                 </div>
               </div>
             ))}
@@ -142,8 +148,12 @@ export function UserMenu({ onNavigate, onToast }: { onNavigate: (v: string) => v
       }
       header={
         <>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>Ana Beatriz Ramos</div>
-          <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>ana.ramos@email.com</div>
+          <Typography as="div" variant="label">
+            Ana Beatriz Ramos
+          </Typography>
+          <Typography as="div" variant="caption" style={{ fontSize: 'var(--text-2xs)' }}>
+            ana.ramos@email.com
+          </Typography>
         </>
       }
       items={items}

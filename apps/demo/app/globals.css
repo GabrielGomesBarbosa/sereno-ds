@@ -166,13 +166,6 @@ html, body { padding: 0; margin: 0; }
 }
 @media (min-width: 768px) { .kiosk-topbar { padding: var(--space-6) var(--space-8); } }
 .kiosk-topbar-right { align-items: flex-end; }
-.kiosk-clock {
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-secondary);
-}
 
 .kiosk-stage {
   flex: 1;
@@ -182,16 +175,10 @@ html, body { padding: 0; margin: 0; }
   padding: var(--space-6) var(--gutter-mobile) var(--space-9);
 }
 
-.kiosk-eyebrow { font-family: var(--font-body); font-size: var(--text-sm); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
-.kiosk-h2 { font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 800; letter-spacing: -0.015em; color: var(--text-primary); margin: 0; }
-.kiosk-sub { font-family: var(--font-body); font-size: var(--text-lg); color: var(--text-secondary); line-height: 1.5; margin: 0; }
-
 .kiosk-panel { display: flex; flex-direction: column; gap: var(--space-8); width: 100%; max-width: 640px; }
 .kiosk-panel-center { align-items: center; text-align: center; }
 
 .kiosk-now { display: flex; align-items: baseline; gap: var(--space-4); flex-wrap: wrap; }
-.kiosk-now-name { font-family: var(--font-display); font-size: var(--text-5xl); font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
-.kiosk-now-time { font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 700; color: var(--text-brand); font-variant-numeric: tabular-nums; }
 
 .kiosk-next-list { display: flex; flex-direction: column; gap: var(--space-2); }
 .kiosk-next-row {
@@ -204,8 +191,6 @@ html, body { padding: 0; margin: 0; }
   background: var(--bg-surface);
   box-shadow: 0 0 0 1px var(--border-subtle);
 }
-.kiosk-next-name { font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
-.kiosk-next-time { font-family: var(--font-body); font-size: var(--text-base); color: var(--text-muted); font-variant-numeric: tabular-nums; }
 
 .kiosk-success-badge {
   display: flex;
@@ -229,7 +214,6 @@ html, body { padding: 0; margin: 0; }
   border-top: 1px dashed var(--border-default);
   background: var(--bg-subtle);
 }
-.kiosk-staff-label { font-family: var(--font-body); font-size: var(--text-xs); color: var(--text-muted); }
 
 /* ── WeeklyScheduleEditor (src/domain — a product component, not the DS) ───────
    The day rows are an inline grid; this is the only breakpoint where they

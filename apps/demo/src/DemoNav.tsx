@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Brand } from '@sereno-ds/ui';
+import { Brand, Typography } from '@sereno-ds/ui';
 
 // Demo-harness chrome — not part of the product. A fixed pill so any screen
 // can get back to the hub or jump to another screen.
@@ -55,9 +55,9 @@ export function DemoNav() {
         style={{ ...linkBase, display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}
       >
         <Brand variant="symbol" size={16} />
-        <span style={{ fontSize: 'var(--text-2xs)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+        <Typography as="span" variant="eyebrow" style={{ fontWeight: 'var(--weight-bold)', letterSpacing: '0.08em' }}>
           Demo
-        </span>
+        </Typography>
       </Link>
 
       <span aria-hidden style={{ flex: '0 0 auto', width: 1, height: 18, background: 'var(--border-default)' }} />
