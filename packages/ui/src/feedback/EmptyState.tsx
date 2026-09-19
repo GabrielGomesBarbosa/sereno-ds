@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { sx } from '../_internal/style';
+import { Typography } from '../core/Typography';
 
 /** Friendly placeholder for empty agendas, client lists and search results. */
 export interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -43,29 +44,13 @@ export function EmptyState({ icon, title, description, action, compact = false, 
           {icon}
         </span>
       )}
-      <span
-        style={sx({
-          fontFamily: 'var(--font-display)',
-          fontSize: 'var(--text-lg)',
-          fontWeight: 'var(--weight-bold)',
-          letterSpacing: 'var(--tracking-tight)',
-          color: 'var(--text-primary)',
-        })}
-      >
+      <Typography as="span" variant="h1" style={{ fontSize: 'var(--text-lg)' }}>
         {title}
-      </span>
+      </Typography>
       {description && (
-        <span
-          style={sx({
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-sm)',
-            color: 'var(--text-secondary)',
-            lineHeight: 'var(--leading-normal)',
-            maxWidth: 340,
-          })}
-        >
+        <Typography as="span" variant="bodySm" style={{ maxWidth: 340 }}>
           {description}
-        </span>
+        </Typography>
       )}
       {action && <div style={sx({ marginTop: 'var(--space-2)' })}>{action}</div>}
     </div>
