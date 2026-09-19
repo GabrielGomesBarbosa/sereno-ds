@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { BarChart3, Sparkles } from 'lucide-react';
-import { Card, EmptyState } from '@sereno-ds/ui';
-import { cardTitle, vcol } from '@/domain/layout';
+import { Card, EmptyState, Typography } from '@sereno-ds/ui';
+import { vcol } from '@/domain/layout';
 
 /** Small pieces every Dashboard view reaches for — layout helpers, the shared
  * "not built yet" placeholder, and the one hook used both here and by the shell. */
 
-export { cardTitle, vcol };
+export { vcol };
 
 export function useMediaQuery(query: string) {
   const [matches, setMatches] = React.useState(false);
@@ -24,27 +24,30 @@ export function ViewHeader({ title, action }: { title?: string; action?: React.R
   if (!title && !action) return null;
   return (
     <div style={{ display: 'flex', justifyContent: title ? 'space-between' : 'flex-end', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-      {title && <h2 style={{ ...cardTitle, fontSize: 'var(--text-lg)', margin: 0, letterSpacing: '-0.01em' }}>{title}</h2>}
+      {title && (
+        <Typography as="h2" variant="h3" style={{ fontSize: 'var(--text-lg)', letterSpacing: '-0.01em' }}>
+          {title}
+        </Typography>
+      )}
       {action}
     </div>
   );
 }
 
-const bigNumber: React.CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 'var(--text-3xl)',
-  fontWeight: 800,
-  letterSpacing: '-0.02em',
-  color: 'var(--text-primary)',
-  lineHeight: 1.1,
-};
-
 export function Stat({ label, value, delta, tone }: { label: string; value: string; delta?: string; tone?: 'up' }) {
   return (
     <Card padding="md" style={{ minWidth: 0, ...vcol('4px') }}>
-      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>{label}</span>
-      <span style={bigNumber}>{value}</span>
-      {delta && <span style={{ fontSize: 'var(--text-xs)', color: tone === 'up' ? 'var(--status-success-fg)' : 'var(--text-muted)', fontWeight: 500 }}>{delta}</span>}
+      <Typography variant="eyebrow" style={{ fontSize: 'var(--text-xs)', letterSpacing: '0.05em' }}>
+        {label}
+      </Typography>
+      <Typography as="span" variant="h1" style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, lineHeight: 1.1 }}>
+        {value}
+      </Typography>
+      {delta && (
+        <Typography variant="caption" style={{ fontWeight: 500, color: tone === 'up' ? 'var(--status-success-fg)' : undefined }}>
+          {delta}
+        </Typography>
+      )}
     </Card>
   );
 }

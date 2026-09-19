@@ -2,22 +2,11 @@
 
 import * as React from 'react';
 import { Calendar, CheckCircle2, Link2, Share2, Sparkles, User } from 'lucide-react';
-import { AvatarUpload, Badge, Brand, Button, Card, Input, Select, Stepper, Textarea } from '@sereno-ds/ui';
+import { AvatarUpload, Badge, Brand, Button, Card, Input, Select, Stepper, Textarea, Typography } from '@sereno-ds/ui';
 import { ServiceCard } from '@/domain/ServiceCard';
 import { WeeklyScheduleEditor, type WeekSchedule } from '@/domain/WeeklyScheduleEditor';
 import { vcol } from '@/domain/layout';
 import { DEFAULT_WEEK } from '@/lib/mock';
-
-const h1: React.CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 'var(--text-2xl)',
-  fontWeight: 800,
-  letterSpacing: '-0.02em',
-  color: 'var(--text-primary)',
-  lineHeight: 1.15,
-  margin: 0,
-};
-const sub: React.CSSProperties = { fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 };
 
 interface Data {
   name: string;
@@ -36,8 +25,12 @@ interface Data {
 function StepHeader({ title, description }: { title: string; description: string }) {
   return (
     <div style={vcol('var(--space-2)')}>
-      <h1 style={h1}>{title}</h1>
-      <p style={sub}>{description}</p>
+      <Typography variant="display" style={{ fontSize: 'var(--text-2xl)' }}>
+        {title}
+      </Typography>
+      <Typography variant="body" color="secondary">
+        {description}
+      </Typography>
     </div>
   );
 }
@@ -231,9 +224,9 @@ function ServicoStep({ data, set }: { data: Data; set: (p: Partial<Data>) => voi
         ]}
       />
       <div style={vcol('var(--space-2)')}>
-        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-2xs)', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+        <Typography variant="eyebrow" style={{ fontWeight: 'var(--weight-bold)' }}>
           Como o cliente vai ver
-        </span>
+        </Typography>
         <ServiceCard
           name={data.svcName || 'Nome do serviço'}
           description={data.svcDesc || undefined}
@@ -278,13 +271,19 @@ function DoneScreen({ data, onRestart }: { data: Data; onRestart: () => void }) 
       >
         <CheckCircle2 size={30} strokeWidth={1.75} />
       </span>
-      <h1 style={h1}>Tudo pronto</h1>
-      <p style={{ ...sub, maxWidth: 400 }}>Seu link já aceita agendamentos. Compartilhe com seus clientes quando quiser.</p>
+      <Typography variant="display" style={{ fontSize: 'var(--text-2xl)' }}>
+        Tudo pronto
+      </Typography>
+      <Typography variant="body" color="secondary" style={{ maxWidth: 400 }}>
+        Seu link já aceita agendamentos. Compartilhe com seus clientes quando quiser.
+      </Typography>
       <Card padding="md" elevation="none" style={{ width: '100%', textAlign: 'left', ...vcol('var(--space-3)'), marginTop: 'var(--space-2)' }}>
         {rows.map(([icon, text], i) => (
           <div key={i} style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', color: 'var(--text-secondary)' }}>
             {icon}
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>{text}</span>
+            <Typography variant="bodySm" style={{ lineHeight: 'normal' }}>
+              {text}
+            </Typography>
           </div>
         ))}
       </Card>

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { CalendarOff, Trash2 } from 'lucide-react';
-import { Button, DatePicker, EmptyState, IconButton, Input } from '@sereno-ds/ui';
+import { Button, DatePicker, EmptyState, IconButton, Input, Typography } from '@sereno-ds/ui';
 import { sx } from './sx';
 
 export interface DateException {
@@ -118,10 +118,14 @@ export function ScheduleExceptions({ value, defaultValue, onChange }: ScheduleEx
               })}
             >
               <div style={sx({ display: 'flex', flexDirection: 'column', gap: 2 })}>
-                <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)' })}>
+                <Typography as="span" variant="label" style={{ letterSpacing: 'normal', lineHeight: 'normal' }}>
                   {formatDate(e.date)}
-                </span>
-                {e.reason && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' })}>{e.reason}</span>}
+                </Typography>
+                {e.reason && (
+                  <Typography as="span" variant="caption">
+                    {e.reason}
+                  </Typography>
+                )}
               </div>
               <IconButton label={`Remover bloqueio de ${formatDate(e.date)}`} variant="error" size="sm" onClick={() => remove(e.date)}>
                 <Trash2 size={16} strokeWidth={1.75} />

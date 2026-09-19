@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Badge } from '@sereno-ds/ui';
+import { Card, Badge, Typography } from '@sereno-ds/ui';
 import { sx } from './sx';
 
 /**
@@ -32,45 +32,28 @@ export function ServiceCard({ name, duration, price, description, tag, selected 
     >
       <div style={sx({ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 })}>
         <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' })}>
-          <span
-            style={sx({
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-md)',
-              fontWeight: 'var(--weight-bold)',
-              color: 'var(--text-primary)',
-              letterSpacing: 'var(--tracking-snug)',
-            })}
-          >
+          <Typography as="span" variant="h3">
             {name}
-          </span>
+          </Typography>
           {tag && (
             <Badge tone="info" size="sm" dot={false}>
               {tag}
             </Badge>
           )}
         </div>
-        {description && (
-          <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 'var(--leading-normal)' })}>
-            {description}
-          </span>
-        )}
+        {description && <Typography variant="bodySm">{description}</Typography>}
       </div>
       {(price || duration) && (
         <div style={sx({ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2, whiteSpace: 'nowrap' })}>
           {price && (
-            <span
-              style={sx({
-                fontFamily: 'var(--font-display)',
-                fontSize: 'var(--text-md)',
-                fontWeight: 'var(--weight-bold)',
-                color: 'var(--text-primary)',
-              })}
-            >
+            <Typography as="span" variant="h3" style={{ letterSpacing: 'normal' }}>
               {price}
-            </span>
+            </Typography>
           )}
           {duration && (
-            <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 'var(--weight-medium)' })}>{duration}</span>
+            <Typography as="span" variant="caption" style={{ fontWeight: 'var(--weight-medium)' }}>
+              {duration}
+            </Typography>
           )}
         </div>
       )}

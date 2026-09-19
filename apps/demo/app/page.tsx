@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ExternalLink } from 'lucide-react';
-import { Brand, Card, ThemeToggle } from '@sereno-ds/ui';
+import { Brand, Card, ThemeToggle, Typography } from '@sereno-ds/ui';
 
 // The Design System lives in a separate app (apps/docs). SS-158 sets
 // NEXT_PUBLIC_DS_URL for the deployed build; locally it runs on :3001.
@@ -40,14 +40,7 @@ const SCREENS = [
   },
 ];
 
-const eyebrow: CSSProperties = {
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-2xs)',
-  fontWeight: 700,
-  letterSpacing: '0.1em',
-  textTransform: 'uppercase',
-  color: 'var(--text-muted)',
-};
+const EYEBROW_OVERRIDE: CSSProperties = { fontWeight: 'var(--weight-bold)', letterSpacing: '0.1em' };
 
 const cta = (primary: boolean): CSSProperties => ({
   display: 'inline-flex',
@@ -122,25 +115,17 @@ export default function DemoHome() {
         </header>
 
         <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', paddingTop: 'var(--space-6)', maxWidth: 720 }}>
-          <span style={eyebrow}>Sereno · Demo</span>
-          <h1
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-5xl)',
-              fontWeight: 800,
-              letterSpacing: '-0.035em',
-              lineHeight: 1.05,
-              color: 'var(--text-primary)',
-              margin: 0,
-            }}
-          >
+          <Typography as="span" variant="eyebrow" style={EYEBROW_OVERRIDE}>
+            Sereno · Demo
+          </Typography>
+          <Typography variant="display" style={{ letterSpacing: '-0.035em', lineHeight: 1.05 }}>
             The Sereno app, built on the Design System.
-          </h1>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-lg)', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0, maxWidth: 520 }}>
+          </Typography>
+          <Typography variant="body" color="secondary" style={{ fontSize: 'var(--text-lg)', lineHeight: 1.6, maxWidth: 520 }}>
             Four real product screens — a public booking flow, the professional dashboard, onboarding and a reception kiosk — assembled from{' '}
             <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85em', padding: '0.12em 0.4em', borderRadius: 'var(--radius-sm)', background: 'var(--bg-subtle)' }}>@sereno-ds/ui</code>{' '}
             primitives and navigable end to end on mocked data.
-          </p>
+          </Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', marginTop: 'var(--space-1)' }}>
             <Link href="/agendar/ana-ramos" style={cta(true)}>
               Start with the booking flow <ArrowRight size={18} strokeWidth={2} />
@@ -152,21 +137,29 @@ export default function DemoHome() {
         </section>
 
         <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
-          <span style={eyebrow}>The screens</span>
+          <Typography as="span" variant="eyebrow" style={EYEBROW_OVERRIDE}>
+            The screens
+          </Typography>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--space-4)' }}>
             {SCREENS.map((s) => (
               <Link key={s.href} href={s.href} style={{ textDecoration: 'none' }}>
                 <Card padding="lg" interactive style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-                  <span style={eyebrow}>{s.kicker}</span>
-                  <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{s.title}</h2>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: 1.55, color: 'var(--text-secondary)', margin: 0 }}>{s.body}</p>
+                  <Typography as="span" variant="eyebrow" style={EYEBROW_OVERRIDE}>
+                    {s.kicker}
+                  </Typography>
+                  <Typography variant="h2" style={{ fontSize: 'var(--text-lg)', letterSpacing: 'normal' }}>
+                    {s.title}
+                  </Typography>
+                  <Typography variant="bodySm" style={{ lineHeight: 1.55 }}>
+                    {s.body}
+                  </Typography>
                 </Card>
               </Link>
             ))}
           </div>
         </section>
 
-        <footer style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-3)', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)' }}>
+        <Typography as="footer" variant="caption" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-3)' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
             <Brand variant="symbol" size={16} mono />
             Sereno · built with the Design System
@@ -174,7 +167,7 @@ export default function DemoHome() {
           <a href={DS_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
             Design System <ExternalLink size={13} strokeWidth={2} />
           </a>
-        </footer>
+        </Typography>
       </div>
     </main>
   );

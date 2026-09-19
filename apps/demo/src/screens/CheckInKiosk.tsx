@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Megaphone } from 'lucide-react';
-import { Brand, Button } from '@sereno-ds/ui';
+import { Brand, Button, Typography } from '@sereno-ds/ui';
 import { vcol } from '@/domain/layout';
 import { TODAY_APPOINTMENTS, type Appointment } from '@/lib/mock';
 
@@ -73,11 +73,20 @@ export function CheckInKiosk() {
       <header className="kiosk-topbar">
         <Brand variant="lockup" size={20} />
         <div style={vcol('2px')} className="kiosk-topbar-right">
-          <span className="kiosk-eyebrow">Hoje · Segunda-feira, 24 de agosto</span>
+          <Typography as="span" variant="eyebrow" style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-bold)', letterSpacing: '0.08em' }}>
+            Hoje · Segunda-feira, 24 de agosto
+          </Typography>
           {clock && (
-            <span className="kiosk-clock" aria-label={`Agora, ${clock}`}>
+            <Typography
+              as="span"
+              variant="h2"
+              color="secondary"
+              numeric
+              aria-label={`Agora, ${clock}`}
+              style={{ letterSpacing: 'normal', lineHeight: 'normal' }}
+            >
               {clock}
-            </span>
+            </Typography>
           )}
         </div>
       </header>
@@ -88,27 +97,43 @@ export function CheckInKiosk() {
             <span className="kiosk-success-badge">
               <Megaphone size={40} strokeWidth={1.5} />
             </span>
-            <h1 className="kiosk-h2">Nenhuma chamada no momento</h1>
-            <p className="kiosk-sub">A fila de hoje foi toda atendida.</p>
+            <Typography variant="h1" style={{ fontWeight: 'var(--weight-extrabold)', letterSpacing: '-0.015em' }}>
+              Nenhuma chamada no momento
+            </Typography>
+            <Typography variant="body" color="secondary" style={{ fontSize: 'var(--text-lg)' }}>
+              A fila de hoje foi toda atendida.
+            </Typography>
           </div>
         ) : (
           <div className="kiosk-panel">
             <div style={vcol('var(--space-4)')}>
-              <span className="kiosk-eyebrow">Agora chamando</span>
+              <Typography as="span" variant="eyebrow" style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-bold)', letterSpacing: '0.08em' }}>
+                Agora chamando
+              </Typography>
               <div className="kiosk-now">
-                <span className="kiosk-now-name">{TICKET_OF.get(current)}</span>
-                <span className="kiosk-now-time">{current.time}</span>
+                <Typography as="span" variant="display" numeric style={{ letterSpacing: '0.02em', lineHeight: 'normal' }}>
+                  {TICKET_OF.get(current)}
+                </Typography>
+                <Typography as="span" variant="h1" color="brand" numeric style={{ letterSpacing: 'normal', lineHeight: 'normal' }}>
+                  {current.time}
+                </Typography>
               </div>
             </div>
 
             {upcoming.length > 0 && (
               <div style={vcol('var(--space-3)')}>
-                <span className="kiosk-eyebrow">Em breve</span>
+                <Typography as="span" variant="eyebrow" style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-bold)', letterSpacing: '0.08em' }}>
+                  Em breve
+                </Typography>
                 <div className="kiosk-next-list">
                   {upcoming.map((a) => (
                     <div key={a.time} className="kiosk-next-row">
-                      <span className="kiosk-next-name">{TICKET_OF.get(a)}</span>
-                      <span className="kiosk-next-time">{a.time}</span>
+                      <Typography as="span" variant="h2" color="secondary" numeric style={{ letterSpacing: '0.02em', lineHeight: 'normal' }}>
+                        {TICKET_OF.get(a)}
+                      </Typography>
+                      <Typography as="span" variant="body" color="muted" numeric style={{ lineHeight: 'normal' }}>
+                        {a.time}
+                      </Typography>
                     </div>
                   ))}
                 </div>
@@ -121,7 +146,9 @@ export function CheckInKiosk() {
       {/* Stands in for the receptionist's own "next" control — not part of
           the public panel itself. */}
       <div className="kiosk-staff-bar">
-        <span className="kiosk-staff-label">Painel da recepção (demo)</span>
+        <Typography as="span" variant="caption" style={{ lineHeight: 'normal' }}>
+          Painel da recepção (demo)
+        </Typography>
         <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
           <Button variant="ghost" size="sm" onClick={() => setCalledIndex(INITIAL_INDEX)} disabled={calledIndex === INITIAL_INDEX}>
             Reiniciar
