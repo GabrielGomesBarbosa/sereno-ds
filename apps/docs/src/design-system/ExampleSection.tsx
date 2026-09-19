@@ -2,25 +2,10 @@
 
 import * as React from 'react';
 import { Check, ChevronDown, Copy } from 'lucide-react';
+import { Typography } from '@sereno-ds/ui';
 import type { Example } from './catalog';
 import { DEMOS } from './demos';
 
-const h2: React.CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 'var(--text-xl)',
-  fontWeight: 700,
-  letterSpacing: '-0.01em',
-  color: 'var(--text-primary)',
-  margin: 0,
-};
-const caption: React.CSSProperties = {
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-sm)',
-  lineHeight: 1.6,
-  color: 'var(--text-secondary)',
-  margin: 0,
-  maxWidth: 620,
-};
 const toolBtn: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
@@ -53,11 +38,13 @@ export function ExampleSection({ slug, example }: { slug: string; example: Examp
 
   return (
     <section id={example.id} style={{ scrollMarginTop: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-      <h2 style={h2}>{example.title}</h2>
+      <Typography variant="h2" style={{ letterSpacing: '-0.01em' }}>
+        {example.title}
+      </Typography>
       {example.description && (
-        <p style={caption}>
+        <Typography variant="bodySm" style={{ lineHeight: 1.6, maxWidth: 620 }}>
           <InlineCode text={example.description} />
-        </p>
+        </Typography>
       )}
 
       {/* No clip on the card: a live example may pop out a Select / DateTimePicker

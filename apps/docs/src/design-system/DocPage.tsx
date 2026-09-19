@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Typography } from '@sereno-ds/ui';
 import { TableOfContents } from './TableOfContents';
 
 /**
@@ -9,16 +10,6 @@ import { TableOfContents } from './TableOfContents';
  * sits flush right. Overview and Tokens render through this so every page in the
  * showcase has the same chrome.
  */
-
-const sectionLabel: React.CSSProperties = {
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-2xs)',
-  fontWeight: 700,
-  letterSpacing: '0.07em',
-  textTransform: 'uppercase',
-  color: 'var(--text-muted)',
-  margin: 0,
-};
 
 export interface DocPageProps {
   kicker?: string;
@@ -33,34 +24,23 @@ export function DocPage({ kicker, title, intro, toc, children }: DocPageProps) {
     <div className="cv-layout">
       <article className="cv-article">
         <header style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', marginBottom: 'var(--space-8)' }}>
-          {kicker && <span style={sectionLabel}>{kicker}</span>}
-          <h1
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-3xl)',
-              fontWeight: 800,
-              letterSpacing: '-0.02em',
-              color: 'var(--text-primary)',
-              margin: 0,
-            }}
-          >
+          {kicker && (
+            <Typography as="span" variant="eyebrow" style={{ fontWeight: 'var(--weight-bold)' }}>
+              {kicker}
+            </Typography>
+          )}
+          <Typography variant="h1" style={{ fontWeight: 'var(--weight-extrabold)' }}>
             {title}
-          </h1>
+          </Typography>
           {intro && (
-            <div
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-md)',
-                lineHeight: 1.6,
-                color: 'var(--text-secondary)',
-                maxWidth: 620,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 'var(--space-3)',
-              }}
+            <Typography
+              as="div"
+              variant="body"
+              color="secondary"
+              style={{ fontSize: 'var(--text-md)', lineHeight: 1.6, maxWidth: 620, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}
             >
               {intro}
-            </div>
+            </Typography>
           )}
         </header>
 
