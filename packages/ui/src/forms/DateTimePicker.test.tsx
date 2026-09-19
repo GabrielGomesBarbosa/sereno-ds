@@ -164,3 +164,12 @@ describe('DateTimePicker — time slot capacity/overbooking (SS-64)', () => {
     expect(screen.getByText('0 de 6 vagas')).toBeInTheDocument();
   });
 });
+
+describe('DateTimePicker — ref', () => {
+  it('forwards ref to the root element — plain DOM access, not a form value (day/time are separate, parent-owned props)', () => {
+    const ref = React.createRef<HTMLDivElement>();
+    const { container } = render(<DateTimePicker {...OCT} ref={ref} />);
+    expect(ref.current).toBeInstanceOf(HTMLDivElement);
+    expect(ref.current).toBe(container.firstElementChild);
+  });
+});

@@ -30,7 +30,10 @@ export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   preserveHelperSpace?: boolean;
 }
 
-export function Radio({ label, description, error, checked, defaultChecked, disabled, size = 'md', preserveHelperSpace = false, onChange, style, ...rest }: RadioProps) {
+export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(function Radio(
+  { label, description, error, checked, defaultChecked, disabled, size = 'md', preserveHelperSpace = false, onChange, style, ...rest },
+  ref,
+) {
   const [hover, setHover] = React.useState(false);
   const box = size === 'sm' ? 16 : 20;
   return (
@@ -41,6 +44,7 @@ export function Radio({ label, description, error, checked, defaultChecked, disa
     >
       <span style={sx({ position: 'relative', display: 'inline-flex', flex: '0 0 auto', marginTop: size === 'sm' ? 3 : 1 })}>
         <input
+          ref={ref}
           type="radio"
           checked={checked}
           defaultChecked={defaultChecked}
@@ -80,4 +84,6 @@ export function Radio({ label, description, error, checked, defaultChecked, disa
       </span>
     </label>
   );
-}
+});
+
+Radio.displayName = 'Radio';

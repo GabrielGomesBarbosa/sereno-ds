@@ -547,7 +547,17 @@ function CustomSelect({
   );
 }
 
-export function Select({
+/**
+ * `ref` reaches the hidden `<input type="hidden">` that mirrors the selected
+ * value (rendered only when `name` is set — pass it, as `register()` does).
+ * Enough for `getValues()` / `trigger()` / `setFocus()`, but a plain
+ * `{...register(name)}` spread still won't validate on change: this hidden
+ * input never dispatches a native `input`/`change` event, and `onValueChange`
+ * hands back a plain string, not a `ChangeEvent` — wire it through
+ * `Controller`, or call the registered `onChange` yourself from
+ * `onValueChange`.
+ */
+export const Select = React.forwardRef<HTMLInputElement, SelectProps>(function Select({
   label,
   hint,
   error,
@@ -564,7 +574,7 @@ export function Select({
   containerStyle,
   'aria-label': ariaLabel,
   preserveHelperSpace,
-}: SelectProps) {
+}: SelectProps, ref) {
   const reactId = React.useId();
   const rid = id || reactId;
   const isControlled = valueProp !== undefined;
@@ -595,7 +605,9 @@ export function Select({
         coarse={coarse}
         onCommit={commit}
       />
-      {name && <input type="hidden" name={name} value={value} />}
+      {name && <input ref={ref} type="hidden" name={name} value={value} />}
     </Field>
   );
-}
+});
+
+Select.displayName = 'Select';

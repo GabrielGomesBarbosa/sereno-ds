@@ -4,6 +4,7 @@ import * as React from 'react';
 import { File as FileIcon, FileArchive, FileSpreadsheet, FileText, RefreshCw, Trash2, UploadCloud, type LucideIcon } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { mergeRefs } from '../_internal/mergeRefs';
 
 /**
  * Pick files — click, keyboard, or drag-and-drop — with a local preview.
@@ -149,7 +150,7 @@ function fileKey(f: File): string {
   return `${f.name}:${f.size}:${f.lastModified}`;
 }
 
-export function FileUpload(props: FileUploadProps) {
+export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(function FileUpload(props, forwardedRef) {
   const {
     label,
     hint,
@@ -328,7 +329,7 @@ export function FileUpload(props: FileUploadProps) {
   return (
     <Field label={label} hint={hint} error={error || (multiple ? undefined : rejected) || undefined} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
       <input
-        ref={inputRef}
+        ref={mergeRefs(inputRef, forwardedRef)}
         id={rid}
         type="file"
         accept={accept}
@@ -387,7 +388,9 @@ export function FileUpload(props: FileUploadProps) {
       )}
     </Field>
   );
-}
+});
+
+FileUpload.displayName = 'FileUpload';
 
 function MultiRow({ file, disabled, onRemove }: { file: File; disabled?: boolean; onRemove: () => void }) {
   const url = usePreviewUrl(file);

@@ -6,6 +6,7 @@ import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
 import { CharCount } from '../_internal/CharCount';
 import { formatMask, MASK_INPUTMODE, MASK_MAXLENGTH, type MaskName } from '../_internal/mask';
+import { mergeRefs } from '../_internal/mergeRefs';
 
 /**
  * Single-line text field with label, hint and error states.
@@ -42,29 +43,32 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 
 const H = { sm: 'var(--control-height-sm)', md: 'var(--control-height-md)', lg: 'var(--control-height-lg)' } as const;
 
-export function Input({
-  label,
-  hint,
-  error,
-  required,
-  size = 'md',
-  iconLeft,
-  prefix,
-  suffix,
-  disabled,
-  id,
-  style,
-  containerStyle,
-  mask,
-  showCount,
-  preserveHelperSpace,
-  type,
-  onChange,
-  inputMode,
-  maxLength,
-  defaultValue,
-  ...rest
-}: InputProps) {
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
+  {
+    label,
+    hint,
+    error,
+    required,
+    size = 'md',
+    iconLeft,
+    prefix,
+    suffix,
+    disabled,
+    id,
+    style,
+    containerStyle,
+    mask,
+    showCount,
+    preserveHelperSpace,
+    type,
+    onChange,
+    inputMode,
+    maxLength,
+    defaultValue,
+    ...rest
+  },
+  ref,
+) {
   const [focus, setFocus] = React.useState(false);
   const [reveal, setReveal] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -133,7 +137,7 @@ export function Input({
         )}
         <input
           id={rid}
-          ref={inputRef}
+          ref={mergeRefs(inputRef, ref)}
           type={isPassword && reveal ? 'text' : type}
           disabled={disabled}
           onFocus={() => setFocus(true)}
@@ -179,4 +183,6 @@ export function Input({
       </div>
     </Field>
   );
-}
+});
+
+Input.displayName = 'Input';

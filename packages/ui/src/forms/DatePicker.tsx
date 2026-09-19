@@ -12,6 +12,19 @@ const TEXT = {
   en: { placeholder: 'Pick a date', dialogLabel: 'Choose a date', clearLabel: 'Clear date' },
 } as const;
 
+/**
+ * Imperative handle exposed via `ref` — there's no single native element
+ * underneath (the trigger is a `<button>`, the value a plain ISO string in
+ * React state), so `ref` can't hand back something `.value`-readable the way
+ * a real `<input>` would. `focus()` is real and covers `setFocus()`-on-error;
+ * reading the current value still means the `value`/`onChange` props, not the
+ * ref. `onChange(value: string)` also isn't a `ChangeEvent`, so a plain
+ * `{...register(name)}` spread won't work regardless — use `Controller`.
+ */
+export interface DatePickerHandle {
+  focus: () => void;
+}
+
 export interface DatePickerProps {
   label?: string;
   hint?: string;
@@ -107,25 +120,28 @@ function unavailableForMonth(year: number, month: number, min?: string, max?: st
  * always uses it; `locale="en"` exists only for docs/demo purposes). A
  * clear (×) button appears once a value is set.
  */
-export function DatePicker({
-  label,
-  hint,
-  error,
-  required,
-  placeholder,
-  size = 'md',
-  disabled = false,
-  value,
-  defaultValue,
-  onChange,
-  min,
-  max,
-  id,
-  containerStyle,
-  clearLabel,
-  locale = 'pt-BR',
-  preserveHelperSpace,
-}: DatePickerProps) {
+export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(function DatePicker(
+  {
+    label,
+    hint,
+    error,
+    required,
+    placeholder,
+    size = 'md',
+    disabled = false,
+    value,
+    defaultValue,
+    onChange,
+    min,
+    max,
+    id,
+    containerStyle,
+    clearLabel,
+    locale = 'pt-BR',
+    preserveHelperSpace,
+  },
+  ref,
+) {
   const copy = TEXT[locale];
   const [inner, setInner] = React.useState(defaultValue ?? '');
   const iso = value !== undefined ? value : inner;
@@ -143,6 +159,8 @@ export function DatePicker({
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const generatedId = React.useId();
   const rid = id || generatedId;
+
+  React.useImperativeHandle(ref, () => ({ focus: () => triggerRef.current?.focus() }), []);
 
   // A plain `position: absolute` child of `rootRef` (itself `position:
   // relative`) — the same "inline" strategy Select's panel uses for its
@@ -310,4 +328,6 @@ export function DatePicker({
       </div>
     </Field>
   );
-}
+});
+
+DatePicker.displayName = 'DatePicker';

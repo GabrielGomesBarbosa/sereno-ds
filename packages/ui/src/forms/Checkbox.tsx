@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { sx } from '../_internal/style';
+import { mergeRefs } from '../_internal/mergeRefs';
 
 /** Opt-in control for consents and multi-select filters. Host must include the `.sereno-check:checked` and `.sereno-check:indeterminate` rules (see globals.css). */
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
@@ -22,14 +23,17 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
   preserveHelperSpace?: boolean;
 }
 
-export function Checkbox({ label, description, error, checked, defaultChecked, disabled, indeterminate, size = 'md', preserveHelperSpace = false, onChange, style, ...rest }: CheckboxProps) {
+export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
+  { label, description, error, checked, defaultChecked, disabled, indeterminate, size = 'md', preserveHelperSpace = false, onChange, style, ...rest },
+  forwardedRef,
+) {
   const [hover, setHover] = React.useState(false);
   const box = size === 'sm' ? 16 : 20;
-  const ref = React.useRef<HTMLInputElement>(null);
+  const innerRef = React.useRef<HTMLInputElement>(null);
   // `indeterminate` is a DOM property, not an attribute — set it imperatively, and
   // re-assert on every render so a `checked` change never leaves it stale.
   React.useEffect(() => {
-    if (ref.current) ref.current.indeterminate = Boolean(indeterminate);
+    if (innerRef.current) innerRef.current.indeterminate = Boolean(indeterminate);
   });
   return (
     <label
@@ -39,7 +43,7 @@ export function Checkbox({ label, description, error, checked, defaultChecked, d
     >
       <span style={sx({ position: 'relative', display: 'inline-flex', flex: '0 0 auto', marginTop: size === 'sm' ? 3 : 1 })}>
         <input
-          ref={ref}
+          ref={mergeRefs(innerRef, forwardedRef)}
           type="checkbox"
           checked={checked}
           defaultChecked={defaultChecked}
@@ -81,4 +85,6 @@ export function Checkbox({ label, description, error, checked, defaultChecked, d
       </span>
     </label>
   );
-}
+});
+
+Checkbox.displayName = 'Checkbox';

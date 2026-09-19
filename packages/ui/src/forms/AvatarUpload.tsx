@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { Camera, Check, ImagePlus, Pencil, Trash2, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { mergeRefs } from '../_internal/mergeRefs';
 import { Dialog } from '../feedback/Dialog';
 
 /**
@@ -96,23 +97,26 @@ function initials(name: string): string {
 
 const isHeic = (f: File) => /image\/heic|image\/heif/i.test(f.type) || /\.(heic|heif)$/i.test(f.name);
 
-export function AvatarUpload({
-  name = '',
-  value,
-  onChange,
-  size = 96,
-  outputSize = 512,
-  maxSizeMB = 8,
-  labels: labelsProp,
-  label,
-  hint,
-  error,
-  required,
-  disabled,
-  id,
-  containerStyle,
-  preserveHelperSpace,
-}: AvatarUploadProps) {
+export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps>(function AvatarUpload(
+  {
+    name = '',
+    value,
+    onChange,
+    size = 96,
+    outputSize = 512,
+    maxSizeMB = 8,
+    labels: labelsProp,
+    label,
+    hint,
+    error,
+    required,
+    disabled,
+    id,
+    containerStyle,
+    preserveHelperSpace,
+  },
+  forwardedRef,
+) {
   const t = React.useMemo<AvatarUploadLabels>(() => ({ ...EN, ...labelsProp }), [labelsProp]);
   const autoId = React.useId();
   const rid = id || autoId;
@@ -260,7 +264,7 @@ export function AvatarUpload({
 
   return (
     <Field label={label} hint={hint} error={error || rejected || undefined} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
-      <input ref={libRef} id={rid} type="file" accept="image/*" disabled={disabled} onChange={(e) => pick(e.target.files)} style={{ display: 'none' }} />
+      <input ref={mergeRefs(libRef, forwardedRef)} id={rid} type="file" accept="image/*" disabled={disabled} onChange={(e) => pick(e.target.files)} style={{ display: 'none' }} />
 
       <div style={sx({ position: 'relative', width: size, height: size, flex: '0 0 auto', opacity: disabled ? 0.6 : 1 })}>
         <span
@@ -389,7 +393,9 @@ export function AvatarUpload({
       {cropSrc && <CropModal src={cropSrc} outputSize={outputSize} labels={t} onClose={onCropCancel} onSave={onCropSave} />}
     </Field>
   );
-}
+});
+
+AvatarUpload.displayName = 'AvatarUpload';
 
 function MenuItem({ icon, label, onClick, danger }: { icon: React.ReactNode; label: string; onClick: () => void; danger?: boolean }) {
   const [hover, setHover] = React.useState(false);

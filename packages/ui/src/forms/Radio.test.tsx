@@ -38,4 +38,11 @@ describe('Radio', () => {
     expect(row?.style.minHeight).toBe('calc(var(--text-xs) * 1.45)');
     expect(row?.textContent).toBe('');
   });
+
+  it('forwards ref to the native radio input', () => {
+    const ref = React.createRef<HTMLInputElement>();
+    render(<Radio label="Pix" ref={ref} />);
+    expect(ref.current).toBeInstanceOf(HTMLInputElement);
+    expect(ref.current?.type).toBe('radio');
+  });
 });

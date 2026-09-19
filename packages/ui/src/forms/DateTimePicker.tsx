@@ -93,22 +93,34 @@ export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivEl
   locale?: 'pt-BR' | 'en';
 }
 
-export function DateTimePicker({
-  year,
-  month,
-  selectedDate,
-  times = [],
-  selectedTime,
-  unavailable = [],
-  onSelectDate,
-  onSelectTime,
-  onMonthChange,
-  renderDay,
-  timeLabel,
-  locale = 'pt-BR',
-  style,
-  ...rest
-}: DateTimePickerProps) {
+/**
+ * `ref` reaches the root `<div>` — plain DOM access (measuring, scrolling
+ * into view), not a form value. This isn't a single-value field: the day and
+ * the time are two separate, parent-owned selections (`selectedDate` /
+ * `selectedTime` + their own `onSelectDate` / `onSelectTime` callbacks), so
+ * there's no one "value" for `react-hook-form` to register. Register the
+ * date and the time as two separate fields at the call site instead (see
+ * `DatePicker` for a single-value date field with the same calendar).
+ */
+export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerProps>(function DateTimePicker(
+  {
+    year,
+    month,
+    selectedDate,
+    times = [],
+    selectedTime,
+    unavailable = [],
+    onSelectDate,
+    onSelectTime,
+    onMonthChange,
+    renderDay,
+    timeLabel,
+    locale = 'pt-BR',
+    style,
+    ...rest
+  },
+  ref,
+) {
   const copy = TEXT[locale];
   const label = timeLabel ?? copy.timeLabel;
   // If any slot in the list tracks capacity, plain slots grow the same
@@ -117,6 +129,7 @@ export function DateTimePicker({
   const anyCapacity = times.some((s) => typeof s === 'object' && s.capacity !== undefined);
   return (
     <div
+      ref={ref}
       {...rest}
       style={sx({
         position: 'relative',
@@ -234,4 +247,6 @@ export function DateTimePicker({
       )}
     </div>
   );
-}
+});
+
+DateTimePicker.displayName = 'DateTimePicker';
