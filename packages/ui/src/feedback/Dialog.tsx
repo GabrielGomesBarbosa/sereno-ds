@@ -4,6 +4,7 @@ import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { sx } from '../_internal/style';
+import { Typography } from '../core/Typography';
 
 /**
  * Modal (desktop), bottom sheet (mobile) or full-screen — a **compound
@@ -261,31 +262,14 @@ function Header({ title, description, children }: DialogHeaderProps) {
     >
       <div id={titleId} style={sx({ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' })}>
         {title && (
-          <h3
-            style={sx({
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-xl)',
-              fontWeight: 'var(--weight-bold)',
-              letterSpacing: 'var(--tracking-tight)',
-              color: 'var(--text-primary)',
-              margin: 0,
-            })}
-          >
+          <Typography as="h3" variant="h2" style={{ letterSpacing: 'var(--tracking-tight)' }}>
             {title}
-          </h3>
+          </Typography>
         )}
         {description && (
-          <p
-            style={sx({
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-base)',
-              lineHeight: 'var(--leading-normal)',
-              color: 'var(--text-secondary)',
-              margin: 0,
-            })}
-          >
+          <Typography variant="body" color="secondary">
             {description}
-          </p>
+          </Typography>
         )}
         {extra}
       </div>
