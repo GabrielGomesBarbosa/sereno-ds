@@ -4,6 +4,7 @@
 // 100% CSS custom properties.
 
 // core
+export { Typography, type TypographyProps, type TypographyVariant, type TypographyColor } from './core/Typography';
 export { Button, type ButtonProps } from './core/Button';
 export { IconButton, type IconButtonProps } from './core/IconButton';
 export { Badge, type BadgeProps } from './core/Badge';

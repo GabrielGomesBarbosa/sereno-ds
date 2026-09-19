@@ -62,6 +62,7 @@ import {
   Toast,
   ToastProvider,
   TopBar,
+  Typography,
   useToast,
 } from '@sereno-ds/ui';
 
@@ -80,6 +81,56 @@ const legendStyle: React.CSSProperties = {
   color: 'var(--text-muted)',
   marginBottom: 4,
 };
+
+function TypographyVariantes() {
+  return (
+    <div style={col}>
+      <Typography variant="display">Display</Typography>
+      <Typography variant="h1">Heading 1</Typography>
+      <Typography variant="h2">Heading 2</Typography>
+      <Typography variant="h3">Heading 3</Typography>
+      <Typography variant="body">Body — the default paragraph text.</Typography>
+      <Typography variant="bodySm">Body small — secondary paragraph text.</Typography>
+      <Typography variant="label">Label</Typography>
+      <Typography variant="caption">Caption</Typography>
+      <Typography variant="eyebrow">Eyebrow</Typography>
+    </div>
+  );
+}
+function TypographyCores() {
+  return (
+    <div style={row}>
+      <Typography variant="label" color="brand">
+        Brand
+      </Typography>
+      <Typography variant="label" color="accent">
+        Accent
+      </Typography>
+      <Typography variant="label" color="error">
+        Error
+      </Typography>
+      <Typography variant="label" color="muted">
+        Muted
+      </Typography>
+    </div>
+  );
+}
+function TypographyComoTag() {
+  return (
+    <Typography variant="h3" as="div">
+      Looks like a heading, isn&rsquo;t one in the outline
+    </Typography>
+  );
+}
+function TypographyTruncate() {
+  return (
+    <div style={{ maxWidth: 220 }}>
+      <Typography variant="label" truncate>
+        A title long enough to need clipping in a narrow card
+      </Typography>
+    </div>
+  );
+}
 
 function ButtonBasico() {
   return (
@@ -2150,6 +2201,12 @@ function EmptyStateCompact() {
  * in catalog.ts).
  */
 export const DEMOS: Record<string, Record<string, React.FC>> = {
+  typography: {
+    variants: TypographyVariantes,
+    colors: TypographyCores,
+    as: TypographyComoTag,
+    truncate: TypographyTruncate,
+  },
   button: {
     basic: ButtonBasico,
     variants: ButtonVariantes,

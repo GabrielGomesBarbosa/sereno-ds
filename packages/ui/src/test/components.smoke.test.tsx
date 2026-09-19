@@ -8,7 +8,7 @@ afterEach(cleanup);
 
 /** Every component the barrel is meant to export. */
 const EXPECTED = [
-  'Button', 'IconButton', 'Badge', 'Card', 'Avatar', 'Brand', 'Menu', 'Table',
+  'Typography', 'Button', 'IconButton', 'Badge', 'Card', 'Avatar', 'Brand', 'Menu', 'Table',
   'Input', 'Textarea', 'Select', 'Checkbox', 'Radio', 'Switch', 'DateTimePicker', 'DatePicker',
   'FileUpload', 'AvatarUpload', 'SearchInput',
   'TopBar', 'Tabs', 'BottomNav', 'SidebarNav', 'Stepper',
@@ -20,6 +20,7 @@ const icon = <svg aria-hidden width={16} height={16} />;
 
 /** One minimal-but-valid render per component. */
 const CASES: Record<string, React.ReactElement> = {
+  Typography: <UI.Typography variant="h2">Section title</UI.Typography>,
   Button: <UI.Button>Save</UI.Button>,
   IconButton: <UI.IconButton label="Back">{icon}</UI.IconButton>,
   Badge: <UI.Badge>New</UI.Badge>,
