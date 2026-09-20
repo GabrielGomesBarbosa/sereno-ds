@@ -1,6 +1,6 @@
 {
   "name": "@sereno-ds/tokens",
-  "version": "0.30.1",
+  "version": "0.31.0",
   "description": "Sereno Design System — the token layer (CSS custom properties, light × dark).",
   "license": "MIT",
   "author": "Sereno",
