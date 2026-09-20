@@ -11,6 +11,7 @@
   },
   "homepage": "https://github.com/GabrielGomesBarbosa/sereno-ds/tree/main/packages/tokens#readme",
   "bugs": "https://github.com/GabrielGomesBarbosa/sereno-ds/issues",
+  "type": "module",
   "keywords": [
     "design-tokens",
     "css-variables",
@@ -30,13 +31,28 @@
     "./elevation.css": "./elevation.css",
     "./motion.css": "./motion.css",
     "./base.css": "./base.css",
+    "./breakpoints": {
+      "types": "./dist/breakpoints.d.ts",
+      "import": "./dist/breakpoints.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
     "*.css",
+    "dist",
     "README.md",
     "LICENSE"
   ],
+  "scripts": {
+    "build": "node scripts/check-breakpoints.mjs && tsup",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5"
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true
