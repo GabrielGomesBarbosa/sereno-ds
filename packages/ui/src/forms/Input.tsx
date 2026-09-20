@@ -62,6 +62,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     preserveHelperSpace,
     type,
     onChange,
+    onFocus,
+    onBlur,
     inputMode,
     maxLength,
     defaultValue,
@@ -106,6 +108,19 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
       }
     : onChange;
 
+  // Composed the same way as `handleChange` above — the focus ring's own
+  // onFocus/onBlur must never be silently replaced by a caller's handler
+  // (or by react-hook-form's `register()`, which always injects its own
+  // onBlur), the way a plain `{...rest}` spread after them would do.
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setFocus(true);
+    onFocus?.(e);
+  };
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setFocus(false);
+    onBlur?.(e);
+  };
+
   return (
     <Field
       label={label}
@@ -137,16 +152,16 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
         )}
         <input
           id={rid}
+          disabled={disabled}
+          {...rest}
           ref={mergeRefs(inputRef, ref)}
           type={isPassword && reveal ? 'text' : type}
-          disabled={disabled}
-          onFocus={() => setFocus(true)}
-          onBlur={() => setFocus(false)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           onChange={handleChange}
           inputMode={mask ? inputMode ?? MASK_INPUTMODE[mask] ?? 'numeric' : inputMode}
           maxLength={mask ? maxLength ?? MASK_MAXLENGTH[mask] : maxLength}
           defaultValue={mask && typeof defaultValue === 'string' ? formatMask(mask, defaultValue) : defaultValue}
-          {...rest}
           style={sx({
             flex: 1,
             minWidth: 0,

@@ -24,7 +24,7 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
 }
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  { label, hint, error, required, rows = 4, showCount, preserveHelperSpace, disabled, id, style, containerStyle, ...rest },
+  { label, hint, error, required, rows = 4, showCount, preserveHelperSpace, disabled, id, style, containerStyle, onChange, onFocus, onBlur, ...rest },
   ref,
 ) {
   const [focus, setFocus] = React.useState(false);
@@ -41,9 +41,23 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
   const handleChange = showCounter
     ? (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         if (rest.value === undefined) setUncount(e.currentTarget.value.length);
-        rest.onChange?.(e);
+        onChange?.(e);
       }
-    : rest.onChange;
+    : onChange;
+
+  // Destructured (not left in `...rest`) and always re-composed — same
+  // reason as `handleChange` above: a caller's own onFocus/onBlur (or
+  // react-hook-form's `register()`, which always injects its own onBlur)
+  // must never silently replace the focus ring's, the way a plain
+  // `{...rest}` spread after them used to.
+  const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    setFocus(true);
+    onFocus?.(e);
+  };
+  const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    setFocus(false);
+    onBlur?.(e);
+  };
 
   return (
     <Field
@@ -61,9 +75,9 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
         ref={ref}
         rows={rows}
         disabled={disabled}
-        onFocus={() => setFocus(true)}
-        onBlur={() => setFocus(false)}
         {...rest}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         onChange={handleChange}
         style={sx({
           width: '100%',
