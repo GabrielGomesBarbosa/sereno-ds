@@ -1630,6 +1630,7 @@ const SIDE_SECTIONS: SideSection[] = [
       { value: 'agenda', label: 'Calendar', icon: <Calendar size={18} strokeWidth={1.75} /> },
       { value: 'clients', label: 'Clients', icon: <Users size={18} strokeWidth={1.75} />, count: 12 },
       { value: 'services', label: 'Services', icon: <Sparkles size={18} strokeWidth={1.75} /> },
+      { value: 'waitlist', label: 'Waiting list and cancellations', icon: <CalendarOff size={18} strokeWidth={1.75} /> },
     ],
   },
   {

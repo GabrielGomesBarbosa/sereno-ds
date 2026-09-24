@@ -1832,12 +1832,14 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
         id: 'basic',
         title: 'Groups and second level',
         description:
-          'Each `SidebarNav.Section` is a divided block with an optional uppercase `label`. An `Item` with `SubItem` children is not a destination — it opens an inline second level (the branch holding the active child starts open). On the collapsed rail the same list opens as a hover flyout instead.',
+          'Each `SidebarNav.Section` is a divided block with an optional uppercase `label`. An `Item` with `SubItem` children is not a destination — it opens an inline second level (the branch holding the active child starts open). On the collapsed rail the same list opens as a hover flyout instead. A label the row can’t fit is cut with an ellipsis — hover or Tab onto it and the full text shows in a tooltip (only when it is actually cut; a short label gets none).',
         code: `<SidebarNav value={view} onChange={setView}>
   <SidebarNav.Section label="Workspace">
     <SidebarNav.Item value="agenda" label="Calendar" icon={<Calendar size={18} />} />
     <SidebarNav.Item value="clients" label="Clients" icon={<Users size={18} />} count={12} />
     <SidebarNav.Item value="services" label="Services" icon={<Sparkles size={18} />} />
+    {/* too long for the row: ellipsis + a tooltip with the full text on hover / focus */}
+    <SidebarNav.Item value="waitlist" label="Waiting list and cancellations" icon={<CalendarOff size={18} />} />
   </SidebarNav.Section>
   <SidebarNav.Section label="Management">
     <SidebarNav.Item value="finance" label="Finance" icon={<Wallet size={18} />}>
@@ -1855,7 +1857,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
         id: 'collapsible',
         title: 'Collapsible rail',
         description:
-          'A round toggle on the sidebar’s right edge (level with the `header`) drops it to a 72px icon rail — labels hide, group headings become bare dividers, counts become a dot, and each icon gets a hover tooltip. A parent still opens its flyout from the rail. Pass `header` (a mark shows on the rail) / `footer` (hidden on the rail).',
+          'A round toggle on the sidebar’s right edge (level with the `header`) drops it to a 72px icon rail — labels hide, group headings become bare dividers, counts become a dot, and each icon gets a tooltip on hover and on keyboard focus. A parent still opens its flyout from the rail. Pass `header` (a mark shows on the rail) / `footer` (hidden on the rail).',
         code: `const [collapsed, setCollapsed] = React.useState(false);
 
 <SidebarNav

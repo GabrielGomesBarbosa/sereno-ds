@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { SidebarNav } from './SidebarNav';
 
 afterEach(cleanup);
@@ -264,6 +264,99 @@ describe('SidebarNav', () => {
         fireEvent.click(toggle);
         expect(onCollapsedChange).toHaveBeenCalledWith(true);
       });
+    });
+  });
+
+  describe('label tooltip', () => {
+    // jsdom has no layout — fake the ellipsis by giving the label span a
+    // scrollWidth wider than its clientWidth (what a truncated one reports).
+    const truncate = (el: HTMLElement) => {
+      Object.defineProperty(el, 'scrollWidth', { configurable: true, value: 240 });
+      Object.defineProperty(el, 'clientWidth', { configurable: true, value: 120 });
+    };
+    const LONG = 'Programa de indicação de clientes';
+
+    function Nav({ collapsed = false, disabled = false }: { collapsed?: boolean; disabled?: boolean }) {
+      return (
+        <SidebarNav value="agenda" collapsible={false} collapsed={collapsed}>
+          <SidebarNav.Section>
+            <SidebarNav.Item value="agenda" label="Agenda" />
+            <SidebarNav.Item value="referral" label={LONG} disabled={disabled} />
+            <SidebarNav.Item value="finance" label="Finance">
+              <SidebarNav.SubItem value="finance:sub" label="Notas fiscais e comprovantes de repasse" />
+            </SidebarNav.Item>
+          </SidebarNav.Section>
+        </SidebarNav>
+      );
+    }
+
+    it('shows the full label on hover when the ellipsis is cutting it, and hides it on leave', () => {
+      render(<Nav />);
+      truncate(screen.getByText(LONG));
+      const btn = screen.getByRole('button', { name: LONG });
+      fireEvent.mouseEnter(btn);
+      expect(screen.getByRole('tooltip')).toHaveTextContent(LONG);
+      fireEvent.mouseLeave(btn);
+      expect(screen.queryByRole('tooltip')).toBeNull();
+    });
+
+    it('shows nothing for a label that fits — no redundant tooltip', () => {
+      render(<Nav />);
+      fireEvent.mouseEnter(screen.getByRole('button', { name: 'Agenda' }));
+      expect(screen.queryByRole('tooltip')).toBeNull();
+    });
+
+    it('shows on keyboard focus too, hides on blur, and Esc dismisses it without moving focus', () => {
+      render(<Nav />);
+      truncate(screen.getByText(LONG));
+      const btn = screen.getByRole('button', { name: LONG });
+      act(() => btn.focus());
+      expect(screen.getByRole('tooltip')).toHaveTextContent(LONG);
+      fireEvent.keyDown(btn, { key: 'Escape' });
+      expect(screen.queryByRole('tooltip')).toBeNull();
+      expect(btn).toHaveFocus();
+      act(() => btn.focus());
+      act(() => btn.blur());
+      expect(screen.queryByRole('tooltip')).toBeNull();
+    });
+
+    it('a truncated SubItem gets the same tooltip', () => {
+      render(
+        <SidebarNav value="finance:sub" collapsible={false}>
+          <SidebarNav.Section>
+            <SidebarNav.Item value="finance" label="Finance">
+              <SidebarNav.SubItem value="finance:sub" label="Notas fiscais e comprovantes de repasse" />
+            </SidebarNav.Item>
+          </SidebarNav.Section>
+        </SidebarNav>,
+      );
+      truncate(screen.getByText('Notas fiscais e comprovantes de repasse'));
+      fireEvent.mouseEnter(screen.getByRole('button', { name: /Notas fiscais/ }));
+      expect(screen.getByRole('tooltip')).toHaveTextContent('Notas fiscais e comprovantes de repasse');
+    });
+
+    it('a disabled item still shows its full label on hover', () => {
+      render(<Nav disabled />);
+      truncate(screen.getByText(LONG));
+      fireEvent.mouseEnter(screen.getByRole('button', { name: LONG }));
+      expect(screen.getByRole('tooltip')).toHaveTextContent(LONG);
+    });
+
+    it('on the icon-only rail keyboard focus shows the label too (it was hover-only), for every item', () => {
+      render(<Nav collapsed />);
+      const btn = screen.getByRole('button', { name: 'Agenda' });
+      act(() => btn.focus());
+      expect(screen.getByRole('tooltip')).toHaveTextContent('Agenda');
+    });
+
+    it('clicking dismisses the tooltip', () => {
+      render(<Nav />);
+      truncate(screen.getByText(LONG));
+      const btn = screen.getByRole('button', { name: LONG });
+      fireEvent.mouseEnter(btn);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      fireEvent.click(btn);
+      expect(screen.queryByRole('tooltip')).toBeNull();
     });
   });
 
