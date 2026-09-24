@@ -162,6 +162,25 @@ function childValuesOf(children: React.ReactNode): string[] {
   return out;
 }
 
+/**
+ * Shows `label` as a tooltip beside `row`. On the icon-only rail every label is
+ * hidden (`labelEl` is null), so it always shows; expanded, only when the
+ * ellipsis is actually cutting the text off — a short label gets no redundant tooltip.
+ */
+function showLabelTip(row: HTMLElement, labelEl: HTMLElement | null, label: string, showTip: SidebarNavContextValue['showTip']) {
+  if (labelEl && labelEl.scrollWidth <= labelEl.clientWidth) return;
+  showTip(label, row.getBoundingClientRect());
+}
+
+/** Keyboard focus only — a mouse click focuses the row too, but the pointer is already showing (or has dismissed) the tip. */
+function isKeyboardFocus(el: HTMLElement): boolean {
+  try {
+    return el.matches(':focus-visible');
+  } catch {
+    return false;
+  }
+}
+
 function SidebarNavRoot({
   value,
   onChange,
@@ -403,6 +422,7 @@ function Item({ value, label, icon, count, href, disabled: disabledProp, childre
   const disabled = disabledProp ?? rootDisabled;
   const st = useInteract(disabled);
   const btnRef = React.useRef<HTMLButtonElement>(null);
+  const labelRef = React.useRef<HTMLSpanElement>(null);
   const hasChildren = React.Children.count(children) > 0;
   const childVals = hasChildren ? childValuesOf(children) : [];
   // Still the current page while disabled (a locked area can be showing you where you are) — just muted.
@@ -476,7 +496,9 @@ function Item({ value, label, icon, count, href, disabled: disabledProp, childre
       )}
       {!collapsed && (
         <>
-          <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{label}</span>
+          <span ref={labelRef} style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>
+            {label}
+          </span>
           {count !== undefined && <span style={countPill(highlight, disabled)}>{count}</span>}
           {hasChildren && (
             <ChevronDown
@@ -494,14 +516,26 @@ function Item({ value, label, icon, count, href, disabled: disabledProp, childre
     ...st.handlers,
     onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
       st.handlers.onMouseEnter?.(e);
-      if (!collapsed) return;
       if (railFlyout) openFlyout(value);
-      else showTip(label, e.currentTarget.getBoundingClientRect());
+      else showLabelTip(e.currentTarget, labelRef.current, label, showTip);
     },
     onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
       st.handlers.onMouseLeave?.(e);
       if (railFlyout) closeFlyoutSoon();
       else hideTip();
+    },
+    // Keyboard parity with hover — on the rail a Tab stop is otherwise just an unlabelled icon.
+    onFocus: (e: React.FocusEvent<HTMLElement>) => {
+      st.handlers.onFocus?.(e);
+      if (isKeyboardFocus(e.currentTarget)) showLabelTip(e.currentTarget, labelRef.current, label, showTip);
+    },
+    onBlur: (e: React.FocusEvent<HTMLElement>) => {
+      st.handlers.onBlur?.(e);
+      hideTip();
+    },
+    // Dismissible without moving the pointer or focus (WCAG 1.4.13).
+    onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
+      if (e.key === 'Escape') hideTip();
     },
   };
 
@@ -579,8 +613,9 @@ function Item({ value, label, icon, count, href, disabled: disabledProp, childre
 }
 
 function SubItem({ value, label, count, disabled: disabledProp, compact = false }: SidebarNavSubItemProps) {
-  const { value: activeValue, disabled: rootDisabled, select } = useSidebarNavContext('SubItem');
+  const { value: activeValue, disabled: rootDisabled, select, showTip, hideTip } = useSidebarNavContext('SubItem');
   const parentDisabled = React.useContext(ParentDisabledContext);
+  const labelRef = React.useRef<HTMLSpanElement>(null);
   // Its own `disabled` wins, then its parent Item's (already resolved against the root), then the root's.
   const disabled = disabledProp ?? parentDisabled ?? rootDisabled;
   const active = activeValue === value;
@@ -593,9 +628,29 @@ function SubItem({ value, label, count, disabled: disabledProp, compact = false 
       aria-disabled={disabled || undefined}
       tabIndex={disabled ? -1 : undefined}
       onClick={() => {
+        hideTip();
         if (!disabled) select(value);
       }}
       {...st.handlers}
+      onMouseEnter={(e) => {
+        st.handlers.onMouseEnter?.(e);
+        showLabelTip(e.currentTarget, labelRef.current, label, showTip);
+      }}
+      onMouseLeave={(e) => {
+        st.handlers.onMouseLeave?.(e);
+        hideTip();
+      }}
+      onFocus={(e) => {
+        st.handlers.onFocus?.(e);
+        if (isKeyboardFocus(e.currentTarget)) showLabelTip(e.currentTarget, labelRef.current, label, showTip);
+      }}
+      onBlur={(e) => {
+        st.handlers.onBlur?.(e);
+        hideTip();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') hideTip();
+      }}
       style={sx({
         display: 'flex',
         alignItems: 'center',
@@ -615,7 +670,9 @@ function SubItem({ value, label, count, disabled: disabledProp, compact = false 
         transition: 'var(--transition-control)',
       })}
     >
-      <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{label}</span>
+      <span ref={labelRef} style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>
+        {label}
+      </span>
       {count !== undefined && <span style={countPill(active, disabled)}>{count}</span>}
     </button>
   );
