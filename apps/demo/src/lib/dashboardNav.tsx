@@ -39,12 +39,16 @@ export interface SidebarSubItem {
   value: string;
   label: string;
   count?: number;
+  /** Locked on the free plan — shown in the menu, not selectable. */
+  disabled?: boolean;
 }
 export interface SidebarItem {
   value: string;
   label: string;
   icon?: React.ReactNode;
   count?: number;
+  /** Locked on the free plan — shown in the menu, not selectable. */
+  disabled?: boolean;
   children?: SidebarSubItem[];
 }
 export interface SidebarSection {
@@ -91,7 +95,7 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
     label: 'Marketing',
     items: [
       { value: 'link-publico', label: 'Link público', icon: si(<Link2 size={18} strokeWidth={1.75} />) },
-      { value: 'campanhas', label: 'Campanhas', icon: si(<Megaphone size={18} strokeWidth={1.75} />) },
+      { value: 'campanhas', label: 'Campanhas', icon: si(<Megaphone size={18} strokeWidth={1.75} />), disabled: true },
       { value: 'cupons', label: 'Cupons', icon: si(<Ticket size={18} strokeWidth={1.75} />) },
       { value: 'indicacoes', label: 'Programa de indicação', icon: si(<Gift size={18} strokeWidth={1.75} />) },
       { value: 'fidelidade', label: 'Fidelidade', icon: si(<Heart size={18} strokeWidth={1.75} />) },
@@ -113,7 +117,7 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
           { value: 'config:notificacoes', label: 'Notificações' },
           { value: 'config:integracoes', label: 'Integrações' },
           { value: 'config:cobranca', label: 'Plano e cobrança' },
-          { value: 'config:dominio', label: 'Domínio próprio' },
+          { value: 'config:dominio', label: 'Domínio próprio', disabled: true },
         ],
       },
       { value: 'novidades', label: 'Novidades', icon: si(<Rss size={18} strokeWidth={1.75} />) },

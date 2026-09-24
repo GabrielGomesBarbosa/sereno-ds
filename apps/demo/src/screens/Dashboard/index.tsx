@@ -25,9 +25,9 @@ function SidebarSections() {
       {SIDEBAR_SECTIONS.map((section, i) => (
         <SidebarNav.Section key={section.label ?? i} label={section.label}>
           {section.items.map((item) => (
-            <SidebarNav.Item key={item.value} value={item.value} label={item.label} icon={item.icon} count={item.count}>
+            <SidebarNav.Item key={item.value} value={item.value} label={item.label} icon={item.icon} count={item.count} disabled={item.disabled}>
               {item.children?.map((sub) => (
-                <SidebarNav.SubItem key={sub.value} value={sub.value} label={sub.label} count={sub.count} />
+                <SidebarNav.SubItem key={sub.value} value={sub.value} label={sub.label} count={sub.count} disabled={sub.disabled} />
               ))}
             </SidebarNav.Item>
           ))}

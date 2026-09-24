@@ -1797,10 +1797,23 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       R('header', 'React.ReactNode', 'Brand / logo slot at the top.'),
       R('footer', 'React.ReactNode', 'Slot pinned to the bottom (user card, plan nudge). Hidden while collapsed.'),
       R('labels', '{ expand?, collapse? }', 'Text for the collapse toggle.'),
+      R(
+        'disabled',
+        'boolean',
+        'Disables every `Item` / `SubItem` at once — a gated area, an account that isn’t active yet. An item can opt back in with its own `disabled={false}`. The collapse toggle, `header` and `footer` stay live: they aren’t destinations.',
+        'false',
+      ),
       R('SidebarNav.Section · label', 'string', 'Small uppercase heading above the block. Omit for an unlabelled group — the divider still shows.'),
       R('SidebarNav.Item · value / label / icon / count', 'string / string / ReactNode / number', 'This destination’s identity, label, leading icon, and a trailing count chip.'),
-      R('SidebarNav.Item · href', 'string', 'Renders this leaf through `linkComponent` instead of a `<button>`.'),
+      R('SidebarNav.Item · href', 'string', 'Renders this leaf through `linkComponent` instead of a `<button>`. Ignored while `disabled`.'),
+      R(
+        'SidebarNav.Item · disabled',
+        'boolean',
+        'Not selectable. Inherits the root’s `disabled` when unset; an explicit `false` opts back in. `aria-disabled` + out of the Tab order, never a link, a parent doesn’t toggle or open its flyout. Can still be the current page (`aria-current`), just muted.',
+        'inherits root',
+      ),
       R('SidebarNav.SubItem · value / label / count', 'string / string / number', 'A second-level destination, nested inside an `Item`.'),
+      R('SidebarNav.SubItem · disabled', 'boolean', 'Not selectable. Inherits from its parent `Item`; an explicit value wins.', 'inherits parent'),
     ],
     code: `<SidebarNav value={view} onChange={setView} header={<Wordmark />} footer={<UserCard />}>
   <SidebarNav.Section label="Workspace">
@@ -1857,10 +1870,30 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
   {sections}
 </SidebarNav>`,
       },
+      {
+        id: 'disabled',
+        title: 'Disabled items',
+        description:
+          'Per item with `disabled` (a leaf, a `SubItem` or a whole parent), or for the whole menu with `disabled` on the root — flip the switch. An item can opt back in with `disabled={false}` (Settings stays live under the lock). A disabled row uses `aria-disabled`, leaves the Tab order, never navigates (even with an `href`), and its parent won’t open a flyout on the rail. If it is the current page it keeps `aria-current`, just muted.',
+        code: `<SidebarNav value={view} onChange={setView} disabled={locked}>
+  <SidebarNav.Section label="Management">
+    <SidebarNav.Item value="finance" label="Finance" icon={<Wallet size={18} />}>
+      <SidebarNav.SubItem value="finance:incoming" label="Incoming" />
+      <SidebarNav.SubItem value="finance:invoices" label="Invoices" disabled />
+    </SidebarNav.Item>
+    <SidebarNav.Item value="reports" label="Reports" icon={<BarChart3 size={18} />} disabled />
+  </SidebarNav.Section>
+  <SidebarNav.Section label="Account">
+    {/* stays live even while the root is disabled */}
+    <SidebarNav.Item value="settings" label="Settings" icon={<Settings size={18} />} disabled={false} />
+  </SidebarNav.Section>
+</SidebarNav>`,
+      },
     ],
     guidelines: {
       do: [
         'Group into 2–4 labelled sections; keep each to ~6 items.',
+        'Keep a locked destination visible but `disabled` when hiding it would confuse (a higher plan, an inactive account) — and explain why somewhere near.',
         'Second level only one deep — no grandchildren.',
         'On mobile it hides; `BottomNav` takes over under 900px.',
       ],
