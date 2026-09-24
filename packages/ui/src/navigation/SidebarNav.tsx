@@ -43,6 +43,14 @@ export interface SidebarNavProps extends Omit<React.HTMLAttributes<HTMLElement>,
   labels?: { expand?: string; collapse?: string };
   /** Component used to render items that carry `href` (e.g. Next's `Link`). Defaults to `'a'`. */
   linkComponent?: React.ElementType;
+  /**
+   * Disables every `Item` / `SubItem` at once — a gated area, an account that
+   * isn't active yet. An item can still opt back in with its own
+   * `disabled={false}` (e.g. a "Help" link that must stay reachable). Only the
+   * destinations are affected: the collapse toggle, `header` and `footer` stay
+   * live, since they aren't navigation.
+   */
+  disabled?: boolean;
   children: React.ReactNode;
 }
 
@@ -58,8 +66,22 @@ export interface SidebarNavItemProps {
   /** A Lucide icon passed as a node — sized by the caller. */
   icon?: React.ReactNode;
   count?: number;
-  /** Render this leaf as a real link (routing, new-tab, SSR-active) via `linkComponent`. */
+  /** Render this leaf as a real link (routing, new-tab, SSR-active) via `linkComponent`. Ignored while `disabled`. */
   href?: string;
+  /**
+   * Not selectable — e.g. a feature locked behind a higher plan. Inherits the
+   * root's `disabled` when unset; an explicit `false` opts back in under a
+   * disabled root.
+   *
+   * `aria-disabled` (not the native attribute), so the row is still in the
+   * accessibility tree and a screen reader finds it — but it leaves the Tab
+   * order (a locked area shouldn't cost a dead tab stop per item), a click
+   * never fires `onChange`, `href` never navigates (it renders as a `<button>`,
+   * never a link), and a parent `Item` doesn't toggle its accordion or open its
+   * rail flyout. It can still be the current page: `value` pointing at it keeps
+   * `aria-current` and the active look, just muted.
+   */
+  disabled?: boolean;
   /** `SidebarNav.SubItem`s — a second level. Present ⇒ this item is not a destination itself, it toggles them. */
   children?: React.ReactNode;
 }
@@ -68,12 +90,16 @@ export interface SidebarNavSubItemProps {
   value: string;
   label: string;
   count?: number;
+  /** Not selectable. Inherits from its parent `Item` (which inherits the root); an explicit value wins. Same contract as `SidebarNav.Item`'s `disabled`. */
+  disabled?: boolean;
   /** Set by the parent `Item` when rendering this into the collapsed rail's flyout popover — not for consumers to pass. */
   compact?: boolean;
 }
 
 interface SidebarNavContextValue {
   value?: string;
+  /** The root's `disabled` — what an `Item` falls back to when it doesn't set its own. */
+  disabled: boolean;
   /** Closes any open flyout, then calls the root's `onChange`. What `Item` / `SubItem` call on click. */
   select: (value: string) => void;
   collapsed: boolean;
@@ -101,7 +127,7 @@ const groupHead = sx({
   padding: '0 var(--space-3) var(--space-2)',
 });
 
-const countPill = (active: boolean) =>
+const countPill = (active: boolean, disabled = false) =>
   sx({
     marginLeft: 'auto',
     flex: '0 0 auto',
@@ -112,11 +138,14 @@ const countPill = (active: boolean) =>
     borderRadius: '999px',
     // A bordered chip so it stays legible over the row's hover / active fill.
     background: 'var(--bg-surface)',
-    color: active ? 'var(--text-brand)' : 'var(--text-muted)',
-    boxShadow: 'inset 0 0 0 1px ' + (active ? 'var(--border-brand)' : 'var(--border-default)'),
+    color: disabled ? 'var(--text-disabled)' : active ? 'var(--text-brand)' : 'var(--text-muted)',
+    boxShadow: 'inset 0 0 0 1px ' + (disabled ? 'var(--border-subtle)' : active ? 'var(--border-brand)' : 'var(--border-default)'),
   });
 
 const SidebarNavContext = React.createContext<SidebarNavContextValue | null>(null);
+
+/** An `Item`'s effective `disabled`, handed to its `SubItem`s so they inherit from their parent (which itself inherited the root's). */
+const ParentDisabledContext = React.createContext<boolean | undefined>(undefined);
 
 function useSidebarNavContext(component: string): SidebarNavContextValue {
   const ctx = React.useContext(SidebarNavContext);
@@ -144,6 +173,7 @@ function SidebarNavRoot({
   footer,
   labels,
   linkComponent,
+  disabled = false,
   children,
   style,
   ...rest
@@ -194,7 +224,7 @@ function SidebarNavRoot({
     onChange?.(v);
   };
 
-  const ctx: SidebarNavContextValue = { value, select, collapsed, linkComponent, flyoutValue, openFlyout, closeFlyoutSoon, closeFlyoutNow, showTip, hideTip };
+  const ctx: SidebarNavContextValue = { value, disabled, select, collapsed, linkComponent, flyoutValue, openFlyout, closeFlyoutSoon, closeFlyoutNow, showTip, hideTip };
 
   // The collapse control straddles the sidebar's right edge, level with the logo.
   const toggleLabel = collapsed ? labels?.expand ?? 'Expand' : labels?.collapse ?? 'Collapse';
@@ -355,26 +385,44 @@ function Section({ label, children }: SidebarNavSectionProps) {
   );
 }
 
-function Item({ value, label, icon, count, href, children }: SidebarNavItemProps) {
-  const { value: activeValue, select, collapsed, linkComponent, flyoutValue, openFlyout, closeFlyoutSoon, closeFlyoutNow, showTip, hideTip } =
-    useSidebarNavContext('Item');
-  const st = useInteract(false);
+function Item({ value, label, icon, count, href, disabled: disabledProp, children }: SidebarNavItemProps) {
+  const {
+    value: activeValue,
+    disabled: rootDisabled,
+    select,
+    collapsed,
+    linkComponent,
+    flyoutValue,
+    openFlyout,
+    closeFlyoutSoon,
+    closeFlyoutNow,
+    showTip,
+    hideTip,
+  } = useSidebarNavContext('Item');
+  // Its own `disabled` wins — including an explicit `false` under a disabled root.
+  const disabled = disabledProp ?? rootDisabled;
+  const st = useInteract(disabled);
   const btnRef = React.useRef<HTMLButtonElement>(null);
   const hasChildren = React.Children.count(children) > 0;
   const childVals = hasChildren ? childValuesOf(children) : [];
+  // Still the current page while disabled (a locked area can be showing you where you are) — just muted.
   const selfActive = activeValue === value && !hasChildren;
   const childActive = hasChildren && childVals.includes(activeValue ?? '');
   const highlight = selfActive || (collapsed && childActive);
-  const railFlyout = collapsed && hasChildren;
-  const asLink = !hasChildren && !!href && !!linkComponent;
+  // A disabled parent has nothing to open: no rail flyout (it falls back to the plain label tooltip).
+  const railFlyout = collapsed && hasChildren && !disabled;
+  // A disabled item is never a real link — `href` must not navigate.
+  const asLink = !hasChildren && !!href && !!linkComponent && !disabled;
   const Link = linkComponent ?? 'a';
 
   // Expanded: an inline accordion, local per-item and seeded open once (on
-  // mount) for the branch holding the active child. Collapsed: a hover
-  // flyout instead — that one is cross-item (only one open at a time), so it
-  // lives in the root's flyoutValue, not here.
+  // mount) for the branch holding the active child — that seed still applies
+  // while disabled, so the "you are here" branch stays visible (it just can't
+  // be toggled). Collapsed: a hover flyout instead — that one is cross-item
+  // (only one open at a time), so it lives in the root's flyoutValue, not
+  // here, and a disabled parent never opens it.
   const [localOpen, setLocalOpen] = React.useState(() => childActive);
-  const open = collapsed ? flyoutValue === value : localOpen;
+  const open = collapsed ? !disabled && flyoutValue === value : localOpen;
 
   const onToggle = () => {
     if (collapsed) {
@@ -396,14 +444,14 @@ function Item({ value, label, icon, count, href, children }: SidebarNavItemProps
     justifyContent: collapsed ? 'center' : 'flex-start',
     border: 'none',
     borderRadius: 'var(--radius-control)',
-    cursor: 'pointer',
+    cursor: disabled ? 'not-allowed' : 'pointer',
     textAlign: 'left',
     textDecoration: 'none',
     fontFamily: 'var(--font-body)',
     fontSize: 'var(--text-base)',
     fontWeight: highlight || childActive ? 'var(--weight-semibold)' : 'var(--weight-medium)',
     background: highlight ? 'var(--bg-brand-soft)' : open || st.hover ? 'var(--interactive-ghost-hover)' : 'transparent',
-    color: highlight || childActive ? 'var(--text-brand)' : 'var(--text-secondary)',
+    color: disabled ? 'var(--text-disabled)' : highlight || childActive ? 'var(--text-brand)' : 'var(--text-secondary)',
     transition: 'var(--transition-control)',
   });
 
@@ -412,7 +460,7 @@ function Item({ value, label, icon, count, href, children }: SidebarNavItemProps
       {icon && (
         <span style={sx({ flex: '0 0 auto', display: 'inline-flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center' })}>{icon}</span>
       )}
-      {collapsed && (count !== undefined || childActive) && (
+      {collapsed && !disabled && (count !== undefined || childActive) && (
         <span
           aria-hidden
           style={sx({
@@ -429,7 +477,7 @@ function Item({ value, label, icon, count, href, children }: SidebarNavItemProps
       {!collapsed && (
         <>
           <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{label}</span>
-          {count !== undefined && <span style={countPill(highlight)}>{count}</span>}
+          {count !== undefined && <span style={countPill(highlight, disabled)}>{count}</span>}
           {hasChildren && (
             <ChevronDown
               size={16}
@@ -487,9 +535,12 @@ function Item({ value, label, icon, count, href, children }: SidebarNavItemProps
           className="sereno-sidenav-btn"
           aria-label={collapsed ? label : undefined}
           aria-current={selfActive ? 'page' : undefined}
+          aria-disabled={disabled || undefined}
+          tabIndex={disabled ? -1 : undefined}
           aria-haspopup={hasChildren ? 'menu' : undefined}
           aria-expanded={hasChildren ? open : undefined}
           onClick={() => {
+            if (disabled) return;
             hideTip();
             if (hasChildren) onToggle();
             else select(value);
@@ -513,30 +564,37 @@ function Item({ value, label, icon, count, href, children }: SidebarNavItemProps
             borderLeft: 'var(--border-width-hairline) solid var(--border-default)',
           })}
         >
-          {children}
+          <ParentDisabledContext.Provider value={disabled}>{children}</ParentDisabledContext.Provider>
         </div>
       )}
 
       {/* Collapsed rail: hover flyout. */}
       {railFlyout && open && (
         <SubmenuPopover anchorRef={btnRef} label={label} icon={icon} onClose={closeFlyoutNow} onMouseEnter={() => openFlyout(value)} onMouseLeave={closeFlyoutSoon}>
-          {compactChildren}
+          <ParentDisabledContext.Provider value={disabled}>{compactChildren}</ParentDisabledContext.Provider>
         </SubmenuPopover>
       )}
     </div>
   );
 }
 
-function SubItem({ value, label, count, compact = false }: SidebarNavSubItemProps) {
-  const { value: activeValue, select } = useSidebarNavContext('SubItem');
+function SubItem({ value, label, count, disabled: disabledProp, compact = false }: SidebarNavSubItemProps) {
+  const { value: activeValue, disabled: rootDisabled, select } = useSidebarNavContext('SubItem');
+  const parentDisabled = React.useContext(ParentDisabledContext);
+  // Its own `disabled` wins, then its parent Item's (already resolved against the root), then the root's.
+  const disabled = disabledProp ?? parentDisabled ?? rootDisabled;
   const active = activeValue === value;
-  const st = useInteract(false);
+  const st = useInteract(disabled);
   return (
     <button
       type="button"
       className="sereno-sidenav-btn"
       aria-current={active ? 'page' : undefined}
-      onClick={() => select(value)}
+      aria-disabled={disabled || undefined}
+      tabIndex={disabled ? -1 : undefined}
+      onClick={() => {
+        if (!disabled) select(value);
+      }}
       {...st.handlers}
       style={sx({
         display: 'flex',
@@ -547,18 +605,18 @@ function SubItem({ value, label, count, compact = false }: SidebarNavSubItemProp
         padding: '0 var(--space-2)',
         border: 'none',
         borderRadius: 'var(--radius-sm)',
-        cursor: 'pointer',
+        cursor: disabled ? 'not-allowed' : 'pointer',
         textAlign: 'left',
         fontFamily: 'var(--font-body)',
         fontSize: 'var(--text-sm)',
         fontWeight: active ? 'var(--weight-semibold)' : 'var(--weight-medium)',
         background: active ? 'var(--bg-brand-soft)' : st.hover ? 'var(--interactive-ghost-hover)' : 'transparent',
-        color: active ? 'var(--text-brand)' : 'var(--text-secondary)',
+        color: disabled ? 'var(--text-disabled)' : active ? 'var(--text-brand)' : 'var(--text-secondary)',
         transition: 'var(--transition-control)',
       })}
     >
       <span style={sx({ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{label}</span>
-      {count !== undefined && <span style={countPill(active)}>{count}</span>}
+      {count !== undefined && <span style={countPill(active, disabled)}>{count}</span>}
     </button>
   );
 }

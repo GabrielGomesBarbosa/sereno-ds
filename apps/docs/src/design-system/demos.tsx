@@ -1753,6 +1753,41 @@ function SidebarNavColapsavel() {
   );
 }
 
+function SidebarNavDesabilitado() {
+  const [view, setView] = React.useState('agenda');
+  const [locked, setLocked] = React.useState(false);
+  return (
+    <div style={col}>
+      <Switch
+        label="Lock the whole menu"
+        description="Sets disabled on the root — Settings opts back in with its own disabled={false}."
+        checked={locked}
+        onChange={(e) => setLocked(e.target.checked)}
+      />
+      <SideFrame>
+        <SidebarNav collapsible={false} value={view} onChange={setView} disabled={locked} header={<Wordmark />}>
+          <SidebarNav.Section label="Workspace">
+            <SidebarNav.Item value="agenda" label="Calendar" icon={<Calendar size={18} strokeWidth={1.75} />} />
+            <SidebarNav.Item value="clients" label="Clients" icon={<Users size={18} strokeWidth={1.75} />} count={12} />
+            <SidebarNav.Item value="services" label="Services" icon={<Sparkles size={18} strokeWidth={1.75} />} />
+          </SidebarNav.Section>
+          <SidebarNav.Section label="Management">
+            <SidebarNav.Item value="finance" label="Finance" icon={<Wallet size={18} strokeWidth={1.75} />}>
+              <SidebarNav.SubItem value="finance:incoming" label="Incoming" />
+              <SidebarNav.SubItem value="finance:invoices" label="Invoices" disabled />
+            </SidebarNav.Item>
+            <SidebarNav.Item value="reports" label="Reports" icon={<BarChart3 size={18} strokeWidth={1.75} />} disabled />
+          </SidebarNav.Section>
+          <SidebarNav.Section label="Account">
+            <SidebarNav.Item value="settings" label="Settings" icon={<Settings size={18} strokeWidth={1.75} />} disabled={false} />
+          </SidebarNav.Section>
+        </SidebarNav>
+        <SidePane label={sidePaneLabel(view)} />
+      </SideFrame>
+    </div>
+  );
+}
+
 const STEP_ITEMS = [
   { value: 'perfil', label: 'Your profile' },
   { value: 'servico', label: 'First service' },
@@ -2300,7 +2335,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   'top-bar': { basic: TopBarBasico, full: TopBarCompleto, transparent: TopBarTransparente },
   tabs: { underline: TabsUnderline, pill: TabsPill, 'full-width': TabsFullWidth, overflow: TabsOverflow },
   'bottom-nav': { basic: BottomNavBasico, 'with-badge': BottomNavBadge },
-  'sidebar-nav': { basic: SidebarNavBasico, collapsible: SidebarNavColapsavel },
+  'sidebar-nav': { basic: SidebarNavBasico, collapsible: SidebarNavColapsavel, disabled: SidebarNavDesabilitado },
   stepper: { bar: StepperBar, dots: StepperDots, clickable: StepperClicavel, 'step-label': StepperContador },
   alert: { tones: AlertTons, 'with-action': AlertComAcao, dismissible: AlertDispensavel },
   toast: { tones: ToastTons, 'with-action': ToastComAcao, system: ToastSistema },
