@@ -4,6 +4,7 @@ import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
 import { sx } from '../_internal/style';
+import { useIsoLayoutEffect } from '../_internal/useIsoLayoutEffect';
 import { Field } from '../_internal/Field';
 import { fieldBoxStyle } from './_internal/fieldBoxStyle';
 
@@ -57,8 +58,6 @@ export interface SelectProps {
 }
 
 const OPTION_PAD_Y = { sm: 6, md: 8, lg: 10 } as const;
-
-const useIsoLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
 
 /** True on touch / pen devices, where the native picker wins. SSR-safe. */
 function useCoarsePointer(): boolean {

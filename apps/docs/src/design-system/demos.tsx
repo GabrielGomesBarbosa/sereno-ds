@@ -752,6 +752,26 @@ function InputContador() {
     </div>
   );
 }
+function InputContadorPorCodigo() {
+  // Uncontrolled, filled from outside: what react-hook-form's reset() / setValue() do.
+  const ref = React.useRef<HTMLInputElement>(null);
+  const fill = (v: string) => {
+    if (ref.current) ref.current.value = v;
+  };
+  return (
+    <div style={fieldCol}>
+      <Input label="Headline" maxLength={60} ref={ref} placeholder="Empty until filled from code" />
+      <div style={row}>
+        <Button size="sm" variant="secondary" onClick={() => fill('Psicóloga clínica, abordagem TCC.')}>
+          Fill from code
+        </Button>
+        <Button size="sm" variant="ghost" onClick={() => fill('')}>
+          Clear
+        </Button>
+      </div>
+    </div>
+  );
+}
 function InputEstados() {
   return (
     <div style={fieldCol}>
@@ -2290,6 +2310,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     masked: InputMascaras,
     password: InputSenha,
     count: InputContador,
+    'count-from-code': InputContadorPorCodigo,
     states: InputEstados,
     sizes: InputTamanhos,
     'no-layout-shift': InputSemLayoutShift,

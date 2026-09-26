@@ -713,7 +713,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       R('suffix', 'React.ReactNode', 'Trailing text or control (e.g. "min"). Not part of the value.'),
       R('mask', "'phone' | 'cpf' | 'cep' | 'currency' | string", "Format as you type — a preset or a custom `#`-per-digit pattern (`(##) #####-####`). Sets `inputMode` + `maxLength`."),
       R('type', "'text' | 'password' | 'email' | …", 'Native input type. `password` adds a show/hide eye toggle at the end of the field.', "'text'"),
-      R('showCount', 'boolean', 'Show a `n / max` character counter on the hint row. Implied when `maxLength` is set.', 'false'),
+      R('showCount', 'boolean', 'Show a `n / max` character counter on the hint row. Implied when `maxLength` is set. It counts the field\'s real value, also when a form library or code writes it (`reset()`, `setValue()`, `el.value = …`).', 'false'),
       R(
         'preserveHelperSpace',
         'boolean',
@@ -768,6 +768,18 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
         code: `<Input label="Headline" maxLength={60} />`,
       },
       {
+        id: 'count-from-code',
+        title: 'Counter on a field filled from code',
+        description:
+          'The counter reads the field itself, so a value that arrives without typing counts at once: a saved value put in by react-hook-form\'s `reset()` after a fetch, a `setValue()`, its `defaultValues`, a native `form.reset()`. The preview writes `el.value` through a ref, which is what `reset()` does under the hood.',
+        code: `const { register, reset } = useForm();
+
+<Input label="Headline" maxLength={60} {...register('headline')} />
+
+// once the saved value is fetched
+reset({ headline: saved }); // the counter shows the saved length right away`,
+      },
+      {
         id: 'states',
         title: 'Error and disabled',
         description: '`error` replaces `hint` and turns the border red. `disabled` uses its own fill.',
@@ -809,7 +821,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
     props: [
       R('label / hint / error / required', 'string / string / string / boolean', 'Same label contract as Input.'),
       R('rows', 'number', 'Initial height in lines.', '4'),
-      R('showCount', 'boolean', 'Show a `n / max` character counter on the hint row. Implied when `maxLength` is set.', 'false'),
+      R('showCount', 'boolean', 'Show a `n / max` character counter on the hint row. Implied when `maxLength` is set. It counts the field\'s real value, also when a form library or code writes it (`reset()`, `setValue()`, `el.value = …`).', 'false'),
       R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set — see Input.", 'false'),
     ],
     code: `<Textarea label="Any notes?" rows={3} hint="Optional." />`,
@@ -823,7 +835,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       {
         id: 'count',
         title: 'Character counter',
-        description: 'Set `maxLength` (or pass `showCount`) for a `n / max` counter on the hint row — handy for notes with a ceiling. It turns red at the limit.',
+        description: 'Set `maxLength` (or pass `showCount`) for a `n / max` counter on the hint row, handy for notes with a ceiling. It turns red at the limit. It counts the field\'s real value, so a saved note put in by react-hook-form\'s `reset()` counts too.',
         code: `<Textarea label="Any notes?" rows={3} maxLength={140} hint="Optional." />`,
       },
       {
