@@ -521,7 +521,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'basic',
         title: 'Item menu',
-        description: 'The common case — `items` with `icon`, `onClick`, an optional `heading` and `separator`. Arrow keys rove, `Enter` / `Space` activate, `Escape` closes and refocuses the trigger.',
+        description: 'The common case: `items` with `icon`, `onClick`, an optional `heading` and `separator`. Arrow keys rove, `Enter` / `Space` activate, `Escape` closes and refocuses the trigger. Opened with a click, no row is highlighted until the pointer enters one; opened from the keyboard (`Enter`, `Space` or `ArrowDown` on the trigger, `ArrowUp` for the last row) the first row is active and ringed, so `Enter` acts straight away.',
         code: `<Menu
   trigger={<Button variant="secondary" iconRight={<ChevronDown size={16} />}>Actions</Button>}
   label="Appointment"
