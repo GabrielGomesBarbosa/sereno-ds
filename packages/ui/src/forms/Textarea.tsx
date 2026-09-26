@@ -4,6 +4,8 @@ import * as React from 'react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
 import { CharCount } from '../_internal/CharCount';
+import { mergeRefs } from '../_internal/mergeRefs';
+import { useValueLength } from '../_internal/useValueLength';
 
 /** Multi-line field for booking notes and service descriptions. */
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -28,22 +30,23 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
   ref,
 ) {
   const [focus, setFocus] = React.useState(false);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  // Stable across renders, so a form library's ref callback isn't detached and re-attached each time.
+  const setRefs = React.useMemo(() => mergeRefs(textareaRef, ref), [ref]);
   // SSR-stable id (the DS source used Math.random(), which breaks hydration).
   const autoId = React.useId();
   const rid = id || autoId;
 
   const max = typeof rest.maxLength === 'number' ? rest.maxLength : undefined;
   const showCounter = Boolean(showCount) || max != null;
-  const [uncount, setUncount] = React.useState(() =>
+  // Controlled: the count comes from `value`. Uncontrolled: from the element itself, so a
+  // value written by code (react-hook-form's `reset()` / `setValue()`, `el.value = …`) counts too.
+  const uncount = useValueLength(
+    textareaRef,
+    showCounter && rest.value === undefined,
     typeof rest.defaultValue === 'string' || typeof rest.defaultValue === 'number' ? String(rest.defaultValue).length : 0,
   );
   const count = rest.value !== undefined ? String(rest.value ?? '').length : uncount;
-  const handleChange = showCounter
-    ? (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        if (rest.value === undefined) setUncount(e.currentTarget.value.length);
-        onChange?.(e);
-      }
-    : onChange;
 
   // Destructured (not left in `...rest`) and always re-composed — same
   // reason as `handleChange` above: a caller's own onFocus/onBlur (or
@@ -72,13 +75,13 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
     >
       <textarea
         id={rid}
-        ref={ref}
+        ref={setRefs}
         rows={rows}
         disabled={disabled}
         {...rest}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        onChange={handleChange}
+        onChange={onChange}
         style={sx({
           width: '100%',
           padding: 'var(--space-3)',

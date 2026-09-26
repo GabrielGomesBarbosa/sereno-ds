@@ -7,6 +7,7 @@ import { Field } from '../_internal/Field';
 import { CharCount } from '../_internal/CharCount';
 import { formatMask, MASK_INPUTMODE, MASK_MAXLENGTH, type MaskName } from '../_internal/mask';
 import { mergeRefs } from '../_internal/mergeRefs';
+import { useValueLength } from '../_internal/useValueLength';
 
 /**
  * Single-line text field with label, hint and error states.
@@ -82,28 +83,28 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   const showCounter = Boolean(showCount) || maxLength != null;
 
   const seed = mask && typeof defaultValue === 'string' ? formatMask(mask, defaultValue) : defaultValue;
-  const [uncount, setUncount] = React.useState(() =>
+  // Controlled: the count comes from `value`. Uncontrolled: from the element itself, so a
+  // value written by code (react-hook-form's `reset()` / `setValue()`, `el.value = …`) counts too.
+  const uncount = useValueLength(
+    inputRef,
+    showCounter && rest.value === undefined,
     typeof seed === 'string' || typeof seed === 'number' ? String(seed).length : 0,
   );
   const count = rest.value !== undefined ? String(rest.value ?? '').length : uncount;
 
-  const needsWrap = Boolean(mask) || showCounter;
-  const handleChange = needsWrap
+  const handleChange = mask
     ? (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (mask) {
-          const formatted = formatMask(mask, e.currentTarget.value);
-          if (formatted !== e.currentTarget.value) {
-            const el = e.currentTarget;
-            el.value = formatted;
-            // keep the caret at the end — the natural spot while typing forward
-            try {
-              el.setSelectionRange(formatted.length, formatted.length);
-            } catch {
-              /* type doesn't support selection */
-            }
+        const formatted = formatMask(mask, e.currentTarget.value);
+        if (formatted !== e.currentTarget.value) {
+          const el = e.currentTarget;
+          el.value = formatted;
+          // keep the caret at the end, the natural spot while typing forward
+          try {
+            el.setSelectionRange(formatted.length, formatted.length);
+          } catch {
+            /* type doesn't support selection */
           }
         }
-        if (rest.value === undefined) setUncount(e.currentTarget.value.length);
         onChange?.(e);
       }
     : onChange;
