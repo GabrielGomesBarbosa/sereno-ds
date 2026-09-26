@@ -11,6 +11,11 @@ import { sx } from '../_internal/style';
  * / selection, and returns focus to the trigger. `role="menu"` with arrow-key
  * roving. Needs the `sereno-pop` keyframe from `@sereno-ds/ui/styles.css`.
  *
+ * Opened with a click or tap, no row is highlighted until the pointer enters one
+ * or the user arrows. Opened from the keyboard (Enter, Space or ArrowDown on the
+ * trigger; ArrowUp for the last row) the first enabled row is active, with a
+ * focus ring, so Enter acts straight away.
+ *
  * ```tsx
  * <Menu
  *   trigger={<IconButton label="Conta"><User /></IconButton>}
@@ -108,13 +113,29 @@ export function Menu({ trigger, adornment, items, children, header, label, align
 
   const [place, setPlace] = React.useState<Place | null>(null);
   const [activeIndex, setActiveIndex] = React.useState(-1);
+  // How the user is driving the menu. `pointer` (opened by a click or tap, or the mouse
+  // entered a row): nothing is highlighted until a row is hovered or arrowed to. `keyboard`
+  // (anything else): the first row is active so Enter works straight away, and the active
+  // row gets a focus ring. Unknown opens (a screen reader, the parent forcing `open`) take
+  // the keyboard side, the one that stays operable without a pointer.
+  const [inputMode, setInputMode] = React.useState<'pointer' | 'keyboard'>('keyboard');
+
+  // A fresh open never inherits the last session's row or mode, whichever way it closed
+  // (Escape, outside click, the trigger, the parent). Adjusted during render, not in an effect.
+  const [wasOpen, setWasOpen] = React.useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (!open) {
+      setActiveIndex(-1);
+      setInputMode('keyboard');
+    }
+  }
 
   const itemIndexes = React.useMemo(() => (items ?? []).map((e, i) => (isItem(e) && !e.disabled ? i : -1)).filter((i) => i >= 0), [items]);
 
   const close = React.useCallback(
     (refocus = true) => {
       setOpen(false);
-      setActiveIndex(-1);
       if (refocus) {
         const btn = anchorRef.current?.querySelector<HTMLElement>('button, [role="button"], a, [tabindex]');
         btn?.focus({ preventScroll: true });
@@ -185,13 +206,20 @@ export function Menu({ trigger, adornment, items, children, header, label, align
     return () => document.removeEventListener('pointerdown', onDown, true);
   }, [open, close]);
 
-  // Move focus into the panel on open. The active row starts at the first item
-  // (see `effectiveActive`) and only becomes explicit state once the user arrows.
+  // Move focus into the panel on open. Which row starts active depends on how it
+  // was opened (see `effectiveActive`). The panel only mounts once `place` is measured,
+  // so on the first open of an instance this has to wait for it (`placed`), or the
+  // focus stays on the trigger and the arrow keys / Enter never reach the panel.
+  // Leave it be if something inside already took focus (an `autoFocus` field in a rich panel).
+  const placed = place !== null;
   React.useEffect(() => {
-    if (open && mounted) panelRef.current?.focus({ preventScroll: true });
-  }, [open, mounted]);
+    const panel = panelRef.current;
+    if (open && mounted && placed && panel && !panel.contains(document.activeElement)) panel.focus({ preventScroll: true });
+  }, [open, mounted, placed]);
 
-  const effectiveActive = activeIndex >= 0 ? activeIndex : itemIndexes[0] ?? -1;
+  // Opened by a pointer, no row is active until one is hovered or arrowed to, so the
+  // panel never looks hovered under a cursor that is still on the trigger.
+  const effectiveActive = activeIndex >= 0 ? activeIndex : inputMode === 'pointer' ? -1 : itemIndexes[0] ?? -1;
 
   const activate = (i: number) => {
     const e = (items ?? [])[i];
@@ -212,33 +240,46 @@ export function Menu({ trigger, adornment, items, children, header, label, align
     }
     if (!items) return;
     const pos = itemIndexes.indexOf(effectiveActive);
-    if (ev.key === 'ArrowDown') {
-      ev.preventDefault();
-      setActiveIndex(itemIndexes[Math.min(pos + 1, itemIndexes.length - 1)] ?? itemIndexes[0]);
-    } else if (ev.key === 'ArrowUp') {
-      ev.preventDefault();
-      setActiveIndex(itemIndexes[Math.max(pos - 1, 0)] ?? itemIndexes[itemIndexes.length - 1]);
-    } else if (ev.key === 'Home') {
-      ev.preventDefault();
-      setActiveIndex(itemIndexes[0]);
-    } else if (ev.key === 'End') {
-      ev.preventDefault();
-      setActiveIndex(itemIndexes[itemIndexes.length - 1]);
-    } else if (ev.key === 'Enter' || ev.key === ' ') {
+    const last = itemIndexes[itemIndexes.length - 1];
+    let next: number | undefined;
+    if (ev.key === 'ArrowDown') next = itemIndexes[Math.min(pos + 1, itemIndexes.length - 1)];
+    // From "nothing active" (pointer open) ArrowUp goes to the last row, like on the trigger.
+    else if (ev.key === 'ArrowUp') next = pos < 0 ? last : itemIndexes[Math.max(pos - 1, 0)];
+    else if (ev.key === 'Home') next = itemIndexes[0];
+    else if (ev.key === 'End') next = last;
+    else if (ev.key === 'Enter' || ev.key === ' ') {
       ev.preventDefault();
       activate(effectiveActive);
-    }
+      return;
+    } else return;
+    ev.preventDefault();
+    setInputMode('keyboard');
+    if (next !== undefined) setActiveIndex(next);
   };
 
-  const toggle = () => {
+  // `viaPointer` picks the starting state (see `inputMode`).
+  const toggle = (viaPointer: boolean) => {
     if (disabled) return;
+    if (!open) setInputMode(viaPointer ? 'pointer' : 'keyboard');
     setOpen(!open);
   };
 
   const triggerEl = React.cloneElement(trigger as React.ReactElement<Record<string, unknown>>, {
     onClick: (e: React.MouseEvent) => {
       (trigger.props as { onClick?: (e: React.MouseEvent) => void }).onClick?.(e);
-      toggle();
+      // A real click or tap carries a click count (`detail` >= 1). Enter / Space on the
+      // trigger, a screen reader and `element.click()` all report 0.
+      toggle((e?.detail ?? 0) > 0);
+    },
+    // Menu button pattern: ArrowDown opens on the first row, ArrowUp on the last.
+    onKeyDown: (e: React.KeyboardEvent) => {
+      (trigger.props as { onKeyDown?: (e: React.KeyboardEvent) => void }).onKeyDown?.(e);
+      if (e.defaultPrevented || disabled || open || !items) return;
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      e.preventDefault();
+      setInputMode('keyboard');
+      setActiveIndex(e.key === 'ArrowUp' ? itemIndexes[itemIndexes.length - 1] ?? -1 : -1);
+      setOpen(true);
     },
     'aria-haspopup': 'menu',
     'aria-expanded': open,
@@ -347,14 +388,24 @@ export function Menu({ trigger, adornment, items, children, header, label, align
                     );
                   }
                   const danger = entry.tone === 'danger';
-                  const active = i === effectiveActive;
+                  const active = i === effectiveActive && !entry.disabled;
                   return (
                     <button
                       key={i}
                       type="button"
                       role="menuitem"
                       disabled={entry.disabled}
-                      onMouseEnter={() => !entry.disabled && setActiveIndex(i)}
+                      data-active={active || undefined}
+                      onMouseEnter={() => {
+                        if (entry.disabled) return;
+                        setActiveIndex(i);
+                        setInputMode('pointer');
+                      }}
+                      // Hover ends with the pointer, so the fill must not stay behind on the last
+                      // row it crossed. A row the keyboard moved to is left alone.
+                      onMouseLeave={() => {
+                        if (inputMode === 'pointer') setActiveIndex((a) => (a === i ? -1 : a));
+                      }}
                       onClick={() => activate(i)}
                       style={sx({
                         display: 'flex',
@@ -364,7 +415,9 @@ export function Menu({ trigger, adornment, items, children, header, label, align
                         padding: 'var(--space-2) var(--space-3)',
                         border: 'none',
                         borderRadius: 'var(--radius-sm)',
-                        background: active && !entry.disabled ? 'var(--bg-subtle)' : 'transparent',
+                        background: active ? 'var(--bg-subtle)' : 'transparent',
+                        // The active row is not the DOM-focused element (the panel is), so mark it for keyboard users.
+                        boxShadow: active && inputMode === 'keyboard' ? 'var(--focus-ring)' : 'none',
                         color: entry.disabled
                           ? 'var(--text-disabled)'
                           : danger
