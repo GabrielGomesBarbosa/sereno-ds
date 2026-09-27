@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, Check, ImagePlus, Pencil, Trash2, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { Camera, Check, ImagePlus, Pencil, RotateCcw, Trash2, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
 import { mergeRefs } from '../_internal/mergeRefs';
@@ -29,6 +29,8 @@ export interface AvatarUploadLabels {
   cameraTitle: string;
   cameraHint: string;
   capture: string;
+  /** On the crop step, only shown for a shot taken with the camera; reopens it directly. */
+  retake: string;
   cancel: string;
   save: string;
   zoom: string;
@@ -49,6 +51,7 @@ const EN: AvatarUploadLabels = {
   cameraTitle: 'Take a photo',
   cameraHint: 'Line your face up with the circle.',
   capture: 'Capture',
+  retake: 'Retake',
   cancel: 'Cancel',
   save: 'Save',
   zoom: 'Zoom',
@@ -128,6 +131,10 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
   const [menuPos, setMenuPos] = React.useState<{ top: number; left: number } | null>(null);
   const [rejected, setRejected] = React.useState<string | null>(null);
   const [cropSrc, setCropSrc] = React.useState<string | null>(null);
+  // Whether the photo now in the crop step came from the camera. Only then does the crop
+  // modal offer "Retake" (a library pick already has its own way to change: cancel and pick
+  // another file from the system's own dialog).
+  const [cropFromCamera, setCropFromCamera] = React.useState(false);
   const [cameraOpen, setCameraOpen] = React.useState(false);
   const [internal, setInternal] = React.useState<File | null>(null);
 
@@ -229,6 +236,7 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
     const probe = new Image();
     probe.onload = () => {
       setRejected(null);
+      setCropFromCamera(false);
       setCropSrc(url);
     };
     probe.onerror = () => {
@@ -257,7 +265,15 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
   const onCameraShot = (blob: Blob) => {
     setCameraOpen(false);
     setRejected(null);
+    setCropFromCamera(true);
     setCropSrc(URL.createObjectURL(blob));
+  };
+
+  // Straight back to the live camera, no menu in between: the crop modal's "Retake".
+  const onRetake = () => {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+    setCameraOpen(true);
   };
 
   const cameraBtn = Math.max(30, Math.round(size * 0.34));
@@ -390,7 +406,16 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
         />
       )}
 
-      {cropSrc && <CropModal src={cropSrc} outputSize={outputSize} labels={t} onClose={onCropCancel} onSave={onCropSave} />}
+      {cropSrc && (
+        <CropModal
+          src={cropSrc}
+          outputSize={outputSize}
+          labels={t}
+          onClose={onCropCancel}
+          onSave={onCropSave}
+          onRetake={cropFromCamera ? onRetake : undefined}
+        />
+      )}
     </Field>
   );
 });
@@ -445,6 +470,10 @@ const modalBtn = {
 } as const;
 const cancelBtn = { ...modalBtn, border: '1px solid var(--border-default)', background: 'var(--bg-surface)', fontWeight: 'var(--weight-medium)', color: 'var(--text-primary)' } as const;
 const confirmBtn = { ...modalBtn, border: 'none', background: 'var(--interactive-primary)', fontWeight: 'var(--weight-semibold)', color: 'var(--interactive-primary-fg)' } as const;
+// Pinned to the far left of the footer row (`marginRight: auto`, the usual flex spacer
+// trick) instead of sharing the row equally with Cancel/Save: three `flex: 1` buttons
+// would each shrink to fit and read as three equally-weighted choices.
+const retakeBtn = { ...cancelBtn, flex: '0 0 auto', marginRight: 'auto' } as const;
 
 /** The square viewport + circular guide, shared by the crop and camera modals. */
 function CropStage({ children, onPointerDown, onPointerMove, onPointerUp, onWheel }: {
@@ -466,7 +495,12 @@ function CropStage({ children, onPointerDown, onPointerMove, onPointerUp, onWhee
         width: V,
         height: V,
         maxWidth: '100%',
+        // `Dialog.Body` is a plain block container, not flex, so `alignSelf` alone does
+        // nothing there; `margin: auto` is what actually centers a fixed-width box in
+        // block flow. Kept alongside `alignSelf` in case a future caller wraps this in
+        // a flex container instead.
         alignSelf: 'center',
+        margin: '0 auto',
         overflow: 'hidden',
         borderRadius: 'var(--radius-lg)',
         background: 'var(--bg-sunken)',
@@ -490,7 +524,22 @@ function CropStage({ children, onPointerDown, onPointerMove, onPointerUp, onWhee
   );
 }
 
-function CropModal({ src, outputSize, labels, onClose, onSave }: { src: string; outputSize: number; labels: AvatarUploadLabels; onClose: () => void; onSave: (b: Blob) => void }) {
+function CropModal({
+  src,
+  outputSize,
+  labels,
+  onClose,
+  onSave,
+  onRetake,
+}: {
+  src: string;
+  outputSize: number;
+  labels: AvatarUploadLabels;
+  onClose: () => void;
+  onSave: (b: Blob) => void;
+  /** Only set for a shot taken with the camera; shows the "Retake" button. */
+  onRetake?: () => void;
+}) {
   const imgRef = React.useRef<HTMLImageElement>(null);
   const [nat, setNat] = React.useState<{ w: number; h: number } | null>(null);
   const [zoom, setZoom] = React.useState(1);
@@ -577,7 +626,7 @@ function CropModal({ src, outputSize, labels, onClose, onSave }: { src: string; 
           />
         </CropStage>
 
-        <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', color: 'var(--text-muted)' })}>
+        <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginTop: 'var(--space-4)', color: 'var(--text-muted)' })}>
           <ZoomOut size={16} strokeWidth={1.75} style={{ flex: '0 0 auto' }} />
           <input
             type="range"
@@ -593,6 +642,11 @@ function CropModal({ src, outputSize, labels, onClose, onSave }: { src: string; 
         </div>
       </Dialog.Body>
       <Dialog.Footer>
+        {onRetake && (
+          <button type="button" onClick={onRetake} style={sx(retakeBtn)}>
+            <RotateCcw size={16} strokeWidth={2} /> {labels.retake}
+          </button>
+        )}
         <button type="button" onClick={onClose} style={sx(cancelBtn)}>
           <X size={16} strokeWidth={2} /> {labels.cancel}
         </button>

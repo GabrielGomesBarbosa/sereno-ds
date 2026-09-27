@@ -1525,7 +1525,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'basic',
         title: 'Basic',
         description:
-          'The edit (pencil) button opens a menu: **Upload a photo** (library), **Take a photo** (a live camera capture via `getUserMedia` — falls back to a message if the camera is blocked), and **Remove** once a photo is set. Both routes end in a circular crop — drag to frame, scroll or the slider to zoom, **Save** exports. All strings are English by default; override with the `labels` prop.',
+          'The edit (pencil) button opens a menu: **Upload a photo** (library), **Take a photo** (a live camera capture via `getUserMedia`, falling back to a message if the camera is blocked), and **Remove** once a photo is set. Both routes end in a circular crop: drag to frame, scroll or the slider to zoom, **Save** exports. A shot taken from the camera also gets **Retake**, back to the live camera without going through the menu again; a library pick does not (choosing another file is already one click away). All strings are English by default; override with the `labels` prop.',
         code: `<AvatarUpload name="Ana Beatriz Ramos" value={photo} onChange={setPhoto} />`,
       },
       {
