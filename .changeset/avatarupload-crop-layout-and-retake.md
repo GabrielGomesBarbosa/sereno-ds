@@ -13,6 +13,9 @@
 - **New**: a shot taken with the camera now gets a **Retake** button on the crop
   step, back to the live camera without going through the menu again. A file picked
   from the library doesn't get it: cancelling and picking another one is already one
-  click away. New `labels.retake` string (English default: "Retake").
+  click away. New `labels.retake` string (English default: "Retake"). Cancel and
+  Save keep their own width when Retake is present, instead of stretching to fill
+  whatever room a lone `marginLeft: auto` left over, which read as one mismatched,
+  packed row.
 - The math of the crop itself (zoom, pan, the export in `save()`) was checked
   separately against a test image and is correct; unrelated to this change.

@@ -470,10 +470,9 @@ const modalBtn = {
 } as const;
 const cancelBtn = { ...modalBtn, border: '1px solid var(--border-default)', background: 'var(--bg-surface)', fontWeight: 'var(--weight-medium)', color: 'var(--text-primary)' } as const;
 const confirmBtn = { ...modalBtn, border: 'none', background: 'var(--interactive-primary)', fontWeight: 'var(--weight-semibold)', color: 'var(--interactive-primary-fg)' } as const;
-// Pinned to the far left of the footer row (`marginRight: auto`, the usual flex spacer
-// trick) instead of sharing the row equally with Cancel/Save: three `flex: 1` buttons
-// would each shrink to fit and read as three equally-weighted choices.
-const retakeBtn = { ...cancelBtn, flex: '0 0 auto', marginRight: 'auto' } as const;
+// Sized to its content, not stretched like Cancel/Save; see the footer's `onRetake`
+// branch below for why it needs its own row instead of just sitting beside them.
+const retakeBtn = { ...cancelBtn, flex: '0 0 auto' } as const;
 
 /** The square viewport + circular guide, shared by the crop and camera modals. */
 function CropStage({ children, onPointerDown, onPointerMove, onPointerUp, onWheel }: {
@@ -647,12 +646,18 @@ function CropModal({
             <RotateCcw size={16} strokeWidth={2} /> {labels.retake}
           </button>
         )}
-        <button type="button" onClick={onClose} style={sx(cancelBtn)}>
-          <X size={16} strokeWidth={2} /> {labels.cancel}
-        </button>
-        <button type="button" onClick={save} style={sx(confirmBtn)}>
-          <Check size={16} strokeWidth={2.5} /> {labels.save}
-        </button>
+        {/* With Retake, Cancel/Save's own `flex: 1` (see `modalBtn`) would stretch them across
+            whatever room `marginLeft: auto` alone left over, so the three still read as one
+            packed row. Grouping them shrinks that pair to their content first, so all the free
+            space goes to the gap between Retake and the group, not to Cancel/Save themselves. */}
+        <div style={sx(onRetake ? { display: 'flex', gap: 'var(--space-3)', marginLeft: 'auto' } : { display: 'contents' })}>
+          <button type="button" onClick={onClose} style={sx(cancelBtn)}>
+            <X size={16} strokeWidth={2} /> {labels.cancel}
+          </button>
+          <button type="button" onClick={save} style={sx(confirmBtn)}>
+            <Check size={16} strokeWidth={2.5} /> {labels.save}
+          </button>
+        </div>
       </Dialog.Footer>
     </Dialog>
   );

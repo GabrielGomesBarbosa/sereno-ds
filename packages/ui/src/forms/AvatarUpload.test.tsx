@@ -152,6 +152,24 @@ describe('AvatarUpload, retake', () => {
     });
   });
 
+  it('groups Cancel and Save on their own, apart from Retake', async () => {
+    // Regression guard: Cancel/Save's `flex: 1` (see `modalBtn`) stretching them directly
+    // beside a `flex: 0` Retake is what produced the reported "esquisito" mismatched row,
+    // Retake small, Cancel/Save ballooned to fill the rest. Grouping them keeps all three
+    // buttons sized to their own content.
+    await withCamera(async () => {
+      await shootPhoto();
+      const retake = screen.getByRole('button', { name: 'Retake' });
+      const cancel = screen.getByRole('button', { name: 'Cancel' });
+      const save = screen.getByRole('button', { name: 'Save' });
+      expect(cancel.parentElement).toBe(save.parentElement);
+      expect(retake.parentElement).not.toBe(cancel.parentElement);
+      expect(cancel.parentElement!.style.marginLeft).toBe('auto');
+      expect(getComputedStyle(retake).flexGrow).toBe('0');
+      expect(getComputedStyle(cancel).flexGrow).not.toBe('0');
+    });
+  });
+
   it('Retake reopens the camera directly, without going through the menu', async () => {
     await withCamera(async () => {
       await shootPhoto();
