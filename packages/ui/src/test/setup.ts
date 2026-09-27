@@ -19,6 +19,11 @@ globalThis.IntersectionObserver ??= NoopObserver as unknown as typeof Intersecti
 // jsdom doesn't implement scrollIntoView (Select scrolls the active option into view).
 Element.prototype.scrollIntoView ??= () => {};
 
+// jsdom doesn't implement the Pointer Events capture methods (AvatarUpload's crop drag).
+Element.prototype.setPointerCapture ??= () => {};
+Element.prototype.releasePointerCapture ??= () => {};
+Element.prototype.hasPointerCapture ??= () => false;
+
 // next-themes reads matchMedia on mount; jsdom doesn't implement it.
 if (!window.matchMedia) {
   window.matchMedia = ((query: string) => ({

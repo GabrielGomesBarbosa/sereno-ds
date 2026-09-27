@@ -7,6 +7,7 @@ import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
 import { mergeRefs } from '../_internal/mergeRefs';
 import { Dialog } from '../feedback/Dialog';
+import { Button } from '../core/Button';
 
 /**
  * Profile-photo picker: an avatar disc with a camera button. Pick from the
@@ -454,36 +455,31 @@ function MenuItem({ icon, label, onClick, danger }: { icon: React.ReactNode; lab
   );
 }
 
-const V = 280; // crop viewport (square) in px
+const DEFAULT_STAGE = 280; // crop stage's assumed size (px) before its own ResizeObserver measures it
 
-const modalBtn = {
-  flex: 1,
-  minHeight: 40,
-  borderRadius: 'var(--radius-control)',
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-sm)',
-  cursor: 'pointer',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 6,
-} as const;
-const cancelBtn = { ...modalBtn, border: '1px solid var(--border-default)', background: 'var(--bg-surface)', fontWeight: 'var(--weight-medium)', color: 'var(--text-primary)' } as const;
-const confirmBtn = { ...modalBtn, border: 'none', background: 'var(--interactive-primary)', fontWeight: 'var(--weight-semibold)', color: 'var(--interactive-primary-fg)' } as const;
-// Sized to its content, not stretched like Cancel/Save; see the footer's `onRetake`
-// branch below for why it needs its own row instead of just sitting beside them.
-const retakeBtn = { ...cancelBtn, flex: '0 0 auto' } as const;
-
-/** The square viewport + circular guide, shared by the crop and camera modals. */
-function CropStage({ children, onPointerDown, onPointerMove, onPointerUp, onWheel }: {
+/**
+ * The square viewport + circular guide, shared by the crop and camera modals.
+ * `width: 100%` + `aspectRatio: 1`, not a fixed pixel box: it spans exactly the same
+ * width as `Dialog.Header`'s title and `Dialog.Footer`'s buttons (both just block-level
+ * or flex content inside the same padded `Dialog.Body`), instead of a fixed size
+ * centered with margins of its own that didn't match theirs (SS-322 follow-up, the
+ * stage read as misaligned from the rest of the dialog). Also needs no separate
+ * mobile-width handling of its own: whatever width the dialog ends up at (already
+ * responsive, see `feedback/Dialog.tsx`), the stage fills it exactly, staying square
+ * via `aspectRatio`.
+ */
+function CropStage({ children, onPointerDown, onPointerMove, onPointerUp, onWheel, stageRef }: {
   children: React.ReactNode;
   onPointerDown?: (e: React.PointerEvent) => void;
   onPointerMove?: (e: React.PointerEvent) => void;
   onPointerUp?: (e: React.PointerEvent) => void;
   onWheel?: (e: React.WheelEvent) => void;
+  /** `CropModal` reads the live rendered size off this to drive the crop math (`V`). */
+  stageRef?: React.Ref<HTMLDivElement>;
 }) {
   return (
     <div
+      ref={stageRef}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -491,15 +487,8 @@ function CropStage({ children, onPointerDown, onPointerMove, onPointerUp, onWhee
       onWheel={onWheel}
       style={sx({
         position: 'relative',
-        width: V,
-        height: V,
-        maxWidth: '100%',
-        // `Dialog.Body` is a plain block container, not flex, so `alignSelf` alone does
-        // nothing there; `margin: auto` is what actually centers a fixed-width box in
-        // block flow. Kept alongside `alignSelf` in case a future caller wraps this in
-        // a flex container instead.
-        alignSelf: 'center',
-        margin: '0 auto',
+        width: '100%',
+        aspectRatio: '1',
         overflow: 'hidden',
         borderRadius: 'var(--radius-lg)',
         background: 'var(--bg-sunken)',
@@ -540,10 +529,42 @@ function CropModal({
   onRetake?: () => void;
 }) {
   const imgRef = React.useRef<HTMLImageElement>(null);
+  // A *callback* ref (kept as state), not a plain `useRef` + a `[]`-effect: `Dialog` renders
+  // its children only from the render *after* its own `mounted` flips true (SSR-safe portal),
+  // so on the stage's very first mount a `useEffect(..., [])` reading `stageRef.current` at
+  // that point would still see `null` and, with no deps to fire again on, never retry, so `V`
+  // would then stay stuck at the `DEFAULT_STAGE` guess forever (this exact bug, caught live:
+  // the displayed image stayed 280px inside a stage CSS had already sized at ~344px, a gray
+  // gap on two edges). The callback fires the moment React actually attaches the node.
+  const [stageEl, setStageEl] = React.useState<HTMLDivElement | null>(null);
+  // The stage's own live rendered size (it's `width: 100%` of the dialog body now, not a
+  // fixed px box), read via ResizeObserver. `DEFAULT_STAGE` is only the guess for the very
+  // first paint, before the observer's first callback lands.
+  const [V, setV] = React.useState(DEFAULT_STAGE);
+  const prevV = React.useRef(V);
   const [nat, setNat] = React.useState<{ w: number; h: number } | null>(null);
   const [zoom, setZoom] = React.useState(1);
   const [offset, setOffset] = React.useState({ x: 0, y: 0 });
   const drag = React.useRef<{ x: number; y: number } | null>(null);
+
+  React.useEffect(() => {
+    if (!stageEl) return;
+    const ro = new ResizeObserver((entries) => {
+      const w = Math.round(entries[0]?.contentRect.width ?? 0);
+      if (!w || w === prevV.current) return;
+      // A live resize while the dialog is open (a phone rotated, a window resized) or the
+      // very first real measurement replacing `DEFAULT_STAGE`: rescale the pan offset by
+      // the same factor as the viewport itself, so the framed crop doesn't jump. `scale`
+      // (see below) is linear in `V`, so multiplying the offset by `newV / oldV` keeps
+      // the same fraction of the image framed.
+      const factor = w / prevV.current;
+      prevV.current = w;
+      setV(w);
+      setOffset((o) => ({ x: o.x * factor, y: o.y * factor }));
+    });
+    ro.observe(stageEl);
+    return () => ro.disconnect();
+  }, [stageEl]);
 
   const scaleMin = nat ? V / Math.min(nat.w, nat.h) : 1;
   const scale = scaleMin * zoom;
@@ -555,7 +576,7 @@ function CropModal({
       x: Math.min(0, Math.max(V - dispW, o.x)),
       y: Math.min(0, Math.max(V - dispH, o.y)),
     }),
-    [dispW, dispH],
+    [V, dispW, dispH],
   );
 
   const onImgLoad = () => {
@@ -610,10 +631,14 @@ function CropModal({
   };
 
   return (
-    <Dialog width={352} onClose={onClose}>
+    // Wider than the default 352 (CameraModal's own dialog): three real Buttons in the
+    // footer (Retake included) need the room, and `Dialog` already caps at `min(100%, …)`
+    // for narrow viewports (see feedback/Dialog.tsx), so this needs no mobile-specific
+    // handling of its own, it just shrinks like every other Dialog width already does.
+    <Dialog width={400} onClose={onClose}>
       <Dialog.Header title={labels.cropTitle} description={labels.cropHint} />
       <Dialog.Body>
-        <CropStage onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onWheel={(e) => setZoomAt(zoom - e.deltaY * 0.002)}>
+        <CropStage stageRef={setStageEl} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onWheel={(e) => setZoomAt(zoom - e.deltaY * 0.002)}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             ref={imgRef}
@@ -642,22 +667,16 @@ function CropModal({
       </Dialog.Body>
       <Dialog.Footer>
         {onRetake && (
-          <button type="button" onClick={onRetake} style={sx(retakeBtn)}>
-            <RotateCcw size={16} strokeWidth={2} /> {labels.retake}
-          </button>
+          <Button variant="secondary" iconLeft={<RotateCcw size={16} strokeWidth={2} />} onClick={onRetake}>
+            {labels.retake}
+          </Button>
         )}
-        {/* With Retake, Cancel/Save's own `flex: 1` (see `modalBtn`) would stretch them across
-            whatever room `marginLeft: auto` alone left over, so the three still read as one
-            packed row. Grouping them shrinks that pair to their content first, so all the free
-            space goes to the gap between Retake and the group, not to Cancel/Save themselves. */}
-        <div style={sx(onRetake ? { display: 'flex', gap: 'var(--space-3)', marginLeft: 'auto' } : { display: 'contents' })}>
-          <button type="button" onClick={onClose} style={sx(cancelBtn)}>
-            <X size={16} strokeWidth={2} /> {labels.cancel}
-          </button>
-          <button type="button" onClick={save} style={sx(confirmBtn)}>
-            <Check size={16} strokeWidth={2.5} /> {labels.save}
-          </button>
-        </div>
+        <Button variant="secondary" iconLeft={<X size={16} strokeWidth={2} />} onClick={onClose}>
+          {labels.cancel}
+        </Button>
+        <Button iconLeft={<Check size={16} strokeWidth={2.5} />} onClick={save}>
+          {labels.save}
+        </Button>
       </Dialog.Footer>
     </Dialog>
   );
@@ -716,12 +735,12 @@ function CameraModal({ labels, onCapture, onClose, onError }: { labels: AvatarUp
         </CropStage>
       </Dialog.Body>
       <Dialog.Footer>
-        <button type="button" onClick={onClose} style={sx(cancelBtn)}>
-          <X size={16} strokeWidth={2} /> {labels.cancel}
-        </button>
-        <button type="button" onClick={shoot} disabled={!ready} style={sx({ ...confirmBtn, opacity: ready ? 1 : 0.6 })}>
-          <Camera size={16} strokeWidth={2} /> {labels.capture}
-        </button>
+        <Button variant="secondary" iconLeft={<X size={16} strokeWidth={2} />} onClick={onClose}>
+          {labels.cancel}
+        </Button>
+        <Button iconLeft={<Camera size={16} strokeWidth={2} />} onClick={shoot} disabled={!ready}>
+          {labels.capture}
+        </Button>
       </Dialog.Footer>
     </Dialog>
   );
