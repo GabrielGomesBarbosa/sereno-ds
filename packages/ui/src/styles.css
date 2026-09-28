@@ -206,6 +206,27 @@
   border-radius: var(--radius-sm);
 }
 
+/* ── Pagination ─────────────────────────────────────────────────────────────
+   The one thing an inline style can't do: fold the numbered pages away on a phone.
+   Under --bp-sm the page numbers, ellipses and first / last buttons hide and the
+   "Page X of Y" status shows between previous and next. 560px is --bp-sm written
+   out, since a media query can't read a custom property (Menu's PHONE_W is the same
+   number, and `@sereno-ds/tokens/breakpoints` exports it for JS). */
+.sereno-pagination-status {
+  display: none;
+  padding: 0 var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+@media (max-width: 560px) {
+  .sereno-pagination-page,
+  .sereno-pagination-ellipsis,
+  .sereno-pagination-edge { display: none; }
+  .sereno-pagination-status { display: block; }
+}
+
 /* ── Dialog ────────────────────────────────────────────────────────────────
    Header ✕ button — hover/focus states that can't be inline. */
 .sereno-dialog-close:hover { background: var(--interactive-ghost-hover); color: var(--text-primary); }

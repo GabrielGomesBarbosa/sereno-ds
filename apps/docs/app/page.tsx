@@ -36,7 +36,7 @@ const FEATURES: { icon: ReactNode; title: string; body: string }[] = [
   { icon: <MonitorSmartphone size={20} strokeWidth={1.75} />, title: 'Responsive UI', body: 'Adapts to the pointer, not just the width — Select opens as a bottom sheet on touch, Dialog as a slide-up, the dashboard re-homes its nav.' },
   { icon: <Accessibility size={20} strokeWidth={1.75} />, title: 'Keyboard & focus', body: 'Real focus rings, `:focus-visible`, roving tabindex where it matters — on every control.' },
   { icon: <ListChecks size={20} strokeWidth={1.75} />, title: 'WCAG 2.1 AA audited', body: 'Every primitive checked for contrast, keyboard access, screen readers and focus management — real issues found and fixed, not a badge.' },
-  { icon: <Layers size={20} strokeWidth={1.75} />, title: '30 primitives, 5 categories', body: 'Core, forms, navigation, feedback and the scheduling-domain cards — a live preview for each.' },
+  { icon: <Layers size={20} strokeWidth={1.75} />, title: '31 primitives, 5 categories', body: 'Core, forms, navigation, feedback and the scheduling-domain cards, a live preview for each.' },
   { icon: <Feather size={20} strokeWidth={1.75} />, title: 'Zero runtime', body: 'No CSS-in-JS engine. Plain inline styles reading `var(--token)` — nothing ships but the components.' },
   { icon: <Server size={20} strokeWidth={1.75} />, title: 'RSC-ready', body: "Each primitive keeps its own `'use client'` boundary — server components import them freely; only what's interactive hydrates." },
 ];

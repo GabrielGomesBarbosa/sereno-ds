@@ -11,7 +11,7 @@ const EXPECTED = [
   'Typography', 'Button', 'IconButton', 'Badge', 'Card', 'Avatar', 'Brand', 'Menu', 'Table',
   'Input', 'Textarea', 'Select', 'Checkbox', 'Radio', 'Switch', 'DateTimePicker', 'DatePicker',
   'FileUpload', 'AvatarUpload', 'SearchInput',
-  'TopBar', 'Tabs', 'BottomNav', 'SidebarNav', 'Stepper',
+  'TopBar', 'Tabs', 'BottomNav', 'SidebarNav', 'Stepper', 'Pagination',
   'Alert', 'Toast', 'Dialog', 'Skeleton', 'EmptyState',
   'ThemeProvider', 'ThemeToggle',
 ] as const;
@@ -89,6 +89,7 @@ const CASES: Record<string, React.ReactElement> = {
       <UI.Stepper.Step label="Three" />
     </UI.Stepper>
   ),
+  Pagination: <UI.Pagination page={3} pageCount={12} showEdges onPageChange={() => {}} />,
   Alert: <UI.Alert tone="warning" title="Heads up" onDismiss={() => {}}>Body copy.</UI.Alert>,
   Toast: <UI.Toast tone="success" title="Saved" description="All good" />,
   Dialog: (

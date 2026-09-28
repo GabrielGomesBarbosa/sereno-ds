@@ -35,7 +35,7 @@ npm workspaces + Turborepo. Four workspaces:
 | Path | Name | What |
 |---|---|---|
 | `packages/tokens` | `@sereno-ds/tokens` | the token CSS (`*.css` + a `tokens.css` barrel) |
-| `packages/ui` | `@sereno-ds/ui` | the 30 primitives + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) |
+| `packages/ui` | `@sereno-ds/ui` | the 31 primitives + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) |
 | `apps/docs` | `docs` | the `/design-system` showcase (Next 16, `output: 'export'`) |
 | `apps/demo` | `demo` | landing at `/` + `/agendar/[slug]` + `/dashboard/[[...slug]]` + `/onboarding` + `src/screens/` + `src/domain/` (product cards on `@sereno-ds/ui`) + `src/lib/mock.ts` |
 
@@ -209,7 +209,7 @@ previews (test locally + on the branch).
 
 - **Two Next.js 16 App Router apps** under `apps/`, both `output: 'export'`
   (static). No SSR / Node server.
-- **No UI base library.** The 30 primitives in `packages/ui/src/` are token-driven
+- **No UI base library.** The 31 primitives in `packages/ui/src/` are token-driven
   inline styles reading CSS custom properties. When editing them, preserve
   behaviour; do not introduce Radix / MUI / Tailwind.
 - **Field adornments must share the control's text metrics.** An `Input` /
