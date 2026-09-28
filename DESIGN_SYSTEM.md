@@ -10,14 +10,90 @@ Shared by `Badge`, `Alert` and `Toast` — the same five words everywhere: `succ
 
 ## Categories
 
-- **Core** — Actions, status pills and identity. (Button, IconButton, Badge, Card, Avatar, Brand, Menu, Table)
-- **Forms** — Fields, selects, toggles and the calendar. (Input, Textarea, Select, Checkbox, Radio, Switch, DateTimePicker, FileUpload, AvatarUpload, SearchInput)
+- **Core** — Actions, status pills and identity. (Typography, Button, IconButton, Badge, Card, Avatar, Brand, Menu, Table)
+- **Forms** — Fields, selects, toggles and the calendar. (Input, Textarea, Select, Checkbox, Radio, Switch, DateTimePicker, DatePicker, FileUpload, AvatarUpload, SearchInput)
 - **Navigation** — Headers, tabs and progress. (TopBar, Tabs, BottomNav, SidebarNav, Stepper)
 - **Feedback** — Notices, confirmations and loading. (Alert, Toast, Dialog, Skeleton, EmptyState)
 
 ## Core
 
 Actions, status pills and identity.
+
+### Typography
+
+The type-scale/font-family/weight combos every screen otherwise reconstructs by hand — one component instead of a new style object each time.
+
+#### Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `variant` | `'display' \| 'h1' \| 'h2' \| 'h3' \| 'body' \| 'bodySm' \| 'label' \| 'caption' \| 'eyebrow'` | `'body'` | Picks the look *and* the default semantic tag (`h1` → `<h1>`, `body` → `<p>`, `label`/`caption`/`eyebrow` → `<span>`). |
+| `color` | `'primary' \| 'secondary' \| 'muted' \| 'disabled' \| 'inverse' \| 'brand' \| 'accent' \| 'link' \| 'error'` | `variant-dependent` | Overrides the variant's own default (`bodySm` → secondary, `caption`/`eyebrow` → muted, the rest → primary). |
+| `as` | `React.ElementType` | — | Render as a different tag without changing the variant's styling — a heading-styled label that should not enter the document outline. |
+| `truncate` | `boolean` | `false` | Single-line ellipsis. Needs a width-constrained ancestor to actually clip. |
+| `numeric` | `boolean` | `false` | Tabular (fixed-width) figures. For a value that updates or stacks with others at the same position: countdowns, ticket/queue numbers, times, prices. |
+
+#### Examples
+
+**Variants** — Every variant embeds `fontFamily` / `fontSize` / `fontWeight` / `letterSpacing` / `lineHeight` and its own default tag — this is the whole type scale, not a subset.
+
+```tsx
+<Typography variant="display">Display</Typography>
+<Typography variant="h1">Heading 1</Typography>
+<Typography variant="h2">Heading 2</Typography>
+<Typography variant="h3">Heading 3</Typography>
+<Typography variant="body">Body — the default paragraph text.</Typography>
+<Typography variant="bodySm">Body small — secondary paragraph text.</Typography>
+<Typography variant="label">Label</Typography>
+<Typography variant="caption">Caption</Typography>
+<Typography variant="eyebrow">Eyebrow</Typography>
+```
+
+**Colors** — `color` overrides the variant's own default — every color is a text token, never a raw value.
+
+```tsx
+<Typography variant="label" color="brand">Brand</Typography>
+<Typography variant="label" color="accent">Accent</Typography>
+<Typography variant="label" color="error">Error</Typography>
+<Typography variant="label" color="muted">Muted</Typography>
+```
+
+**A different tag, the same look** — `as` swaps the rendered element without touching the variant's style — an `h3`-styled card title that is not actually a heading in the page outline, or an `h1`-styled `span` inline with other text.
+
+```tsx
+<Typography variant="h3" as="div">
+  Looks like a heading, isn't one in the outline
+</Typography>
+```
+
+**Truncate** — `truncate` clips to one line with an ellipsis. The parent needs a bounded width for it to actually clip.
+
+```tsx
+<div style={{ maxWidth: 220 }}>
+  <Typography variant="label" truncate>
+    A title long enough to need clipping in a narrow card
+  </Typography>
+</div>
+```
+
+**Numeric (tabular figures)** — `numeric` fixes every digit to the same width, so a value that changes in place — or several stacked at the same x-position — doesn't jiggle. Use it for countdowns, queue/ticket numbers, clocks, prices in a column.
+
+```tsx
+<Typography variant="display" numeric>A002</Typography>
+<Typography variant="h1" color="brand" numeric>11:00</Typography>
+```
+
+#### Guidelines
+
+Do:
+- Reach for a variant instead of retyping `fontFamily`/`fontSize`/`fontWeight` inline.
+- `as` when the visual weight of a heading is right but the tag would break the document outline (e.g. two `h1`-styled titles on one page).
+- `color` for state (an error message, a muted secondary line) — never a raw color value.
+- `numeric` on any figure that updates in place or lines up with others — a queue number, a countdown, a price column.
+
+Don't:
+- A `variant` chosen for its color instead of its size/weight — use `color` for that axis, they're independent.
+- Wrapping every single span of text in `Typography` — plain inline text next to an icon, inside a `Badge`, etc. doesn't need it.
 
 ### Button
 
@@ -394,7 +470,7 @@ Action menu / dropdown — a `trigger` you supply plus a portalled panel. Same m
 
 #### Examples
 
-**Item menu** — The common case — `items` with `icon`, `onClick`, an optional `heading` and `separator`. Arrow keys rove, `Enter` / `Space` activate, `Escape` closes and refocuses the trigger.
+**Item menu** — The common case: `items` with `icon`, `onClick`, an optional `heading` and `separator`. Arrow keys rove, `Enter` / `Space` activate, `Escape` closes and refocuses the trigger. Opened with a click, no row is highlighted until the pointer enters one; opened from the keyboard (`Enter`, `Space` or `ArrowDown` on the trigger, `ArrowUp` for the last row) the first row is active and ringed, so `Enter` acts straight away.
 
 ```tsx
 <Menu
@@ -574,7 +650,8 @@ Single-line text field with label, hint and error state.
 | `suffix` | `React.ReactNode` | — | Trailing text or control (e.g. "min"). Not part of the value. |
 | `mask` | `'phone' \| 'cpf' \| 'cep' \| 'currency' \| string` | — | Format as you type — a preset or a custom `#`-per-digit pattern (`(##) #####-####`). Sets `inputMode` + `maxLength`. |
 | `type` | `'text' \| 'password' \| 'email' \| …` | `'text'` | Native input type. `password` adds a show/hide eye toggle at the end of the field. |
-| `showCount` | `boolean` | `false` | Show a `n / max` character counter on the hint row. Implied when `maxLength` is set. |
+| `showCount` | `boolean` | `false` | Show a `n / max` character counter on the hint row. Implied when `maxLength` is set. It counts the field's real value, also when a form library or code writes it (`reset()`, `setValue()`, `el.value = …`). |
+| `preserveHelperSpace` | `boolean` | `false` | Reserve the hint/error row's height even with neither set — several fields validating at once (e.g. a login form submitted empty) then invalidate in place instead of the whole form growing under the user. |
 
 #### Examples
 
@@ -615,6 +692,17 @@ Single-line text field with label, hint and error state.
 <Input label="Headline" maxLength={60} />
 ```
 
+**Counter on a field filled from code** — The counter reads the field itself, so a value that arrives without typing counts at once: a saved value put in by react-hook-form's `reset()` after a fetch, a `setValue()`, its `defaultValues`, a native `form.reset()`. The preview writes `el.value` through a ref, which is what `reset()` does under the hood.
+
+```tsx
+const { register, reset } = useForm();
+
+<Input label="Headline" maxLength={60} {...register('headline')} />
+
+// once the saved value is fetched
+reset({ headline: saved }); // the counter shows the saved length right away
+```
+
 **Error and disabled** — `error` replaces `hint` and turns the border red. `disabled` uses its own fill.
 
 ```tsx
@@ -630,12 +718,20 @@ Single-line text field with label, hint and error state.
 <Input label="Field" size="lg" />
 ```
 
+**No layout shift on validation** — Submit a form with several fields at once and every one of them can invalidate in the same instant — a login form with nothing filled in is the classic case. Without `preserveHelperSpace`, each field only grows once its own error text mounts, so the whole form jumps in height right under the user's cursor. With it, the hint/error row's height is reserved from the start; the error just fills a slot that was already there.
+
+```tsx
+<Input label="Email" required error="This field is required." preserveHelperSpace />
+<Input label="Password" type="password" required error="This field is required." preserveHelperSpace />
+```
+
 #### Guidelines
 
 Do:
 - Always a `label` — never `placeholder` alone.
 - `size="lg"` on mobile and in the public flow.
 - Full error sentence with a period: "Enter a valid email."
+- `preserveHelperSpace` on every field of a form that validates several at once (e.g. on submit) — keeps the layout still while errors appear.
 
 Don't:
 - Placeholder instead of the label.
@@ -651,7 +747,8 @@ Multi-line field for booking notes and service descriptions.
 | --- | --- | --- | --- |
 | `label / hint / error / required` | `string / string / string / boolean` | — | Same label contract as Input. |
 | `rows` | `number` | `4` | Initial height in lines. |
-| `showCount` | `boolean` | `false` | Show a `n / max` character counter on the hint row. Implied when `maxLength` is set. |
+| `showCount` | `boolean` | `false` | Show a `n / max` character counter on the hint row. Implied when `maxLength` is set. It counts the field's real value, also when a form library or code writes it (`reset()`, `setValue()`, `el.value = …`). |
+| `preserveHelperSpace` | `boolean` | `false` | Reserve the hint/error row's height even with neither set — see Input. |
 
 #### Examples
 
@@ -661,7 +758,7 @@ Multi-line field for booking notes and service descriptions.
 <Textarea label="Any notes?" rows={3} hint="Optional." />
 ```
 
-**Character counter** — Set `maxLength` (or pass `showCount`) for a `n / max` counter on the hint row — handy for notes with a ceiling. It turns red at the limit.
+**Character counter** — Set `maxLength` (or pass `showCount`) for a `n / max` counter on the hint row, handy for notes with a ceiling. It turns red at the limit. It counts the field's real value, so a saved note put in by react-hook-form's `reset()` counts too.
 
 ```tsx
 <Textarea label="Any notes?" rows={3} maxLength={140} hint="Optional." />
@@ -702,6 +799,7 @@ Single choice from ≤12 flat options. A hand-rolled listbox — the same in eve
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Control height. |
 | `disabled` | `boolean` | `false` | Disabled fill and text, not-allowed cursor. |
 | `name` | `string` | — | Mirrored to a hidden input so the value can be submitted in a form. |
+| `preserveHelperSpace` | `boolean` | `false` | Reserve the hint/error row's height even with neither set — see Input. |
 
 #### Examples
 
@@ -794,10 +892,12 @@ Opt-in control for consents and multi-select filters. The host needs the `.seren
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `label` | `string` | — | Label next to the box. |
-| `description` | `string` | — | Secondary line below the label. |
+| `description` | `string` | — | Secondary line below the label. Replaced by `error` when present. |
+| `error` | `string` | — | Error message — tints the box and the secondary line red. Replaces `description`. |
 | `indeterminate` | `boolean` | `false` | Mixed state (some children selected). Visual only — a form still submits it as unchecked. |
 | `size` | `'sm' \| 'md'` | `'md'` | Box size — `sm` is 16px for dense filter lists. |
 | `checked / defaultChecked / disabled` | `boolean` | — | Native input props passed through. |
+| `preserveHelperSpace` | `boolean` | `false` | Reserve the description/error row's height even with neither set — see Input. |
 
 #### Examples
 
@@ -840,6 +940,12 @@ Opt-in control for consents and multi-select filters. The host needs the `.seren
 <Checkbox label="Medium (20px, default)" defaultChecked />
 ```
 
+**Error** — `error` replaces `description` and tints the box red — a required consent left unchecked on submit is the classic case.
+
+```tsx
+<Checkbox label="I accept the terms" error="You must accept the terms to continue." />
+```
+
 **Group** — Multi-select: independent boxes sharing a `<fieldset>` / `<legend>`. This is the filter-list pattern — for a single yes/no, one `Checkbox` is enough.
 
 ```tsx
@@ -871,6 +977,7 @@ Do:
 - Affirmative label ("I accept…", "I want…").
 - `indeterminate` for a "select all" parent — never a plain third state.
 - `size="sm"` in dense filter panels; `md` in forms.
+- `error` for a required consent left unchecked on submit — full sentence, same as `Input`.
 
 Don't:
 - A mutually exclusive single choice — use `Radio`.
@@ -886,10 +993,12 @@ Single choice among mutually exclusive options. Group by the same `name`. The ho
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `label` | `string` | — | Label next to the circle. |
-| `description` | `string` | — | Secondary line below the label. |
+| `description` | `string` | — | Secondary line below the label. Replaced by `error` when present. |
+| `error` | `string` | — | Error message — tints the circle and the secondary line red. Replaces `description`. |
 | `name` | `string` | — | Same value on every option in the group. |
 | `size` | `'sm' \| 'md'` | `'md'` | Circle size — `sm` is 16px. Matches `Checkbox`. |
 | `checked / defaultChecked / disabled` | `boolean` | — | Native input props passed through. |
+| `preserveHelperSpace` | `boolean` | `false` | Reserve the description/error row's height even with neither set — see Input. |
 
 #### Examples
 
@@ -938,6 +1047,17 @@ Single choice among mutually exclusive options. Group by the same `name`. The ho
 </fieldset>
 ```
 
+**Error** — `error` replaces `description` and tints the circle red. There's no separate "group error" slot — pass it to one option (the last one reads naturally) to show a single message for the whole required group.
+
+```tsx
+<fieldset>
+  <legend>Payment method</legend>
+  <Radio name="pay" label="Credit card" />
+  <Radio name="pay" label="Pix" />
+  <Radio name="pay" label="Bank transfer" error="Select a payment method." />
+</fieldset>
+```
+
 #### Guidelines
 
 Do:
@@ -945,6 +1065,7 @@ Do:
 - A `<fieldset>`/`<legend>` around every group — the accessible name for what the choice is between.
 - A `description` per option when the difference is not obvious.
 - Horizontal only for short, label-only options.
+- `error` on one option (the last reads naturally) for a required group left unselected.
 
 Don't:
 - A single lone `Radio` — if it is yes/no, use `Checkbox` or `Switch`.
@@ -1023,16 +1144,18 @@ Month calendar + available time slots — the heart of the public flow. Days and
 | --- | --- | --- | --- |
 | `year / month` | `number` | — | The *initial* month (`month` is 0-indexed). The component then owns navigation — re-mount with a `key` to force a new start. |
 | `selectedDate` | `number` | — | Selected day. |
-| `times` | `(string \| { value, disabled })[]` | `[]` | Time-slot labels or objects with `disabled`. |
+| `times` | `(string \| { value, disabled, capacity, booked })[]` | `[]` | Time-slot labels or objects. `disabled` hard-blocks it. `capacity`/`booked` show "booked de capacity vagas" and switch to a warning look once full — a full slot stays pickable (a deliberate overbook) unless also `disabled`. |
 | `selectedTime` | `string` | — | Selected time (marked in turquoise). |
 | `unavailable` | `number[]` | — | Days with no availability — struck through and unclickable. |
 | `onSelectDate / onSelectTime` | `(v) => void` | — | Selection callbacks. |
 | `onMonthChange` | `(year, month) => void` | — | Fires on ‹ / › or the month/year popover — recompute `unavailable` / `renderDay` for the new month here. |
 | `renderDay` | `(day) => ReactNode` | — | Content under each day number (a count, a dot). Return `null` for nothing. Every cell grows to stay even — scope it yourself (e.g. future days only). |
+| `timeLabel` | `string` | `locale-dependent` | Overrides the section heading above the slots. |
+| `locale` | `'pt-BR' \| 'en'` | `'pt-BR'` | The real Sereno product always renders pt-BR — `'en'` exists for an English-speaking docs/demo audience, not for the product itself. |
 
 #### Examples
 
-**Calendar only** — Without `times`, it’s just the calendar. `month` (0-indexed) is only the *starting* view — the header navigates from there, and the grid stays 6 rows so nothing below it shifts. `onMonthChange` keeps `unavailable` in sync — here, the weekends of whatever month you land on.
+**Calendar only** — Without `times`, it’s just the calendar. `month` (0-indexed) is only the *starting* view — the header navigates from there, and the grid stays 6 rows so nothing below it shifts. `onMonthChange` keeps `unavailable` in sync — here, the weekends of whatever month you land on. Shown here with `locale="en"` — the real product always renders pt-BR.
 
 ```tsx
 const [off, setOff] = useState(() => weekendsOf(2026, 7));
@@ -1044,10 +1167,11 @@ const [off, setOff] = useState(() => weekendsOf(2026, 7));
   onMonthChange={(y, m) => setOff(weekendsOf(y, m))}
   selectedDate={day}
   onSelectDate={setDay}
+  locale="en"
 />
 ```
 
-**Content under each day** — `renderDay` drops a node under the day number — a booking count, a dot. Return `null` for days with nothing. Scope it in the consumer (this one shows counts for **future** days only). Every cell grows so the grid stays even.
+**Content under each day** — `renderDay` drops a node under the day number — a booking count, a dot. Return `null` for days with nothing. Scope it in the consumer (this one shows counts for **future** days only). Every cell grows so the grid stays even. Shown here with `locale="en"` — the real product always renders pt-BR.
 
 ```tsx
 <DateTimePicker
@@ -1059,10 +1183,11 @@ const [off, setOff] = useState(() => weekendsOf(2026, 7));
   }
   selectedDate={day}
   onSelectDate={setDay}
+  locale="en"
 />
 ```
 
-**With time slots** — Pass `times` as strings or `{ value, disabled }`. The selected time is the only turquoise (accent) element — the moment of decision in the flow.
+**With time slots** — Pass `times` as strings or `{ value, disabled }`. The selected time is the only turquoise (accent) element — the moment of decision in the flow. Shown here with `locale="en"` — the real product always renders pt-BR.
 
 ```tsx
 <DateTimePicker
@@ -1073,6 +1198,28 @@ const [off, setOff] = useState(() => weekendsOf(2026, 7));
   selectedTime={time}
   onSelectDate={setDay}
   onSelectTime={setTime}
+  locale="en"
+/>
+```
+
+**Capacity / overbooking** — Group sessions and classes hold more than one person. Set `capacity` and `booked` on a slot to show "booked of capacity spots"; once `booked` reaches `capacity` it switches to a warning look and reads "Full" — but stays clickable, since a full slot is a deliberate overbook the caller can still allow. Add `disabled: true` on top for the actual hard "no". A plain slot mixed into the same list (no `capacity` at all) grows the same two-line layout with a generic "Available" filler instead of looking short next to its neighbors. Shown here with `locale="en"` — the real product always renders pt-BR ("Lotado", "de vagas"); this prop exists only for an English-speaking docs audience.
+
+```tsx
+<DateTimePicker
+  year={2026}
+  month={7}
+  times={[
+    { value: '09:00', capacity: 8, booked: 3 },
+    { value: '10:00', capacity: 8, booked: 8 },
+    { value: '11:00', capacity: 4, booked: 4, disabled: true },
+    '14:00',
+    { value: '15:00', capacity: 6, booked: 5 },
+  ]}
+  selectedDate={day}
+  selectedTime={time}
+  onSelectDate={setDay}
+  onSelectTime={setTime}
+  locale="en"
 />
 ```
 
@@ -1083,10 +1230,65 @@ Do:
 - Recompute `unavailable` / `renderDay` inside `onMonthChange` so they track the visible month.
 - Unavailable slots as `{ value, disabled: true }` — they keep their place in the grid.
 - Let the accent time marker be the only one on the screen.
+- A full (`booked >= capacity`) slot stays pickable unless you also set `disabled` — that is the real "no".
 
 Don't:
 - Removing unavailable slots from the list — the grid "jumps".
 - Putting `renderDay` counts in the public booking flow — that’s the pro’s private data.
+- Treating "full" as "disabled" — they mean different things; disable it explicitly when it truly can't be booked.
+- Setting `locale="en"` in the real product — Sereno is pt-BR only; the prop exists for this docs site.
+
+### DatePicker
+
+A single date, no time, no slots — that’s `DateTimePicker`. A text-field-styled trigger opens the same calendar grid in a popover.
+
+#### Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `label / hint / error / required` | `string / boolean` | — | Same label contract as Input. |
+| `placeholder` | `string` | `'Selecionar data'` | Trigger text with no value. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` |  |
+| `value / defaultValue` | `string` | — | ISO `"YYYY-MM-DD"` — controlled / uncontrolled, same contract as every other field. |
+| `onChange` | `(value: string) => void` | — | Fires with the new ISO date on pick. |
+| `min / max` | `string` | — | ISO date bounds — every day outside the range is unavailable. |
+| `disabled` | `boolean` | `false` |  |
+| `clearLabel` | `string` | `locale-dependent` | aria-label for the clear (×) button that appears once a value is set. |
+| `locale` | `'pt-BR' \| 'en'` | `'pt-BR'` | The real Sereno product always renders pt-BR — `'en'` exists for an English-speaking docs/demo audience, not for the product itself. |
+| `preserveHelperSpace` | `boolean` | `false` | Reserve the hint/error row's height even with neither set — see Input. |
+
+#### Examples
+
+**Basic** — Value is a plain ISO `"YYYY-MM-DD"` string, same shape `<input type="date">` uses — drops into a form the same way, themed instead of the browser's own date picker. A clear (×) button appears once a value is set. Shown here with `locale="en"` — the real product always renders pt-BR.
+
+```tsx
+<DatePicker label="Date of birth" value={date} onChange={setDate} locale="en" />
+```
+
+**Bounded range** — `min` / `max` mark every day outside the range unavailable (struck through, unclickable) — recomputed for whichever month the popover is currently showing.
+
+```tsx
+<DatePicker
+  label="Schedule for"
+  hint="Only the next 30 days."
+  min={today}
+  max={in30Days}
+  value={date}
+  onChange={setDate}
+  locale="en"
+/>
+```
+
+#### Guidelines
+
+Do:
+- A single date with no time component — birth date, a deadline, a one-off blocked day.
+- `min` / `max` instead of validating the picked date after the fact.
+
+Don't:
+- A date **and** a time in the same control — that’s `DateTimePicker`.
+- Multiple dates or a range picker — not this component's job.
+- Setting `locale="en"` in the real product — Sereno is pt-BR only; the prop exists for this docs site.
 
 ### FileUpload
 
@@ -1104,6 +1306,7 @@ Pick one file — click, keyboard or drag-and-drop — with a local preview. No 
 | `shape` | `'circle' \| 'square'` | `'square'` | Thumbnail shape for image previews — `circle` for avatars (single only). |
 | `prompt` | `string` | — | Text inside the empty drop area. |
 | `label / hint / error / required / disabled` | `—` | — | Same label contract as Input. |
+| `preserveHelperSpace` | `boolean` | `false` | Reserve the hint/error row's height even with neither set — see Input. |
 
 #### Examples
 
@@ -1176,11 +1379,13 @@ Profile-photo picker — an avatar disc with a pencil button, a library / camera
 | `outputSize` | `number` | `512` | The crop is drawn to this square size before export. |
 | `maxSizeMB` | `number` | `8` | Picks larger than this are rejected (before crop). |
 | `labels` | `Partial<AvatarUploadLabels>` | — | Override the English UI strings — menu, crop dialog, error messages. |
+| `allowCamera` | `boolean` | `true` | Whether to allow taking a photo via camera (omit "Take a photo" option and camera modal). Useful for logos. |
 | `label / hint / error / required / disabled` | `—` | — | Same label contract as Input. |
+| `preserveHelperSpace` | `boolean` | `false` | Reserve the hint/error row's height even with neither set — see Input. |
 
 #### Examples
 
-**Basic** — The edit (pencil) button opens a menu: **Upload a photo** (library), **Take a photo** (a live camera capture via `getUserMedia` — falls back to a message if the camera is blocked), and **Remove** once a photo is set. Both routes end in a circular crop — drag to frame, scroll or the slider to zoom, **Save** exports. All strings are English by default; override with the `labels` prop.
+**Basic** — The edit (pencil) button opens a menu: **Upload a photo** (library), **Take a photo** (a live camera capture via `getUserMedia`, falling back to a message if the camera is blocked), and **Remove** once a photo is set. Both routes end in a circular crop: drag to frame, scroll or the slider to zoom, **Save** exports. A shot taken from the camera also gets **Retake**, back to the live camera without going through the menu again; a library pick does not (choosing another file is already one click away). All strings are English by default; override with the `labels` prop.
 
 ```tsx
 <AvatarUpload name="Ana Beatriz Ramos" value={photo} onChange={setPhoto} />
@@ -1232,7 +1437,7 @@ Don't:
 | `debounce` | `number` | `250` | Debounce for `onSearch`, ms. |
 | `clearLabel` | `string` | `'Clear search'` | aria-label for the × button. |
 | `placeholder` | `string` | `'Search…'` |  |
-| `label / hint / error / size / disabled` | `—` | — | Passed through to `Input`. |
+| `label / hint / error / size / disabled / preserveHelperSpace` | `—` | — | Passed through to `Input`. |
 
 #### Examples
 
@@ -1466,14 +1671,17 @@ Desktop primary navigation — a **compound component**, the counterpart to `Bot
 | `header` | `React.ReactNode` | — | Brand / logo slot at the top. |
 | `footer` | `React.ReactNode` | — | Slot pinned to the bottom (user card, plan nudge). Hidden while collapsed. |
 | `labels` | `{ expand?, collapse? }` | — | Text for the collapse toggle. |
+| `disabled` | `boolean` | `false` | Disables every `Item` / `SubItem` at once — a gated area, an account that isn’t active yet. An item can opt back in with its own `disabled={false}`. The collapse toggle, `header` and `footer` stay live: they aren’t destinations. |
 | `SidebarNav.Section · label` | `string` | — | Small uppercase heading above the block. Omit for an unlabelled group — the divider still shows. |
 | `SidebarNav.Item · value / label / icon / count` | `string / string / ReactNode / number` | — | This destination’s identity, label, leading icon, and a trailing count chip. |
-| `SidebarNav.Item · href` | `string` | — | Renders this leaf through `linkComponent` instead of a `<button>`. |
+| `SidebarNav.Item · href` | `string` | — | Renders this leaf through `linkComponent` instead of a `<button>`. Ignored while `disabled`. |
+| `SidebarNav.Item · disabled` | `boolean` | `inherits root` | Not selectable. Inherits the root’s `disabled` when unset; an explicit `false` opts back in. `aria-disabled` + out of the Tab order, never a link, a parent doesn’t toggle or open its flyout. Can still be the current page (`aria-current`), just muted. |
 | `SidebarNav.SubItem · value / label / count` | `string / string / number` | — | A second-level destination, nested inside an `Item`. |
+| `SidebarNav.SubItem · disabled` | `boolean` | `inherits parent` | Not selectable. Inherits from its parent `Item`; an explicit value wins. |
 
 #### Examples
 
-**Groups and second level** — Each `SidebarNav.Section` is a divided block with an optional uppercase `label`. An `Item` with `SubItem` children is not a destination — it opens an inline second level (the branch holding the active child starts open). On the collapsed rail the same list opens as a hover flyout instead.
+**Groups and second level** — Each `SidebarNav.Section` is a divided block with an optional uppercase `label`. An `Item` with `SubItem` children is not a destination — it opens an inline second level (the branch holding the active child starts open). On the collapsed rail the same list opens as a hover flyout instead. A label the row can’t fit is cut with an ellipsis — hover or Tab onto it and the full text shows in a tooltip (only when it is actually cut; a short label gets none).
 
 ```tsx
 <SidebarNav value={view} onChange={setView}>
@@ -1481,6 +1689,8 @@ Desktop primary navigation — a **compound component**, the counterpart to `Bot
     <SidebarNav.Item value="agenda" label="Calendar" icon={<Calendar size={18} />} />
     <SidebarNav.Item value="clients" label="Clients" icon={<Users size={18} />} count={12} />
     <SidebarNav.Item value="services" label="Services" icon={<Sparkles size={18} />} />
+    {/* too long for the row: ellipsis + a tooltip with the full text on hover / focus */}
+    <SidebarNav.Item value="waitlist" label="Waiting list and cancellations" icon={<CalendarOff size={18} />} />
   </SidebarNav.Section>
   <SidebarNav.Section label="Management">
     <SidebarNav.Item value="finance" label="Finance" icon={<Wallet size={18} />}>
@@ -1495,7 +1705,7 @@ Desktop primary navigation — a **compound component**, the counterpart to `Bot
 </SidebarNav>
 ```
 
-**Collapsible rail** — A round toggle on the sidebar’s right edge (level with the `header`) drops it to a 72px icon rail — labels hide, group headings become bare dividers, counts become a dot, and each icon gets a hover tooltip. A parent still opens its flyout from the rail. Pass `header` (a mark shows on the rail) / `footer` (hidden on the rail).
+**Collapsible rail** — A round toggle on the sidebar’s right edge (level with the `header`) drops it to a 72px icon rail — labels hide, group headings become bare dividers, counts become a dot, and each icon gets a tooltip on hover and on keyboard focus. A parent still opens its flyout from the rail. Pass `header` (a mark shows on the rail) / `footer` (hidden on the rail).
 
 ```tsx
 const [collapsed, setCollapsed] = React.useState(false);
@@ -1513,10 +1723,29 @@ const [collapsed, setCollapsed] = React.useState(false);
 </SidebarNav>
 ```
 
+**Disabled items** — Per item with `disabled` (a leaf, a `SubItem` or a whole parent), or for the whole menu with `disabled` on the root — flip the switch. An item can opt back in with `disabled={false}` (Settings stays live under the lock). A disabled row uses `aria-disabled`, leaves the Tab order, never navigates (even with an `href`), and its parent won’t open a flyout on the rail. If it is the current page it keeps `aria-current`, just muted.
+
+```tsx
+<SidebarNav value={view} onChange={setView} disabled={locked}>
+  <SidebarNav.Section label="Management">
+    <SidebarNav.Item value="finance" label="Finance" icon={<Wallet size={18} />}>
+      <SidebarNav.SubItem value="finance:incoming" label="Incoming" />
+      <SidebarNav.SubItem value="finance:invoices" label="Invoices" disabled />
+    </SidebarNav.Item>
+    <SidebarNav.Item value="reports" label="Reports" icon={<BarChart3 size={18} />} disabled />
+  </SidebarNav.Section>
+  <SidebarNav.Section label="Account">
+    {/* stays live even while the root is disabled */}
+    <SidebarNav.Item value="settings" label="Settings" icon={<Settings size={18} />} disabled={false} />
+  </SidebarNav.Section>
+</SidebarNav>
+```
+
 #### Guidelines
 
 Do:
 - Group into 2–4 labelled sections; keep each to ~6 items.
+- Keep a locked destination visible but `disabled` when hiding it would confuse (a higher plan, an inactive account) — and explain why somewhere near.
 - Second level only one deep — no grandchildren.
 - On mobile it hides; `BottomNav` takes over under 900px.
 

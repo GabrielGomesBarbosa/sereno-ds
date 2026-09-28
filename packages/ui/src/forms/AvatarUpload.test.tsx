@@ -354,3 +354,37 @@ describe('AvatarUpload, retake', () => {
     });
   });
 });
+
+describe('AvatarUpload — allowCamera prop', () => {
+  it('triggers native file picker directly without opening menu when allowCamera=false and no photo is set', () => {
+    const clickSpy = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {});
+    render(<AvatarUpload label="Logo" allowCamera={false} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Change photo' }));
+
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('menu')).toBeNull();
+    clickSpy.mockRestore();
+  });
+
+  it('opens menu with upload and remove options, but without camera option, when allowCamera=false and current image exists', () => {
+    render(<AvatarUpload label="Logo" allowCamera={false} value="https://example.com/logo.png" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Change photo' }));
+
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Upload a photo' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Remove photo' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Take a photo' })).toBeNull();
+  });
+
+  it('includes camera option by default when allowCamera is not specified', () => {
+    render(<AvatarUpload label="Photo" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Change photo' }));
+
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Take a photo' })).toBeInTheDocument();
+  });
+});
+
