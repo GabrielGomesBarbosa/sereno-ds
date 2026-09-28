@@ -31,7 +31,7 @@ function withFakeImage(fn: () => void) {
 // async, camera-granted path instead of calling `onError` synchronously, which would
 // close the modal right back before it ever renders. Also fakes just enough of the
 // canvas 2D API (`getContext` returns null in jsdom, `toBlob` never calls back) for
-// `CameraModal.shoot()` to go through instead of silently no-opping.
+// the camera step's `shoot()` to go through instead of silently no-opping.
 async function withCamera(fn: () => void | Promise<void>) {
   const stream = { getTracks: () => [] } as unknown as MediaStream;
   const getUserMedia = vi.fn().mockResolvedValue(stream);
@@ -120,7 +120,7 @@ async function shootPhoto() {
   render(<AvatarUpload label="Photo" />);
   fireEvent.click(screen.getByRole('button', { name: 'Change photo' }));
   fireEvent.click(screen.getByRole('menuitem', { name: 'Take a photo' }));
-  // Capture is disabled until the stream is "ready" (see CameraModal); waiting for it
+  // Capture is disabled until the stream is "ready" (see `useCamera`); waiting for it
   // to enable also waits out the microtask that resolves the mocked `getUserMedia`, inside
   // an act() boundary (unlike vi.waitFor, this waitFor is RTL's own, act-aware, version).
   await waitFor(() => expect(screen.getByRole('button', { name: 'Capture' })).toBeEnabled());
@@ -147,7 +147,7 @@ describe('AvatarUpload — ref', () => {
 
 /**
  * The crop modal's layout (SS-322, reported from the schedule-system app, in two rounds):
- * originally `CropStage` (the crop square, shared with `CameraModal`) was a fixed 280×280
+ * originally `CropStage` (the crop square, shared with the camera step) was a fixed 280×280
  * box, `alignSelf: 'center'`, sitting directly in `Dialog.Body`, a plain block container,
  * not flex/grid, so `alignSelf` did nothing and it drifted to the left edge. `margin: '0
  * auto'` centered it, but that still left it narrower than, and misaligned with, the
@@ -177,7 +177,7 @@ describe('AvatarUpload, crop modal layout', () => {
     });
   });
 
-  it("CameraModal's own live view uses the same full-width stage, before any shot is taken", async () => {
+  it("the camera step's own live view uses the same full-width stage, before any shot is taken", async () => {
     await withCamera(async () => {
       render(<AvatarUpload label="Photo" />);
       fireEvent.click(screen.getByRole('button', { name: 'Change photo' }));
@@ -349,6 +349,195 @@ describe('AvatarUpload, retake', () => {
   it('cancelling a camera-shot crop (not retaking) closes everything, same as any other cancel', async () => {
     await withCamera(async () => {
       await shootPhoto();
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+  });
+});
+
+/**
+ * The crop dialog's footer (SS-326). With the three actions (Retake, Cancel, Save) and
+ * pt-BR labels the row needs ~384px, and at the old 400px dialog width it wrapped and left
+ * "Salvar" alone and small at the right of a second line. The dialog is wider now (440)
+ * and, with three actions, the footer's buttons grow to fill each line (`fill`), so a
+ * narrow phone wraps to a balanced layout instead. Two actions stay right-aligned as before.
+ * The camera dialog shares the width, being the step before the crop.
+ * (jsdom does no layout, so what is checked is the wiring; the geometry was measured live.)
+ */
+describe('AvatarUpload, crop footer', () => {
+  const dialogWidthStyle = () => screen.getByRole('dialog').getAttribute('style') ?? '';
+
+  it('after a camera shot (three actions) the footer fills its lines', async () => {
+    await withCamera(async () => {
+      await shootPhoto();
+      const footer = screen.getByRole('button', { name: 'Save' }).parentElement!;
+      expect(footer).toHaveAttribute('data-fill', 'true');
+      for (const name of ['Retake', 'Cancel', 'Save']) expect(screen.getByRole('button', { name }).parentElement).toBe(footer);
+    });
+  });
+
+  it('after a library pick (two actions) the footer stays right-aligned at natural width, as before', () => {
+    withFakeImage(() => {
+      openCropModalFromLibrary();
+      expect(screen.getByRole('button', { name: 'Save' }).parentElement).not.toHaveAttribute('data-fill');
+    });
+  });
+
+  it('the crop dialog is 440 wide, wide enough for the three pt-BR buttons on one line', async () => {
+    await withCamera(async () => {
+      await shootPhoto();
+      expect(dialogWidthStyle()).toContain('440px');
+    });
+  });
+
+  it('keeps the same 440 width for a library pick, so the dialog does not change size with how the photo arrived', () => {
+    withFakeImage(() => {
+      openCropModalFromLibrary();
+      expect(dialogWidthStyle()).toContain('440px');
+    });
+  });
+
+  it('the camera dialog is the same 440 wide, with two right-aligned buttons and no fill', async () => {
+    await withCamera(async () => {
+      render(<AvatarUpload label="Photo" />);
+      fireEvent.click(screen.getByRole('button', { name: 'Change photo' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Take a photo' }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Capture' })).toBeEnabled());
+      expect(dialogWidthStyle()).toContain('440px');
+      expect(screen.getByRole('button', { name: 'Capture' }).parentElement).not.toHaveAttribute('data-fill');
+    });
+  });
+
+  it('the camera and the crop step that follows it have the same width, so the dialog does not jump between them', async () => {
+    await withCamera(async () => {
+      render(<AvatarUpload label="Photo" />);
+      fireEvent.click(screen.getByRole('button', { name: 'Change photo' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Take a photo' }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Capture' })).toBeEnabled());
+      const cameraWidth = dialogWidthStyle();
+      const video = document.querySelector('video')!;
+      Object.defineProperty(video, 'videoWidth', { value: 640, configurable: true });
+      Object.defineProperty(video, 'videoHeight', { value: 640, configurable: true });
+      fireEvent.click(screen.getByRole('button', { name: 'Capture' }));
+      await screen.findByRole('button', { name: 'Save' });
+      expect(dialogWidthStyle()).toBe(cameraWidth);
+    });
+  });
+});
+
+/**
+ * One dialog for the whole photo flow (SS-326 follow-up): camera, crop and Retake are steps
+ * of a single `Dialog` whose content swaps, not a dialog closing and another opening. That
+ * used to replay the pop-in, release and re-take the scroll lock and hand focus back to the
+ * page in between.
+ */
+describe('AvatarUpload, one dialog across the camera and crop steps', () => {
+  /** A camera whose tracks can be inspected, unlike `withCamera`'s empty stream. */
+  const trackStop = vi.fn();
+  const openCamera = async () => {
+    render(<AvatarUpload label="Photo" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Change photo' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Take a photo' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Capture' })).toBeEnabled());
+  };
+  const capture = async () => {
+    const video = document.querySelector('video')!;
+    Object.defineProperty(video, 'videoWidth', { value: 640, configurable: true });
+    Object.defineProperty(video, 'videoHeight', { value: 640, configurable: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Capture' }));
+    await screen.findByRole('button', { name: 'Save' });
+  };
+  const withTrackedCamera = async (fn: () => Promise<void>) => {
+    trackStop.mockClear();
+    await withCamera(async () => {
+      const stream = { getTracks: () => [{ stop: trackStop }] } as unknown as MediaStream;
+      (navigator.mediaDevices.getUserMedia as ReturnType<typeof vi.fn>).mockResolvedValue(stream);
+      await fn();
+    });
+  };
+
+  it('keeps the very same dialog element from the camera to the crop', async () => {
+    await withCamera(async () => {
+      await openCamera();
+      const panel = screen.getByRole('dialog');
+      await capture();
+      expect(screen.getByRole('dialog')).toBe(panel);
+      expect(screen.getAllByRole('dialog')).toHaveLength(1);
+    });
+  });
+
+  it('keeps it through Retake too: crop, back to the camera, and on to a second crop', async () => {
+    await withCamera(async () => {
+      await openCamera();
+      const panel = screen.getByRole('dialog');
+      await capture();
+      fireEvent.click(screen.getByRole('button', { name: 'Retake' }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Capture' })).toBeEnabled());
+      expect(screen.getByRole('dialog')).toBe(panel);
+      await capture();
+      expect(screen.getByRole('dialog')).toBe(panel);
+    });
+  });
+
+  it('swaps the title and description with the step', async () => {
+    await withCamera(async () => {
+      await openCamera();
+      expect(screen.getByRole('dialog')).toHaveAccessibleName(/^Take a photo/);
+      await capture();
+      expect(screen.getByRole('dialog')).toHaveAccessibleName(/^Adjust the photo/);
+    });
+  });
+
+  it('keeps focus inside the dialog after a step change, so Tab stays trapped', async () => {
+    await withCamera(async () => {
+      await openCamera();
+      const panel = screen.getByRole('dialog');
+      // Focus a button that is about to unmount with its step, as a real click would.
+      act(() => screen.getByRole('button', { name: 'Capture' }).focus());
+      await capture();
+      expect(panel).toContainElement(document.activeElement as HTMLElement);
+      expect(document.activeElement).not.toBe(document.body);
+    });
+  });
+
+  it('turns the camera off as soon as the dialog leaves the camera step', async () => {
+    await withTrackedCamera(async () => {
+      await openCamera();
+      expect(trackStop).not.toHaveBeenCalled();
+      await capture();
+      expect(trackStop).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('turns it back on for Retake, with Capture disabled until the new stream is ready', async () => {
+    await withTrackedCamera(async () => {
+      await openCamera();
+      await capture();
+      fireEvent.click(screen.getByRole('button', { name: 'Retake' }));
+      // The first stream is gone, so Capture must wait for the new one, not fire on a dead camera.
+      expect(screen.getByRole('button', { name: 'Capture' })).toBeDisabled();
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Capture' })).toBeEnabled());
+      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it('a retaken photo starts again at 1x zoom, not where the last one was left', async () => {
+    await withCamera(async () => {
+      await openCamera();
+      await capture();
+      const zoom = () => screen.getByRole('slider', { name: 'Zoom' }) as HTMLInputElement;
+      fireEvent.change(zoom(), { target: { value: '2' } });
+      expect(zoom().value).toBe('2');
+      fireEvent.click(screen.getByRole('button', { name: 'Retake' }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Capture' })).toBeEnabled());
+      await capture();
+      expect(zoom().value).toBe('1');
+    });
+  });
+
+  it('closing from either step closes the one dialog', async () => {
+    await withCamera(async () => {
+      await openCamera();
       fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
       expect(screen.queryByRole('dialog')).toBeNull();
     });

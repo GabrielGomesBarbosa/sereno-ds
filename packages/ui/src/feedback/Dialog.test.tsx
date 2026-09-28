@@ -115,6 +115,51 @@ describe('Dialog', () => {
     expect(style).not.toContain('800px');
   });
 
+  describe('Footer fill', () => {
+    const footerOf = (name: string) => screen.getByRole('button', { name }).parentElement as HTMLElement;
+
+    it('is off by default, so a footer keeps hugging the right edge at its natural width', () => {
+      render(
+        <Dialog open>
+          <Dialog.Footer>
+            <button>Cancel</button>
+            <button>Save</button>
+          </Dialog.Footer>
+        </Dialog>,
+      );
+      expect(footerOf('Save')).not.toHaveAttribute('data-fill');
+      expect(footerOf('Save').style.justifyContent).toBe('flex-end');
+    });
+
+    it('marks the footer so the stylesheet can let its buttons grow (the rule sits on the children, so it cannot be inline)', () => {
+      render(
+        <Dialog open>
+          <Dialog.Footer fill>
+            <button>Retake</button>
+            <button>Cancel</button>
+            <button>Save</button>
+          </Dialog.Footer>
+        </Dialog>,
+      );
+      const footer = footerOf('Save');
+      expect(footer).toHaveAttribute('data-fill', 'true');
+      expect(footer).toHaveClass('sereno-dialog-footer');
+      // Still a wrapping flex row: `fill` changes how the buttons grow, not whether they wrap.
+      expect(footer.style.flexWrap).toBe('wrap');
+    });
+
+    it('fill={false} is the same as leaving it out', () => {
+      render(
+        <Dialog open>
+          <Dialog.Footer fill={false}>
+            <button>OK</button>
+          </Dialog.Footer>
+        </Dialog>,
+      );
+      expect(footerOf('OK')).not.toHaveAttribute('data-fill');
+    });
+  });
+
   it('fullscreen fills the viewport', () => {
     render(
       <Dialog open variant="fullscreen">

@@ -231,6 +231,9 @@
    Header ✕ button — hover/focus states that can't be inline. */
 .sereno-dialog-close:hover { background: var(--interactive-ghost-hover); color: var(--text-primary); }
 .sereno-dialog-close:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+/* Footer `fill`: every action shares each line and grows to fill it, so a wrap never leaves one
+   small button alone at the right. It targets the footer's children, hence not inline. */
+.sereno-dialog-footer[data-fill] > * { flex: 1 1 auto; }
 
 /* ── Dismiss ✕ (Alert / Toast) ─────────────────────────────────────────────
    Ghost icon button on a tinted surface — tint the hover from currentColor so

@@ -2257,6 +2257,7 @@ dismiss(id);`,
       R('Dialog.Header · title / description', 'string', 'Both optional. Put `Dialog.Close` here too, if you want one.'),
       R('Dialog.Body', 'React.ReactNode', 'The scrolling content area. Optional — a header + footer alone is a valid dialog.'),
       R('Dialog.Footer', 'React.ReactNode', 'Action buttons, right-aligned.'),
+      R('Dialog.Footer · fill', 'boolean', 'The buttons share the row and grow to fill it, and each line if they wrap, instead of hugging the right edge. For three actions or long translated labels, where a plain wrap would leave the last button alone, small and pushed right on a second line.', 'false'),
       R('Dialog.Close', '—', 'A ✕ button that calls the root’s `onClose`. Nothing renders one unless you add it — no more auto-default for `fullscreen`.'),
     ],
     code: `<Dialog open={open} onClose={() => setOpen(false)}>

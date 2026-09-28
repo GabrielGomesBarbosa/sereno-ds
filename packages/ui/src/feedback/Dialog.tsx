@@ -64,6 +64,14 @@ export interface DialogBodyProps {
 export interface DialogFooterProps {
   /** Action buttons, right-aligned. */
   children?: React.ReactNode;
+  /**
+   * Let the buttons share the row and grow to fill it, and each line if they wrap, instead
+   * of hugging the right edge at their natural width. For a footer with three actions or
+   * long (translated) labels, where a plain wrap leaves the last button, usually the
+   * primary one, alone, small and pushed right on a second line. Off by default, so no
+   * existing dialog changes.
+   */
+  fill?: boolean;
 }
 
 interface DialogContextValue {
@@ -295,12 +303,15 @@ function Body({ children }: DialogBodyProps) {
   );
 }
 
-function Footer({ children }: DialogFooterProps) {
+function Footer({ children, fill = false }: DialogFooterProps) {
   const { dividers } = useDialogContext('Footer');
   const pad = 'var(--space-5)';
   const hairline = 'var(--border-width-hairline) solid var(--border-default)';
   return (
     <div
+      // `fill` (see styles.css) makes each child `flex: 1 1 auto`. It can't be inline: it's on the children.
+      className="sereno-dialog-footer"
+      data-fill={fill || undefined}
       style={sx({
         flex: '0 0 auto',
         display: 'flex',

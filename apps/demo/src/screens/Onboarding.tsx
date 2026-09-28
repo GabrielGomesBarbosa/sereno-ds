@@ -123,7 +123,7 @@ function PerfilStep({ data, set }: { data: Data; set: (p: Partial<Data>) => void
       <StepHeader title="Vamos começar pelo seu perfil" description="É o que seus clientes veem antes de agendar. Você pode ajustar depois nas configurações." />
       <AvatarUpload
         label="Foto de perfil"
-        hint="JPG ou PNG. Opcional — dá para ajustar o enquadramento."
+        hint="JPG ou PNG. Opcional. Dá para ajustar o enquadramento."
         name={data.name}
         value={data.photo}
         onChange={(f) => set({ photo: f })}
@@ -137,14 +137,15 @@ function PerfilStep({ data, set }: { data: Data; set: (p: Partial<Data>) => void
           cameraTitle: 'Tirar foto',
           cameraHint: 'Alinhe o rosto com o círculo.',
           capture: 'Capturar',
+          retake: 'Tirar outra',
           cancel: 'Cancelar',
           save: 'Salvar',
           zoom: 'Zoom',
-          heicError: 'Esse formato (HEIC) não abre no navegador — envie JPG ou PNG.',
+          heicError: 'Esse formato (HEIC) não abre no navegador. Envie JPG ou PNG.',
           notImage: 'Escolha um arquivo de imagem.',
           tooLarge: (mb) => `A imagem passa de ${mb} MB.`,
           unreadable: 'Não foi possível ler essa imagem. Tente um JPG ou PNG.',
-          cameraError: 'Não foi possível abrir a câmera — envie uma foto da galeria.',
+          cameraError: 'Não foi possível abrir a câmera. Envie uma foto da galeria.',
         }}
       />
       <Input label="Nome completo" required size="lg" placeholder="Ana Beatriz Ramos" value={data.name} onChange={(e) => set({ name: e.currentTarget.value })} />
