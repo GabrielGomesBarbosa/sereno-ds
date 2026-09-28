@@ -87,6 +87,12 @@ export interface AvatarUploadProps {
   /** Reserve the hint/error row's height even with neither set — stops the
    *  field from growing the moment a validation message appears. */
   preserveHelperSpace?: boolean;
+  /**
+   * Whether to allow taking a photo via camera (default true).
+   * Set to `false` when picking an organization or brand logo, where taking a
+   * live selfie/photo makes no sense.
+   */
+  allowCamera?: boolean;
 }
 
 function initials(name: string): string {
@@ -118,6 +124,7 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
     id,
     containerStyle,
     preserveHelperSpace,
+    allowCamera = true,
   },
   forwardedRef,
 ) {
@@ -153,9 +160,13 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
     setPreview(typeof current === 'string' ? current : null);
   }, [current]);
 
-  const itemCount = 2 + (current ? 1 : 0);
+  const itemCount = (allowCamera ? 1 : 0) + 1 + (current ? 1 : 0);
 
   const toggleMenu = () => {
+    if (!allowCamera && !current) {
+      libRef.current?.click();
+      return;
+    }
     if (menuOpen) {
       setMenuOpen(false);
       return;
@@ -371,15 +382,17 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
                 libRef.current?.click();
               }}
             />
-            <MenuItem
-              icon={<Camera size={16} strokeWidth={1.75} />}
-              label={t.takePhoto}
-              onClick={() => {
-                setMenuOpen(false);
-                setRejected(null);
-                setCameraOpen(true);
-              }}
-            />
+            {allowCamera && (
+              <MenuItem
+                icon={<Camera size={16} strokeWidth={1.75} />}
+                label={t.takePhoto}
+                onClick={() => {
+                  setMenuOpen(false);
+                  setRejected(null);
+                  setCameraOpen(true);
+                }}
+              />
+            )}
             {current && (
               <MenuItem
                 icon={<Trash2 size={16} strokeWidth={1.75} />}
@@ -395,7 +408,7 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
           document.body,
         )}
 
-      {cameraOpen && (
+      {allowCamera && cameraOpen && (
         <CameraModal
           labels={t}
           onClose={() => setCameraOpen(false)}
