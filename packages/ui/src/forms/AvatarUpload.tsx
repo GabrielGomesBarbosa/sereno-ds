@@ -206,7 +206,10 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
   }, [menuOpen]);
 
   // Dialog doesn't lock scroll or bind Escape — do it here while a modal is up.
-  const modalUp = Boolean(cropSrc) || cameraOpen;
+  // One dialog for the flow, on whichever step is current: the crop once there is a photo,
+  // else the live camera. A shot or a Retake flips both at once, so the step just changes.
+  const step: Step | null = cropSrc ? 'crop' : allowCamera && cameraOpen ? 'camera' : null;
+  const modalUp = step !== null;
   React.useEffect(() => {
     if (!modalUp) return;
     const root = document.documentElement;
@@ -408,24 +411,18 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
           document.body,
         )}
 
-      {allowCamera && cameraOpen && (
-        <CameraModal
-          labels={t}
-          onClose={() => setCameraOpen(false)}
-          onCapture={onCameraShot}
-          onError={() => {
-            setCameraOpen(false);
-            setRejected(t.cameraError);
-          }}
-        />
-      )}
-
-      {cropSrc && (
-        <CropModal
+      {step && (
+        <CaptureDialog
+          step={step}
           src={cropSrc}
           outputSize={outputSize}
           labels={t}
-          onClose={onCropCancel}
+          onClose={step === 'camera' ? () => setCameraOpen(false) : onCropCancel}
+          onCameraShot={onCameraShot}
+          onCameraError={() => {
+            setCameraOpen(false);
+            setRejected(t.cameraError);
+          }}
           onSave={onCropSave}
           onRetake={cropFromCamera ? onRetake : undefined}
         />
@@ -471,6 +468,22 @@ function MenuItem({ icon, label, onClick, danger }: { icon: React.ReactNode; lab
 const DEFAULT_STAGE = 280; // crop stage's assumed size (px) before its own ResizeObserver measures it
 
 /**
+ * Width of the camera and crop dialogs. They are two steps of one flow (a shot goes straight
+ * to the crop), so they share it: a dialog that changed size between the steps would jump.
+ * Wider than `Dialog`'s default 352: with Retake the crop footer has three real Buttons, and
+ * in Portuguese ("Tirar outra", "Cancelar", "Gravar") they add up to 384px, more than the
+ * 358px of content a 400px dialog leaves. 440 gives 398px, so they fit on one line with ~14px
+ * to spare. `Dialog` already caps at `min(100%, ...)` for narrow viewports (see
+ * feedback/Dialog.tsx), so a phone just gets a narrower dialog. Widening only moves the limit
+ * though: the crop footer's `fill` is what keeps a longer language, or that phone, from
+ * stranding the primary button.
+ */
+const MODAL_WIDTH = 440;
+
+/** Height reserved for the zoom row, so the camera step (which has none) is as tall as the crop step. */
+const ZOOM_ROW_HEIGHT = 24;
+
+/**
  * The square viewport + circular guide, shared by the crop and camera modals.
  * `width: 100%` + `aspectRatio: 1`, not a fixed pixel box: it spans exactly the same
  * width as `Dialog.Header`'s title and `Dialog.Footer`'s buttons (both just block-level
@@ -487,7 +500,7 @@ function CropStage({ children, onPointerDown, onPointerMove, onPointerUp, onWhee
   onPointerMove?: (e: React.PointerEvent) => void;
   onPointerUp?: (e: React.PointerEvent) => void;
   onWheel?: (e: React.WheelEvent) => void;
-  /** `CropModal` reads the live rendered size off this to drive the crop math (`V`). */
+  /** `useCropper` reads the live rendered size off this to drive the crop math (`V`). */
   stageRef?: React.Ref<HTMLDivElement>;
 }) {
   return (
@@ -525,23 +538,87 @@ function CropStage({ children, onPointerDown, onPointerMove, onPointerUp, onWhee
   );
 }
 
-function CropModal({
-  src,
-  outputSize,
-  labels,
-  onClose,
-  onSave,
-  onRetake,
-}: {
-  src: string;
-  outputSize: number;
-  labels: AvatarUploadLabels;
-  onClose: () => void;
-  onSave: (b: Blob) => void;
-  /** Only set for a shot taken with the camera; shows the "Retake" button. */
-  onRetake?: () => void;
-}) {
-  const imgRef = React.useRef<HTMLImageElement>(null);
+/** Which step of the photo flow the dialog is on. */
+type Step = 'camera' | 'crop';
+
+/**
+ * Live camera via `getUserMedia`, while `active`. A failure (no API, permission denied)
+ * goes through `onError`. `ready` turns true once the stream is flowing; going inactive
+ * stops the tracks, so the camera light goes off as soon as the dialog leaves this step.
+ */
+function useCamera(active: boolean, onError: () => void) {
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+  const streamRef = React.useRef<MediaStream | null>(null);
+  const [ready, setReady] = React.useState(false);
+  // Read through a ref so a new `onError` closure each render does not restart the camera.
+  const onErrorRef = React.useRef(onError);
+  React.useEffect(() => {
+    onErrorRef.current = onError;
+  });
+
+  React.useEffect(() => {
+    if (!active) return;
+    let cancelled = false;
+    let started: MediaStream | null = null;
+    const md = typeof navigator !== 'undefined' ? navigator.mediaDevices : undefined;
+    if (!md?.getUserMedia) {
+      onErrorRef.current();
+      return;
+    }
+    md.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1280 } }, audio: false })
+      .then((s) => {
+        if (cancelled) {
+          s.getTracks().forEach((tr) => tr.stop());
+          return;
+        }
+        started = s;
+        streamRef.current = s;
+        if (videoRef.current) videoRef.current.srcObject = s;
+        setReady(true);
+      })
+      .catch(() => onErrorRef.current());
+    return () => {
+      cancelled = true;
+      started?.getTracks().forEach((tr) => tr.stop());
+      streamRef.current = null;
+      setReady(false);
+    };
+  }, [active]);
+
+  // The `<video>` may mount after the stream arrives (`Dialog` renders its children a render
+  // late) or the other way round, so wire them up whichever comes last: here for the element,
+  // above for the stream.
+  const attachVideo = React.useCallback((el: HTMLVideoElement | null) => {
+    videoRef.current = el;
+    if (el && streamRef.current) el.srcObject = streamRef.current;
+  }, []);
+
+  /** Grabs the centred square of the current frame, mirrored like the preview, as a JPEG. */
+  const shoot = (onShot: (b: Blob) => void) => {
+    const v = videoRef.current;
+    if (!v || !v.videoWidth) return;
+    const s = Math.min(v.videoWidth, v.videoHeight);
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = s;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.translate(s, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(v, (v.videoWidth - s) / 2, (v.videoHeight - s) / 2, s, s, 0, 0, s, s);
+    canvas.toBlob((b) => b && onShot(b), 'image/jpeg', 0.9);
+  };
+
+  return { attachVideo, ready, shoot };
+}
+
+/**
+ * The crop state and math for one picked photo (`src`): pan, zoom, the stage's live size,
+ * and the export. It lives above the dialog, not inside the crop step, so the header, body
+ * and footer of a single `Dialog` can all read it while the camera step swaps in and out.
+ * Everything resets when `src` changes, so a retaken photo starts centred at 1x.
+ */
+function useCropper(src: string | null, outputSize: number) {
+  const [imgEl, setImgEl] = React.useState<HTMLImageElement | null>(null);
   // A *callback* ref (kept as state), not a plain `useRef` + a `[]`-effect: `Dialog` renders
   // its children only from the render *after* its own `mounted` flips true (SSR-safe portal),
   // so on the stage's very first mount a `useEffect(..., [])` reading `stageRef.current` at
@@ -559,6 +636,16 @@ function CropModal({
   const [zoom, setZoom] = React.useState(1);
   const [offset, setOffset] = React.useState({ x: 0, y: 0 });
   const drag = React.useRef<{ x: number; y: number } | null>(null);
+
+  // A new photo starts from scratch. Adjusting state while rendering (rather than in an
+  // effect) means the stale pan / zoom is never painted against the new image.
+  const [seenSrc, setSeenSrc] = React.useState(src);
+  if (src !== seenSrc) {
+    setSeenSrc(src);
+    setNat(null);
+    setZoom(1);
+    setOffset({ x: 0, y: 0 });
+  }
 
   React.useEffect(() => {
     if (!stageEl) return;
@@ -592,9 +679,7 @@ function CropModal({
     [V, dispW, dispH],
   );
 
-  const onImgLoad = () => {
-    const el = imgRef.current;
-    if (!el) return;
+  const onImgLoad = (el: HTMLImageElement) => {
     const w = el.naturalWidth;
     const h = el.naturalHeight;
     setNat({ w, h });
@@ -631,130 +716,147 @@ function CropModal({
     drag.current = null;
   };
 
-  const save = () => {
-    const el = imgRef.current;
-    if (!el || !nat) return;
+  const save = (onSave: (b: Blob) => void) => {
+    if (!imgEl || !nat) return;
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = outputSize;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const sSize = V / scale;
-    ctx.drawImage(el, -offset.x / scale, -offset.y / scale, sSize, sSize, 0, 0, outputSize, outputSize);
+    ctx.drawImage(imgEl, -offset.x / scale, -offset.y / scale, sSize, sSize, 0, 0, outputSize, outputSize);
     canvas.toBlob((b) => b && onSave(b), 'image/jpeg', 0.85);
   };
 
-  return (
-    // Wider than the default 352 (CameraModal's own dialog): three real Buttons in the
-    // footer (Retake included) need the room, and `Dialog` already caps at `min(100%, …)`
-    // for narrow viewports (see feedback/Dialog.tsx), so this needs no mobile-specific
-    // handling of its own, it just shrinks like every other Dialog width already does.
-    <Dialog width={400} onClose={onClose}>
-      <Dialog.Header title={labels.cropTitle} description={labels.cropHint} />
-      <Dialog.Body>
-        <CropStage stageRef={setStageEl} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onWheel={(e) => setZoomAt(zoom - e.deltaY * 0.002)}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            ref={imgRef}
-            src={src}
-            alt=""
-            draggable={false}
-            onLoad={onImgLoad}
-            style={sx({ position: 'absolute', left: offset.x, top: offset.y, width: dispW, height: dispH, maxWidth: 'none', userSelect: 'none', pointerEvents: 'none' })}
-          />
-        </CropStage>
-
-        <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginTop: 'var(--space-4)', color: 'var(--text-muted)' })}>
-          <ZoomOut size={16} strokeWidth={1.75} style={{ flex: '0 0 auto' }} />
-          <input
-            type="range"
-            min={1}
-            max={3}
-            step={0.01}
-            value={zoom}
-            onChange={(e) => setZoomAt(Number(e.target.value))}
-            aria-label={labels.zoom}
-            style={sx({ flex: 1, accentColor: 'var(--interactive-primary)' })}
-          />
-          <ZoomIn size={16} strokeWidth={1.75} style={{ flex: '0 0 auto' }} />
-        </div>
-      </Dialog.Body>
-      <Dialog.Footer>
-        {onRetake && (
-          <Button variant="secondary" iconLeft={<RotateCcw size={16} strokeWidth={2} />} onClick={onRetake}>
-            {labels.retake}
-          </Button>
-        )}
-        <Button variant="secondary" iconLeft={<X size={16} strokeWidth={2} />} onClick={onClose}>
-          {labels.cancel}
-        </Button>
-        <Button iconLeft={<Check size={16} strokeWidth={2.5} />} onClick={save}>
-          {labels.save}
-        </Button>
-      </Dialog.Footer>
-    </Dialog>
-  );
+  return { setImgEl, setStageEl, zoom, setZoomAt, offset, dispW, dispH, onImgLoad, onPointerDown, onPointerMove, onPointerUp, save };
 }
 
-/** Live camera capture via getUserMedia — falls back through `onError`. */
-function CameraModal({ labels, onCapture, onClose, onError }: { labels: AvatarUploadLabels; onCapture: (b: Blob) => void; onClose: () => void; onError: () => void }) {
-  const videoRef = React.useRef<HTMLVideoElement>(null);
-  const streamRef = React.useRef<MediaStream | null>(null);
-  const [ready, setReady] = React.useState(false);
+/**
+ * The one dialog for the whole photo flow: the live camera, then the crop (and back, on
+ * Retake). It stays mounted across the steps and only its header text, stage and buttons
+ * swap, so the panel does not close and reopen (no second pop-in, no scroll-lock or focus
+ * hand-off) and it keeps one size. `Dialog.Header` / `Body` / `Footer` are direct children
+ * on purpose: `Dialog` reads them off its children to pad the body and label itself, which
+ * a wrapper component per step would hide from it.
+ */
+function CaptureDialog({
+  step,
+  src,
+  outputSize,
+  labels,
+  onClose,
+  onCameraShot,
+  onCameraError,
+  onSave,
+  onRetake,
+}: {
+  step: Step;
+  /** The photo being cropped; only set on the crop step. */
+  src: string | null;
+  outputSize: number;
+  labels: AvatarUploadLabels;
+  onClose: () => void;
+  onCameraShot: (b: Blob) => void;
+  onCameraError: () => void;
+  onSave: (b: Blob) => void;
+  /** Only set for a shot taken with the camera; shows the "Retake" button. */
+  onRetake?: () => void;
+}) {
+  const isCamera = step === 'camera';
+  const camera = useCamera(isCamera, onCameraError);
+  const crop = useCropper(src, outputSize);
 
+  // The step's buttons unmount with it, and with them the focused one: without this, focus
+  // would fall to the page behind the dialog and Tab would leave the trap. `Dialog` only
+  // pulls focus in when it opens, so do it again on every step change.
+  const [contentEl, setContentEl] = React.useState<HTMLDivElement | null>(null);
   React.useEffect(() => {
-    let cancelled = false;
-    const md = typeof navigator !== 'undefined' ? navigator.mediaDevices : undefined;
-    if (!md?.getUserMedia) {
-      onError();
-      return;
-    }
-    md.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1280 } }, audio: false })
-      .then((stream) => {
-        if (cancelled) {
-          stream.getTracks().forEach((tr) => tr.stop());
-          return;
-        }
-        streamRef.current = stream;
-        if (videoRef.current) videoRef.current.srcObject = stream;
-        setReady(true);
-      })
-      .catch(onError);
-    return () => {
-      cancelled = true;
-      streamRef.current?.getTracks().forEach((tr) => tr.stop());
-    };
-  }, [onError]);
+    contentEl?.closest<HTMLElement>('[role="dialog"]')?.focus();
+  }, [step, contentEl]);
 
-  const shoot = () => {
-    const v = videoRef.current;
-    if (!v || !v.videoWidth) return;
-    const s = Math.min(v.videoWidth, v.videoHeight);
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = s;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.translate(s, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(v, (v.videoWidth - s) / 2, (v.videoHeight - s) / 2, s, s, 0, 0, s, s);
-    canvas.toBlob((b) => b && onCapture(b), 'image/jpeg', 0.9);
-  };
-
+  /* eslint-disable react-hooks/refs -- `useCamera` / `useCropper` return event handlers that reach a
+     ref (`videoRef`, the drag origin), so the lint marks every property read off them; but those
+     refs are only touched when a handler runs from an event, never during this render. */
   return (
-    <Dialog width={352} onClose={onClose}>
-      <Dialog.Header title={labels.cameraTitle} description={labels.cameraHint} />
+    <Dialog width={MODAL_WIDTH} onClose={onClose}>
+      <Dialog.Header title={isCamera ? labels.cameraTitle : labels.cropTitle} description={isCamera ? labels.cameraHint : labels.cropHint} />
       <Dialog.Body>
-        <CropStage>
-          <video ref={videoRef} autoPlay playsInline muted style={sx({ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' })} />
-        </CropStage>
+        <div ref={setContentEl}>
+          {isCamera ? (
+            <CropStage key="camera">
+              <video ref={camera.attachVideo} autoPlay playsInline muted style={sx({ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' })} />
+            </CropStage>
+          ) : (
+            <CropStage
+              key="crop"
+              stageRef={crop.setStageEl}
+              onPointerDown={crop.onPointerDown}
+              onPointerMove={crop.onPointerMove}
+              onPointerUp={crop.onPointerUp}
+              onWheel={(e) => crop.setZoomAt(crop.zoom - e.deltaY * 0.002)}
+            >
+              {src && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  ref={crop.setImgEl}
+                  src={src}
+                  alt=""
+                  draggable={false}
+                  onLoad={(e) => crop.onImgLoad(e.currentTarget)}
+                  style={sx({ position: 'absolute', left: crop.offset.x, top: crop.offset.y, width: crop.dispW, height: crop.dispH, maxWidth: 'none', userSelect: 'none', pointerEvents: 'none' })}
+                />
+              )}
+            </CropStage>
+          )}
+
+          {/* The zoom row is only there on the crop step, but the camera step keeps its room, so the dialog is the same height on both. */}
+          <div style={sx({ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginTop: 'var(--space-4)', minHeight: ZOOM_ROW_HEIGHT, color: 'var(--text-muted)' })}>
+            {!isCamera && (
+              <>
+                <ZoomOut size={16} strokeWidth={1.75} style={{ flex: '0 0 auto' }} />
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.01}
+                  value={crop.zoom}
+                  onChange={(e) => crop.setZoomAt(Number(e.target.value))}
+                  aria-label={labels.zoom}
+                  style={sx({ flex: 1, accentColor: 'var(--interactive-primary)' })}
+                />
+                <ZoomIn size={16} strokeWidth={1.75} style={{ flex: '0 0 auto' }} />
+              </>
+            )}
+          </div>
+        </div>
       </Dialog.Body>
-      <Dialog.Footer>
-        <Button variant="secondary" iconLeft={<X size={16} strokeWidth={2} />} onClick={onClose}>
-          {labels.cancel}
-        </Button>
-        <Button iconLeft={<Camera size={16} strokeWidth={2} />} onClick={shoot} disabled={!ready}>
-          {labels.capture}
-        </Button>
+      {/* Three actions (crop after a camera shot, with Retake) share the row and each line they wrap onto; two stay right-aligned, as before. */}
+      <Dialog.Footer fill={!isCamera && Boolean(onRetake)}>
+        {isCamera ? (
+          <React.Fragment key="camera">
+            <Button variant="secondary" iconLeft={<X size={16} strokeWidth={2} />} onClick={onClose}>
+              {labels.cancel}
+            </Button>
+            <Button iconLeft={<Camera size={16} strokeWidth={2} />} onClick={() => camera.shoot(onCameraShot)} disabled={!camera.ready}>
+              {labels.capture}
+            </Button>
+          </React.Fragment>
+        ) : (
+          <React.Fragment key="crop">
+            {onRetake && (
+              <Button variant="secondary" iconLeft={<RotateCcw size={16} strokeWidth={2} />} onClick={onRetake}>
+                {labels.retake}
+              </Button>
+            )}
+            <Button variant="secondary" iconLeft={<X size={16} strokeWidth={2} />} onClick={onClose}>
+              {labels.cancel}
+            </Button>
+            <Button iconLeft={<Check size={16} strokeWidth={2.5} />} onClick={() => crop.save(onSave)}>
+              {labels.save}
+            </Button>
+          </React.Fragment>
+        )}
       </Dialog.Footer>
     </Dialog>
   );
+  /* eslint-enable react-hooks/refs */
 }

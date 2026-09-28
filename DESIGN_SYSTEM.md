@@ -2067,6 +2067,7 @@ Modal (desktop), bottom sheet (mobile) or full-screen — a **compound component
 | `Dialog.Header · title / description` | `string` | — | Both optional. Put `Dialog.Close` here too, if you want one. |
 | `Dialog.Body` | `React.ReactNode` | — | The scrolling content area. Optional — a header + footer alone is a valid dialog. |
 | `Dialog.Footer` | `React.ReactNode` | — | Action buttons, right-aligned. |
+| `Dialog.Footer · fill` | `boolean` | `false` | The buttons share the row and grow to fill it, and each line if they wrap, instead of hugging the right edge. For three actions or long translated labels, where a plain wrap would leave the last button alone, small and pushed right on a second line. |
 | `Dialog.Close` | `—` | — | A ✕ button that calls the root’s `onClose`. Nothing renders one unless you add it — no more auto-default for `fullscreen`. |
 
 #### Examples
