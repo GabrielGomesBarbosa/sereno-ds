@@ -12,7 +12,7 @@ Shared by `Badge`, `Alert` and `Toast` — the same five words everywhere: `succ
 
 - **Core** — Actions, status pills and identity. (Typography, Button, IconButton, Badge, Card, Avatar, Brand, Menu, Table)
 - **Forms** — Fields, selects, toggles and the calendar. (Input, Textarea, Select, Checkbox, Radio, Switch, DateTimePicker, DatePicker, FileUpload, AvatarUpload, SearchInput)
-- **Navigation** — Headers, tabs and progress. (TopBar, Tabs, BottomNav, SidebarNav, Stepper)
+- **Navigation** — Headers, tabs and progress. (TopBar, Tabs, BottomNav, SidebarNav, Stepper, Pagination)
 - **Feedback** — Notices, confirmations and loading. (Alert, Toast, Dialog, Skeleton, EmptyState)
 
 ## Core
@@ -625,7 +625,7 @@ Do:
 
 Don't:
 - Nesting an interactive control in a clickable row (`onClick` on `Table.Row` **and** a `<button>` cell) — pick one.
-- Expecting the `Table` to sort, filter or paginate for you.
+- Expecting the `Table` to sort, filter or paginate for you. Slice the rows yourself and pair it with `Pagination`.
 - Putting the `Table` in a flex / grid track without `min-width: 0` on the track — the `minWidth` will push the *page* wide instead of the region.
 
 ## Forms
@@ -1821,6 +1821,96 @@ Do:
 
 Don't:
 - Letting the user skip ahead via the Stepper.
+
+### Pagination
+
+Page navigation for a long list or a `Table`: previous / next, a run of page numbers with an ellipsis where pages fold away, and optional first / last. A dedicated control, **controlled** and config-API. The `Table` never paginates for you: slice the rows and pass the page in. Under 560px the numbers fold away to previous / "Page X of Y" / next.
+
+#### Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `page` | `number` | — | The current page, **1-based**. Controlled: it lives in your state, next to the data fetching it drives. An out-of-range value is clamped for display. |
+| `pageCount` | `number` | — | Total number of pages (`Math.ceil(total / pageSize)`). Renders nothing under 1. |
+| `onPageChange` | `(page: number) => void` | — | Called with the page the user picked. Never called for the current page, nor past either end. |
+| `siblingCount` | `number` | `1` | Pages shown either side of the current one. |
+| `boundaryCount` | `number` | `1` | Pages always shown at each end. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Control size: square 32 / 40 / 48px buttons, the same as `IconButton`. `lg` for touch-first screens. |
+| `showEdges` | `boolean` | `false` | Also show first / last page buttons. |
+| `disabled` | `boolean` | `false` | Disables every control, for example while the next page is loading. |
+| `labels` | `Partial<PaginationLabels>` | — | Override the English UI strings: `navigation`, `first`, `previous`, `next`, `last`, `page(n)` and `status(page, count)`. |
+
+#### Examples
+
+**Basic** — Controlled: keep `page` in state and hand it back. The numbers keep the **same width** wherever you are (an ellipsis takes the room of a page button), so the control does not jump as you page. An ellipsis only ever hides two or more pages; a gap of exactly one shows that page.
+
+```tsx
+<Pagination page={page} pageCount={20} onPageChange={setPage} />
+```
+
+**Under a Table** — The usual pairing. The `Table` shows the rows you slice; a footer row carries the "Showing X to Y of Z" text and the `Pagination`, and wraps on a narrow screen. Slice, count and page all stay in your code, since the DS never paginates for you.
+
+```tsx
+const start = (page - 1) * pageSize;
+
+<Table caption="Clients">…{rows.slice(start, start + pageSize)}…</Table>
+
+<div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12 }}>
+  <span>Showing {start + 1} to {Math.min(start + pageSize, rows.length)} of {rows.length}</span>
+  <Pagination page={page} pageCount={Math.ceil(rows.length / pageSize)} onPageChange={setPage} />
+</div>
+```
+
+**First and last, more siblings** — `showEdges` adds first / last page buttons, for long lists. `siblingCount` widens the window around the current page; `boundaryCount` does the same for the pinned ends. The more slots, the wider it gets, and it wraps onto a second line rather than overflow when the room runs out.
+
+```tsx
+<Pagination page={page} pageCount={60} showEdges siblingCount={2} onPageChange={setPage} />
+```
+
+**Sizes** — `sm`, `md` and `lg` are the same square 32 / 40 / 48px controls as `IconButton`, page numbers included, so "9" and "10" take the same room. Prefer `lg` (a 48px tap target) where the screen is touch-first.
+
+```tsx
+<Pagination size="sm" … />
+<Pagination size="md" … />
+<Pagination size="lg" … />
+```
+
+**Localised** — The DS embeds no localised copy: every string (the landmark name, each button, the "Page X of Y" announcement) comes from `labels`, English by default. Pass only what you change.
+
+```tsx
+<Pagination
+  page={page}
+  pageCount={12}
+  onPageChange={setPage}
+  labels={{
+    navigation: 'Paginação',
+    previous: 'Página anterior',
+    next: 'Próxima página',
+    page: (n) => `Página ${n}`,
+    status: (n, total) => `Página ${n} de ${total}`,
+  }}
+/>
+```
+
+**Disabled** — `disabled` locks every control and calls nothing, for example while the next page of results is loading.
+
+```tsx
+<Pagination page={3} pageCount={12} onPageChange={setPage} disabled={loading} />
+```
+
+#### Guidelines
+
+Do:
+- Slice the rows and compute `pageCount` in your code, next to the data fetching. `page` is 1-based.
+- Put a "Showing X to Y of Z" line beside it under a `Table`: the page numbers alone do not say how big the list is.
+- Give each `Pagination` on a page its own `labels.navigation` when there are several, so the landmarks are told apart.
+- Pass `labels` for your app’s language: the DS default is English.
+- Use `size="lg"` on touch-first screens. Under 560px it already folds to previous / "Page X of Y" / next.
+
+Don't:
+- Rendering it for a single page. There is nothing to navigate, so skip it (`pageCount <= 1`).
+- Expecting the `Table` to paginate. `Table` and `Pagination` are separate: the rows you slice are the rows it shows.
+- Using it for a long feed where the user just keeps reading. Infinite scroll or a "Load more" button fits that better.
 
 ## Feedback
 

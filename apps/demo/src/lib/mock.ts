@@ -180,12 +180,36 @@ export interface ClientRow {
   phone: string;
 }
 
+const EXTRA_FIRST = ['Ana', 'Bruno', 'Camila', 'Daniel', 'Elisa', 'Felipe', 'Gabriela', 'Henrique', 'Isabela', 'João', 'Larissa', 'Mateus'];
+const EXTRA_LAST = ['Souza', 'Oliveira', 'Santos', 'Pereira', 'Ferreira', 'Ribeiro', 'Carvalho', 'Gomes', 'Martins', 'Araújo', 'Barbosa'];
+const EXTRA_LAST_SEEN = ['Última: 24 ago', 'Última: 17 ago', 'Última: 10 ago', 'Última: 3 ago', 'Última: 27 jul'];
+const EXTRA_STATUS: ClientRow['status'][] = ['success', 'success', 'warning', 'success', 'error'];
+
+/**
+ * 31 more clients, so the Clientes list has enough rows to paginate. Deterministic, and
+ * the names never repeat (12 first names x 11 surnames, coprime, so a pair only repeats
+ * after 132 rows). They go **after** the five hand-written ones: Financeiro reads
+ * `CLIENTS.slice(0, 4)`, and a client's name is its identity in the Clientes table.
+ */
+const EXTRA_CLIENTS: ClientRow[] = Array.from({ length: 31 }, (_, i) => {
+  const status = EXTRA_STATUS[i % 5];
+  const n = status === 'warning' ? 1 : ((i * 5) % 14) + 2;
+  return {
+    name: `${EXTRA_FIRST[i % EXTRA_FIRST.length]} ${EXTRA_LAST[i % EXTRA_LAST.length]}`,
+    sessions: `${n} ${n === 1 ? 'sessão' : 'sessões'}`,
+    last: status === 'warning' ? 'Primeira consulta em breve' : status === 'error' ? 'Faltou em 24 ago' : EXTRA_LAST_SEEN[i % 5],
+    status,
+    phone: `+55 11 9${7000 + ((i * 137) % 2999)}-${1000 + ((i * 491) % 8999)}`,
+  };
+});
+
 export const CLIENTS: ClientRow[] = [
   { name: 'Marina Alves', sessions: '12 sessões', last: 'Última: 24 ago', status: 'success', phone: '+55 11 99821-4477' },
   { name: 'Carlos Dias', sessions: '1 sessão', last: 'Primeira consulta hoje', status: 'warning', phone: '+55 11 98213-5590' },
   { name: 'Juliana Prado', sessions: '7 sessões', last: 'Última: 24 ago', status: 'success', phone: '+55 11 97740-2213' },
   { name: 'Helena Costa', sessions: '3 sessões', last: 'Faltou em 24 ago', status: 'error', phone: '+55 11 96612-8834' },
   { name: 'Rafael e Bia', sessions: '2 sessões', last: 'Última: 17 ago', status: 'success', phone: '+55 11 95504-7761' },
+  ...EXTRA_CLIENTS,
 ];
 
 export const CLIENT_STATUS_LABEL: Record<ClientRow['status'], string> = {

@@ -47,6 +47,7 @@ export {
   type SidebarNavSubItemProps,
 } from './navigation/SidebarNav';
 export { Stepper, type StepperProps, type StepperStepProps } from './navigation/Stepper';
+export { Pagination, type PaginationProps, type PaginationLabels } from './navigation/Pagination';
 
 // feedback
 export { Alert, type AlertProps } from './feedback/Alert';

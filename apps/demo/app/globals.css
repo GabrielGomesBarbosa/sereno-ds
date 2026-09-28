@@ -39,7 +39,8 @@ html, body { padding: 0; margin: 0; }
 /* overflow visible + z-index so the collapse control can straddle the right edge, above the TopBar */
 .dash-sidebar { position: relative; z-index: 30; width: var(--dash-sb-w, 248px); height: 100dvh; transition: width var(--duration-normal) var(--ease-out); }
 .dash-content { min-width: 0; height: 100dvh; overflow-y: auto; display: flex; flex-direction: column; }
-.dash-main { width: 100%; max-width: var(--container-app); margin-inline: auto; padding: var(--space-7) var(--dash-gutter); }
+/* Bottom padding clears the fixed DemoNav pill (58px from the bottom edge), or it covers the end of every screen. */
+.dash-main { width: 100%; max-width: var(--container-app); margin-inline: auto; padding: var(--space-7) var(--dash-gutter) var(--space-11); }
 .dash-topbar-lead { display: none; }
 .dash-topbar-theme { display: inline-flex; }
 /* TopBar date subtitle: full weekday on desktop, abbreviated on mobile — a CSS
@@ -86,7 +87,7 @@ html, body { padding: 0; margin: 0; }
   .dash-content { height: auto; overflow: visible; }
   .dash-topbar-lead { display: inline-flex; align-items: center; gap: var(--space-1); }
   .dash-topbar-theme { display: none; }
-  .dash-main { padding: var(--space-6) var(--dash-gutter) var(--space-9); }
+  .dash-main { padding: var(--space-6) var(--dash-gutter) var(--space-11); }
   .dash-date-full { display: none; }
   .dash-date-short { display: inline; }
 }
