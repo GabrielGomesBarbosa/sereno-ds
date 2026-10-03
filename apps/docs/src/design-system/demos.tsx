@@ -1227,6 +1227,14 @@ function DateTimeCalendario() {
     </div>
   );
 }
+function DateTimeLimitado() {
+  const [day, setDay] = React.useState<number | undefined>(14);
+  return (
+    <div style={{ maxWidth: 380 }}>
+      <DateTimePicker year={2026} month={7} min="2026-08-10" max="2026-11-20" selectedDate={day} onSelectDate={setDay} locale="en" />
+    </div>
+  );
+}
 // A full working day at 30-min steps, lunch (12:00–13:00) taken.
 const DAY_SLOTS = Array.from({ length: 22 }, (_, i) => {
   const mins = 8 * 60 + i * 30;
@@ -2458,6 +2466,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     'render-day': DateTimeRenderDay,
     'with-times': DateTimeComHorarios,
     capacity: DateTimeCapacidade,
+    bounded: DateTimeLimitado,
   },
   'date-picker': { basic: DatePickerBasico, range: DatePickerFaixa },
   'top-bar': { basic: TopBarBasico, full: TopBarCompleto, transparent: TopBarTransparente },

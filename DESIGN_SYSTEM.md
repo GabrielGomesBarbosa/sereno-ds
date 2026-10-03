@@ -1151,8 +1151,9 @@ Month calendar + available time slots: the heart of the public flow. Days and mo
 | `times` | `(string \| { value, disabled, capacity, booked })[]` | `[]` | Time-slot labels or objects. `disabled` hard-blocks it. `capacity`/`booked` show "booked de capacity vagas" and switch to a warning look once full, a full slot stays pickable (a deliberate overbook) unless also `disabled`. |
 | `selectedTime` | `string` | - | Selected time (marked in turquoise). |
 | `unavailable` | `number[]` | - | Days with no availability: struck through and unclickable. |
+| `min / max` | `string` | - | ISO `"YYYY-MM-DD"` bounds, the same props `DatePicker` has. The calendar cannot be navigated outside them: the previous-month (next-month) arrow disables in the first (last) month, PageUp / PageDown and the arrow keys stop at the edge, and the month / year popover disables every month and year out of range. Days outside the range are struck through on their own, merged with `unavailable`, so you do not work out the past days yourself. A `year` / `month` that starts outside the range moves to the nearest month inside it, and `onMonthChange` reports that month at mount. |
 | `onSelectDate / onSelectTime` | `(v) => void` | - | Selection callbacks. |
-| `onMonthChange` | `(year, month) => void` | - | Fires on ‹ / › or the month/year popover, recompute `unavailable` / `renderDay` for the new month here. |
+| `onMonthChange` | `(year, month) => void` | - | Fires on ‹ / › or the month/year popover, recompute `unavailable` / `renderDay` for the new month here. Also once at mount, and only then, when `min` / `max` moved the starting month. |
 | `renderDay` | `(day) => ReactNode` | - | Content under each day number (a count, a dot). Return `null` for nothing. Every cell grows to stay even: scope it yourself (e.g. future days only). |
 | `timeLabel` | `string` | `locale-dependent` | Overrides the section heading above the slots. |
 | `locale` | `'pt-BR' \| 'en'` | `'pt-BR'` | The real Sereno product always renders pt-BR, `'en'` exists for an English-speaking docs/demo audience, not for the product itself. |
@@ -1227,10 +1228,25 @@ const [off, setOff] = useState(() => weekendsOf(2026, 7));
 />
 ```
 
+**Limiting the navigation**: `min` / `max` stop the calendar from going past them: no walking back to a month that has nothing to book, and no popover jump to a year you cannot pick. Here `min` is the 10th of August and `max` the 20th of November: the arrow disables in each edge month, PageUp / PageDown stop, the popover greys out the months and years outside, and the days before the 10th are struck through with no `unavailable` at all. For a booking page, pass today as `min`.
+
+```tsx
+<DateTimePicker
+  year={2026}
+  month={7}
+  min="2026-08-10"
+  max="2026-11-20"
+  selectedDate={day}
+  onSelectDate={setDay}
+  locale="en"
+/>
+```
+
 #### Guidelines
 
 Do:
 - `month` is 0-indexed and is only the *starting* view.
+- `min` (today) on a public booking page instead of striking the past days by hand through `unavailable`: it also stops the navigation.
 - Recompute `unavailable` / `renderDay` inside `onMonthChange` so they track the visible month.
 - Unavailable slots as `{ value, disabled: true }`; they keep their place in the grid.
 - Let the accent time marker be the only one on the screen.
@@ -1255,7 +1271,7 @@ A single date, no time, no slots; that’s `DateTimePicker`. A text-field-styled
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` |  |
 | `value / defaultValue` | `string` | - | ISO `"YYYY-MM-DD"`: controlled / uncontrolled, same contract as every other field. |
 | `onChange` | `(value: string) => void` | - | Fires with the new ISO date on pick. |
-| `min / max` | `string` | - | ISO date bounds: every day outside the range is unavailable. |
+| `min / max` | `string` | - | ISO date bounds. Every day outside the range is struck through and unclickable, and the calendar cannot be navigated outside it: the previous-month (next-month) arrow disables in the first (last) month, PageUp / PageDown and the arrow keys stop at the edge, and the month / year popover disables every month and year out of range. A value or a starting month outside the range opens on the nearest month inside it. |
 | `disabled` | `boolean` | `false` |  |
 | `clearLabel` | `string` | `locale-dependent` | aria-label for the clear (×) button that appears once a value is set. |
 | `locale` | `'pt-BR' \| 'en'` | `'pt-BR'` | The real Sereno product always renders pt-BR, `'en'` exists for an English-speaking docs/demo audience, not for the product itself. |
@@ -1269,7 +1285,7 @@ A single date, no time, no slots; that’s `DateTimePicker`. A text-field-styled
 <DatePicker label="Date of birth" value={date} onChange={setDate} locale="en" />
 ```
 
-**Bounded range**: `min` / `max` mark every day outside the range unavailable (struck through, unclickable), recomputed for whichever month the popover is currently showing.
+**Bounded range**: `min` / `max` strike every day outside the range (unclickable) and stop the calendar from navigating past them, so there is no month to wander into where nothing can be picked.
 
 ```tsx
 <DatePicker

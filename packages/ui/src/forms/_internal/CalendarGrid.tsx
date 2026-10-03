@@ -4,6 +4,7 @@ import * as React from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { sx } from '../../_internal/style';
 import { IconButton } from '../../core/IconButton';
+import { calendarRange, clampIndex, isDayOutside, yearWindowStart } from './calendarRange';
 
 /**
  * The month calendar body - header (‹ / › month nav + a month/year jump
@@ -21,6 +22,15 @@ export interface CalendarGridProps {
   month?: number;
   selectedDate?: number;
   unavailable?: number[];
+  /**
+   * Earliest date, ISO "YYYY-MM-DD". The calendar cannot be navigated to an earlier month or
+   * year (the previous-month arrow disables, PageUp and the arrow keys stop at the edge, and
+   * the month / year popover disables what is out of range), and every earlier day is struck
+   * through, with no need to list it in `unavailable`. A value that is not a valid date is ignored.
+   */
+  min?: string;
+  /** Latest date, ISO "YYYY-MM-DD". The mirror image of `min`. */
+  max?: string;
   onSelectDate?: (day: number) => void;
   onMonthChange?: (year: number, month: number) => void;
   renderDay?: (day: number) => React.ReactNode;
@@ -84,6 +94,8 @@ export function CalendarGrid({
   month,
   selectedDate,
   unavailable = [],
+  min,
+  max,
   onSelectDate,
   onMonthChange,
   renderDay,
@@ -98,8 +110,15 @@ export function CalendarGrid({
   // `year` / `month` are the *initial* view; the component then owns it. A
   // consumer that needs to reset the view (DatePicker, on reopen) remounts
   // this component instead - see its own comment.
-  const initialIndex = (year ?? now.getFullYear()) * 12 + (month ?? now.getMonth());
+  const range = React.useMemo(() => calendarRange(min, max), [min, max]);
+  // `year` / `month` outside `min` .. `max` start on the nearest month inside it.
+  const requestedIndex = (year ?? now.getFullYear()) * 12 + (month ?? now.getMonth());
+  const initialIndex = clampIndex(requestedIndex, range);
   const [viewIndex, setViewIndex] = React.useState(initialIndex);
+  // `min` / `max` can change after mount (a "today" that moves on, a bound that depends on a
+  // choice made elsewhere): keep the visible month inside them. Adjusted while rendering, not in
+  // an effect, so a month outside the range is never painted, not even for a frame.
+  if (viewIndex !== clampIndex(viewIndex, range)) setViewIndex(clampIndex(viewIndex, range));
   const viewYear = Math.floor(viewIndex / 12);
   const viewMonth = viewIndex % 12;
   // `selectedDate` is only a day number, so remember which month that pick was
@@ -108,7 +127,10 @@ export function CalendarGrid({
   const [selectionIndex, setSelectionIndex] = React.useState(initialIndex);
   const [open, setOpen] = React.useState(false);
   const [picker, setPicker] = React.useState<'month' | 'year'>('month');
-  const [yearBase, setYearBase] = React.useState(() => (year ?? now.getFullYear()) - 5);
+  // Unbounded, the block is `year - 5` exactly as it always was; with a range it is based on the month
+  // actually shown (the one the range moved it to).
+  const bounded = Number.isFinite(range.minIndex) || Number.isFinite(range.maxIndex);
+  const [yearBase, setYearBase] = React.useState(() => yearWindowStart(bounded ? Math.floor(initialIndex / 12) : (year ?? now.getFullYear()), range));
 
   const rootRef = React.useRef<HTMLDivElement>(null);
   const titleRef = React.useRef<HTMLButtonElement>(null);
@@ -124,7 +146,11 @@ export function CalendarGrid({
   const [activeDay, setActiveDay] = React.useState(() => {
     if (selectedDate) return selectedDate;
     const todayIndex = now.getFullYear() * 12 + now.getMonth();
-    return todayIndex === initialIndex ? now.getDate() : 1;
+    let day = todayIndex === initialIndex ? now.getDate() : 1;
+    // On the first / last month of the range, start on a day that can be picked, not a struck one.
+    if (range.min && initialIndex === range.minIndex) day = Math.max(day, range.min.day);
+    if (range.max && initialIndex === range.maxIndex) day = Math.min(day, range.max.day);
+    return day;
   });
   // Set right before a keyboard move changes activeDay/viewIndex; consumed
   // by the layout effect below to focus the new cell once it's in the DOM -
@@ -137,10 +163,15 @@ export function CalendarGrid({
   React.useEffect(() => {
     onMonthChangeRef.current = onMonthChange;
   });
+  // The one time it does fire on mount: the month asked for was outside `min` .. `max` and was
+  // moved inside it. A consumer that tracks the month (`DatePicker` does, to build the picked
+  // date) must not be left believing in the one it asked for.
+  const adjustedAtMount = React.useRef(requestedIndex !== initialIndex);
   const didMount = React.useRef(false);
   React.useEffect(() => {
     if (!didMount.current) {
       didMount.current = true;
+      if (adjustedAtMount.current) onMonthChangeRef.current?.(Math.floor(viewIndex / 12), viewIndex % 12);
       return;
     }
     onMonthChangeRef.current?.(Math.floor(viewIndex / 12), viewIndex % 12);
@@ -230,13 +261,16 @@ export function CalendarGrid({
       }
       case 'PageUp':
         e.preventDefault();
+        // At the first month nothing moves, and the focus flag stays down so it cannot go off later.
+        if (viewIndex - 1 < range.minIndex) return;
         shouldFocusDayRef.current = true;
-        setViewIndex((i) => i - 1);
+        setViewIndex((i) => clampIndex(i - 1, range));
         return;
       case 'PageDown':
         e.preventDefault();
+        if (viewIndex + 1 > range.maxIndex) return;
         shouldFocusDayRef.current = true;
-        setViewIndex((i) => i + 1);
+        setViewIndex((i) => clampIndex(i + 1, range));
         return;
       default:
         return;
@@ -244,6 +278,8 @@ export function CalendarGrid({
     e.preventDefault();
     const next = new Date(viewYear, viewMonth, rovingDay + delta);
     const nextViewIndex = next.getFullYear() * 12 + next.getMonth();
+    // An arrow that would cross into a month outside `min` .. `max` is refused: the cursor stays put.
+    if (nextViewIndex < range.minIndex || nextViewIndex > range.maxIndex) return;
     shouldFocusDayRef.current = true;
     if (nextViewIndex !== viewIndex) setViewIndex(nextViewIndex);
     setActiveDay(next.getDate());
@@ -258,6 +294,35 @@ export function CalendarGrid({
     gridRef.current?.querySelector<HTMLButtonElement>(`[data-day="${rovingDay}"]`)?.focus();
   }, [viewIndex, rovingDay]);
 
+  const canPrevMonth = viewIndex > range.minIndex;
+  const canNextMonth = viewIndex < range.maxIndex;
+  // One month with the header arrows, never outside the range. A press that lands on the first /
+  // last month is about to disable the very button that has focus, and a disabled button drops
+  // focus to the page: so the title button takes it first.
+  const goMonth = (dir: 1 | -1) => {
+    const next = clampIndex(viewIndex + dir, range);
+    if (next === viewIndex) return;
+    setViewIndex((i) => clampIndex(i + dir, range));
+    if (clampIndex(next + dir, range) === next) titleRef.current?.focus();
+  };
+  // The popover's year arrows. In the month view they move the visible month by a year (clamped);
+  // in the year view they page a block of 12 years. Same focus hand-off, to the popover itself.
+  const canPrevYear = picker === 'month' ? viewYear > range.minYear : yearBase > range.minYear;
+  const canNextYear = picker === 'month' ? viewYear < range.maxYear : yearBase + 12 <= range.maxYear;
+  const goYear = (dir: 1 | -1) => {
+    if (picker === 'month') {
+      const next = clampIndex(viewIndex + dir * 12, range);
+      if (next === viewIndex) return;
+      setViewIndex((i) => clampIndex(i + dir * 12, range));
+      const nextYear = Math.floor(next / 12);
+      if (dir < 0 ? nextYear <= range.minYear : nextYear >= range.maxYear) popRef.current?.focus();
+    } else {
+      const next = yearBase + dir * 12;
+      setYearBase((b) => b + dir * 12);
+      if (dir < 0 ? next <= range.minYear : next + 12 > range.maxYear) popRef.current?.focus();
+    }
+  };
+
   return (
     <div ref={rootRef}>
       <div
@@ -270,7 +335,7 @@ export function CalendarGrid({
           marginBottom: 'var(--space-3)',
         })}
       >
-        <IconButton label={t.prevMonth} size="sm" onClick={() => setViewIndex((i) => i - 1)}>
+        <IconButton label={t.prevMonth} size="sm" disabled={!canPrevMonth} onClick={() => goMonth(-1)}>
           <ChevronLeft size={18} strokeWidth={1.75} />
         </IconButton>
 
@@ -303,7 +368,7 @@ export function CalendarGrid({
           <ChevronDown size={15} strokeWidth={2} style={{ opacity: 0.6 }} />
         </button>
 
-        <IconButton label={t.nextMonth} size="sm" onClick={() => setViewIndex((i) => i + 1)}>
+        <IconButton label={t.nextMonth} size="sm" disabled={!canNextMonth} onClick={() => goMonth(1)}>
           <ChevronRight size={18} strokeWidth={1.75} />
         </IconButton>
 
@@ -344,11 +409,7 @@ export function CalendarGrid({
                 marginBottom: 'var(--space-2)',
               })}
             >
-              <IconButton
-                label={picker === 'month' ? t.prevYear : t.prevYears}
-                size="sm"
-                onClick={() => (picker === 'month' ? setViewIndex((i) => i - 12) : setYearBase((b) => b - 12))}
-              >
+              <IconButton label={picker === 'month' ? t.prevYear : t.prevYears} size="sm" disabled={!canPrevYear} onClick={() => goYear(-1)}>
                 <ChevronLeft size={18} strokeWidth={1.75} />
               </IconButton>
 
@@ -357,7 +418,7 @@ export function CalendarGrid({
                   type="button"
                   className="sereno-dtp-title"
                   onClick={() => {
-                    setYearBase(viewYear - 5);
+                    setYearBase(yearWindowStart(viewYear, range));
                     setPicker('year');
                   }}
                   style={sx({
@@ -389,11 +450,7 @@ export function CalendarGrid({
                 </span>
               )}
 
-              <IconButton
-                label={picker === 'month' ? t.nextYear : t.nextYears}
-                size="sm"
-                onClick={() => (picker === 'month' ? setViewIndex((i) => i + 12) : setYearBase((b) => b + 12))}
-              >
+              <IconButton label={picker === 'month' ? t.nextYear : t.nextYears} size="sm" disabled={!canNextYear} onClick={() => goYear(1)}>
                 <ChevronRight size={18} strokeWidth={1.75} />
               </IconButton>
             </div>
@@ -406,8 +463,9 @@ export function CalendarGrid({
                       type="button"
                       data-current={i === viewMonth || undefined}
                       aria-current={i === viewMonth ? 'true' : undefined}
+                      disabled={viewYear * 12 + i < range.minIndex || viewYear * 12 + i > range.maxIndex}
                       onClick={() => {
-                        setViewIndex(viewYear * 12 + i);
+                        setViewIndex(clampIndex(viewYear * 12 + i, range));
                         closePopover();
                       }}
                     >
@@ -420,8 +478,11 @@ export function CalendarGrid({
                       type="button"
                       data-current={y === viewYear || undefined}
                       aria-current={y === viewYear ? 'true' : undefined}
+                      disabled={y < range.minYear || y > range.maxYear}
                       onClick={() => {
-                        setViewIndex(y * 12 + viewMonth);
+                        // Picking the first / last year with a month earlier / later than the range
+                        // allows lands on the nearest month inside it.
+                        setViewIndex(clampIndex(y * 12 + viewMonth, range));
                         setPicker('month');
                       }}
                     >
@@ -462,7 +523,7 @@ export function CalendarGrid({
         {cells.map((d, i) => {
           // Blank cells still take the row height so the 6-row grid can't collapse.
           if (d === null) return <span key={i} aria-hidden style={cellSizing} />;
-          const off = unavailable.includes(d);
+          const off = unavailable.includes(d) || isDayOutside(range, viewIndex, d);
           const sel = selectedDate === d && viewIndex === selectionIndex;
           const extra = renderDay?.(d);
           return (
