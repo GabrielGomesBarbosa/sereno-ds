@@ -331,7 +331,14 @@ previews (test locally + on the branch).
   whose message sits inside its own `<label>` takes `aria-invalid` only (`Checkbox`):
   `aria-describedby` would read the message twice. `Radio` takes neither, ARIA having no
   invalid state for a single radio (that is `radiogroup`'s). Add the control to the table in
-  `forms/fieldErrorA11y.test.tsx`.
+  `forms/fieldErrorA11y.test.tsx`. **`required` too (SS-329):** a control whose role supports
+  it (a text box, a combobox) passes `required` to `fieldA11y` for `aria-required` and sets
+  `requiredExposed` on `Field`, which hides the asterisk from assistive technology; a button
+  cannot carry `aria-required` (axe flags it) and keeps the asterisk as its only cue. Never the
+  native `required` attribute: it switches on the browser's own validation. A control whose
+  `<label for>` reaches only a hidden input is named through `aria-labelledby` and
+  `fieldLabelId` (`FileUpload`'s drop zone), mind that it changes the accessible name consumers
+  may query by. Test it in `forms/fieldRequiredA11y.test.tsx`.
 - **Component keyframes / pseudo-class rules** (`sereno-spin`, `-pop`, `-slide-up`,
   `-pulse`, `-flyout-in`, `-fade-in`; `.sereno-check` / `.sereno-radio` /
   `.sereno-switch` states; `.sereno-tab-scroll` and `.sereno-sidenav*` scrollbar

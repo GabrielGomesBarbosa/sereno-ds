@@ -71,6 +71,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     defaultValue,
     'aria-describedby': describedBy,
     'aria-invalid': invalid,
+    'aria-required': ariaRequired,
     ...rest
   },
   ref,
@@ -82,7 +83,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   const autoId = React.useId();
   const rid = id || autoId;
   // Names the hint / error line and flags the error, so a screen reader reads both with the field.
-  const a11y = fieldA11y(rid, { hint, error, describedBy, invalid });
+  const a11y = fieldA11y(rid, { hint, error, describedBy, invalid, required, ariaRequired });
 
   const isPassword = type === 'password';
   const showCounter = Boolean(showCount) || maxLength != null;
@@ -133,6 +134,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
       hint={hint}
       error={error}
       required={required}
+      requiredExposed
       htmlFor={rid}
       style={containerStyle}
       counter={showCounter ? <CharCount count={count} max={maxLength ?? undefined} /> : undefined}

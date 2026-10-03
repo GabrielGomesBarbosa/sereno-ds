@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { sx } from './style';
-import { fieldMessageId } from './fieldA11y';
+import { fieldLabelId, fieldMessageId } from './fieldA11y';
 
 /**
  * Label + hint/error wrapper shared by the form controls. The hint / error line gets an
@@ -14,6 +14,12 @@ export interface FieldProps {
   error?: string;
   required?: boolean;
   htmlFor?: string;
+  /**
+   * The control says it is required itself (`aria-required`, see `fieldA11y`), so the asterisk
+   * is hidden from assistive technology, which would read it as a symbol. Leave it off for a
+   * control that cannot carry `aria-required` (a button): there the asterisk is all it has.
+   */
+  requiredExposed?: boolean;
   /** Right-aligned node on the hint row (e.g. a character counter). */
   counter?: React.ReactNode;
   /**
@@ -28,13 +34,14 @@ export interface FieldProps {
   style?: React.CSSProperties;
 }
 
-export function Field({ label, hint, error, required, htmlFor, counter, preserveHelperSpace = false, children, style }: FieldProps) {
+export function Field({ label, hint, error, required, requiredExposed = false, htmlFor, counter, preserveHelperSpace = false, children, style }: FieldProps) {
   return (
     // No `gap` here — the label→field and field→helper gaps are deliberately
     // different sizes (below), not one uniform rhythm.
     <div style={sx({ display: 'flex', flexDirection: 'column', ...style })}>
       {label && (
         <label
+          id={htmlFor ? fieldLabelId(htmlFor) : undefined}
           htmlFor={htmlFor}
           style={sx({
             fontFamily: 'var(--font-body)',
@@ -46,7 +53,11 @@ export function Field({ label, hint, error, required, htmlFor, counter, preserve
           })}
         >
           {label}
-          {required && <span style={sx({ color: 'var(--interactive-error)', marginLeft: 3 })}>*</span>}
+          {required && (
+            <span aria-hidden={requiredExposed || undefined} style={sx({ color: 'var(--interactive-error)', marginLeft: 3 })}>
+              *
+            </span>
+          )}
         </label>
       )}
       {children}

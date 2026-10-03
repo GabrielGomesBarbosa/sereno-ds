@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import { Field } from './Field';
-import { fieldA11y, fieldMessageId } from './fieldA11y';
+import { fieldA11y, fieldLabelId, fieldMessageId } from './fieldA11y';
 
 afterEach(cleanup);
 
@@ -37,6 +37,21 @@ describe('fieldA11y', () => {
     expect(fieldA11y('f', { describedBy: '   ' })['aria-describedby']).toBeUndefined();
   });
 
+  it('names the label after the control id', () => {
+    expect(fieldLabelId('nome')).toBe('nome-label');
+  });
+
+  it('required: aria-required; not required: nothing, so a button spread gets no attribute', () => {
+    expect(fieldA11y('f', { required: true })['aria-required']).toBe(true);
+    expect(fieldA11y('f', {})['aria-required']).toBeUndefined();
+    expect(fieldA11y('f', { required: false })['aria-required']).toBeUndefined();
+  });
+
+  it('a consumer aria-required stands when not required; required wins over aria-required=false', () => {
+    expect(fieldA11y('f', { ariaRequired: 'true' })['aria-required']).toBe('true');
+    expect(fieldA11y('f', { ariaRequired: false, required: true })['aria-required']).toBe(true);
+  });
+
   it('a consumer aria-invalid stands without an error; an error wins over it', () => {
     expect(fieldA11y('f', { invalid: 'true' })['aria-invalid']).toBe('true');
     expect(fieldA11y('f', { invalid: false, error: 'x' })['aria-invalid']).toBe(true);
@@ -58,6 +73,23 @@ describe('Field, the message line', () => {
   it('with nothing to say, no message line is rendered (and so no dangling id)', () => {
     const { container } = render(<Field label="Nome" htmlFor="nome"><input id="nome" /></Field>);
     expect(container.querySelector('[id$="-message"]')).toBeNull();
+  });
+
+  it('the label carries the id a control can be named by, when it has an htmlFor', () => {
+    render(<Field label="Nome" htmlFor="nome"><input id="nome" /></Field>);
+    expect(screen.getByText('Nome')).toHaveAttribute('id', fieldLabelId('nome'));
+  });
+
+  it('the required asterisk is read by default, and hidden only when the control says it is required itself', () => {
+    const { rerender } = render(<Field label="Nome" htmlFor="nome" required><input id="nome" /></Field>);
+    expect(screen.getByText('*')).not.toHaveAttribute('aria-hidden');
+    rerender(<Field label="Nome" htmlFor="nome" required requiredExposed><input id="nome" /></Field>);
+    expect(screen.getByText('*')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('no asterisk, nothing to hide', () => {
+    render(<Field label="Nome" htmlFor="nome" requiredExposed><input id="nome" /></Field>);
+    expect(screen.queryByText('*')).toBeNull();
   });
 
   it('with no htmlFor there is no id to build on, so none is set', () => {
