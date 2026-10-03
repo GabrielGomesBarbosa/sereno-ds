@@ -73,6 +73,17 @@ export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivEl
   selectedTime?: string;
   /** Day numbers with no availability - struck through and unclickable. */
   unavailable?: number[];
+  /**
+   * Earliest date, ISO "YYYY-MM-DD" (the same prop `DatePicker` has). The calendar cannot be
+   * navigated to an earlier month or year: the previous-month arrow disables, PageUp and the
+   * arrow keys stop at the edge, and the month / year popover disables what is out of range.
+   * Every earlier day is struck through on its own, merged with `unavailable`, so there is no
+   * need to work out the past days. If `year` / `month` start outside the range they are moved
+   * to the nearest month inside it, and `onMonthChange` reports that month at mount.
+   */
+  min?: string;
+  /** Latest date, ISO "YYYY-MM-DD". The mirror image of `min`. */
+  max?: string;
   onSelectDate?: (day: number) => void;
   onSelectTime?: (time: string) => void;
   /** Fires whenever the visible month changes (arrows or the month/year popover). */
@@ -110,6 +121,8 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
     times = [],
     selectedTime,
     unavailable = [],
+    min,
+    max,
     onSelectDate,
     onSelectTime,
     onMonthChange,
@@ -146,6 +159,8 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
         month={month}
         selectedDate={selectedDate}
         unavailable={unavailable}
+        min={min}
+        max={max}
         onSelectDate={onSelectDate}
         onMonthChange={onMonthChange}
         renderDay={renderDay}

@@ -285,6 +285,11 @@
   transition: background-color var(--duration-fast) var(--ease-standard);
 }
 .sereno-dtp-grid button:hover { background: var(--interactive-ghost-hover); }
+/* A month / year outside the calendar's `min` .. `max` (SS-331): not pickable, and not focusable either.
+   The :hover rule above stays as it was (its specificity decides the [data-current] tie below); the
+   disabled one only turns it off for a disabled button. */
+.sereno-dtp-grid button:disabled { color: var(--text-disabled); cursor: not-allowed; }
+.sereno-dtp-grid button:disabled:hover { background: transparent; }
 .sereno-dtp-grid button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
 /* The day grid's own focus ring (SS-228) - was missing entirely: the day
    button used to set outline:none *inline*, which always wins over a class

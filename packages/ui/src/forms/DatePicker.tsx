@@ -6,6 +6,7 @@ import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
 import { fieldA11y } from '../_internal/fieldA11y';
 import { CalendarGrid } from './_internal/CalendarGrid';
+import { parseISODate as parseISO, toISODate as toISO } from './_internal/calendarRange';
 import { fieldBoxStyle } from './_internal/fieldBoxStyle';
 
 const TEXT = {
@@ -40,9 +41,14 @@ export interface DatePickerProps {
   /** Uncontrolled initial value, ISO "YYYY-MM-DD". */
   defaultValue?: string;
   onChange?: (value: string) => void;
-  /** Earliest selectable date, ISO "YYYY-MM-DD" - every day before it is unavailable. */
+  /**
+   * Earliest selectable date, ISO "YYYY-MM-DD". Every day before it is struck through, and the
+   * calendar cannot be navigated to an earlier month or year (the previous-month arrow disables,
+   * PageUp and the arrow keys stop at the edge, the month / year popover disables what is out of
+   * range). An initial value or month before it opens on `min`'s month.
+   */
   min?: string;
-  /** Latest selectable date, ISO "YYYY-MM-DD" - every day after it is unavailable. */
+  /** Latest selectable date, ISO "YYYY-MM-DD". The mirror image of `min`: later days are struck through and later months and years cannot be reached. */
   max?: string;
   id?: string;
   containerStyle?: React.CSSProperties;
@@ -59,52 +65,12 @@ export interface DatePickerProps {
   preserveHelperSpace?: boolean;
 }
 
-interface YMD {
-  year: number;
-  month: number;
-  day: number;
-}
-
-function parseISO(iso: string | undefined): YMD | null {
-  if (!iso) return null;
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-  if (!m) return null;
-  return { year: Number(m[1]), month: Number(m[2]) - 1, day: Number(m[3]) };
-}
-
-function toISO(year: number, month: number, day: number): string {
-  return `${String(year).padStart(4, '0')}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-}
-
 function formatDisplay(iso: string, locale: 'pt-BR' | 'en'): string {
   const d = parseISO(iso);
   if (!d) return iso;
   return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
     new Date(d.year, d.month, d.day),
   );
-}
-
-function daysIn(year: number, month: number): number {
-  return new Date(year, month + 1, 0).getDate();
-}
-
-/** Every day of (year, month) that falls before `min` or after `max`. */
-function unavailableForMonth(year: number, month: number, min?: string, max?: string): number[] {
-  if (!min && !max) return [];
-  const minD = parseISO(min);
-  const maxD = parseISO(max);
-  const out: number[] = [];
-  const total = daysIn(year, month);
-  for (let day = 1; day <= total; day++) {
-    if (minD && year * 372 + month * 31 + day < minD.year * 372 + minD.month * 31 + minD.day) {
-      out.push(day);
-      continue;
-    }
-    if (maxD && year * 372 + month * 31 + day > maxD.year * 372 + maxD.month * 31 + maxD.day) {
-      out.push(day);
-    }
-  }
-  return out;
 }
 
 /**
@@ -213,7 +179,6 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
     triggerRef.current?.focus();
   };
 
-  const unavailable = React.useMemo(() => unavailableForMonth(viewYear, viewMonth, min, max), [viewYear, viewMonth, min, max]);
 
   return (
     <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
@@ -316,7 +281,8 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
               year={viewYear}
               month={viewMonth}
               selectedDate={parsed && parsed.year === viewYear && parsed.month === viewMonth ? parsed.day : undefined}
-              unavailable={unavailable}
+              min={min}
+              max={max}
               onMonthChange={(y, m) => {
                 setViewYear(y);
                 setViewMonth(m);
