@@ -5,7 +5,7 @@
  * (never a plain swap of the character), comments and developer docs use a spaced hyphen, and
  * a "no value" placeholder is `-` (SS-330). This is the guard that keeps it from creeping back.
  *
- * The character is written as an escape below, so this file does not trip its own check.
+ * The character is built from its code point below, so this file does not trip its own check.
  * Run: `npm run check:dashes` (also a step of the CI workflow).
  */
 import { execFileSync } from 'node:child_process';
@@ -14,7 +14,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const EM_DASH = '—';
+const EM_DASH = String.fromCharCode(0x2014);
 
 const files = execFileSync('git', ['ls-files', '-z'], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 })
   .toString('utf8')
