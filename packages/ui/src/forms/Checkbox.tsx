@@ -50,6 +50,9 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
           disabled={disabled}
           onChange={onChange}
           {...rest}
+          // Only the state: the error line is inside the <label>, so it is already part of the
+          // name. `aria-describedby` would read it twice.
+          aria-invalid={error ? true : rest['aria-invalid']}
           data-size={size}
           className="sereno-check"
           style={sx({

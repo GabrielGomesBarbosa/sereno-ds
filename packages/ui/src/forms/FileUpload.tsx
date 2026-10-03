@@ -4,6 +4,7 @@ import * as React from 'react';
 import { File as FileIcon, FileArchive, FileSpreadsheet, FileText, RefreshCw, Trash2, UploadCloud, type LucideIcon } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { fieldA11y } from '../_internal/fieldA11y';
 import { mergeRefs } from '../_internal/mergeRefs';
 
 /**
@@ -233,6 +234,12 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(fu
   // A hard `error` (or a rejected single file) puts the field in an error state;
   // a "skipped N" note in multiple mode is informational, not an error.
   const invalid = Boolean(error || (rejected && !multiple));
+  // What `Field` shows as the error: the consumer's, or a rejected single file's. The skipped-files
+  // note of `multiple` is informational, so it is not one.
+  const shownError = error || (multiple ? undefined : rejected) || undefined;
+  // The hidden `<input type="file">` is out of the accessibility tree, so the controls that take
+  // focus carry these: the drop zone, and Replace once a file is chosen.
+  const a11y = fieldA11y(rid, { hint, error: shownError });
   const edge = dragOver ? 'var(--border-brand)' : invalid ? 'var(--interactive-error)' : 'var(--border-default)';
   const usePrompt = prompt ?? (multiple ? 'Drag files here, or click to choose' : 'Drag a file here, or click to choose');
 
@@ -258,6 +265,7 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(fu
       className="ds-affix-btn"
       disabled={disabled}
       onClick={openPicker}
+      {...a11y}
       {...dragProps}
       style={sx({
         display: 'flex',
@@ -301,6 +309,7 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(fu
       className="ds-affix-btn"
       disabled={disabled}
       onClick={openPicker}
+      {...a11y}
       {...dragProps}
       style={sx({
         display: 'flex',
@@ -327,7 +336,7 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(fu
   );
 
   return (
-    <Field label={label} hint={hint} error={error || (multiple ? undefined : rejected) || undefined} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
+    <Field label={label} hint={hint} error={shownError} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
       <input
         ref={mergeRefs(inputRef, forwardedRef)}
         id={rid}
@@ -371,7 +380,7 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(fu
             {one instanceof File && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' })}>{fmtSize(one.size)}</span>}
             {!disabled && (
               <div style={sx({ display: 'flex', gap: 'var(--space-2)', marginTop: 6, flexWrap: 'wrap' })}>
-                <button type="button" className="ds-affix-btn" onClick={openPicker} style={{ ...actionBtn, color: 'var(--text-primary)' }}>
+                <button type="button" className="ds-affix-btn" onClick={openPicker} {...a11y} style={{ ...actionBtn, color: 'var(--text-primary)' }}>
                   <RefreshCw size={14} strokeWidth={2} /> Replace
                 </button>
                 <button type="button" className="ds-affix-btn" onClick={clearOne} style={{ ...actionBtn, color: 'var(--interactive-error)' }}>

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Calendar as CalendarIcon, X } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { fieldA11y } from '../_internal/fieldA11y';
 import { CalendarGrid } from './_internal/CalendarGrid';
 import { fieldBoxStyle } from './_internal/fieldBoxStyle';
 
@@ -228,6 +229,8 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
             disabled={disabled}
             aria-haspopup="dialog"
             aria-expanded={open}
+            // Ties the trigger to the hint / error line below, so they are read when it takes focus.
+            {...fieldA11y(rid, { hint, error })}
             onClick={() => (open ? setOpen(false) : openPopover())}
             style={sx({
               flex: 1,
