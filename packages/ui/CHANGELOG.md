@@ -1,5 +1,19 @@
 # @sereno-ds/ui
 
+## 0.36.4
+
+### Patch Changes
+
+- 7421dca: The em dash (U+2014) is gone from the whole repository (SS-330): the showcase and demo texts, the component docs and comments, the READMEs, the package descriptions, the CHANGELOGs and the generated `DESIGN_SYSTEM.md`. Text people read was rewritten with a period, comma or colon (not a plain swap of the character), comments and developer docs use a spaced hyphen, and a "no value" placeholder is `-`.
+
+  Where it shows in what ships:
+
+  - **`DateTimePicker`'s time-slot accessible name** (set when a slot has a `capacity`) now separates the time from the count with a comma (`09:00, 3 vagas`) where it used an em dash. If your tests find a slot by that exact name, update the separator.
+  - The npm package descriptions of `@sereno-ds/ui` and `@sereno-ds/tokens` read `Sereno Design System: ...`.
+  - The narrative `CHANGELOG.md` titles each version `## X.Y.Z - Title`, and the release-notes script strips that prefix.
+
+  `npm run check:dashes` (a CI step) now fails if one comes back.
+
 ## 0.36.3
 
 ### Patch Changes
@@ -239,35 +253,35 @@
 ### Minor Changes
 
 - f9bcb9f: Every form component now forwards `ref` to its underlying element (SS-268)
- - purely additive, no prop changes, nothing breaks for existing consumers.
+- purely additive, no prop changes, nothing breaks for existing consumers.
   Enables `react-hook-form`'s uncontrolled `register()` (no `Controller`
   needed) for `Input`, `Textarea`, `Checkbox`, `Radio`, `SearchInput`,
   `FileUpload` and `AvatarUpload`: each wraps a single native element whose
   `onChange` already matches the `(event: ChangeEvent) => void` shape
   `register()` expects.
 
-  The remaining four don't get the same win, regardless of `ref` - their
-  `onChange`/`onValueChange` hands back a plain value (a string or boolean),
-  not a `ChangeEvent`, which is what actually blocks a raw `register()`
-  spread, not a missing ref:
+The remaining four don't get the same win, regardless of `ref` - their
+`onChange`/`onValueChange` hands back a plain value (a string or boolean),
+not a `ChangeEvent`, which is what actually blocks a raw `register()`
+spread, not a missing ref:
 
-  - `Select` - `ref` reaches the hidden mirror `<input type="hidden">`
-    (rendered when `name` is set), good for `getValues()` / `trigger()` /
-    `setFocus()`, but still needs `Controller` for change-driven validation.
-  - `DatePicker` - no native element at all; `ref` exposes
-    `DatePickerHandle` (`{ focus() }`) via `useImperativeHandle` instead of a
-    raw DOM node.
-  - `DateTimePicker` - not a single-value field to begin with (`selectedDate`
-    / `selectedTime` are separate, parent-owned props with their own
-    callbacks); `ref` reaches the root `<div>` for plain DOM access.
-  - `Switch` - no native form element (`role="switch"` on a `<span>`); `ref`
-    only gives `.focus()`. Already documented as never belonging in a form
-    with a Save action.
+- `Select` - `ref` reaches the hidden mirror `<input type="hidden">`
+  (rendered when `name` is set), good for `getValues()` / `trigger()` /
+  `setFocus()`, but still needs `Controller` for change-driven validation.
+- `DatePicker` - no native element at all; `ref` exposes
+  `DatePickerHandle` (`{ focus() }`) via `useImperativeHandle` instead of a
+  raw DOM node.
+- `DateTimePicker` - not a single-value field to begin with (`selectedDate`
+  / `selectedTime` are separate, parent-owned props with their own
+  callbacks); `ref` reaches the root `<div>` for plain DOM access.
+- `Switch` - no native form element (`role="switch"` on a `<span>`); `ref`
+  only gives `.focus()`. Already documented as never belonging in a form
+  with a Save action.
 
-  New shared internal `_internal/mergeRefs.ts` combines a forwarded `ref`
-  with a component's own internal one (the password-reveal focus in `Input`,
-  the `indeterminate` DOM property in `Checkbox`) without either clobbering
-  the other.
+New shared internal `_internal/mergeRefs.ts` combines a forwarded `ref`
+with a component's own internal one (the password-reveal focus in `Input`,
+the `indeterminate` DOM property in `Checkbox`) without either clobbering
+the other.
 
 ## 0.29.1
 
