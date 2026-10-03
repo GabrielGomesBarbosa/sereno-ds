@@ -4,7 +4,7 @@ import * as React from 'react';
 import { File as FileIcon, FileArchive, FileSpreadsheet, FileText, RefreshCw, Trash2, UploadCloud, type LucideIcon } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
-import { fieldA11y } from '../_internal/fieldA11y';
+import { fieldA11y, fieldLabelId } from '../_internal/fieldA11y';
 import { mergeRefs } from '../_internal/mergeRefs';
 
 /**
@@ -240,6 +240,10 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(fu
   // The hidden `<input type="file">` is out of the accessibility tree, so the controls that take
   // focus carry these: the drop zone, and Replace once a file is chosen.
   const a11y = fieldA11y(rid, { hint, error: shownError });
+  // The field `<label for>` points at that hidden input too, so it does not name the drop zone: do it
+  // here, label first, then the prompt the zone already read.
+  const promptId = `${rid}-prompt`;
+  const zoneName = label ? { 'aria-labelledby': `${fieldLabelId(rid)} ${promptId}` } : null;
   const edge = dragOver ? 'var(--border-brand)' : invalid ? 'var(--interactive-error)' : 'var(--border-default)';
   const usePrompt = prompt ?? (multiple ? 'Drag files here, or click to choose' : 'Drag a file here, or click to choose');
 
@@ -266,6 +270,7 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(fu
       disabled={disabled}
       onClick={openPicker}
       {...a11y}
+      {...zoneName}
       {...dragProps}
       style={sx({
         display: 'flex',
@@ -299,7 +304,7 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(fu
       >
         <UploadCloud size={24} strokeWidth={1.75} />
       </span>
-      <span style={sx({ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--text-primary)' })}>{usePrompt}</span>
+      <span id={promptId} style={sx({ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--text-primary)' })}>{usePrompt}</span>
     </button>
   );
 
@@ -310,6 +315,7 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(fu
       disabled={disabled}
       onClick={openPicker}
       {...a11y}
+      {...zoneName}
       {...dragProps}
       style={sx({
         display: 'flex',
@@ -331,7 +337,7 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(fu
       })}
     >
       <UploadCloud size={22} strokeWidth={1.75} style={{ color: dragOver ? 'var(--text-brand)' : 'var(--text-muted)' }} />
-      <span style={sx({ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.4 })}>{usePrompt}</span>
+      <span id={promptId} style={sx({ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.4 })}>{usePrompt}</span>
     </button>
   );
 

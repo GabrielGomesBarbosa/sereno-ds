@@ -44,6 +44,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
     onBlur,
     'aria-describedby': describedBy,
     'aria-invalid': invalid,
+    'aria-required': ariaRequired,
     ...rest
   },
   ref,
@@ -56,7 +57,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
   const autoId = React.useId();
   const rid = id || autoId;
   // Names the hint / error line and flags the error, so a screen reader reads both with the field.
-  const a11y = fieldA11y(rid, { hint, error, describedBy, invalid });
+  const a11y = fieldA11y(rid, { hint, error, describedBy, invalid, required, ariaRequired });
 
   const max = typeof rest.maxLength === 'number' ? rest.maxLength : undefined;
   const showCounter = Boolean(showCount) || max != null;
@@ -89,6 +90,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
       hint={hint}
       error={error}
       required={required}
+      requiredExposed
       htmlFor={rid}
       style={containerStyle}
       counter={showCounter ? <CharCount count={count} max={max} /> : undefined}

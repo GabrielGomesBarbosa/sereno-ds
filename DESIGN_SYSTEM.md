@@ -644,7 +644,7 @@ Single-line text field with label, hint and error state.
 | `hint` | `string` | — | Helper text. Replaced by `error` when present. A screen reader reads it with the field (it is the field's description). |
 | `error` | `string` | — | Error message; also turns the border red. Screen readers get it too: the field is marked invalid (`aria-invalid`) and described by the message (`aria-describedby`), with no wiring of your own. |
 | `aria-describedby` | `string` | — | Ids of extra elements to read with the field. Kept next to the hint / error, never replacing it. |
-| `required` | `boolean` | `false` | Adds the asterisk to the label. |
+| `required` | `boolean` | `false` | Adds the asterisk to the label, and tells screen readers the field is required (`aria-required`, with the asterisk hidden from them). It does not switch on the browser's own validation: the native `required` attribute is not set. |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Control height. |
 | `iconLeft` | `React.ReactNode` | — | Icon on the left inside the field. |
 | `prefix` | `React.ReactNode` | — | Leading text adornment ("R$", "@", "+55"). Not part of the value. |
@@ -733,6 +733,7 @@ Do:
 - `size="lg"` on mobile and in the public flow.
 - Full error sentence with a period: "Enter a valid email."
 - Pass the message through `error` (not a separate element under the field): that is what marks the field invalid and ties the message to it for screen readers.
+- On submit, focus the first invalid field (react-hook-form's `shouldFocusError` does): the screen reader reads its error. If you validate when the user leaves a field, announce those errors yourself, with one polite status region (`aria-live="polite"`) for the whole form: the field does not announce an error as it appears.
 - `preserveHelperSpace` on every field of a form that validates several at once (e.g. on submit) — keeps the layout still while errors appear.
 
 Don't:
@@ -748,7 +749,7 @@ Multi-line field for booking notes and service descriptions.
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `label / hint / error / required` | `string / string / string / boolean` | — | Same label contract as Input, including the `aria-invalid` / `aria-describedby` wiring and a merged `aria-describedby`. |
+| `label / hint / error / required` | `string / string / string / boolean` | — | Same label contract as Input, including the `aria-invalid` / `aria-describedby` / `aria-required` wiring and a merged `aria-describedby`. |
 | `rows` | `number` | `4` | Initial height in lines. |
 | `showCount` | `boolean` | `false` | Show a `n / max` character counter on the hint row. Implied when `maxLength` is set. It counts the field's real value, also when a form library or code writes it (`reset()`, `setValue()`, `el.value = …`). |
 | `preserveHelperSpace` | `boolean` | `false` | Reserve the hint/error row's height even with neither set — see Input. |
@@ -798,7 +799,7 @@ Single choice from ≤12 flat options. A hand-rolled listbox — the same in eve
 | `value / defaultValue` | `string` | — | Controlled / uncontrolled selection. |
 | `onValueChange` | `(value: string) => void` | — | Fires with the chosen value — a string, not a DOM event. |
 | `placeholder` | `string` | — | Shown when nothing is selected. |
-| `label / hint / error / required` | `—` | — | Same label contract as Input, including the `aria-invalid` / `aria-describedby` wiring on the trigger. |
+| `label / hint / error / required` | `—` | — | Same label contract as Input, including the `aria-invalid` / `aria-describedby` / `aria-required` wiring on the trigger. |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Control height. |
 | `disabled` | `boolean` | `false` | Disabled fill and text, not-allowed cursor. |
 | `name` | `string` | — | Mirrored to a hidden input so the value can be submitted in a form. |
@@ -1249,7 +1250,7 @@ A single date, no time, no slots — that’s `DateTimePicker`. A text-field-sty
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `label / hint / error / required` | `string / boolean` | — | Same label contract as Input, including the `aria-invalid` / `aria-describedby` wiring on the trigger. |
+| `label / hint / error / required` | `string / boolean` | — | Same label contract as Input, including the `aria-invalid` / `aria-describedby` wiring on the trigger. `required` draws the asterisk only: the trigger is a button, which cannot carry `aria-required`. |
 | `placeholder` | `string` | `'Selecionar data'` | Trigger text with no value. |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` |  |
 | `value / defaultValue` | `string` | — | ISO `"YYYY-MM-DD"` — controlled / uncontrolled, same contract as every other field. |
@@ -1308,7 +1309,7 @@ Pick one file — click, keyboard or drag-and-drop — with a local preview. No 
 | `maxSizeMB` | `number` | `5` | Files above this are rejected with a message. |
 | `shape` | `'circle' \| 'square'` | `'square'` | Thumbnail shape for image previews — `circle` for avatars (single only). |
 | `prompt` | `string` | — | Text inside the empty drop area. |
-| `label / hint / error / required / disabled` | `—` | — | Same label contract as Input. The `aria-invalid` / `aria-describedby` wiring is on the drop zone (and on Replace once a file is chosen), since the file input itself is hidden. A single rejected file counts as an error; the "skipped N" note of `multiple` does not. |
+| `label / hint / error / required / disabled` | `—` | — | Same label contract as Input. The `aria-invalid` / `aria-describedby` wiring is on the drop zone (and on Replace once a file is chosen), since the file input itself is hidden. A single rejected file counts as an error; the "skipped N" note of `multiple` does not. With a `label`, the drop zone is named by it followed by the prompt ("Document Drag a file here, or click to choose"), since the label cannot reach the hidden input. `required` draws the asterisk only: the zone is a button, which cannot carry `aria-required`. |
 | `preserveHelperSpace` | `boolean` | `false` | Reserve the hint/error row's height even with neither set — see Input. |
 
 #### Examples
@@ -1383,7 +1384,7 @@ Profile-photo picker — an avatar disc with a pencil button, a library / camera
 | `maxSizeMB` | `number` | `8` | Picks larger than this are rejected (before crop). |
 | `labels` | `Partial<AvatarUploadLabels>` | — | Override the English UI strings — menu, crop dialog, error messages. |
 | `allowCamera` | `boolean` | `true` | Whether to allow taking a photo via camera (omit "Take a photo" option and camera modal). Useful for logos. |
-| `label / hint / error / required / disabled` | `—` | — | Same label contract as Input. The `aria-invalid` / `aria-describedby` wiring is on the pencil button, since the file input itself is hidden. A rejected pick (type, size, unreadable) counts as an error. |
+| `label / hint / error / required / disabled` | `—` | — | Same label contract as Input. The `aria-invalid` / `aria-describedby` wiring is on the pencil button, since the file input itself is hidden. A rejected pick (type, size, unreadable) counts as an error. `required` draws the asterisk only: the pencil is a button, which cannot carry `aria-required`. |
 | `preserveHelperSpace` | `boolean` | `false` | Reserve the hint/error row's height even with neither set — see Input. |
 
 #### Examples

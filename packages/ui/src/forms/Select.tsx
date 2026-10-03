@@ -595,7 +595,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(function S
   );
 
   return (
-    <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
+    <Field label={label} hint={hint} error={error} required={required} requiredExposed htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
       <CustomSelect
         rid={rid}
         label={label}
@@ -607,7 +607,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(function S
         error={!!error}
         disabled={disabled}
         coarse={coarse}
-        fieldAria={fieldA11y(rid, { hint, error })}
+        fieldAria={fieldA11y(rid, { hint, error, required })}
         onCommit={commit}
       />
       {name && <input ref={ref} type="hidden" name={name} value={value} />}
