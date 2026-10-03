@@ -2,8 +2,12 @@
 
 import * as React from 'react';
 import { sx } from './style';
+import { fieldMessageId } from './fieldA11y';
 
-/** Label + hint/error wrapper shared by Input, Textarea and Select. */
+/**
+ * Label + hint/error wrapper shared by the form controls. The hint / error line gets an
+ * `id` (see `fieldA11y`) so the control can name it in `aria-describedby`.
+ */
 export interface FieldProps {
   label?: string;
   hint?: string;
@@ -61,6 +65,7 @@ export function Field({ label, hint, error, required, htmlFor, counter, preserve
         >
           {(error || hint) && (
             <span
+              id={htmlFor ? fieldMessageId(htmlFor) : undefined}
               style={sx({
                 fontFamily: 'var(--font-body)',
                 fontSize: 'var(--text-xs)',

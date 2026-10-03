@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { fieldA11y } from '../_internal/fieldA11y';
 import { CharCount } from '../_internal/CharCount';
 import { formatMask, MASK_INPUTMODE, MASK_MAXLENGTH, type MaskName } from '../_internal/mask';
 import { mergeRefs } from '../_internal/mergeRefs';
@@ -68,6 +69,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     inputMode,
     maxLength,
     defaultValue,
+    'aria-describedby': describedBy,
+    'aria-invalid': invalid,
     ...rest
   },
   ref,
@@ -78,6 +81,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   // SSR-stable id (the DS source used Math.random(), which breaks hydration).
   const autoId = React.useId();
   const rid = id || autoId;
+  // Names the hint / error line and flags the error, so a screen reader reads both with the field.
+  const a11y = fieldA11y(rid, { hint, error, describedBy, invalid });
 
   const isPassword = type === 'password';
   const showCounter = Boolean(showCount) || maxLength != null;
@@ -155,6 +160,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
           id={rid}
           disabled={disabled}
           {...rest}
+          {...a11y}
           ref={mergeRefs(inputRef, ref)}
           type={isPassword && reveal ? 'text' : type}
           onFocus={handleFocus}

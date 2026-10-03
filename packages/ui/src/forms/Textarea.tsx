@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { fieldA11y } from '../_internal/fieldA11y';
 import { CharCount } from '../_internal/CharCount';
 import { mergeRefs } from '../_internal/mergeRefs';
 import { useValueLength } from '../_internal/useValueLength';
@@ -26,7 +27,25 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
 }
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  { label, hint, error, required, rows = 4, showCount, preserveHelperSpace, disabled, id, style, containerStyle, onChange, onFocus, onBlur, ...rest },
+  {
+    label,
+    hint,
+    error,
+    required,
+    rows = 4,
+    showCount,
+    preserveHelperSpace,
+    disabled,
+    id,
+    style,
+    containerStyle,
+    onChange,
+    onFocus,
+    onBlur,
+    'aria-describedby': describedBy,
+    'aria-invalid': invalid,
+    ...rest
+  },
   ref,
 ) {
   const [focus, setFocus] = React.useState(false);
@@ -36,6 +55,8 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
   // SSR-stable id (the DS source used Math.random(), which breaks hydration).
   const autoId = React.useId();
   const rid = id || autoId;
+  // Names the hint / error line and flags the error, so a screen reader reads both with the field.
+  const a11y = fieldA11y(rid, { hint, error, describedBy, invalid });
 
   const max = typeof rest.maxLength === 'number' ? rest.maxLength : undefined;
   const showCounter = Boolean(showCount) || max != null;
@@ -79,6 +100,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
         rows={rows}
         disabled={disabled}
         {...rest}
+        {...a11y}
         onFocus={handleFocus}
         onBlur={handleBlur}
         onChange={onChange}

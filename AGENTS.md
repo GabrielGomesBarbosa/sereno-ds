@@ -321,6 +321,17 @@ previews (test locally + on the branch).
   `packages/ui/src/test/components.smoke.test.tsx`'s `CASES` map (see the
   next bullet) — everything there renders, gets a basic interaction check,
   and an automatic `jest-axe` pass, so one line of setup buys three checks.
+- **A form control that shows an `error` / `hint` must tie it to the field (SS-328).**
+  Render it through `_internal/Field` and spread `fieldA11y(id, { hint, error, describedBy,
+  invalid })` (`_internal/fieldA11y.ts`) on the element that takes focus: `Field` gives the
+  message line an `id` and `fieldA11y` returns the `aria-invalid` + `aria-describedby` that
+  point at it, merged with any `aria-describedby` the consumer passed. Without it a
+  screen reader sees a red line, not an invalid field. When the real `<input>` is hidden
+  (`FileUpload`, `AvatarUpload`) put them on the control that takes focus instead. A control
+  whose message sits inside its own `<label>` takes `aria-invalid` only (`Checkbox`):
+  `aria-describedby` would read the message twice. `Radio` takes neither, ARIA having no
+  invalid state for a single radio (that is `radiogroup`'s). Add the control to the table in
+  `forms/fieldErrorA11y.test.tsx`.
 - **Component keyframes / pseudo-class rules** (`sereno-spin`, `-pop`, `-slide-up`,
   `-pulse`, `-flyout-in`, `-fade-in`; `.sereno-check` / `.sereno-radio` /
   `.sereno-switch` states; `.sereno-tab-scroll` and `.sereno-sidenav*` scrollbar

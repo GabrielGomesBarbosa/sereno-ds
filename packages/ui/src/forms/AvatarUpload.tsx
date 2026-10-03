@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { Camera, Check, ImagePlus, Pencil, RotateCcw, Trash2, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
+import { fieldA11y } from '../_internal/fieldA11y';
 import { mergeRefs } from '../_internal/mergeRefs';
 import { Dialog } from '../feedback/Dialog';
 import { Button } from '../core/Button';
@@ -293,8 +294,13 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
 
   const cameraBtn = Math.max(30, Math.round(size * 0.34));
 
+  // What `Field` shows as the error: the consumer's, or a rejected pick's (type, size, unreadable).
+  const shownError = error || rejected || undefined;
+  // The hidden `<input type="file">` is out of the accessibility tree: the pencil is what takes focus.
+  const a11y = fieldA11y(rid, { hint, error: shownError });
+
   return (
-    <Field label={label} hint={hint} error={error || rejected || undefined} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
+    <Field label={label} hint={hint} error={shownError} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
       <input ref={mergeRefs(libRef, forwardedRef)} id={rid} type="file" accept="image/*" disabled={disabled} onChange={(e) => pick(e.target.files)} style={{ display: 'none' }} />
 
       <div style={sx({ position: 'relative', width: size, height: size, flex: '0 0 auto', opacity: disabled ? 0.6 : 1 })}>
@@ -332,6 +338,7 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
             aria-label={t.trigger}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
+            {...a11y}
             onClick={toggleMenu}
             style={sx({
               position: 'absolute',

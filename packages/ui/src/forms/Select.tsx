@@ -6,6 +6,7 @@ import { Check, ChevronDown } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { useIsoLayoutEffect } from '../_internal/useIsoLayoutEffect';
 import { Field } from '../_internal/Field';
+import { fieldA11y } from '../_internal/fieldA11y';
 import { fieldBoxStyle } from './_internal/fieldBoxStyle';
 
 export interface SelectOption {
@@ -84,6 +85,7 @@ function CustomSelect({
   error,
   disabled,
   coarse,
+  fieldAria,
   onCommit,
 }: {
   rid: string;
@@ -99,6 +101,8 @@ function CustomSelect({
   disabled?: boolean;
   /** Touch: open as a bottom sheet with finger-sized rows instead of a dropdown. */
   coarse: boolean;
+  /** `aria-invalid` / `aria-describedby` tying the trigger to the field's hint / error line. */
+  fieldAria: ReturnType<typeof fieldA11y>;
   onCommit: (v: string) => void;
 }) {
   const listboxId = `${rid}-listbox`;
@@ -383,6 +387,7 @@ function CustomSelect({
         aria-controls={open ? listboxId : undefined}
         aria-activedescendant={open && activeIndex >= 0 ? `${rid}-opt-${activeIndex}` : undefined}
         aria-label={ariaLabel}
+        {...fieldAria}
         aria-disabled={disabled || undefined}
         disabled={disabled}
         onPointerDown={() => {
@@ -602,6 +607,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(function S
         error={!!error}
         disabled={disabled}
         coarse={coarse}
+        fieldAria={fieldA11y(rid, { hint, error })}
         onCommit={commit}
       />
       {name && <input ref={ref} type="hidden" name={name} value={value} />}
