@@ -17,14 +17,14 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const PADS = { none: 0, sm: 'var(--space-3)', md: 'var(--space-4)', lg: 'var(--space-5)' } as const;
 // The edge is a box-shadow ring (pixel-crisp at any radius), with the elevation
-// drop-shadow layered beneath it — never a real `border` fighting the shadow.
+// drop-shadow layered beneath it - never a real `border` fighting the shadow.
 const DROP = { none: '', sm: 'var(--shadow-xs)', md: 'var(--shadow-md)', lg: 'var(--shadow-lg)' } as const;
 
 export function Card({ padding = 'md', elevation = 'sm', interactive = false, selected = false, children, style, onClick, onKeyDown, ...rest }: CardProps) {
   const st = useInteract(!interactive);
   const lifted = interactive && st.hover;
   // A Card only needs real button semantics (SS-228) when it owns its own
-  // onClick — `interactive` alone (no onClick) means it's just borrowing the
+  // onClick - `interactive` alone (no onClick) means it's just borrowing the
   // hover/press visual inside an already-interactive wrapper (e.g. the
   // landing page's Cards inside a <Link>), and giving it a tabIndex there
   // would nest one focusable control inside another.
@@ -44,7 +44,7 @@ export function Card({ padding = 'md', elevation = 'sm', interactive = false, se
           ? (e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                // Not a real MouseEvent — every onClick in this codebase ignores
+                // Not a real MouseEvent - every onClick in this codebase ignores
                 // the event argument, so the cast is safe in practice.
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see above
                 onClick(e as any);
@@ -63,7 +63,7 @@ export function Card({ padding = 'md', elevation = 'sm', interactive = false, se
         transition: 'var(--transition-control)',
         cursor: interactive ? 'pointer' : 'default',
         // outline:none is safe here (unlike the CSS-class pattern elsewhere in
-        // this package) — it pairs with the JS-driven boxShadow ring above,
+        // this package) - it pairs with the JS-driven boxShadow ring above,
         // the same useInteract-based substitute Button/IconButton already use.
         outline: clickable ? 'none' : undefined,
         ...style,

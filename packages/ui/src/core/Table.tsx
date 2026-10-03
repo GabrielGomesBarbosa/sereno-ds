@@ -5,7 +5,7 @@ import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react';
 import { sx } from '../_internal/style';
 
 /**
- * Data table — a **compound component**. Cells hold real JSX, not `render`
+ * Data table - a **compound component**. Cells hold real JSX, not `render`
  * callbacks. Structure, density, row dividers and hover / focus / sticky / zebra
  * live in `@sereno-ds/ui/styles.css` (keyed off `data-*` on the root), so the parts
  * stay thin.
@@ -31,7 +31,7 @@ import { sx } from '../_internal/style';
  * </Table>
  * ```
  *
- * `sort` is controlled — the DS never reorders the rows; react to `onSort` and
+ * `sort` is controlled - the DS never reorders the rows; react to `onSort` and
  * feed sorted data back in.
  */
 export type SortDirection = 'asc' | 'desc';
@@ -46,15 +46,15 @@ export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> 
   /** Visually-hidden `<caption>`; also the default accessible name for the scroll region. */
   caption?: string;
   density?: 'comfortable' | 'compact';
-  /** Keeps the table this wide — below it the `role="region"` scrolls horizontally
+  /** Keeps the table this wide - below it the `role="region"` scrolls horizontally
    * instead of the columns squashing. Set it for anything with more than ~3
    * columns that has to survive a phone. */
   minWidth?: number | string;
-  /** Pins the header while the body scrolls — pair it with `maxHeight`. */
+  /** Pins the header while the body scrolls - pair it with `maxHeight`. */
   stickyHeader?: boolean;
   /** Caps the scroll region's height, so `stickyHeader` has something to stick within. */
   maxHeight?: number | string;
-  /** Faint striping on even rows. Off by default — the row hover is usually enough. */
+  /** Faint striping on even rows. Off by default - the row hover is usually enough. */
   zebra?: boolean;
   /** Accessible name for the scrollable region (defaults to `caption`). */
   regionLabel?: string;
@@ -88,7 +88,7 @@ function TableRoot({
         // `width:100%` + `minWidth:0` = size to the container, never the content;
         // `maxWidth:100%` caps it; `overflow:auto` scrolls the table inside here.
         // `position:relative` keeps the visually-hidden `<caption>` (position:absolute)
-        // anchored HERE — without it the caption escapes to the viewport and its
+        // anchored HERE - without it the caption escapes to the viewport and its
         // static offset stretches the page's scroll height (a phantom scrollbar).
         position: 'relative',
         display: 'block',
@@ -172,11 +172,11 @@ const srOnlyStyle: React.CSSProperties = {
 export interface HeaderCellProps extends Omit<React.ThHTMLAttributes<HTMLTableCellElement>, 'align'> {
   align?: Align;
   width?: number | string;
-  /** Turns the header into a sort control. Sorting the rows is the caller's job — react to `onSort`. */
+  /** Turns the header into a sort control. Sorting the rows is the caller's job - react to `onSort`. */
   sortKey?: string;
   sort?: TableSort | null;
   onSort?: (next: TableSort) => void;
-  /** Visually-hide the label (e.g. an actions column) — still announced by assistive tech. */
+  /** Visually-hide the label (e.g. an actions column) - still announced by assistive tech. */
   srOnly?: boolean;
 }
 

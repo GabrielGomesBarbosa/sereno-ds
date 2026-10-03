@@ -2,8 +2,8 @@
 // Builds the body for the GitHub Release release.yml creates for each publish.
 // Title is just `vX.Y.Z` (the tag); this script only writes the notes body.
 //
-// Preferred source: apps/docs/src/design-system/CHANGELOG.md — the hand-written
-// narrative log (one `## X.Y.Z — Title (SS-xxx)` section per version, added by
+// Preferred source: apps/docs/src/design-system/CHANGELOG.md - the hand-written
+// narrative log (one `## X.Y.Z - Title (SS-xxx)` section per version, added by
 // whoever wrote the changeset). Falls back to the machine-generated
 // packages/ui/CHANGELOG.md (+ packages/tokens/CHANGELOG.md, only if it has real
 // content beyond the version heading) if no narrative entry exists yet, so a
@@ -38,11 +38,11 @@ const narrative = section(
   `## ${version}`
 );
 if (narrative) {
-  // Drop the "X.Y.Z — " prefix off the heading — the release title already
+  // Drop the "X.Y.Z - " prefix off the heading - the release title already
   // carries the version, so only the narrative title (if any) stays.
   const versionEscaped = version.replace(/\./g, "\\.");
   narrative[0] = narrative[0]
-    .replace(new RegExp(`^## ${versionEscaped}(?: — )?`), "## ")
+    .replace(new RegExp(`^## ${versionEscaped}(?: - )?`), "## ")
     .trimEnd();
   if (narrative[0] === "##") narrative.shift();
   body = narrative.join("\n").trim();

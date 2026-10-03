@@ -1,4 +1,4 @@
-/* apps/demo — the product screens shell. Component-level CSS comes from the
+/* apps/demo - the product screens shell. Component-level CSS comes from the
    packages; what's here is host-app: the token layer, the reset, and the
    `.dash-*` / `.onb-*` / `.booking-*` layout the three screens use. */
 @import url("@sereno-ds/tokens/tokens.css");
@@ -34,7 +34,7 @@ html, body { padding: 0; margin: 0; }
 .dash-user-trigger > svg:last-child { color: var(--text-muted); transition: transform var(--duration-fast) var(--ease-standard); }
 .dash-user-trigger[data-menu-open] > svg:last-child { transform: rotate(180deg); }
 
-/* ── Dashboard shell — fixed sidebar + scrolling content on desktop, drawer under 900px ── */
+/* ── Dashboard shell - fixed sidebar + scrolling content on desktop, drawer under 900px ── */
 .dash-shell { --dash-gutter: var(--gutter-desktop); display: grid; grid-template-columns: var(--dash-sb-w, 248px) minmax(0, 1fr); height: 100dvh; overflow: hidden; transition: grid-template-columns var(--duration-normal) var(--ease-out); }
 /* overflow visible + z-index so the collapse control can straddle the right edge, above the TopBar */
 .dash-sidebar { position: relative; z-index: 30; width: var(--dash-sb-w, 248px); height: 100dvh; transition: width var(--duration-normal) var(--ease-out); }
@@ -43,7 +43,7 @@ html, body { padding: 0; margin: 0; }
 .dash-main { width: 100%; max-width: var(--container-app); margin-inline: auto; padding: var(--space-7) var(--dash-gutter) var(--space-11); }
 .dash-topbar-lead { display: none; }
 .dash-topbar-theme { display: inline-flex; }
-/* TopBar date subtitle: full weekday on desktop, abbreviated on mobile — a CSS
+/* TopBar date subtitle: full weekday on desktop, abbreviated on mobile - a CSS
    swap so a static/hydrated first paint never flashes the wrong length. */
 .dash-date-short { display: none; }
 
@@ -59,7 +59,7 @@ html, body { padding: 0; margin: 0; }
 @keyframes sereno-fade-out { to { opacity: 0; } }
 .dash-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); }
 /* Booking count under a day in the Agenda rail's DateTimePicker (renderDay).
-   Soft accent chip — legible on white and on the selected day's brand fill. */
+   Soft accent chip - legible on white and on the selected day's brand fill. */
 .dash-cal-count {
   display: inline-flex;
   align-items: center;
@@ -142,14 +142,14 @@ html, body { padding: 0; margin: 0; }
 }
 
 /* ── Check-in kiosk / waiting-room call panel (SS-66) ───────────────────────
-   Watched from across a room, not held in a hand — bigger type than the
+   Watched from across a room, not held in a hand - bigger type than the
    desk/phone screens, but every value still comes from the DS's own scale
    (`--text-5xl` is the biggest size token there is); no kiosk-only tokens
    invented here. That ceiling is itself the finding: this exploration is
    about whether the current scale reads at a step back, not about shipping
    a fourth type scale.
 
-   Shows only a first name + last initial and a time — never the service
+   Shows only a first name + last initial and a time - never the service
    ("Sessão de psicoterapia" is sensitive health data under LGPD Art. 5º II)
    and never a browsable list of everyone booked today. See CheckInKiosk.tsx
    for why that was the first draft and got redone. */
@@ -204,7 +204,7 @@ html, body { padding: 0; margin: 0; }
   color: var(--text-brand);
 }
 
-/* Stands in for a receptionist's own control surface — demo-only, not part
+/* Stands in for a receptionist's own control surface - demo-only, not part
    of the public panel a client/waiting-room would ever see. */
 .kiosk-staff-bar {
   display: flex;
@@ -216,7 +216,7 @@ html, body { padding: 0; margin: 0; }
   background: var(--bg-subtle);
 }
 
-/* ── WeeklyScheduleEditor (src/domain — a product component, not the DS) ───────
+/* ── WeeklyScheduleEditor (src/domain - a product component, not the DS) ───────
    The day rows are an inline grid; this is the only breakpoint where they
    reflow to a single column. */
 @media (max-width: 560px) {
@@ -227,7 +227,7 @@ html, body { padding: 0; margin: 0; }
 /* ── Public booking flow ──────────────────────────────────────────────────────
    Mobile (<768): full-bleed single column, sticky action footer.
    Tablet (768–1023): a contained single-column card.
-   Desktop (≥1024): a two-column card — a persistent identity/summary rail on the
+   Desktop (≥1024): a two-column card - a persistent identity/summary rail on the
    left, the current step on the right. */
 .booking-shell { min-height: 100dvh; background: var(--bg-canvas); }
 .booking-card {

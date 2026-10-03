@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   esbuild: { jsx: 'automatic' },
-  // Mirrors tsconfig.json's `paths` — most specific first, `@/*` (repo-root-relative) last.
+  // Mirrors tsconfig.json's `paths` - most specific first, `@/*` (repo-root-relative) last.
   resolve: {
     alias: [
       { find: '@/screens', replacement: new URL('./src/screens', import.meta.url).pathname },

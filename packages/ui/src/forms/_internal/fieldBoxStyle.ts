@@ -11,9 +11,9 @@ export const CONTROL_HEIGHT: Record<FieldBoxSize, string> = {
 
 /**
  * The bordered field-box chrome shared by any control whose trigger looks
- * like a text field but opens something else on click — `Select`'s
+ * like a text field but opens something else on click - `Select`'s
  * `<button role="combobox">`, `DatePicker`'s calendar trigger (SS-243).
- * Not for `Input`/`Textarea` themselves — those style their own `<input>`/
+ * Not for `Input`/`Textarea` themselves - those style their own `<input>`/
  * `<textarea>` directly, with no separate "trigger vs. panel" split.
  */
 export function fieldBoxStyle(size: FieldBoxSize, error: boolean, open: boolean, disabled: boolean): CSSProperties {
@@ -24,8 +24,8 @@ export function fieldBoxStyle(size: FieldBoxSize, error: boolean, open: boolean,
     gap: 'var(--space-2)',
     width: '100%',
     height: CONTROL_HEIGHT[size],
-    // Longhand (not the `padding` shorthand) so callers can override one side
-    // — e.g. NativeSelect's right pad — without React leaving the others blank.
+    // Longhand (not the `padding` shorthand) so callers can override one side,
+    // e.g. NativeSelect's right pad - without React leaving the others blank.
     paddingTop: 0,
     paddingRight: 'var(--space-3)',
     paddingBottom: 0,

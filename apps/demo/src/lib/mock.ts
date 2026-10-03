@@ -1,4 +1,4 @@
-// Mock data for the three product screens. No backend in this phase (SS-39 §8) —
+// Mock data for the three product screens. No backend in this phase (SS-39 §8) -
 // every screen reads from here. Copy tuned to the DS content rules: sentence case,
 // 24h times, "R$ 180" with a non-breaking space, closed status vocabulary.
 
@@ -90,7 +90,7 @@ export function getServices(slug: string): Service[] {
 
 // August 2026 sample availability for the DateTimePicker (month index 7).
 export const BOOKING_MONTH = { year: 2026, month: 7 };
-/** Weekend day-numbers of a month — sample "no availability" days that stay
+/** Weekend day-numbers of a month - sample "no availability" days that stay
  *  meaningful when the calendar is navigated (feed via `onMonthChange`). */
 export const weekendsOf = (y: number, m: number): number[] =>
   Array.from({ length: new Date(y, m + 1, 0).getDate() }, (_, i) => i + 1).filter((d) => {
@@ -98,9 +98,9 @@ export const weekendsOf = (y: number, m: number): number[] =>
     return wd === 0 || wd === 6;
   });
 export const UNAVAILABLE_DAYS = weekendsOf(2026, 7);
-/** The demo's "today" — Mon 24 Aug 2026 (matches the Agenda header). */
+/** The demo's "today" - Mon 24 Aug 2026 (matches the Agenda header). */
 export const DEMO_TODAY = { year: 2026, month: 7, day: 24 };
-/** Deterministic sample booking counts per day for a month — weekdays only, and
+/** Deterministic sample booking counts per day for a month - weekdays only, and
  *  only from DEMO_TODAY forward, so a `renderDay` badge reads as "upcoming load". */
 export const bookingCountsOf = (y: number, m: number): Record<number, number> => {
   const out: Record<number, number> = {};
@@ -176,7 +176,7 @@ export interface ClientRow {
   sessions: string;
   last: string;
   status: 'success' | 'warning' | 'error';
-  /** "+55 11 9####-####" — international format, ready for a WhatsApp deep link. */
+  /** "+55 11 9####-####" - international format, ready for a WhatsApp deep link. */
   phone: string;
 }
 
@@ -226,7 +226,7 @@ export interface Review {
 }
 
 export const REVIEWS: Review[] = [
-  { name: 'Marina Alves', rating: 5, comment: 'Profissional muito atenciosa — me senti acolhida desde a primeira sessão.', date: 'ago 2026' },
+  { name: 'Marina Alves', rating: 5, comment: 'Profissional muito atenciosa. Me senti acolhida desde a primeira sessão.', date: 'ago 2026' },
   { name: 'Carlos Dias', rating: 5, comment: 'Ótima escuta e sempre pontual. Recomendo bastante.', date: 'jul 2026' },
   { name: 'Juliana Prado', rating: 4, comment: 'Bom atendimento; só gostaria de mais horários disponíveis à noite.', date: 'jun 2026' },
   { name: 'Rafael e Bia', rating: 5, comment: 'A terapia de casal mudou nossa comunicação. Muito grata.', date: 'mai 2026' },

@@ -6,7 +6,7 @@ import { Toast, type ToastProps } from './Toast';
 import { sx } from '../_internal/style';
 
 /**
- * The toast *system* — a portal viewport plus a queue — layered on top of the
+ * The toast *system* - a portal viewport plus a queue - layered on top of the
  * presentational `Toast`. Wrap the app once:
  *
  * ```tsx
@@ -26,7 +26,7 @@ import { sx } from '../_internal/style';
  *
  * Toasts stack (newest nearest the edge), show a countdown bar, auto-dismiss
  * after `duration`, pause that timer (and the bar) while hovered/focused, and
- * cap at `max` — the oldest drops. Needs the `sereno-toast-*` keyframes from
+ * cap at `max` - the oldest drops. Needs the `sereno-toast-*` keyframes from
  * `@sereno-ds/ui/styles.css`.
  */
 
@@ -37,7 +37,7 @@ export interface ToastOptions {
   description?: string;
   tone?: Tone;
   icon?: React.ReactNode;
-  /** Inline control on the right — an "Undo" / "View" `Button variant="link"`. */
+  /** Inline control on the right - an "Undo" / "View" `Button variant="link"`. */
   action?: React.ReactNode;
   /** ms until auto-dismiss. `0` (or `Infinity`) keeps it until dismissed. Defaults to the provider's `duration`. */
   duration?: number;
@@ -86,7 +86,7 @@ export interface ToastProviderProps {
 
 interface Entry extends ToastOptions {
   id: string;
-  /** Resolved auto-dismiss (ms) — `opts.duration ?? provider duration`. `0` / `Infinity` = sticky. */
+  /** Resolved auto-dismiss (ms) - `opts.duration ?? provider duration`. `0` / `Infinity` = sticky. */
   ms: number;
   leaving?: boolean;
 }
@@ -112,7 +112,7 @@ const timed = (ms: number) => ms > 0 && Number.isFinite(ms);
 export function ToastProvider({ children, position = 'bottom-right', max = 3, duration = 4000 }: ToastProviderProps) {
   const [entries, setEntries] = React.useState<Entry[]>([]);
   const [pausedIds, setPausedIds] = React.useState<ReadonlySet<string>>(() => new Set());
-  // A live region announces a *change* to already-present content — a node
+  // A live region announces a *change* to already-present content - a node
   // that mounts fresh with its text already inside it (which is what each
   // visual Toast card below does) is not reliably announced by screen
   // readers, across browsers/AT. So the actual announcement runs through two
@@ -220,7 +220,7 @@ export function ToastProvider({ children, position = 'bottom-right', max = 3, du
   );
 
   /* eslint-disable react-hooks/refs -- `fire` transitively reaches the `timers` ref, but only when a
-     consumer invokes toast.*() from an event handler — never during render. `useMemo` just keeps
+     consumer invokes toast.*() from an event handler - never during render. `useMemo` just keeps
      the callable API object's identity stable. */
   const toast = React.useMemo<ToastApi>(() => {
     const base = (msg: ToastInput, opts?: Partial<ToastOptions>) => fire(msg, opts);
@@ -271,7 +271,7 @@ export function ToastProvider({ children, position = 'bottom-right', max = 3, du
     // any side; `alignItems` only matters if a toast were ever narrower.
     alignItems: 'stretch',
     // An *outer* offset on top of the padding above, not just the padding
-    // itself — macOS Safari's overlay scrollbar floats over the page rather
+    // itself - macOS Safari's overlay scrollbar floats over the page rather
     // than reducing its width, so a left/right edge flush at 0 can end up
     // with the scrollbar painted right where the padding was supposed to be
     // the toast's only clearance from the edge.

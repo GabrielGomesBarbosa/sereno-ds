@@ -1,7 +1,7 @@
 name: Release
 
 # Publishes @sereno-ds/ui + @sereno-ds/tokens to npm. NOT the showcase/demo
-# deploy (Railway, separate) — see CLAUDE.md § "Package release".
+# deploy (Railway, separate) - see CLAUDE.md § "Package release".
 #
 # Direct-publish flow (no intermediate "Version Packages" PR):
 #   1. A feature PR lands on main carrying a `.changeset/*.md` file.
@@ -9,31 +9,31 @@ name: Release
 #      package.json + CHANGELOG, deletes the consumed changesets) and commits
 #      the bump straight to main IF there's a diff to commit.
 #   3. `changeset publish` always runs next (even when step 2 had nothing to
-#      commit) — it's idempotent per package: `npm publish`s whatever local
+#      commit) - it's idempotent per package: `npm publish`s whatever local
 #      version isn't on the registry yet, skips whatever already is. This is
 #      what makes the workflow safely retryable after a partial failure (e.g.
-#      the bump commit landed but the actual `npm publish` 403'd) — just push
+#      the bump commit landed but the actual `npm publish` 403'd) - just push
 #      any new commit to main (or re-run this job) and it'll pick up publishing
 #      right where it left off, with no pending changeset required. Pushes the
 #      `@sereno-ds/*@x.y.z` git tags changesets creates natively.
 #   4. It then also tags that same commit `vX.Y.Z` (the two packages are
 #      version-locked via `fixed` in .changeset/config.json, so one tag covers
-#      both) and creates the GitHub Release from it — title is just `vX.Y.Z`;
+#      both) and creates the GitHub Release from it - title is just `vX.Y.Z`;
 #      body is built by `.github/scripts/build-release-notes.mjs` from
 #      `apps/docs/src/design-system/CHANGELOG.md`'s narrative section for that
 #      version (falls back to the machine `packages/*/CHANGELOG.md`s if that
 #      entry is missing). Keeps every release's title in the same `vX.Y.Z`
 #      format, no manual step.
 #   5. A push with nothing new to bump AND nothing new to publish is a fast
-#      no-op (two `npm view` calls) — the config-only PRs, the bump commit
+#      no-op (two `npm view` calls) - the config-only PRs, the bump commit
 #      itself.
 #
 # The bump commit is pushed with GITHUB_TOKEN, which by design does not trigger
 # another workflow run, so there's no loop. `changeset status` + the
-# `publish-dry-run` job in ci.yml run on every feature PR — that's the
+# `publish-dry-run` job in ci.yml run on every feature PR - that's the
 # review point for the version now, in place of a dedicated PR.
 #
-# Auth: OIDC trusted publishing — NO NPM_TOKEN. Install on Node 20 (matches
+# Auth: OIDC trusted publishing - NO NPM_TOKEN. Install on Node 20 (matches
 # ci.yml's lockfile); npm bumped to 11.x (≥ 11.5.1, the OIDC floor) for the
 # publish step. Needs `id-token: write` + `provenance: true` in each package's
 # publishConfig + a Trusted Publisher configured on npm for this repo + workflow.
@@ -71,7 +71,7 @@ jobs:
       - run: npx turbo run lint typecheck test build --filter=@sereno-ds/ui --filter=@sereno-ds/tokens
 
       # OIDC trusted publishing needs npm ≥ 11.5.1; Node 20 ships npm 10. Pinned
-      # to 11.x on purpose — npm@latest is 12.x now, which requires Node 22+.
+      # to 11.x on purpose - npm@latest is 12.x now, which requires Node 22+.
       - run: npm install -g npm@11
 
       - name: Version, commit, publish
@@ -91,7 +91,7 @@ jobs:
             git push origin HEAD:main
           fi
 
-          # Always attempt publish, bump or not — changeset publish checks each
+          # Always attempt publish, bump or not - changeset publish checks each
           # package's local version against the registry and skips whatever's
           # already there, so this is what makes a retry after a partial
           # failure (bump committed, publish itself failed) safe with no fresh
@@ -102,7 +102,7 @@ jobs:
           VERSION="$(node -p "require('./packages/ui/package.json').version")"
           TAG="v${VERSION}"
 
-          # Re-runs after a partial failure land here again — both checks are
+          # Re-runs after a partial failure land here again - both checks are
           # against the remote, so they still no-op correctly.
           if ! git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
             git tag "$TAG"

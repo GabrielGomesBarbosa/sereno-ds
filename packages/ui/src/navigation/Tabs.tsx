@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { sx } from '../_internal/style';
 
 /**
- * Horizontal section switcher — a **compound component**. `underline` for
+ * Horizontal section switcher - a **compound component**. `underline` for
  * page-level sections, `pill` for filters inside a panel. When the tabs
  * overflow their width the strip scrolls horizontally, with a chevron on
  * whichever side has more; picking a tab scrolls it into view.
@@ -21,7 +21,7 @@ import { sx } from '../_internal/style';
  * </Tabs>
  * ```
  *
- * `Tabs.Panel` is optional — nothing requires it. Render your own content
+ * `Tabs.Panel` is optional - nothing requires it. Render your own content
  * next to `Tabs.List`, keyed off the controlled `value`, if that reads
  * better for the screen.
  */
@@ -59,7 +59,7 @@ interface TabsContextValue {
 /** Width of the overflow chevron's fade-out + hit area, and how much
  * scroll-padding the strip keeps on that side so scrollIntoView doesn't land
  * a tab half-hidden behind it. The chevron overlays this edge rather than
- * reserving space for itself — reserving space fit fewer tabs on screen at
+ * reserving space for itself - reserving space fit fewer tabs on screen at
  * once, for no benefit once the chevron reliably paints above the tab under
  * it (see Tab's z-index comment). */
 const CHEVRON_W = 56;
@@ -93,8 +93,8 @@ function List({ children, style, onKeyDown, ...rest }: TabsListProps) {
     });
   }, []);
 
-  // Finds the active <Tabs.Tab> by its data-tab-value (no ref registry needed
-  // — children render into this same scroll container) and measures it in the
+  // Finds the active <Tabs.Tab> by its data-tab-value (no ref registry needed,
+  // children render into this same scroll container) and measures it in the
   // container's own coordinate space, so `indicator.left` lines up with the
   // absolutely-positioned bar/pill below.
   const measureIndicator = React.useCallback(() => {
@@ -114,7 +114,7 @@ function List({ children, style, onKeyDown, ...rest }: TabsListProps) {
     );
   }, [activeValue]);
 
-  // Layout effect so the indicator lands in the right spot before paint —
+  // Layout effect so the indicator lands in the right spot before paint -
   // no visible jump from a stale position on the very first render after a
   // value change.
   React.useLayoutEffect(() => {
@@ -142,9 +142,9 @@ function List({ children, style, onKeyDown, ...rest }: TabsListProps) {
   };
 
   // Roving tabindex (SS-228): only the active Tab is ever tabIndex=0 (below),
-  // so Tab enters/leaves the whole strip in one stop. Left/Right move — and,
+  // so Tab enters/leaves the whole strip in one stop. Left/Right move - and,
   // matching this component's own "click selects immediately" contract
-  // (automatic activation, not a separate confirm step), also *select* — the
+  // (automatic activation, not a separate confirm step), also *select* - the
   // adjacent tab, wrapping at the ends; Home/End jump to the first/last.
   // Reuses the same data-tab-value DOM query as measureIndicator above rather
   // than cloning children, for the same reason: List doesn't otherwise need
@@ -203,7 +203,7 @@ function List({ children, style, onKeyDown, ...rest }: TabsListProps) {
           gap: pill ? 'var(--space-1)' : 'var(--space-5)',
           padding: pill ? 'var(--space-1)' : 0,
           // The chevron overlays this edge (see ScrollChevron) rather than
-          // reserving permanent space for itself — reserving space fit fewer
+          // reserving permanent space for itself - reserving space fit fewer
           // tabs on screen at once for no real benefit once the chevron
           // paints correctly above whatever tab is underneath it (the actual
           // bug, fixed below on Tab). scroll-padding keeps scrollIntoView
@@ -223,7 +223,7 @@ function List({ children, style, onKeyDown, ...rest }: TabsListProps) {
               pointerEvents: 'none',
               transition: 'left 200ms ease, width 200ms ease, top 200ms ease, height 200ms ease',
               // Match the active Tab's own box exactly (offsetTop/offsetHeight,
-              // not top:0/bottom:0) — the latter is relative to the scroll
+              // not top:0/bottom:0) - the latter is relative to the scroll
               // container's *padding edge*, which for `pill` ignores the
               // container's own padding and over-fills it top-to-bottom.
               ...(pill
@@ -252,7 +252,7 @@ function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
       role="tab"
       aria-selected={active}
       data-tab-value={value}
-      // Roving tabindex (SS-228): only the active tab is a Tab stop — List's
+      // Roving tabindex (SS-228): only the active tab is a Tab stop - List's
       // onKeyDown moves *and* focuses between tabs with the arrow keys, so
       // Tab itself only needs to enter/leave the strip once.
       tabIndex={active ? 0 : -1}
@@ -264,10 +264,10 @@ function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
       }}
       style={sx({
         // position:relative (no explicit z-index) is enough to paint above
-        // the indicator — both sit in the DOM-order-decided stacking layer,
+        // the indicator - both sit in the DOM-order-decided stacking layer,
         // and this comes later. An explicit z-index would promote this into
         // its own stacking context ranked ahead of *everything* z-index:auto,
-        // including the unrelated ScrollChevron sibling outside this row —
+        // including the unrelated ScrollChevron sibling outside this row -
         // which is exactly the bug that shipped: the chevron ended up
         // painted underneath every tab, visible only through the gaps
         // between glyphs of whichever tab it overlapped.
@@ -280,13 +280,13 @@ function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
         gap: 'var(--space-2)',
         border: 'none',
         cursor: 'pointer',
-        // Not inline outline:none — see the .sereno-tab rule in styles.css
+        // Not inline outline:none - see the .sereno-tab rule in styles.css
         // for why that would permanently beat :focus-visible.
         background: 'transparent',
         borderRadius: pill ? 'var(--radius-pill)' : 0,
         // Symmetric top/bottom (SS-228 follow-up): this used to be `0 0
-        // var(--space-3)` — no top padding, all the reserved space for the
-        // underline bar's gap on the bottom — which left the label sitting
+        // var(--space-3)` - no top padding, all the reserved space for the
+        // underline bar's gap on the bottom - which left the label sitting
         // visibly above the button's own box center (and by extension above
         // center of the focus-ring outline, which traces that box). Equal
         // padding centers the label; ScrollChevron no longer needs its old
@@ -310,7 +310,7 @@ function Tab({ value, icon, count, children, style, ...rest }: TabsTabProps) {
             padding: '1px 6px',
             borderRadius: '999px',
             background: active ? 'var(--bg-brand-soft)' : pill ? 'var(--bg-surface)' : 'var(--bg-subtle)',
-            // text-muted here was < 4.5:1 on bg-subtle (SS-230) — text-secondary
+            // text-muted here was < 4.5:1 on bg-subtle (SS-230) - text-secondary
             // both fixes that and matches the inactive tab label's own color
             // (line ~253), which was already text-secondary, not text-muted.
             color: active ? 'var(--text-brand)' : 'var(--text-secondary)',
@@ -329,7 +329,7 @@ function Panel({ value, children, ...rest }: TabsPanelProps) {
   return (
     // tabIndex=0 (WAI-ARIA APG Tabs pattern): the panel itself is the next
     // Tab stop after the tablist, so keyboard users land in the tab's own
-    // content next — not in whatever unrelated element happens to follow it
+    // content next - not in whatever unrelated element happens to follow it
     // in the DOM (e.g. this docs site's own "Show Code" toggle). A consumer
     // rendering focusable content of its own can override via `rest`.
     <div role="tabpanel" tabIndex={0} {...rest}>
@@ -352,7 +352,7 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
         alignItems: 'center',
         justifyContent: side === 'left' ? 'flex-start' : 'flex-end',
         pointerEvents: 'none',
-        // Fades the tab it overlays out towards this edge — the button
+        // Fades the tab it overlays out towards this edge - the button
         // itself paints above every tab (Tab has no explicit z-index, so
         // it can't outrank this), so it's never actually hidden by one;
         // this is purely about not hard-cutting the text right at the
@@ -379,7 +379,7 @@ function ScrollChevron({ side, fade, pill, onClick }: { side: 'left' | 'right'; 
           boxShadow: 'var(--shadow-md)',
           color: 'var(--text-secondary)',
           cursor: 'pointer',
-          // No vertical correction needed here anymore — Tab's own padding
+          // No vertical correction needed here anymore - Tab's own padding
           // is symmetric top/bottom for both variants now, so the row's
           // geometric center already matches the label's center.
         })}

@@ -23,9 +23,9 @@ const TEXT = {
 
 export interface TimeSlot {
   value: string;
-  /** Hard-blocked — unclickable regardless of `capacity`/`booked`. */
+  /** Hard-blocked - unclickable regardless of `capacity`/`booked`. */
   disabled?: boolean;
-  /** Total spots this slot holds — a group session, a class. Omit for a
+  /** Total spots this slot holds - a group session, a class. Omit for a
    *  plain 1:1 slot with no capacity tracking (the original contract). */
   capacity?: number;
   /** How many are already booked into it. */
@@ -33,8 +33,8 @@ export interface TimeSlot {
 }
 
 /**
- * Month calendar plus available time slots — the heart of the public booking flow.
- * Day names and month names render in pt-BR by default — the real Sereno
+ * Month calendar plus available time slots - the heart of the public booking flow.
+ * Day names and month names render in pt-BR by default - the real Sereno
  * product always uses it; `locale="en"` exists only for docs/demo purposes.
  *
  * The header navigates: ‹ / › step the month, and the centred title opens a
@@ -42,16 +42,16 @@ export interface TimeSlot {
  * view; the component then owns it. Pass `onMonthChange` to react to navigation
  * (e.g. fetch the new month's availability).
  *
- * The day grid uses roving tabindex (SS-228) — only one cell is ever in the
+ * The day grid uses roving tabindex (SS-228) - only one cell is ever in the
  * Tab order, so Tab enters/leaves it in one stop instead of one per day.
  * Arrow keys move by day/week and cross month boundaries on overflow;
  * Home/End move within the current week row; PageUp/PageDown step the
  * month. An `unavailable` day stays focusable (`aria-disabled`, not the
- * native `disabled` — a disabled button can't receive focus at all) so the
+ * native `disabled` - a disabled button can't receive focus at all) so the
  * cursor can still land on it, just not select it.
  *
- * The calendar body itself (header + day grid) is `./_internal/CalendarGrid`
- * — shared with `DatePicker` (SS-243), which wraps the same grid in a
+ * The calendar body itself (header + day grid) is `./_internal/CalendarGrid`,
+ * shared with `DatePicker` (SS-243), which wraps the same grid in a
  * trigger+popover shell instead of this component's always-visible card.
  */
 export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -60,25 +60,25 @@ export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivEl
   /** Initial month, 0-indexed. Defaults to the current month. */
   month?: number;
   /** Selected day-of-month. The highlight only shows in the month it was picked
-   *  in — navigating away and back to a *different* month never re-highlights it. */
+   *  in - navigating away and back to a *different* month never re-highlights it. */
   selectedDate?: number;
   /**
    * Slot labels ("09:00") or `TimeSlot` objects. A slot with `capacity` set
    * shows "booked/capacity" and switches to a full/overbook-warning look
-   * once reached (SS-64) — still pickable unless also `disabled`, since a
+   * once reached (SS-64) - still pickable unless also `disabled`, since a
    * full slot and a *blocked* one are different things: the first is a
    * deliberate "yes, overbook it" the caller can still choose to allow.
    */
   times?: (string | TimeSlot)[];
   selectedTime?: string;
-  /** Day numbers with no availability — struck through and unclickable. */
+  /** Day numbers with no availability - struck through and unclickable. */
   unavailable?: number[];
   onSelectDate?: (day: number) => void;
   onSelectTime?: (time: string) => void;
   /** Fires whenever the visible month changes (arrows or the month/year popover). */
   onMonthChange?: (year: number, month: number) => void;
   /**
-   * Extra content under each day number — a count badge, a dot, etc. Return
+   * Extra content under each day number - a count badge, a dot, etc. Return
    * `null` for days with nothing to show. When set, every cell grows to keep the
    * grid even. It's the caller's job to scope this (e.g. future days only).
    */
@@ -86,7 +86,7 @@ export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivEl
   /** Defaults to the `locale`-appropriate label ("Horários disponíveis" / "Available times"). */
   timeLabel?: string;
   /**
-   * The real Sereno product always renders pt-BR — this only exists so the
+   * The real Sereno product always renders pt-BR - this only exists so the
    * docs showcase can demo an English-speaking consumer without forking the
    * component. Default stays `'pt-BR'`.
    */
@@ -94,7 +94,7 @@ export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivEl
 }
 
 /**
- * `ref` reaches the root `<div>` — plain DOM access (measuring, scrolling
+ * `ref` reaches the root `<div>` - plain DOM access (measuring, scrolling
  * into view), not a form value. This isn't a single-value field: the day and
  * the time are two separate, parent-owned selections (`selectedDate` /
  * `selectedTime` + their own `onSelectDate` / `onSelectTime` callbacks), so
@@ -174,7 +174,7 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
               const booked = typeof slot === 'object' ? (slot.booked ?? 0) : 0;
               const hasOwnCapacity = capacity !== undefined;
               // Full ≠ blocked: a full slot is still pickable (a deliberate
-              // overbook) unless the caller *also* set `disabled` — that's
+              // overbook) unless the caller *also* set `disabled` - that's
               // the actual hard "no" (SS-64).
               const full = hasOwnCapacity && booked >= capacity;
               const sel = selectedTime === val;
@@ -188,7 +188,7 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
                   key={val}
                   type="button"
                   disabled={dis}
-                  aria-label={hasOwnCapacity ? `${val} — ${full ? copy.fullInline + ', ' : ''}${copy.vagas(booked, capacity)}` : undefined}
+                  aria-label={hasOwnCapacity ? `${val}, ${full ? copy.fullInline + ', ' : ''}${copy.vagas(booked, capacity)}` : undefined}
                   onClick={() => onSelectTime && onSelectTime(val)}
                   className="sereno-dtp-time"
                   style={sx({
@@ -222,7 +222,7 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--weight-semibold)',
                     transition: 'var(--transition-control)',
-                    // Not inline outline:none — see .sereno-dtp-time in styles.css.
+                    // Not inline outline:none - see .sereno-dtp-time in styles.css.
                   })}
                 >
                   <span aria-hidden={hasOwnCapacity}>{val}</span>

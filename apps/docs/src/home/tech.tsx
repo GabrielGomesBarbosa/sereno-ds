@@ -1,4 +1,4 @@
-/** Monochrome React / Next.js marks — paint in `currentColor`, no external assets. */
+/** Monochrome React / Next.js marks - paint in `currentColor`, no external assets. */
 
 export function ReactMark({ size = 18 }: { size?: number }) {
   return (

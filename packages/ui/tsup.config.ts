@@ -6,7 +6,7 @@ import { fixEsmExtensions } from './scripts/fix-esm-extensions.mjs';
 /**
  * `bundle: false` keeps the source module structure in `dist/`, so each
  * component keeps its own `'use client'` boundary (RSC-friendly) and consumers
- * tree-shake per file. `styles.css` is copied verbatim — it's the one required
+ * tree-shake per file. `styles.css` is copied verbatim - it's the one required
  * stylesheet (see README / SS-154).
  */
 export default defineConfig({
@@ -23,7 +23,7 @@ export default defineConfig({
     await copyFile('src/styles.css', 'dist/styles.css');
     // esbuild's per-file transpile (bundle: false) never rewrites import
     // specifiers, so relative ones keep the extensionless form they have in
-    // source — invalid per the Node ESM spec. Bundler resolution tolerates
+    // source - invalid per the Node ESM spec. Bundler resolution tolerates
     // it; Node's native resolver (Vitest, plain Node) doesn't.
     await fixEsmExtensions(path.resolve(import.meta.dirname, 'dist'));
   },

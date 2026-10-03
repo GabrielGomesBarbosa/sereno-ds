@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 
 /**
  * On desktop the content column is its own scroll container (fixed app-shell),
- * so Next's default "scroll to top on navigation" — which targets the document —
+ * so Next's default "scroll to top on navigation" - which targets the document -
  * doesn't reach it. On mobile (<=900px) the document scrolls instead. Reset both
  * on route change; whichever isn't the active scroller is a harmless no-op.
  */

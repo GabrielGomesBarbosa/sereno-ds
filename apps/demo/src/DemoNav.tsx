@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Brand, Typography } from '@sereno-ds/ui';
 
-// Demo-harness chrome — not part of the product. A fixed pill so any screen
+// Demo-harness chrome - not part of the product. A fixed pill so any screen
 // can get back to the hub or jump to another screen.
 const SCREENS = [
   { href: '/agendar/ana-ramos', label: 'Booking', match: '/agendar' },

@@ -3,10 +3,10 @@
 import * as React from 'react';
 
 /**
- * The sticky "On this page" rail — shared by the Overview/Tokens pages
+ * The sticky "On this page" rail - shared by the Overview/Tokens pages
  * (`DocPage`) and every component page (`ComponentView`). Tracks which
  * section is currently in view (`IntersectionObserver`, not scroll-position
- * math) and highlights it — a plain list of links with no sense of "where
+ * math) and highlights it - a plain list of links with no sense of "where
  * you are" wasn't pulling its weight on a page long enough to need one.
  */
 
@@ -40,7 +40,7 @@ export function TableOfContents({ items }: { items: TocItem[] }) {
     if (targets.length === 0) return;
 
     // A section counts as "current" once it's crossed into the top band of the
-    // viewport (below the sticky header) and hasn't scrolled past the middle —
+    // viewport (below the sticky header) and hasn't scrolled past the middle -
     // not merely "on screen at all", or the last section lights up the moment
     // it peeks into view at the bottom.
     const observer = new IntersectionObserver(
@@ -77,7 +77,7 @@ export function TableOfContents({ items }: { items: TocItem[] }) {
                   background: 'transparent',
                   cursor: 'pointer',
                   padding: '4px 8px',
-                  // Round only the trailing corners — rounding the leading ones too would
+                  // Round only the trailing corners - rounding the leading ones too would
                   // curve the active border-left into a bracket shape instead of a straight bar.
                   borderRadius: '0 var(--radius-sm) var(--radius-sm) 0',
                   fontFamily: 'var(--font-body)',

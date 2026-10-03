@@ -104,7 +104,7 @@ export function NotificationsMenu({ onToast }: { onToast: (m: string) => void })
             style={{ borderTop: '1px solid var(--border-subtle)', borderRadius: 0, color: 'var(--text-secondary)' }}
             onClick={() => {
               close();
-              onToast('Central de notificações — em breve.');
+              onToast('Central de notificações: em breve.');
             }}
           >
             Ver todas
@@ -116,7 +116,7 @@ export function NotificationsMenu({ onToast }: { onToast: (m: string) => void })
 }
 
 export function UserMenu({ onNavigate, onToast }: { onNavigate: (v: string) => void; onToast: (m: string) => void }) {
-  // On mobile the standalone TopBar theme toggle is dropped for space — it lives here instead.
+  // On mobile the standalone TopBar theme toggle is dropped for space - it lives here instead.
   const isNarrow = useMediaQuery('(max-width: 900px)');
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';

@@ -1,7 +1,7 @@
 import pkg from '@sereno-ds/ui/package.json';
 
 /**
- * The one Sereno DS version — the published `@sereno-ds/ui` / `@sereno-ds/tokens`
+ * The one Sereno DS version - the published `@sereno-ds/ui` / `@sereno-ds/tokens`
  * number (they move in lockstep). Shown in the `/design-system` header.
  *
  * Do NOT hand-edit a version anywhere: `npm run version-packages` (Changesets)

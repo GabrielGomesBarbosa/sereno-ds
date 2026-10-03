@@ -20,7 +20,7 @@ const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3002';
 
 const pageTitle = 'Sereno Design System';
 const pageDescription =
-  '30 token-driven React primitives for the Sereno scheduling platform — native dark mode, no UI base library, built for React and Next.js.';
+  '30 token-driven React primitives for the Sereno scheduling platform, native dark mode, no UI base library, built for React and Next.js.';
 
 export const metadata: Metadata = {
   title: pageTitle,
@@ -31,14 +31,14 @@ export const metadata: Metadata = {
 
 const FEATURES: { icon: ReactNode; title: string; body: string }[] = [
   { icon: <Palette size={20} strokeWidth={1.75} />, title: 'Token-driven', body: 'Every value is a CSS custom property. Light and dark are the same components on a different token set.' },
-  { icon: <Ban size={20} strokeWidth={1.75} />, title: 'No base library', body: 'No Radix, MUI or Tailwind. Inline styles, built from scratch — the surface is exactly the design system.' },
+  { icon: <Ban size={20} strokeWidth={1.75} />, title: 'No base library', body: 'No Radix, MUI or Tailwind. Inline styles, built from scratch: the surface is exactly the design system.' },
   { icon: <MoonStar size={20} strokeWidth={1.75} />, title: 'Native dark mode', body: 'One `data-theme` on the root. No theme prop, no variant, no flash.' },
-  { icon: <MonitorSmartphone size={20} strokeWidth={1.75} />, title: 'Responsive UI', body: 'Adapts to the pointer, not just the width — Select opens as a bottom sheet on touch, Dialog as a slide-up, the dashboard re-homes its nav.' },
-  { icon: <Accessibility size={20} strokeWidth={1.75} />, title: 'Keyboard & focus', body: 'Real focus rings, `:focus-visible`, roving tabindex where it matters — on every control.' },
-  { icon: <ListChecks size={20} strokeWidth={1.75} />, title: 'WCAG 2.1 AA audited', body: 'Every primitive checked for contrast, keyboard access, screen readers and focus management — real issues found and fixed, not a badge.' },
+  { icon: <MonitorSmartphone size={20} strokeWidth={1.75} />, title: 'Responsive UI', body: 'Adapts to the pointer, not just the width. Select opens as a bottom sheet on touch, Dialog as a slide-up, the dashboard re-homes its nav.' },
+  { icon: <Accessibility size={20} strokeWidth={1.75} />, title: 'Keyboard & focus', body: 'Real focus rings, `:focus-visible`, roving tabindex where it matters, on every control.' },
+  { icon: <ListChecks size={20} strokeWidth={1.75} />, title: 'WCAG 2.1 AA audited', body: 'Every primitive checked for contrast, keyboard access, screen readers and focus management, real issues found and fixed, not a badge.' },
   { icon: <Layers size={20} strokeWidth={1.75} />, title: '31 primitives, 5 categories', body: 'Core, forms, navigation, feedback and the scheduling-domain cards, a live preview for each.' },
-  { icon: <Feather size={20} strokeWidth={1.75} />, title: 'Zero runtime', body: 'No CSS-in-JS engine. Plain inline styles reading `var(--token)` — nothing ships but the components.' },
-  { icon: <Server size={20} strokeWidth={1.75} />, title: 'RSC-ready', body: "Each primitive keeps its own `'use client'` boundary — server components import them freely; only what's interactive hydrates." },
+  { icon: <Feather size={20} strokeWidth={1.75} />, title: 'Zero runtime', body: 'No CSS-in-JS engine. Plain inline styles reading `var(--token)`: nothing ships but the components.' },
+  { icon: <Server size={20} strokeWidth={1.75} />, title: 'RSC-ready', body: "Each primitive keeps its own `'use client'` boundary, server components import them freely; only what's interactive hydrates." },
 ];
 
 const EYEBROW_OVERRIDE: CSSProperties = { fontWeight: 'var(--weight-bold)', letterSpacing: '0.1em' };
@@ -162,7 +162,7 @@ export default function Home() {
               The UI behind Sereno, as a system.
             </Typography>
             <Typography variant="body" color="secondary" style={{ fontSize: 'var(--text-lg)', lineHeight: 1.6, maxWidth: 460 }}>
-              30 token-driven React primitives — native dark mode, no UI base library, one live preview per component.
+              30 token-driven React primitives: native dark mode, no UI base library, one live preview per component.
             </Typography>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
               <Typography as="span" variant="bodySm" style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
@@ -232,7 +232,7 @@ export default function Home() {
                 Open the Design System
               </Typography>
               <Typography variant="bodySm" style={{ lineHeight: 1.55 }}>
-                Every primitive across 5 categories, the tokens page in light &times; dark, and a page per component — live preview, code, do and don&rsquo;t.
+                Every primitive across 5 categories, the tokens page in light &times; dark, and a page per component, live preview, code, do and don&rsquo;t.
               </Typography>
             </Card>
           </Link>
@@ -245,7 +245,7 @@ export default function Home() {
                 See the app <ExternalLink size={15} strokeWidth={2} style={{ color: 'var(--text-muted)' }} />
               </Typography>
               <Typography variant="bodySm" style={{ lineHeight: 1.55 }}>
-                The three real screens — public booking flow, professional dashboard and onboarding — built from these primitives, on mocked data.
+                The three real screens (public booking flow, professional dashboard and onboarding) built from these primitives, on mocked data.
               </Typography>
             </Card>
           </a>

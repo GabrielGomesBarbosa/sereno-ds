@@ -179,7 +179,7 @@ export function WeeklyScheduleEditor({
         >
           <Typography variant="bodySm">
             {active.length === 0
-              ? 'Nenhum dia ativo — seu link público não vai mostrar horários.'
+              ? 'Nenhum dia ativo: seu link público não vai mostrar horários.'
               : 'Você atende ' + active.map((d) => d.short).join(', ') + (buf !== '0' ? ', com ' + buf + ' min de intervalo entre atendimentos.' : '.')}
           </Typography>
         </div>

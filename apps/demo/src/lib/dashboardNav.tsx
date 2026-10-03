@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 
 /**
- * The Dashboard screen's nav data — the single source for what `SidebarNav`
+ * The Dashboard screen's nav data - the single source for what `SidebarNav`
  * renders (in `Dashboard.tsx`, a client component) and for which routes
  * `app/dashboard/[[...slug]]/page.tsx` (a server component) must pre-render
  * as static HTML. Kept in a plain module, no `'use client'`, so both sides
@@ -39,7 +39,7 @@ export interface SidebarSubItem {
   value: string;
   label: string;
   count?: number;
-  /** Locked on the free plan — shown in the menu, not selectable. */
+  /** Locked on the free plan - shown in the menu, not selectable. */
   disabled?: boolean;
 }
 export interface SidebarItem {
@@ -47,7 +47,7 @@ export interface SidebarItem {
   label: string;
   icon?: React.ReactNode;
   count?: number;
-  /** Locked on the free plan — shown in the menu, not selectable. */
+  /** Locked on the free plan - shown in the menu, not selectable. */
   disabled?: boolean;
   children?: SidebarSubItem[];
 }
@@ -126,12 +126,12 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
   },
 ];
 
-/** Every navigable `value` — top-level items and their sub-items, flattened. */
+/** Every navigable `value` - top-level items and their sub-items, flattened. */
 export const DASHBOARD_VIEWS: string[] = SIDEBAR_SECTIONS.flatMap((s) =>
   s.items.flatMap((it) => [it.value, ...(it.children?.map((c) => c.value) ?? [])]),
 );
 
-/** `value` → its URL under `/dashboard` — colon-separated segments become slashes. */
+/** `value` → its URL under `/dashboard` - colon-separated segments become slashes. */
 export function pathForView(view: string): string {
   return `/dashboard/${view.split(':').join('/')}`;
 }

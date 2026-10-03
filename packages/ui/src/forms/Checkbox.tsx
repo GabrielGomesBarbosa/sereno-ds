@@ -9,14 +9,14 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
   label?: string;
   /** Secondary line under the label. Replaced by `error` when present. */
   description?: string;
-  /** Error message — tints the box and the secondary line red. Replaces `description`. */
+  /** Error message - tints the box and the secondary line red. Replaces `description`. */
   error?: string;
-  /** Mixed state — some but not all children selected. Visual only; a form still submits it as unchecked. */
+  /** Mixed state - some but not all children selected. Visual only; a form still submits it as unchecked. */
   indeterminate?: boolean;
   /** Box size. `sm` (16px) for dense filter lists; `md` (20px) everywhere else. */
   size?: 'sm' | 'md';
   /**
-   * Reserve the description/error row's height even with neither set — keeps
+   * Reserve the description/error row's height even with neither set - keeps
    * the row stable as `error` comes and goes (SS-259, same mechanism as
    * `Input`'s `preserveHelperSpace`). Off by default.
    */
@@ -30,7 +30,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
   const [hover, setHover] = React.useState(false);
   const box = size === 'sm' ? 16 : 20;
   const innerRef = React.useRef<HTMLInputElement>(null);
-  // `indeterminate` is a DOM property, not an attribute — set it imperatively, and
+  // `indeterminate` is a DOM property, not an attribute - set it imperatively, and
   // re-assert on every render so a `checked` change never leaves it stale.
   React.useEffect(() => {
     if (innerRef.current) innerRef.current.indeterminate = Boolean(indeterminate);
@@ -62,7 +62,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
             margin: 0,
             borderRadius: 'var(--radius-sm)',
             border: 'var(--border-width-emphasis) solid ' + (error ? 'var(--interactive-error)' : hover && !disabled ? 'var(--border-brand)' : 'var(--border-strong)'),
-            // `backgroundColor`, not `background` — the shorthand would set an inline
+            // `backgroundColor`, not `background` - the shorthand would set an inline
             // `background-size: auto` that overrides the `:checked` glyph scaling.
             backgroundColor: 'var(--bg-surface)',
             cursor: 'inherit',

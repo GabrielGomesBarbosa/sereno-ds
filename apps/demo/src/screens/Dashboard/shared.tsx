@@ -3,7 +3,7 @@ import { BarChart3, Sparkles } from 'lucide-react';
 import { Card, EmptyState, Typography } from '@sereno-ds/ui';
 import { vcol } from '@/domain/layout';
 
-/** Small pieces every Dashboard view reaches for — layout helpers, the shared
+/** Small pieces every Dashboard view reaches for - layout helpers, the shared
  * "not built yet" placeholder, and the one hook used both here and by the shell. */
 
 export { vcol };
@@ -52,25 +52,25 @@ export function Stat({ label, value, delta, tone }: { label: string; value: stri
   );
 }
 
-/** The flex-wrap row every `Stat` group sits in — Agenda, Financeiro, Relatórios. */
+/** The flex-wrap row every `Stat` group sits in - Agenda, Financeiro, Relatórios. */
 export function StatRow({ children }: { children: React.ReactNode }) {
   return <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>{children}</div>;
 }
 
-/** The DS-boundary placeholder — a section whose real flow isn't built yet. */
+/** The DS-boundary placeholder - a section whose real flow isn't built yet. */
 export function ComingSoon({ label }: { label: string }) {
   return (
     <Card padding="none">
       <EmptyState
         icon={<Sparkles size={22} strokeWidth={1.75} />}
-        title={`${label} — em breve`}
+        title={`${label}: em breve`}
         description="Esta área ainda não faz parte deste design system; entra quando o fluxo for definido."
       />
     </Card>
   );
 }
 
-/** Same placeholder, sized as a full view — the fallback for any nav destination with no screen yet. */
+/** Same placeholder, sized as a full view - the fallback for any nav destination with no screen yet. */
 export function ComingSoonView({ title }: { title: string }) {
   return (
     <div style={{ ...vcol('var(--space-5)'), maxWidth: 760 }}>
@@ -79,14 +79,14 @@ export function ComingSoonView({ title }: { title: string }) {
   );
 }
 
-/** The revenue/occupancy chart placeholder — Financeiro › Resumo and Relatórios both point here. */
+/** The revenue/occupancy chart placeholder - Financeiro › Resumo and Relatórios both point here. */
 export function ChartsComingSoon({ title }: { title: string }) {
   return (
     <Card padding="none">
       <EmptyState
         icon={<BarChart3 size={22} strokeWidth={1.75} />}
         title={title}
-        description="Os gráficos de receita e ocupação ainda não fazem parte deste design system — deixado propositalmente em branco."
+        description="Os gráficos de receita e ocupação ainda não fazem parte deste design system, deixado propositalmente em branco."
       />
     </Card>
   );

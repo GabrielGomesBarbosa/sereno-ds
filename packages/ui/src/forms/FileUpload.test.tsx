@@ -5,7 +5,7 @@ import { FileUpload } from './FileUpload';
 
 afterEach(cleanup);
 
-describe('FileUpload — ref', () => {
+describe('FileUpload: ref', () => {
   it('forwards ref to the hidden native file input', () => {
     const ref = React.createRef<HTMLInputElement>();
     render(<FileUpload ref={ref} />);

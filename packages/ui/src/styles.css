@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   @sereno-ds/ui — component stylesheet.
+   @sereno-ds/ui - component stylesheet.
 
    The Sereno components are token-driven inline styles, but a handful of things
    can't live in an inline `style`: @keyframes, pseudo-classes (:checked,
@@ -9,7 +9,7 @@
 
        import '@sereno-ds/ui/styles.css';   // (today: this file, via app/globals.css)
 
-   Depends on the design tokens (custom properties) being defined — see
+   Depends on the design tokens (custom properties) being defined - see
    app/styles/tokens/*.css (future @sereno-ds/tokens).
 
    Not included here (host-app concerns, not the library):
@@ -37,7 +37,7 @@
    All three need these host rules for their checked / focus states. */
 .sereno-check:checked,
 .sereno-check:indeterminate {
-  /* `background-color`, not the `background` shorthand — the shorthand would
+  /* `background-color`, not the `background` shorthand - the shorthand would
      reset `background-size` and the glyph would stop scaling with the box. */
   background-color: var(--interactive-primary) !important;
   border-color: var(--interactive-primary) !important;
@@ -59,7 +59,7 @@
 .sereno-radio[data-size='sm']:checked {
   box-shadow: inset 0 0 0 3px var(--bg-surface) !important;
 }
-/* Switch is a role=switch <span>, not an input — give it a keyboard focus ring. */
+/* Switch is a role=switch <span>, not an input - give it a keyboard focus ring. */
 .sereno-switch {
   outline: none;
 }
@@ -68,7 +68,7 @@
 }
 
 /* ── Tabs ────────────────────────────────────────────────────────────────────
-   The strip scrolls horizontally when it overflows — hide the scrollbar
+   The strip scrolls horizontally when it overflows - hide the scrollbar
    (the chevrons are the affordance). */
 .sereno-tab-scroll {
   scrollbar-width: none;
@@ -77,7 +77,7 @@
 .sereno-tab-scroll::-webkit-scrollbar {
   display: none;
 }
-/* Tab's own focus ring (SS-228) — it used to set outline:none inline with
+/* Tab's own focus ring (SS-228) - it used to set outline:none inline with
    nothing to replace it, which (as with DateTimePicker's day grid) always
    beats a class selector's :focus-visible rule no matter what, roving
    tabindex or not. Suppressed here instead, same specificity as the
@@ -91,8 +91,8 @@
 }
 
 /* ── SidebarNav ──────────────────────────────────────────────────────────────
-   Thin scroll area, a keyboard ring on its plain <button> rows, and — when
-   collapsed — a hidden scrollbar so a scrollbar gutter can't push the centred
+   Thin scroll area, a keyboard ring on its plain <button> rows, and - when
+   collapsed - a hidden scrollbar so a scrollbar gutter can't push the centred
    icons off-axis from the header mark. */
 .sereno-sidenav {
   scrollbar-width: thin;
@@ -111,7 +111,7 @@
 .sereno-sidenav-root[data-collapsed] .sereno-sidenav::-webkit-scrollbar {
   display: none;
 }
-/* The section break — every `SidebarNav.Section` but the first gets the gap +
+/* The section break - every `SidebarNav.Section` but the first gets the gap +
    divider; `Section` itself doesn't know its own position among siblings. */
 .sereno-sidenav-section:not(:first-child) {
   margin-top: var(--space-3);
@@ -134,7 +134,7 @@
 /* ── In-field affix button ───────────────────────────────────────────────────
    A bare icon button that sits inside the field frame (Input's password reveal,
    SearchInput's clear, FileUpload / AvatarUpload actions). NOTE: the class is
-   `ds-affix-btn` for historical reasons — rename to `sereno-affix-btn` is a
+   `ds-affix-btn` for historical reasons - rename to `sereno-affix-btn` is a
    breaking class-contract change, deferred. */
 .ds-affix-btn {
   display: inline-flex;
@@ -154,12 +154,12 @@
 .ds-affix-btn:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 
 /* ── Table ──────────────────────────────────────────────────────────────────
-   Ships with @sereno-ds/ui's compound <Table>. The parts stay thin — structure,
+   Ships with @sereno-ds/ui's compound <Table>. The parts stay thin - structure,
    density, dividers, hover / focus / sticky / zebra live here, keyed off
    data-* on the <table> root. */
 .sereno-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); }
 /* Visually-hidden <caption>. `top/left: 0` pins it to the (position: relative)
-   scroll region — without an anchor a position:absolute caption falls back to its
+   scroll region - without an anchor a position:absolute caption falls back to its
    static offset against the viewport and stretches the page's scroll height. */
 .sereno-table caption { position: absolute; top: 0; left: 0; width: 1px; height: 1px; padding: 0; margin: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
 .sereno-table thead tr { background: var(--bg-subtle); }
@@ -194,7 +194,7 @@
 .sereno-table th button { transition: color var(--duration-fast) var(--ease-standard); }
 .sereno-table th button:hover { color: var(--text-primary); }
 /* `min-width: 0` lets the region shrink below the table's `min-width` when it's a
-   flex / grid item — without it the wide table forces its ancestors open and the
+   flex / grid item - without it the wide table forces its ancestors open and the
    *page* scrolls sideways instead of this box. `position: relative` anchors the
    visually-hidden <caption> here (see the caption rule above). */
 .sereno-table-scroll { outline: none; position: relative; min-width: 0; max-width: 100%; }
@@ -228,7 +228,7 @@
 }
 
 /* ── Dialog ────────────────────────────────────────────────────────────────
-   Header ✕ button — hover/focus states that can't be inline. */
+   Header ✕ button - hover/focus states that can't be inline. */
 .sereno-dialog-close:hover { background: var(--interactive-ghost-hover); color: var(--text-primary); }
 .sereno-dialog-close:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 /* Footer `fill`: every action shares each line and grows to fill it, so a wrap never leaves one
@@ -236,7 +236,7 @@
 .sereno-dialog-footer[data-fill] > * { flex: 1 1 auto; }
 
 /* ── Dismiss ✕ (Alert / Toast) ─────────────────────────────────────────────
-   Ghost icon button on a tinted surface — tint the hover from currentColor so
+   Ghost icon button on a tinted surface - tint the hover from currentColor so
    it reads on every tone. */
 .sereno-dismiss { transition: opacity var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard); }
 .sereno-dismiss:hover { opacity: 1; background: color-mix(in srgb, currentColor 14%, transparent); }
@@ -245,7 +245,7 @@
 /* ── Toast viewport (ToastProvider) ────────────────────────────────────────
    Enter/exit per stacked toast + the auto-dismiss countdown bar. Direction
    depends on the anchored edge. The reduced-motion rule below damps all of it
-   (the JS timer still dismisses on schedule — only the visuals are stilled). */
+   (the JS timer still dismisses on schedule - only the visuals are stilled). */
 .sereno-toast-item { animation: sereno-toast-in var(--duration-normal) var(--ease-out); }
 .sereno-toast-item[data-edge='top'] { animation-name: sereno-toast-in-top; }
 .sereno-toast-item[data-leaving='true'] { animation: sereno-toast-out var(--duration-fast) var(--ease-in) forwards; }
@@ -269,7 +269,7 @@
    inline styles. The header title button lives here too. */
 .sereno-dtp-title:hover { background: var(--interactive-ghost-hover); }
 .sereno-dtp-title:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
-/* fade only — the box is centred with translateX(-50%), so no transform anim. */
+/* fade only - the box is centred with translateX(-50%), so no transform anim. */
 .sereno-dtp-pop { animation: sereno-fade-in var(--duration-fast) var(--ease-standard); }
 .sereno-dtp-grid button {
   height: 34px;
@@ -286,24 +286,24 @@
 }
 .sereno-dtp-grid button:hover { background: var(--interactive-ghost-hover); }
 .sereno-dtp-grid button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
-/* The day grid's own focus ring (SS-228) — was missing entirely: the day
+/* The day grid's own focus ring (SS-228) - was missing entirely: the day
    button used to set outline:none *inline*, which always wins over a class
    selector regardless of :focus-visible, so the roving-tabindex cursor was
-   keyboard-functional but completely invisible. Suppressed here instead —
+   keyboard-functional but completely invisible. Suppressed here instead -
    same specificity as the :focus-visible rule below, so source order
    decides and the override actually takes. Separate from .sereno-dtp-grid
-   on purpose — that class is the month/year popover's mini-grid, whose
+   on purpose - that class is the month/year popover's mini-grid, whose
    :hover / [data-current] rules don't belong on a day cell (it already has
    its own selected/today styling driven from React state, not CSS
    attribute selectors). */
 .sereno-dtp-days button { outline: none; }
 .sereno-dtp-days button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
-/* Time-slot grid (SS-228 sweep) — same bug, same fix: an inline outline:none
+/* Time-slot grid (SS-228 sweep) - same bug, same fix: an inline outline:none
    with nothing to replace it, found auditing every remaining inline
    outline:none in the package after the day-grid and Tabs fixes above. */
 .sereno-dtp-time button { outline: none; }
 .sereno-dtp-time button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
-/* BottomNav.Item (SS-228 sweep) — identical bug: outline suppressed inline
+/* BottomNav.Item (SS-228 sweep) - identical bug: outline suppressed inline
    with no substitute at all (no useInteract-style box-shadow ring either). */
 .sereno-bottom-nav-item { outline: none; }
 .sereno-bottom-nav-item:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
@@ -315,7 +315,7 @@
 
 /* ── Reduced motion ──────────────────────────────────────────────────────────
    The token layer already zeroes `--duration-*`, but Button's spinner and
-   Skeleton's pulse use fixed loop durations — damp every animation so the
+   Skeleton's pulse use fixed loop durations - damp every animation so the
    library honours the preference on its own. */
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }

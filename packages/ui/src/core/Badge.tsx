@@ -38,7 +38,7 @@ export function Badge({ tone = 'neutral', size = 'md', dot = true, children, sty
         padding: sm ? '2px 8px' : '4px 10px',
         borderRadius: 'var(--radius-chip)',
         background: 'var(' + bg + ')',
-        // The neutral fill can match a tinted surface it sits on — a hairline
+        // The neutral fill can match a tinted surface it sits on - a hairline
         // keeps the chip defined on any background. Tinted tones read on their own.
         border: 'var(--border-width-hairline) solid ' + (tone === 'neutral' ? 'var(--border-default)' : 'transparent'),
         color: 'var(' + fg + ')',

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { sx } from '../_internal/style';
 
 /**
- * Mobile primary navigation — a **compound component**. 3 to 5 destinations,
+ * Mobile primary navigation - a **compound component**. 3 to 5 destinations,
  * 64px tall, translucent blurred surface.
  *
  * ```tsx
@@ -81,7 +81,7 @@ function Item({ value, label, icon, badge }: BottomNavItemProps) {
         border: 'none',
         background: 'transparent',
         cursor: 'pointer',
-        // Not inline outline:none — see .sereno-bottom-nav-item in styles.css.
+        // Not inline outline:none - see .sereno-bottom-nav-item in styles.css.
         position: 'relative',
         color: active ? 'var(--text-brand)' : 'var(--text-muted)',
         transition: 'var(--transition-control)',

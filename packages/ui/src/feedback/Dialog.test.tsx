@@ -222,7 +222,7 @@ describe('Dialog', () => {
     expect(screen.getByRole('button', { name: 'OK' })).toBeInTheDocument();
   });
 
-  it('works with no Header at all — just a Body', () => {
+  it('works with no Header at all: just a Body', () => {
     render(
       <Dialog open>
         <Dialog.Body>Just body copy.</Dialog.Body>
@@ -232,7 +232,7 @@ describe('Dialog', () => {
     expect(screen.getByText('Just body copy.')).toBeInTheDocument();
   });
 
-  it('traps Tab within the panel — wraps last → first and first → last', () => {
+  it('traps Tab within the panel: wraps last → first and first → last', () => {
     render(
       <Dialog open>
         <Dialog.Header title="Hi">

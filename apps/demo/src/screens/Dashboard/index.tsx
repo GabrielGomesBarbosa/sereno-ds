@@ -17,7 +17,7 @@ import { ConfigView } from './ConfigView';
 import { BloqueiosView } from './BloqueiosView';
 import { ComingSoonView } from './shared';
 
-/** `SIDEBAR_SECTIONS` mapped to `SidebarNav`'s compound children — shared by the
+/** `SIDEBAR_SECTIONS` mapped to `SidebarNav`'s compound children - shared by the
  * desktop rail and the mobile drawer below, each its own `<SidebarNav>`. */
 function SidebarSections() {
   return (
@@ -41,7 +41,7 @@ function DashboardShell() {
   const { toast } = useToast();
   const notify = React.useCallback((m: string) => toast.success(m), [toast]);
   // The view lives in the URL (not React state) so a direct visit or an F5
-  // lands on the right screen with the right nav item — and branch — active.
+  // lands on the right screen with the right nav item - and branch - active.
   const pathname = usePathname();
   const router = useRouter();
   const view = viewFromPathname(pathname);
@@ -68,7 +68,7 @@ function DashboardShell() {
     };
   }, [drawerOpen]);
   React.useEffect(() => {
-    // the persistent sidebar is back — drop the drawer with no exit animation
+    // the persistent sidebar is back - drop the drawer with no exit animation
     const resetDrawer = () => {
       setDrawerOpen(false);
       setDrawerRender(false);
@@ -157,7 +157,7 @@ function DashboardShell() {
             </TopBar.Title>
             <TopBar.Actions>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                {/* Hidden via CSS (not JS) below 900px so it can't flash on reload — the
+                {/* Hidden via CSS (not JS) below 900px so it can't flash on reload - the
                     toggle moves into the avatar menu there. See .dash-topbar-theme. */}
                 <span className="dash-topbar-theme">
                   <ThemeToggle variant="ghost" />

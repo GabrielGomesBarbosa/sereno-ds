@@ -21,7 +21,7 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
    */
   showCount?: boolean;
   containerStyle?: React.CSSProperties;
-  /** Reserve the hint/error row's height even with neither set — stops the
+  /** Reserve the hint/error row's height even with neither set - stops the
    *  field from growing the moment a validation message appears. */
   preserveHelperSpace?: boolean;
 }
@@ -70,7 +70,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
   );
   const count = rest.value !== undefined ? String(rest.value ?? '').length : uncount;
 
-  // Destructured (not left in `...rest`) and always re-composed — same
+  // Destructured (not left in `...rest`) and always re-composed - same
   // reason as `handleChange` above: a caller's own onFocus/onBlur (or
   // react-hook-form's `register()`, which always injects its own onBlur)
   // must never silently replace the focus ring's, the way a plain

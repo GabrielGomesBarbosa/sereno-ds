@@ -8,21 +8,21 @@ import { fieldA11y, fieldLabelId } from '../_internal/fieldA11y';
 import { mergeRefs } from '../_internal/mergeRefs';
 
 /**
- * Pick files — click, keyboard, or drag-and-drop — with a local preview.
+ * Pick files - click, keyboard, or drag-and-drop - with a local preview.
  * Image-first (`shape` circle/square thumbnail); other types show an extension
  * chip. No upload happens here: `onChange` hands you the `File`(s); the preview
  * is local. Set `multiple` for a list; `value` then is `File[]`.
  */
 interface BaseProps {
   label?: string;
-  /** Helper text under the field — a good place for the accepted types / size. */
+  /** Helper text under the field - a good place for the accepted types / size. */
   hint?: string;
   /** Error message; also shown instead of a rejected-file message. */
   error?: string;
   required?: boolean;
   /** `accept` attribute, also enforced on drop. */
   accept?: string;
-  /** Max size in MB — files above this are rejected with a message. */
+  /** Max size in MB - files above this are rejected with a message. */
   maxSizeMB?: number;
   /** Thumbnail shape for image previews. `circle` for avatars (single only). */
   shape?: 'circle' | 'square';
@@ -31,7 +31,7 @@ interface BaseProps {
   disabled?: boolean;
   id?: string;
   containerStyle?: React.CSSProperties;
-  /** Reserve the hint/error row's height even with neither set — stops the
+  /** Reserve the hint/error row's height even with neither set - stops the
    *  field from growing the moment a validation message appears. */
   preserveHelperSpace?: boolean;
 }
@@ -85,7 +85,7 @@ function glyphFor(name: string) {
   return GLYPHS[(name.split('.').pop() || '').toLowerCase()] ?? { Icon: FileIcon, color: 'var(--status-neutral-fg)' };
 }
 
-/** One thumbnail — the image itself, or a colour-coded file-type glyph. */
+/** One thumbnail - the image itself, or a colour-coded file-type glyph. */
 function Thumb({ url, name, size, shape }: { url: string | null; name: string; size: number; shape: 'circle' | 'square' }) {
   const { Icon, color } = glyphFor(name);
   return (
@@ -174,7 +174,7 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(fu
   const [rejected, setRejected] = React.useState<string | null>(null);
   const [dragOver, setDragOver] = React.useState(false);
 
-  // Uncontrolled fallback — one shape covers both modes internally.
+  // Uncontrolled fallback - one shape covers both modes internally.
   const [internalOne, setInternalOne] = React.useState<File | null>(null);
   const [internalMany, setInternalMany] = React.useState<File[]>([]);
   const one = props.multiple ? null : props.value !== undefined ? props.value : internalOne;

@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 export interface WhatsAppButtonProps {
-  /** Any format — non-digits are stripped. Must include the country code (e.g. "+55 11 99999-8888"). */
+  /** Any format - non-digits are stripped. Must include the country code (e.g. "+55 11 99999-8888"). */
   phone: string;
   /** Pre-filled message text. */
   message?: string;
@@ -15,11 +15,11 @@ export interface WhatsAppButtonProps {
 }
 
 // WhatsApp's own dark teal (their header/app-bar color), not the brighter
-// mint green (#25D366) — white text on that one measures ~2:1, nowhere
+// mint green (#25D366) - white text on that one measures ~2:1, nowhere
 // near WCAG AA's 4.5:1 for the labeled button's text. This teal is ~7.9:1,
 // still unmistakably "WhatsApp", and also clears the 3:1 non-text/graphical
 // bar for the icon-only variant against a light page background. The one
-// deliberate exception to this app's token-driven palette — the button's
+// deliberate exception to this app's token-driven palette - the button's
 // color IS the channel it represents (same reasoning a "Sign in with
 // Google" button keeps Google's palette in an otherwise branded app).
 // Never reuse this hex elsewhere; promote it to a real token if a second
@@ -34,7 +34,7 @@ function waUrl(phone: string, message?: string): string {
   return `https://wa.me/${digits}` + (message ? `?text=${encodeURIComponent(message)}` : '');
 }
 
-/** The official WhatsApp glyph — lucide-react (this app's only icon source,
+/** The official WhatsApp glyph - lucide-react (this app's only icon source,
  * see AGENTS.md) ships no brand logos, so this is the one hand-embedded
  * brand SVG in the app. */
 function WhatsAppGlyph({ size }: { size: number }) {
@@ -53,7 +53,7 @@ const ICON_GLYPH = { sm: 16, md: 18, lg: 20 } as const;
 
 /**
  * Quick action that opens a WhatsApp chat with a client or professional in
- * a new tab — the product's own communication channel (reminders,
+ * a new tab - the product's own communication channel (reminders,
  * confirmations and cancellations already go out over WhatsApp; see
  * BookingFlow, AgendaView). A plain `<button onClick>` opening the URL via
  * `window.open`, not a real `<a href>`: it needs the same `disabled`
@@ -64,7 +64,7 @@ const ICON_GLYPH = { sm: 16, md: 18, lg: 20 } as const;
  * their hover/press colors from the DS's own token palette with no escape
  * hatch for a one-off brand color (see the WA_TEAL comment above), so this
  * carries its own small hover/press/focus-visible state instead. Shape,
- * spacing and type still read off the same tokens as everywhere else —
+ * spacing and type still read off the same tokens as everywhere else -
  * only the fill color is the deliberate exception.
  */
 export function WhatsAppButton({ phone, message, label, size = 'md', disabled = false, style }: WhatsAppButtonProps) {

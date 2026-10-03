@@ -23,7 +23,7 @@ export interface FieldProps {
   /** Right-aligned node on the hint row (e.g. a character counter). */
   counter?: React.ReactNode;
   /**
-   * Reserve the hint/error row's height even when there's nothing to show —
+   * Reserve the hint/error row's height even when there's nothing to show -
    * keeps the field's own height stable as `error`/`hint` come and go (e.g.
    * several fields in a form invalidating at once), instead of every field
    * growing the moment a message appears. Off by default: most fields don't
@@ -36,7 +36,7 @@ export interface FieldProps {
 
 export function Field({ label, hint, error, required, requiredExposed = false, htmlFor, counter, preserveHelperSpace = false, children, style }: FieldProps) {
   return (
-    // No `gap` here — the label→field and field→helper gaps are deliberately
+    // No `gap` here - the label→field and field→helper gaps are deliberately
     // different sizes (below), not one uniform rhythm.
     <div style={sx({ display: 'flex', flexDirection: 'column', ...style })}>
       {label && (
@@ -68,7 +68,7 @@ export function Field({ label, hint, error, required, requiredExposed = false, h
             alignItems: 'baseline',
             gap: 'var(--space-3)',
             marginTop: 'var(--space-1)',
-            // One line's worth of height, reserved up front — so text
+            // One line's worth of height, reserved up front - so text
             // appearing/disappearing never changes the row's own size.
             minHeight: preserveHelperSpace ? 'calc(var(--text-xs) * 1.45)' : undefined,
             justifyContent: error || hint ? 'space-between' : 'flex-end',

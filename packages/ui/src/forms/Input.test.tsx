@@ -6,7 +6,7 @@ import { Input } from './Input';
 
 afterEach(cleanup);
 
-describe('Input — ref', () => {
+describe('Input: ref', () => {
   it('forwards ref to the native input, still usable for the password-reveal focus-back', () => {
     const ref = React.createRef<HTMLInputElement>();
     render(<Input label="Nome" ref={ref} />);
@@ -15,8 +15,8 @@ describe('Input — ref', () => {
   });
 });
 
-describe('Input — focus ring', () => {
-  it('a caller onBlur does not stop the focus ring from resetting (regression: a plain {...rest} spread used to let it silently replace the internal handler — the exact shape react-hook-form\'s register() injects)', () => {
+describe('Input: focus ring', () => {
+  it('a caller onBlur does not stop the focus ring from resetting (regression: a plain {...rest} spread used to let it silently replace the internal handler, the exact shape react-hook-form\'s register() injects)', () => {
     const onBlur = vi.fn();
     const { container } = render(<Input label="Nome" onBlur={onBlur} />);
     const input = container.querySelector('input')!;

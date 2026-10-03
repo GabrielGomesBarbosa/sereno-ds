@@ -6,14 +6,14 @@ import { DateTimePicker } from './DateTimePicker';
 afterEach(cleanup);
 
 // October 2026: 1st falls on a Thursday (getDay() === 4), 31 days. Row
-// containing the 15th spans 11–17 (a full Sun–Sat week) — used by the
+// containing the 15th spans 11–17 (a full Sun–Sat week) - used by the
 // Home/End assertions below. Fixed month/year so the grid layout (and which
 // day starts each row) is deterministic across test runs.
 const OCT = { year: 2026, month: 9 };
 
 const day = (container: HTMLElement, n: number) => container.querySelector<HTMLButtonElement>(`[data-day="${n}"]`)!;
 
-describe('DateTimePicker — keyboard grid navigation', () => {
+describe('DateTimePicker: keyboard grid navigation', () => {
   it('only one day is in the Tab order (roving tabindex)', () => {
     const { container } = render(<DateTimePicker {...OCT} />);
     const tabbable = [...container.querySelectorAll('[data-day]')].filter((el) => el.getAttribute('tabindex') === '0');
@@ -100,7 +100,7 @@ describe('DateTimePicker — keyboard grid navigation', () => {
   });
 
   it('a mouse click re-syncs the roving cursor, so the next arrow press moves from there', () => {
-    // Regression: found live in the showcase — a click used to leave the
+    // Regression: found live in the showcase - a click used to leave the
     // roving cursor state wherever it was before (initialized from
     // selectedDate={5} here), so the *next* arrow key jumped from that
     // stale position (day 6) instead of the cell the user just clicked.
@@ -111,7 +111,7 @@ describe('DateTimePicker — keyboard grid navigation', () => {
   });
 });
 
-describe('DateTimePicker — time slot capacity/overbooking (SS-64)', () => {
+describe('DateTimePicker: time slot capacity/overbooking (SS-64)', () => {
   it('a plain string slot renders and behaves exactly as before (no aria-label override)', () => {
     const onSelectTime = vi.fn();
     render(<DateTimePicker {...OCT} times={['09:00']} onSelectTime={onSelectTime} />);
@@ -134,17 +134,17 @@ describe('DateTimePicker — time slot capacity/overbooking (SS-64)', () => {
     const onSelectTime = vi.fn();
     render(<DateTimePicker {...OCT} times={[{ value: '11:00', capacity: 5, booked: 3 }]} onSelectTime={onSelectTime} />);
     expect(screen.getByText('3 de 5 vagas')).toBeInTheDocument();
-    const btn = screen.getByRole('button', { name: '11:00 — 3 de 5 vagas' });
+    const btn = screen.getByRole('button', { name: '11:00, 3 de 5 vagas' });
     expect(btn).not.toBeDisabled();
     fireEvent.click(btn);
     expect(onSelectTime).toHaveBeenCalledWith('11:00');
   });
 
-  it('a full slot (booked >= capacity) shows "Lotado" but remains clickable — full ≠ blocked', () => {
+  it('a full slot (booked >= capacity) shows "Lotado" but remains clickable, full ≠ blocked', () => {
     const onSelectTime = vi.fn();
     render(<DateTimePicker {...OCT} times={[{ value: '12:00', capacity: 4, booked: 4 }]} onSelectTime={onSelectTime} />);
     expect(screen.getByText('Lotado')).toBeInTheDocument();
-    const btn = screen.getByRole('button', { name: '12:00 — lotado, 4 de 4 vagas' });
+    const btn = screen.getByRole('button', { name: '12:00, lotado, 4 de 4 vagas' });
     expect(btn).not.toBeDisabled();
     fireEvent.click(btn);
     expect(onSelectTime).toHaveBeenCalledWith('12:00');
@@ -153,7 +153,7 @@ describe('DateTimePicker — time slot capacity/overbooking (SS-64)', () => {
   it('a full slot that is ALSO explicitly disabled is genuinely non-interactive', () => {
     const onSelectTime = vi.fn();
     render(<DateTimePicker {...OCT} times={[{ value: '13:00', capacity: 2, booked: 2, disabled: true }]} onSelectTime={onSelectTime} />);
-    const btn = screen.getByRole('button', { name: '13:00 — lotado, 2 de 2 vagas' });
+    const btn = screen.getByRole('button', { name: '13:00, lotado, 2 de 2 vagas' });
     expect(btn).toBeDisabled();
     fireEvent.click(btn);
     expect(onSelectTime).not.toHaveBeenCalled();
@@ -165,8 +165,8 @@ describe('DateTimePicker — time slot capacity/overbooking (SS-64)', () => {
   });
 });
 
-describe('DateTimePicker — ref', () => {
-  it('forwards ref to the root element — plain DOM access, not a form value (day/time are separate, parent-owned props)', () => {
+describe('DateTimePicker: ref', () => {
+  it('forwards ref to the root element: plain DOM access, not a form value (day/time are separate, parent-owned props)', () => {
     const ref = React.createRef<HTMLDivElement>();
     const { container } = render(<DateTimePicker {...OCT} ref={ref} />);
     expect(ref.current).toBeInstanceOf(HTMLDivElement);

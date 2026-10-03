@@ -24,7 +24,7 @@
 
 ### Minor Changes
 
-- 588c9da: Adds `@sereno-ds/tokens/breakpoints` (SS-272) — a typed
+- 588c9da: Adds `@sereno-ds/tokens/breakpoints` (SS-272) - a typed
   `{ sm: 560, md: 768, lg: 1024, xl: 1280 }` mirroring `--bp-*` in
   `spacing.css`, for the one thing a CSS custom property can't do on its
   own: feed a `@media` query (Tailwind's `@theme`, a `matchMedia` call, a
@@ -33,7 +33,7 @@
   the way a hand-copied literal in a consuming app could.
 
   First real slice of SS-71 (converting the token layer to JS/TS for
-  React Native) — scoped down to just breakpoints, for an immediate web
+  React Native) - scoped down to just breakpoints, for an immediate web
   need, rather than waiting on that epic's full theme-object conversion.
 
   Everything else in this package stays CSS-only on purpose: baking a

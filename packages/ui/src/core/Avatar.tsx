@@ -5,7 +5,7 @@ import { sx } from '../_internal/style';
 
 /** Circular professional/client identity. Falls back to brand-soft initials when no photo exists. */
 export interface AvatarProps extends React.HTMLAttributes<HTMLSpanElement> {
-  /** Full name — drives the initials fallback and the img alt. */
+  /** Full name - drives the initials fallback and the img alt. */
   name?: string;
   src?: string;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';

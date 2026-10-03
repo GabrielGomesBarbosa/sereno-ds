@@ -4,7 +4,7 @@ import * as React from 'react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 
 /**
- * Wraps next-themes so it writes `data-theme="light|dark"` on <html> — the exact
+ * Wraps next-themes so it writes `data-theme="light|dark"` on <html> - the exact
  * hook the Sereno tokens switch on (`[data-theme="dark"]` in colors.css / elevation.css).
  * Defaults to the OS preference; the choice is remembered in localStorage.
  */

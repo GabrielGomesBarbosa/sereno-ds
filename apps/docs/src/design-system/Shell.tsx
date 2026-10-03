@@ -10,7 +10,7 @@ import { ThemeToggle } from '@sereno-ds/ui';
 const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3002';
 
 /**
- * Shell — same structure as the dashboard: a full-height sidebar on the left,
+ * Shell - same structure as the dashboard: a full-height sidebar on the left,
  * and a header that only spans the content column ("starts after the sidebar").
  */
 export function Shell({ children }: { children: React.ReactNode }) {

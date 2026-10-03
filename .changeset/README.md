@@ -1,7 +1,7 @@
 # Changesets
 
 `@sereno-ds/ui` and `@sereno-ds/tokens` are versioned here, **in lockstep** (one number,
-always equal — `fixed` in `config.json`). That number is what publishes to npm
+always equal - `fixed` in `config.json`). That number is what publishes to npm
 and what the showcase header displays (it reads `@sereno-ds/ui/package.json`).
 
 ## The one rule

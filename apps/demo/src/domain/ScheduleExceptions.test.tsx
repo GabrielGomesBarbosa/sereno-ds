@@ -12,7 +12,7 @@ function pickDay(day: string | number) {
 }
 
 describe('ScheduleExceptions', () => {
-  // DatePicker's add-form opens on today's month by default — freeze "now" so
+  // DatePicker's add-form opens on today's month by default - freeze "now" so
   // clicking a day resolves to a fixed, known ISO date without navigating
   // months in the test.
   beforeEach(() => {
@@ -67,7 +67,7 @@ describe('ScheduleExceptions', () => {
     expect(onChange).toHaveBeenCalledWith([{ date: '2026-11-20', reason: undefined }]);
   });
 
-  it('rejects a duplicate date — Add stays disabled and shows an error', () => {
+  it('rejects a duplicate date. Add stays disabled and shows an error', () => {
     render(<ScheduleExceptions defaultValue={[{ date: '2026-11-20' }]} />);
     pickDay(20);
     expect(screen.getByRole('button', { name: 'Bloquear data' })).toBeDisabled();

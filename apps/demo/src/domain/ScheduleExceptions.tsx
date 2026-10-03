@@ -6,15 +6,15 @@ import { Button, DatePicker, EmptyState, IconButton, Input, Typography } from '@
 import { sx } from './sx';
 
 export interface DateException {
-  /** ISO date, "YYYY-MM-DD" — always a specific day, never a range. */
+  /** ISO date, "YYYY-MM-DD" - always a specific day, never a range. */
   date: string;
   /** Short reason shown next to the date, e.g. "Feriado", "Viagem". */
   reason?: string;
 }
 
 /**
- * One-off blocks on top of the recurring grid (`WeeklyScheduleEditor`) —
- * a holiday, a trip, a personal day — without touching the weekly pattern
+ * One-off blocks on top of the recurring grid (`WeeklyScheduleEditor`) -
+ * a holiday, a trip, a personal day - without touching the weekly pattern
  * itself. Lives in the dashboard's "Bloqueios" destination.
  * Controlled via `value`/`onChange`, or uncontrolled from `defaultValue`.
  */
@@ -101,7 +101,7 @@ export function ScheduleExceptions({ value, defaultValue, onChange }: ScheduleEx
         <EmptyState
           icon={<CalendarOff size={22} strokeWidth={1.75} />}
           title="Nenhuma data bloqueada"
-          description="Sua grade horária normal vale para todos os dias — bloqueie aqui só as exceções."
+          description="Sua grade horária normal vale para todos os dias, bloqueie aqui só as exceções."
         />
       ) : (
         <div style={sx({ display: 'flex', flexDirection: 'column' })}>

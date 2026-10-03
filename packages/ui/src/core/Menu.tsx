@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { sx } from '../_internal/style';
 
 /**
- * Action menu / dropdown — a `trigger` you supply plus a portalled panel of
+ * Action menu / dropdown - a `trigger` you supply plus a portalled panel of
  * items. Same mechanics as `Select`: `position: fixed` panel measured off the
  * trigger, flips up when there's no room, closes on outside pointerdown / `Escape`
  * / selection, and returns focus to the trigger. `role="menu"` with arrow-key
@@ -28,7 +28,7 @@ import { sx } from '../_internal/style';
  * ```
  *
  * For a rich popover (a notifications list, say) pass a render function instead
- * of `items` — it receives `close`:
+ * of `items` - it receives `close`:
  * `<Menu trigger={…}>{(close) => <NotificationList onDone={close} />}</Menu>`
  */
 
@@ -57,14 +57,14 @@ const isItem = (e: MenuEntry): e is MenuItem => !('separator' in e) && !('headin
 export interface MenuProps {
   /** The clickable element that opens the menu (an `IconButton`, `Button`, avatar button…). */
   trigger: React.ReactElement;
-  /** Overlaid on the trigger — a notification count, a status dot. Sits in a
+  /** Overlaid on the trigger - a notification count, a status dot. Sits in a
    *  `pointer-events: none` layer so a click still opens the menu. */
   adornment?: React.ReactNode;
   /** Structured rows. Omit when using the `children` render function. */
   items?: MenuEntry[];
-  /** Rich panel content — receives `close`. Mutually exclusive with `items`. */
+  /** Rich panel content - receives `close`. Mutually exclusive with `items`. */
   children?: (close: () => void) => React.ReactNode;
-  /** A block above the `items` — a name + email, a title. Not part of the keyboard roving. */
+  /** A block above the `items` - a name + email, a title. Not part of the keyboard roving. */
   header?: React.ReactNode;
   /** Accessible name for the panel, and a heading row when `items` is used. */
   label?: string;
@@ -82,11 +82,11 @@ const GAP = 6;
 const GUTTER = 12;
 
 /** `left` is clamped so the panel is always fully on screen; `above` picks the
- *  vertical edge. On a narrow (phone) viewport `right` is set too — the panel
+ *  vertical edge. On a narrow (phone) viewport `right` is set too - the panel
  *  spans the gutters (centred, full-width) instead of hanging off the trigger. */
 type Place = { top?: number; bottom?: number; left: number; right?: number; above: boolean; maxH: number };
 
-/** Phone-width viewport (`--bp-sm`). Width only — not `pointer: coarse`, which a
+/** Phone-width viewport (`--bp-sm`). Width only - not `pointer: coarse`, which a
  *  trackpad / touch laptop reports on a full-size screen. */
 const PHONE_W = 560;
 
@@ -145,7 +145,7 @@ export function Menu({ trigger, adornment, items, children, header, label, align
   );
 
   // Measure + place the panel while open. `left` is clamped to keep the whole
-  // panel on screen (it can't just right-anchor — on a phone a 360px panel off a
+  // panel on screen (it can't just right-anchor - on a phone a 360px panel off a
   // trigger 300px from the left would run off the edge). Re-runs on scroll/resize;
   // closes if the trigger scrolls away (mirrors Select's fixed strategy). A
   // microtask re-measure picks up the real panel box once it's in the DOM.
@@ -156,7 +156,7 @@ export function Menu({ trigger, adornment, items, children, header, label, align
 
     const measure = (): Place => {
       const r = anchor.getBoundingClientRect();
-      // Fall back to a *desktop* width when unmeasurable — never full-width a
+      // Fall back to a *desktop* width when unmeasurable - never full-width a
       // menu just because a reading came back 0 (a real phone always reports).
       const vw = window.innerWidth || document.documentElement.clientWidth || 1024;
       const vh = window.innerHeight || document.documentElement.clientHeight || 768;
@@ -167,7 +167,7 @@ export function Menu({ trigger, adornment, items, children, header, label, align
       const maxH = Math.max(120, Math.round((above ? roomAbove : roomBelow) - GAP));
       const vert: Pick<Place, 'top' | 'bottom'> = above ? { bottom: Math.max(GUTTER, vh - r.top + GAP) } : { top: r.bottom + GAP };
 
-      // Phone-width: span the gutters — centred, full-width — rather than hang off the trigger.
+      // Phone-width: span the gutters - centred, full-width - rather than hang off the trigger.
       if (vw <= PHONE_W) return { left: GUTTER, right: GUTTER, ...vert, above, maxH };
 
       const panelW = Math.min(panelRef.current?.offsetWidth || (typeof width === 'number' ? width : 240), vw - GUTTER * 2);
@@ -315,7 +315,7 @@ export function Menu({ trigger, adornment, items, children, header, label, align
   };
 
   /* eslint-disable react-hooks/refs -- the `children` render function receives `close`, a stable
-     useCallback that reads the anchor ref only when a consumer invokes it from an event handler —
+     useCallback that reads the anchor ref only when a consumer invokes it from an event handler -
      never during this render. */
   return (
     <span ref={anchorRef} style={sx({ display: 'inline-flex', position: 'relative' })}>

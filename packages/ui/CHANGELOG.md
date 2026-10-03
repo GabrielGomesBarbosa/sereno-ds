@@ -179,7 +179,7 @@
   indica…") and there was no way to read the rest; hovering or tabbing onto it
   now shows the text in the same tooltip the icon-only rail already used.
 
-  - **Only when it is actually cut** — measured (`scrollWidth > clientWidth`) at
+  - **Only when it is actually cut** - measured (`scrollWidth > clientWidth`) at
     the moment of hover/focus, so a label that fits gets no redundant tooltip.
     Applies to `Item` and `SubItem`, disabled ones included.
   - **Keyboard parity**: `:focus-visible` shows it too, and on the icon-only rail
@@ -193,28 +193,28 @@
 
 ### Minor Changes
 
-- 4188c42: `SidebarNav` can now disable destinations (SS-286) — `disabled` on
+- 4188c42: `SidebarNav` can now disable destinations (SS-286) - `disabled` on
   `SidebarNav.Item`, on `SidebarNav.SubItem`, and on the `SidebarNav` root to
   lock the whole menu at once. Purely additive.
 
   - **Root vs item**: an `Item` inherits the root's `disabled` when it doesn't
-    set its own, and an explicit `disabled={false}` opts back in — a "Help"
+    set its own, and an explicit `disabled={false}` opts back in - a "Help"
     link can stay reachable while everything else is locked. A `SubItem`
     inherits from its parent `Item`, so an enabled parent isn't re-locked
     underneath. The collapse toggle, `header` and `footer` are not destinations
     and stay live under a disabled root.
   - **Accessibility**: `aria-disabled` (not the native attribute), so a disabled
-    row is still in the accessibility tree — but it leaves the Tab order, since
+    row is still in the accessibility tree - but it leaves the Tab order, since
     a locked menu shouldn't cost one dead tab stop per item (a whole disabled
     menu would be ~30). A click never fires `onChange`, `href` never navigates
     (a disabled item renders as a `<button>`, never through `linkComponent`), a
     disabled parent neither toggles its accordion nor opens its rail flyout
     (the plain label tooltip still shows).
-  - **Current page**: a disabled item can still be the current page — `value`
+  - **Current page**: a disabled item can still be the current page - `value`
     pointing at it keeps `aria-current` and the active look, just muted, and the
     branch holding a disabled current `SubItem` stays open so you can still see
     where you are.
-  - **Look**: `--text-disabled`, `cursor: not-allowed`, no hover — the same
+  - **Look**: `--text-disabled`, `cursor: not-allowed`, no hover - the same
     tokens as `Menu` items.
 
 ## 0.31.0
@@ -224,14 +224,14 @@
 ### Patch Changes
 
 - 9a18077: Fixes `Input` and `Textarea` never resetting their focus ring when a
-  caller passes its own `onBlur` — a plain `{...rest}` spread after the
+  caller passes its own `onBlur` - a plain `{...rest}` spread after the
   internal `onBlur={() => setFocus(false)}` let the caller's handler
   silently replace it instead of composing with it, the same class of bug
   `onChange` was already protected against. This blocked every
   `react-hook-form` `register()` integration (`register()` always injects
   its own `onBlur`), since the border would get stuck on
   `var(--border-focus)` after the first blur. `onFocus` had the identical
-  gap and is fixed the same way. Pre-existing — not introduced by SS-268's
+  gap and is fixed the same way. Pre-existing - not introduced by SS-268's
   `forwardRef` change, just found while adopting it.
 
 ## 0.30.0
@@ -239,28 +239,28 @@
 ### Minor Changes
 
 - f9bcb9f: Every form component now forwards `ref` to its underlying element (SS-268)
-  — purely additive, no prop changes, nothing breaks for existing consumers.
+ - purely additive, no prop changes, nothing breaks for existing consumers.
   Enables `react-hook-form`'s uncontrolled `register()` (no `Controller`
   needed) for `Input`, `Textarea`, `Checkbox`, `Radio`, `SearchInput`,
   `FileUpload` and `AvatarUpload`: each wraps a single native element whose
   `onChange` already matches the `(event: ChangeEvent) => void` shape
   `register()` expects.
 
-  The remaining four don't get the same win, regardless of `ref` — their
+  The remaining four don't get the same win, regardless of `ref` - their
   `onChange`/`onValueChange` hands back a plain value (a string or boolean),
   not a `ChangeEvent`, which is what actually blocks a raw `register()`
   spread, not a missing ref:
 
-  - `Select` — `ref` reaches the hidden mirror `<input type="hidden">`
+  - `Select` - `ref` reaches the hidden mirror `<input type="hidden">`
     (rendered when `name` is set), good for `getValues()` / `trigger()` /
     `setFocus()`, but still needs `Controller` for change-driven validation.
-  - `DatePicker` — no native element at all; `ref` exposes
+  - `DatePicker` - no native element at all; `ref` exposes
     `DatePickerHandle` (`{ focus() }`) via `useImperativeHandle` instead of a
     raw DOM node.
-  - `DateTimePicker` — not a single-value field to begin with (`selectedDate`
+  - `DateTimePicker` - not a single-value field to begin with (`selectedDate`
     / `selectedTime` are separate, parent-owned props with their own
     callbacks); `ref` reaches the root `<div>` for plain DOM access.
-  - `Switch` — no native form element (`role="switch"` on a `<span>`); `ref`
+  - `Switch` - no native form element (`role="switch"` on a `<span>`); `ref`
     only gives `.focus()`. Already documented as never belonging in a form
     with a Save action.
 
@@ -274,7 +274,7 @@
 ### Patch Changes
 
 - 4fd30c2: `EmptyState` and `Dialog.Header` now render their title/description through
-  `Typography` (SS-265) instead of hand-rolled inline styles — no visible or
+  `Typography` (SS-265) instead of hand-rolled inline styles - no visible or
   API change, just one fewer place reconstructing the same font combos by
   hand. Left untouched: `Alert`/`Toast`, whose title/description
   deliberately inherit `currentColor` from a tone-colored container, and
@@ -285,7 +285,7 @@
 
 ### Minor Changes
 
-- 645f9e7: Adds `Typography` (SS-261) — the `fontFamily`/`fontSize`/`fontWeight`/
+- 645f9e7: Adds `Typography` (SS-261) - the `fontFamily`/`fontSize`/`fontWeight`/
   `letterSpacing`/`lineHeight` combos every screen otherwise reconstructs by
   hand, as one component instead of a new inline style object each time.
 
@@ -296,10 +296,10 @@
   touching the variant's styling (a heading-styled label that shouldn't enter
   the document outline); `truncate` clips to one line with an ellipsis;
   `numeric` sets tabular figures for a value that updates in place or stacks
-  with others at the same position — countdowns, queue/ticket numbers,
+  with others at the same position - countdowns, queue/ticket numbers,
   clocks, prices in a column.
 
-  The variant set isn't an invented scale — it's extracted from the font
+  The variant set isn't an invented scale - it's extracted from the font
   combos already repeated across the real product app (`schedule-system`):
   page titles, card titles, secondary paragraphs, muted captions, uppercase
   eyebrow labels.
@@ -308,12 +308,12 @@
 
 ### Minor Changes
 
-- f2dcc54: Adds `error?: string` (SS-259) to `Checkbox` and `Radio` — replaces
+- f2dcc54: Adds `error?: string` (SS-259) to `Checkbox` and `Radio` - replaces
   `description` and tints the box/circle border red, same contract as
   `Input`'s `error`. Neither control had any validation state before; only a
   static `description` line.
 
-  `Switch` intentionally does not get this — it's documented as an
+  `Switch` intentionally does not get this - it's documented as an
   instant-apply settings toggle, never inside a form that needs validation, so
   there's no "invalid" state for it to have.
 
@@ -322,14 +322,14 @@
   `DatePicker`/`FileUpload`/`AvatarUpload` got in SS-258.
 
 - 35f5f98: Adds `preserveHelperSpace?: boolean` (SS-258) to `Input`, `Textarea`, `Select`,
-  `DatePicker`, `FileUpload` and `AvatarUpload` — reserves the hint/error row's
+  `DatePicker`, `FileUpload` and `AvatarUpload` - reserves the hint/error row's
   height even when neither is set, instead of the row only existing once there's
   something to show.
 
   Without it, a form where several fields invalidate at once (e.g. submitted
   empty) grows every field's height in the same instant, jumping the whole
   layout under the user. With `preserveHelperSpace` on, the space is already
-  there — the error just fills a slot that was reserved from the start.
+  there - the error just fills a slot that was reserved from the start.
 
   Off by default: existing usage is unaffected, and most fields don't need the
   extra reserved gap when there's nothing under them.
@@ -338,7 +338,7 @@
 
 ### Patch Changes
 
-- 2b01d9d: Fix `dist/**/*.js` relative imports missing `.js` extensions (SS-252). tsup's `bundle: false` mode never rewrote them, which is valid per bundler resolution (Next/webpack/Vite) but violates the Node ESM spec — breaking plain Node, ts-node, and Vitest consumers with `Cannot find module` errors. A postbuild step now adds the missing extensions.
+- 2b01d9d: Fix `dist/**/*.js` relative imports missing `.js` extensions (SS-252). tsup's `bundle: false` mode never rewrote them, which is valid per bundler resolution (Next/webpack/Vite) but violates the Node ESM spec - breaking plain Node, ts-node, and Vitest consumers with `Cannot find module` errors. A postbuild step now adds the missing extensions.
 
 ## 0.27.0
 
@@ -350,22 +350,22 @@
   `capacity` it switches to a warning look and reads "Lotado" via the same
   warning tone used by `Badge`/`Alert`.
 
-  A full slot is **not** the same as a disabled one — it stays clickable by
+  A full slot is **not** the same as a disabled one - it stays clickable by
   default, since reaching capacity is a state the caller may still choose to
   allow (a deliberate overbook). Set `disabled: true` on top for the actual
   hard block. Slots with no `capacity` render exactly as before, unless mixed
-  into a list where a sibling slot does track capacity — then they grow the
+  into a list where a sibling slot does track capacity - then they grow the
   same two-line layout with a generic "Disponível"/"Available" filler instead
   of looking short next to their neighbors. Fully backward compatible for a
   `times` list with no capacity anywhere.
 
   Also adds a `locale?: 'pt-BR' | 'en'` prop to `DateTimePicker`, `DatePicker`,
-  and the shared internal `CalendarGrid`, defaulting to `'pt-BR'` — the real
+  and the shared internal `CalendarGrid`, defaulting to `'pt-BR'` - the real
   Sereno product always renders in Portuguese; `'en'` exists only so the docs
   showcase can demo an English-speaking consumer without forking the
   component.
 
-  `DatePicker` also gets a clear (×) button once a value is set — there was
+  `DatePicker` also gets a clear (×) button once a value is set - there was
   previously no way to empty the field back to its placeholder short of an
   external "reset" control. Clicking it resets to `''` (calling `onChange('')`
   when controlled) and refocuses the trigger; it's hidden while `disabled`.
@@ -374,16 +374,16 @@
 
 ### Minor Changes
 
-- 45cd576: Adds `DatePicker` (SS-243) — a single-date field (no time, no slots; that's
+- 45cd576: Adds `DatePicker` (SS-243) - a single-date field (no time, no slots; that's
   `DateTimePicker`'s job). A text-field-styled trigger opens the same calendar
   grid `DateTimePicker` uses in a popover, with `value`/`defaultValue` +
-  `onChange` as a plain ISO `"YYYY-MM-DD"` string — drops in wherever
+  `onChange` as a plain ISO `"YYYY-MM-DD"` string - drops in wherever
   `<input type="date">` would go, themed and in pt-BR instead of the
   browser's own. Supports `min`/`max` date bounds.
 
   Internally, the calendar body (header, month/year jump, the roving-tabindex
   day grid) is extracted into a shared `CalendarGrid`, used by both
-  `DateTimePicker` (unchanged behavior — verified against its existing test
+  `DateTimePicker` (unchanged behavior - verified against its existing test
   suite) and the new `DatePicker`. Also extracts `Select`'s field-box trigger
   styling into a shared helper, reused by `DatePicker`'s own trigger.
 
@@ -391,16 +391,16 @@
 
 ### Patch Changes
 
-- f736499: `Card` gains real keyboard semantics (SS-228) when used as its own control —
+- f736499: `Card` gains real keyboard semantics (SS-228) when used as its own control -
   `interactive` + `onClick` together now render `role="button"`, `tabIndex={0}`
   and a focus ring, with Enter/Space activating it, matching native button
   behavior. Found live: a clickable `Card` (e.g. `ServiceCard` in the booking
-  flow) rendered as a plain, unfocusable `<div>` — reachable by mouse only.
+  flow) rendered as a plain, unfocusable `<div>` - reachable by mouse only.
   An `interactive` `Card` with no `onClick` (styling borrowed from an outer
-  `<Link>`/`<button>`) is unaffected, on purpose — giving it its own tabIndex
+  `<Link>`/`<button>`) is unaffected, on purpose - giving it its own tabIndex
   would nest one focusable control inside another.
 - f736499: Fixes two remaining spots (SS-228) where an inline `outline: 'none'` had no
-  visible substitute — the same bug already fixed on the DateTimePicker day
+  visible substitute - the same bug already fixed on the DateTimePicker day
   grid and Tabs, found by auditing every other inline `outline: 'none'` left
   in the package: `DateTimePicker`'s time-slot buttons, and `BottomNav.Item`.
   Both now suppress the outline via a CSS class instead, with a
@@ -411,14 +411,14 @@
 ### Patch Changes
 
 - 8b313e0: `Tabs.Tab`'s `count` badge now uses `--text-secondary` instead of
-  `--text-muted` for its inactive-tab color — on `--bg-subtle` (the
+  `--text-muted` for its inactive-tab color - on `--bg-subtle` (the
   `underline` variant's inactive badge background) `--text-muted` lands at
   ~4.27:1, under the 4.5:1 body-text minimum (WCAG AA), a violation of the
   Tokens page's own documented rule for that pair ("`--text-muted` on
-  `--bg-subtle`/`--bg-sunken` — large text only; use `--text-secondary` for
+  `--bg-subtle`/`--bg-sunken` - large text only; use `--text-secondary` for
   body copy"). Also now matches the inactive tab label's own color, which was
   already `--text-secondary`. Part of the SS-227 accessibility audit (SS-230).
-- 1c4ea39: `Tabs` gains proper keyboard navigation (SS-228) — until now `Tabs.Tab` had
+- 1c4ea39: `Tabs` gains proper keyboard navigation (SS-228) - until now `Tabs.Tab` had
   `role="tab"`/`role="tablist"` but no keyboard support behind it: every tab
   was its own Tab stop, no arrow-key movement, and (independently) its focus
   ring was suppressed with nothing replacing it. Now: only the active tab is
@@ -431,7 +431,7 @@
 
 ### Patch Changes
 
-- 8cfbf98: `Select` gains an `aria-label` prop — its trigger is a real `<button>` (a
+- 8cfbf98: `Select` gains an `aria-label` prop - its trigger is a real `<button>` (a
   labelable element, so an associated `label` already worked correctly), but
   without a visible `label` at all it had no accessible name. Caught in
   `WeeklyScheduleEditor` (`apps/demo`): the per-day start/end time `Select`s
@@ -443,13 +443,13 @@
 ### Patch Changes
 
 - 0293985: `DateTimePicker`'s day grid now uses roving tabindex instead of every day
-  being its own Tab stop — Tab enters/leaves the whole grid in one stop, and
+  being its own Tab stop - Tab enters/leaves the whole grid in one stop, and
   arrow keys move the cursor by day (←/→) or week (↑/↓), crossing month
   boundaries on overflow. Home/End move within the current week row;
   PageUp/PageDown step the month. An `unavailable` day stays focusable
   (`aria-disabled`, not the native `disabled`, which can't receive focus at
   all) so the cursor can land on it without being able to select it. Part of
-  the SS-227 accessibility audit (SS-228) — calendars were flagged as the
+  the SS-227 accessibility audit (SS-228) - calendars were flagged as the
   hardest keyboard-navigation case in the whole component set.
 
 ## 0.25.3
@@ -460,10 +460,10 @@
   `aria-live` regions (`polite` for success/warning/info/neutral, `assertive`
   for the `error` tone) instead of relying only on `role="status"`/`role="alert"`
   on the freshly-mounted toast card. A live region only reliably announces a
-  _change_ to already-present content — a node that mounts fresh with its text
+  _change_ to already-present content - a node that mounts fresh with its text
   already inside it (what every toast card does) isn't consistently announced
   across browsers/screen readers. Part of the SS-227 accessibility audit
-  (SS-229). `Alert` needed no change — it already uses the correct
+  (SS-229). `Alert` needed no change - it already uses the correct
   `role="status"`/`"alert"` pattern, and (unlike `ToastProvider`) has no owned
   mount lifecycle to attach a persistent announcer to.
 
@@ -474,14 +474,14 @@
 - 360b9a0: `Dialog` now traps `Tab`/`Shift+Tab` inside the panel while open (it
   previously let keyboard focus escape into the page behind it) and restores
   focus to whatever triggered it once closed. Every consumer gets this for
-  free — `AvatarUpload`'s crop/camera dialogs included. Part of the SS-227
+  free - `AvatarUpload`'s crop/camera dialogs included. Part of the SS-227
   accessibility audit (SS-231).
 
 ## 0.25.1
 
 ### Patch Changes
 
-- 88d896b: `Switch` now applies `aria-label` to its `role="switch"` element — wrapping
+- 88d896b: `Switch` now applies `aria-label` to its `role="switch"` element - wrapping
   it in a `<label>` only associates text for _native_ labelable form controls,
   so a `Switch` with a `label` (or without one at all) previously announced
   with no accessible name to screen readers. Caught by the new axe-powered
@@ -494,25 +494,25 @@
 
 - 42d1d84: `SidebarNav`, `BottomNav`, `Stepper`, `Dialog` and `TopBar` are now compound
   components (SS-213), matching `Table` / `Tabs`. **Breaking** (pre-1.0, no
-  external consumer yet — PO decision 2026-09-12): the old config-array /
+  external consumer yet - PO decision 2026-09-12): the old config-array /
   config-prop APIs are gone.
 
-  - `SidebarNav` — sections/items are no longer a data prop; compose
+  - `SidebarNav` - sections/items are no longer a data prop; compose
     `SidebarNav.Section` / `SidebarNav.Item` / `SidebarNav.SubItem` as children.
-  - `BottomNav` — an `items` array is now `BottomNav.Item` children.
-  - `Stepper` — a `steps: string[]` prop is now `Stepper.Step` children (each
+  - `BottomNav` - an `items` array is now `BottomNav.Item` children.
+  - `Stepper` - a `steps: string[]` prop is now `Stepper.Step` children (each
     taking its own `label`).
-  - `Dialog` — `title` / `description` / `footer` / `showClose` props are gone.
+  - `Dialog` - `title` / `description` / `footer` / `showClose` props are gone.
     Compose `Dialog.Header` (`title` / `description` still live here, plus
     `children` for extra content or `Dialog.Close`), `Dialog.Body` and
     `Dialog.Footer`. Nothing renders a close button unless you place
     `<Dialog.Close />` yourself.
-  - `TopBar` — `leading` / `actions` config props are now `TopBar.Leading` /
+  - `TopBar` - `leading` / `actions` config props are now `TopBar.Leading` /
     `TopBar.Title` / `TopBar.Actions` children, each an independent optional
     slot.
 
   `Select` and `DateTimePicker` were evaluated for the same treatment (SS-225)
-  and intentionally kept on their config-prop API (`options`, `times`) — see
+  and intentionally kept on their config-prop API (`options`, `times`) - see
   `AGENTS.md` for the reasoning.
 
   See each component's own JSDoc (or the showcase) for the full new shape.
@@ -521,42 +521,42 @@
 
 ### Minor Changes
 
-- 93e57f0: New `ToastProvider` + `useToast()` — the toast _system_ on top of the
+- 93e57f0: New `ToastProvider` + `useToast()` - the toast _system_ on top of the
   presentational `Toast`. Wrap the app once in `<ToastProvider position=… max=…
 duration=…>`; call `const { toast, dismiss } = useToast()` anywhere below it.
 
   - `toast('Link copied')` / `toast.success('Saved', { description })` /
-    `toast.error(…)` / `toast.warning` / `toast.info` — each returns an id.
+    `toast.error(…)` / `toast.warning` / `toast.info` - each returns an id.
   - Portalled fixed viewport, all six `position`s (`top`/`bottom` × `left`/`center`/`right`),
     newest nearest the edge.
   - A countdown bar on each timed toast; it and the auto-dismiss timer pause
     together while the toast is hovered or focused. `duration` defaults to
     4000 ms; `duration: 0` keeps it until `dismiss(id)`.
-  - Stack caps at `max` (default 3) — the oldest drops.
+  - Stack caps at `max` (default 3) - the oldest drops.
   - `dismiss()` with no id clears all. Error toasts announce as `role="alert"`.
 
   `Toast` gains an opt-in `progress={{ ms, paused }}` prop for that bar (the
   provider wires it). Adds the `sereno-toast-*` keyframes to
   `@sereno-ds/ui/styles.css`.
 
-- e1f3d2f: New `Menu` — action menu / dropdown (SS-178). A `trigger` you supply plus a
+- e1f3d2f: New `Menu` - action menu / dropdown (SS-178). A `trigger` you supply plus a
   portalled panel, same mechanics as `Select`: `position: fixed` panel anchored to
   the trigger, flips up when there's no room, closes on outside pointerdown /
   `Escape` / selection, and returns focus to the trigger.
 
-  - `items` — `{ label, icon?, onClick, disabled?, tone?: 'default' | 'danger', keepOpen? }`,
+  - `items` - `{ label, icon?, onClick, disabled?, tone?: 'default' | 'danger', keepOpen? }`,
     `{ separator: true }`, `{ heading }`. `role="menu"` / `menuitem`, arrow-key
     roving (Home/End, disabled rows skipped), `Enter` / `Space` to activate.
-  - `children` render function — a rich panel (notifications list, a form) instead
+  - `children` render function - a rich panel (notifications list, a form) instead
     of `items`; it receives `close` and the panel is a `role="dialog"`.
-  - `header` — a block above the items (a name + email, a title).
-  - `adornment` — overlaid on the trigger (a notification count, a status dot) in a
+  - `header` - a block above the items (a name + email, a title).
+  - `adornment` - overlaid on the trigger (a notification count, a status dot) in a
     `pointer-events: none` layer.
   - `align` (`start` / `end`), `width`, `disabled`, and a controlled
     `open` / `onOpenChange` pair.
 
 - 40c9daf: `Stepper` no longer embeds pt-BR copy. The counter (was a hardcoded
-  `Passo N de M`) now comes from `stepLabel?: (current, total) => ReactNode` —
+  `Passo N de M`) now comes from `stepLabel?: (current, total) => ReactNode` -
   default `Step N of M` (English; the DS ships no localised text). Return `null`
   to drop the counter and show only the step label. Consumers in another language
   pass their own: `stepLabel={(c, t) => \`Passo \${c} de \${t}\`}`.
@@ -571,8 +571,8 @@ duration=…>`; call `const { toast, dismiss } = useToast()` anywhere below it.
   choice the user must make explicitly), and `variant="fullscreen"`. `width` still
   works as an explicit override. No breaking changes.
 
-  **`Select`** — the hand-rolled listbox is now used on every device (the native
-  `<select>` fallback is gone). On a mouse it's an anchored dropdown — an in-place
+  **`Select`** - the hand-rolled listbox is now used on every device (the native
+  `<select>` fallback is gone). On a mouse it's an anchored dropdown - an in-place
   child glued to the field through scroll with no jitter, or portalled + fixed when
   inside a `Dialog` so the modal can't clip it. On touch it opens as a **bottom
   sheet** with finger-sized rows. Clicking the field `<label>` no longer opens the
@@ -581,19 +581,19 @@ duration=…>`; call `const { toast, dismiss } = useToast()` anywhere below it.
 
 ### Patch Changes
 
-- 93e57f0: `Alert` and `Toast` — the dismiss control is now a proper 28px icon button (a
+- 93e57f0: `Alert` and `Toast` - the dismiss control is now a proper 28px icon button (a
   Lucide `X`, hover/focus states) instead of a bare `×` glyph with no hit area.
 
   Also adds dedicated behavioural tests for `Alert`, `Toast` and `Skeleton`
-  (SS-61 / SS-62) — test files, not shipped.
+  (SS-61 / SS-62) - test files, not shipped.
 
 - 15abfb6: `TopBar`: the subtitle now truncates with an ellipsis like the title instead of
   wrapping to multiple lines and blowing out the bar height on narrow screens.
   `subtitle` also accepts `React.ReactNode` now (not just `string`), so consumers
   can pass a `<time>` element or CSS-swapped responsive text.
-- 72fd370: `Select` — the touch bottom sheet now locks page scroll while it's open (the
+- 72fd370: `Select` - the touch bottom sheet now locks page scroll while it's open (the
   page was still scrollable behind it), and the list uses `overscroll-behavior:
 contain` so reaching its end doesn't scroll the page.
 
-  `Dialog` — the header ✕ is larger and higher-contrast, and grows further on
+  `Dialog` - the header ✕ is larger and higher-contrast, and grows further on
   `variant="fullscreen"` (40px, on a faint chip) where it's the only way out.

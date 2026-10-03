@@ -7,7 +7,7 @@ import { sx } from '../_internal/style';
 import { Typography } from '../core/Typography';
 
 /**
- * Modal (desktop), bottom sheet (mobile) or full-screen — a **compound
+ * Modal (desktop), bottom sheet (mobile) or full-screen - a **compound
  * component**. Portalled to `<body>` and fixed to the viewport, so no
  * ancestor's `overflow`/`transform`/positioning can trap it. While open it
  * locks page scroll and closes on `Escape`. Host needs the `sereno-pop` /
@@ -26,7 +26,7 @@ import { Typography } from '../core/Typography';
  * </Dialog>
  * ```
  *
- * `Dialog.Header` / `Dialog.Footer` are both optional — a dialog can be just
+ * `Dialog.Header` / `Dialog.Footer` are both optional - a dialog can be just
  * a `Dialog.Body`. `Dialog.Close` goes wherever you put it (typically inside
  * `Dialog.Header`); nothing renders a close button unless you add one.
  */
@@ -40,12 +40,12 @@ export interface DialogProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Hairline rules between header / body / footer, MUI-style. The body scrolls on its own. */
   dividers?: boolean;
   /**
-   * When `false`, a scrim click and `Escape` no longer close the dialog — only
+   * When `false`, a scrim click and `Escape` no longer close the dialog - only
    * `Dialog.Close`, a footer action, or `open={false}` do. Use it for a choice
    * the user must make explicitly. Defaults to `true`.
    */
   dismissible?: boolean;
-  /** Explicit pixel width — overrides `size`. */
+  /** Explicit pixel width - overrides `size`. */
   width?: number;
   children?: React.ReactNode;
 }
@@ -53,7 +53,7 @@ export interface DialogProps extends React.HTMLAttributes<HTMLDivElement> {
 export interface DialogHeaderProps {
   title?: string;
   description?: string;
-  /** Extra content below the description — or the whole header, if you skip `title`/`description`. Put `Dialog.Close` here. */
+  /** Extra content below the description - or the whole header, if you skip `title`/`description`. Put `Dialog.Close` here. */
   children?: React.ReactNode;
 }
 
@@ -85,7 +85,7 @@ interface DialogContextValue {
 
 const SIZE_W = { sm: 440, md: 600, lg: 800, xl: 1000 } as const;
 
-// Cheap, dependency-free focusable check — matches what most hand-rolled
+// Cheap, dependency-free focusable check - matches what most hand-rolled
 // focus traps use. No visibility filtering: nothing inside a Dialog is ever
 // conditionally hidden today, and jsdom doesn't compute layout (offsetParent
 // is always null there), so a visibility check would be untestable dead
@@ -174,7 +174,7 @@ function DialogRoot({
       document.body.style.overflow = prev.b;
       document.removeEventListener('keydown', onKey);
       // The trigger may itself have unmounted (e.g. a row it lived in was
-      // removed) — focus() on a detached element is a silent no-op, not a
+      // removed) - focus() on a detached element is a silent no-op, not a
       // throw, so no need to guard beyond the null check.
       previouslyFocused?.focus();
     };
@@ -188,7 +188,7 @@ function DialogRoot({
   if (!open || !mounted) return null;
 
   // Body/Footer padding depends on whether a Header/Footer is actually
-  // present — read straight off the children, the same technique
+  // present - read straight off the children, the same technique
   // SidebarNav.Item / Stepper use for data they need before render.
   const items = React.Children.toArray(children);
   const hasHeader = items.some((c) => React.isValidElement(c) && c.type === Header);

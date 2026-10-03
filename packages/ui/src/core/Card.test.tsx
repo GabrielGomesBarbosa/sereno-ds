@@ -11,7 +11,7 @@ describe('Card', () => {
     expect(screen.queryByRole('button')).toBeNull();
   });
 
-  it('interactive with no onClick stays a plain div — it must not nest a focusable control inside an outer one (e.g. a <Link>)', () => {
+  it('interactive with no onClick stays a plain div; it must not nest a focusable control inside an outer one (e.g. a <Link>)', () => {
     render(
       <Card interactive padding="lg">
         body

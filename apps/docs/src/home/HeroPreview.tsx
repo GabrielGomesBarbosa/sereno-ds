@@ -11,7 +11,7 @@ const FLOW = [
 ] as const;
 
 /**
- * A few real primitives, wired up — the same thing the product screens do,
+ * A few real primitives, wired up - the same thing the product screens do,
  * shown next to the hero copy as proof rather than a screenshot.
  */
 export function HeroPreview() {

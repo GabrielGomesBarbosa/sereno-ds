@@ -14,13 +14,13 @@ const TEXT = {
 } as const;
 
 /**
- * Imperative handle exposed via `ref` — there's no single native element
+ * Imperative handle exposed via `ref` - there's no single native element
  * underneath (the trigger is a `<button>`, the value a plain ISO string in
  * React state), so `ref` can't hand back something `.value`-readable the way
  * a real `<input>` would. `focus()` is real and covers `setFocus()`-on-error;
  * reading the current value still means the `value`/`onChange` props, not the
  * ref. `onChange(value: string)` also isn't a `ChangeEvent`, so a plain
- * `{...register(name)}` spread won't work regardless — use `Controller`.
+ * `{...register(name)}` spread won't work regardless - use `Controller`.
  */
 export interface DatePickerHandle {
   focus: () => void;
@@ -40,21 +40,21 @@ export interface DatePickerProps {
   /** Uncontrolled initial value, ISO "YYYY-MM-DD". */
   defaultValue?: string;
   onChange?: (value: string) => void;
-  /** Earliest selectable date, ISO "YYYY-MM-DD" — every day before it is unavailable. */
+  /** Earliest selectable date, ISO "YYYY-MM-DD" - every day before it is unavailable. */
   min?: string;
-  /** Latest selectable date, ISO "YYYY-MM-DD" — every day after it is unavailable. */
+  /** Latest selectable date, ISO "YYYY-MM-DD" - every day after it is unavailable. */
   max?: string;
   id?: string;
   containerStyle?: React.CSSProperties;
   /** aria-label for the clear (×) button. Defaults to the `locale`-appropriate text. */
   clearLabel?: string;
   /**
-   * The real Sereno product always renders pt-BR — this only exists so the
+   * The real Sereno product always renders pt-BR - this only exists so the
    * docs showcase can demo an English-speaking consumer without forking the
    * component. Default stays `'pt-BR'`.
    */
   locale?: 'pt-BR' | 'en';
-  /** Reserve the hint/error row's height even with neither set — stops the
+  /** Reserve the hint/error row's height even with neither set - stops the
    *  field from growing the moment a validation message appears. */
   preserveHelperSpace?: boolean;
 }
@@ -108,14 +108,14 @@ function unavailableForMonth(year: number, month: number, min?: string, max?: st
 }
 
 /**
- * Field for picking a single date — no time, no slots (`DateTimePicker`'s
+ * Field for picking a single date - no time, no slots (`DateTimePicker`'s
  * job). A text-field-styled trigger showing the selected date opens a
  * popover with the same calendar grid `DateTimePicker` uses (roving
- * tabindex, month/year jump — see `./_internal/CalendarGrid`), so the two
+ * tabindex, month/year jump - see `./_internal/CalendarGrid`), so the two
  * share every bit of calendar behavior (SS-243).
  *
  * Value contract matches the rest of the forms package: `value` /
- * `defaultValue` + `onChange(value)`, a plain ISO "YYYY-MM-DD" string —
+ * `defaultValue` + `onChange(value)`, a plain ISO "YYYY-MM-DD" string -
  * drops in wherever `<input type="date">` would go, but themed instead of
  * the browser's own, and in pt-BR by default (the real Sereno product
  * always uses it; `locale="en"` exists only for docs/demo purposes). A
@@ -150,7 +150,7 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
   const now = React.useMemo(() => new Date(), []);
 
   const [open, setOpen] = React.useState(false);
-  // The month currently shown in the popover — resets to the value's month
+  // The month currently shown in the popover - resets to the value's month
   // (or today's) every time the popover opens, via the conditional mount
   // below; CalendarGrid itself only takes year/month as its *initial* view.
   const [viewYear, setViewYear] = React.useState(parsed?.year ?? now.getFullYear());
@@ -164,13 +164,13 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
   React.useImperativeHandle(ref, () => ({ focus: () => triggerRef.current?.focus() }), []);
 
   // A plain `position: absolute` child of `rootRef` (itself `position:
-  // relative`) — the same "inline" strategy Select's panel uses for its
+  // relative`) - the same "inline" strategy Select's panel uses for its
   // common case, and the same one DateTimePicker's own month/year popover
   // already uses. The browser glues it to the trigger through *any* scroll
-  // (page or a nested overflow container) for free — no JS measuring
+  // (page or a nested overflow container) for free - no JS measuring
   // position, no listening for scroll/resize, and critically, it never has
   // to close on scroll the way a `position: fixed` popover computed once
-  // would (that was tried first here and didn't hold up — see PR history).
+  // would (that was tried first here and didn't hold up - see PR history).
   React.useEffect(() => {
     if (!open) return;
     const onDown = (e: PointerEvent) => {
@@ -219,7 +219,7 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
     <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
       <div ref={rootRef} style={{ position: 'relative', width: '100%' }}>
         {/* The bordered box lives on this wrapper `div`, not on a `<button>`
-            — the open-trigger and the clear (×) button are real, independent
+ - the open-trigger and the clear (×) button are real, independent
             sibling buttons inside it, since a button can't nest another. */}
         <div style={fieldBoxStyle(size, !!error, open, disabled)}>
           <button
@@ -298,7 +298,7 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
               top: 'calc(100% + 6px)',
               left: 0,
               right: 0,
-              // The 7-column grid needs some floor width to stay readable —
+              // The 7-column grid needs some floor width to stay readable -
               // a narrow field (e.g. a compact "Data" next to "Motivo")
               // would otherwise squeeze it. `left`/`right: 0` already
               // matches the trigger's own width for anything wider.

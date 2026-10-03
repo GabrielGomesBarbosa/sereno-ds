@@ -13,9 +13,9 @@ export interface SearchInputProps
   extends Omit<InputProps, 'iconLeft' | 'suffix' | 'prefix' | 'type' | 'mask' | 'showCount' | 'value' | 'defaultValue' | 'onChange'> {
   value?: string;
   defaultValue?: string;
-  /** Every keystroke and on clear — the plain string. */
+  /** Every keystroke and on clear - the plain string. */
   onValueChange?: (value: string) => void;
-  /** Debounced (and on `Enter` / clear) — run the actual query here. */
+  /** Debounced (and on `Enter` / clear) - run the actual query here. */
   onSearch?: (value: string) => void;
   /** Debounce for `onSearch`, in ms. */
   debounce?: number;

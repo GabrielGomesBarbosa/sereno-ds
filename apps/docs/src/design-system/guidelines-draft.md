@@ -1,4 +1,4 @@
-# Guidelines — rascunho (lições da revisão do DS)
+# Guidelines - rascunho (lições da revisão do DS)
 
 > Rascunho vivo. Quando as páginas de componente forem para o formato MUI, isto
 > vira o bloco **Uso / Evite** de cada componente.
@@ -15,18 +15,18 @@ somem. Regra geral: em superfície tingida, prefira variantes que se autodefinem
 | `Badge` `neutral` | fundo `--bg-subtle` some sobre brand-soft | já ajustado: neutral virou chip **outline** (surface + borda), lê em qualquer fundo |
 | `Avatar` (fallback) | preenchimento era `--bg-brand-soft` = igual ao header | já ajustado: tom de marca próprio (`color-mix`) + anel |
 
-## Hairlines / divisórias — nunca `--border-subtle` sobre o canvas
+## Hairlines / divisórias - nunca `--border-subtle` sobre o canvas
 
 **Antipadrão.** `--border-subtle` é *mais claro* que `--bg-canvas`. Uma hairline
 desse token direto sobre o canvas (lista, tabela, borda de índice) não lê como
-divisória — lê como **um risco branco solto** sobre o fundo, e fica estranho.
+divisória - lê como **um risco branco solto** sobre o fundo, e fica estranho.
 `--border-subtle` só funciona sobre `--bg-surface` (branco / elevado): cartão,
 painel, cabeçalho de tabela com `--bg-subtle`.
 
 | Onde | Evite | Faça |
 |---|---|---|
-| Divisória de linha em lista/tabela **sobre o canvas** (ex.: type scale, tabela de contraste, índice "On this page") | `1px solid var(--border-subtle)` | `1px solid var(--border-default)` — cinza real, sempre mais escuro que o canvas |
-| Hairline **dentro de um cartão** (`--bg-surface`) | — | `--border-subtle` está ok aqui |
+| Divisória de linha em lista/tabela **sobre o canvas** (ex.: type scale, tabela de contraste, índice "On this page") | `1px solid var(--border-subtle)` | `1px solid var(--border-default)` - cinza real, sempre mais escuro que o canvas |
+| Hairline **dentro de um cartão** (`--bg-surface`) | - | `--border-subtle` está ok aqui |
 | Divisória que precisa saltar (separar dois blocos densos) | `--border-subtle` / `--border-default` somem | `--border-strong` |
 
 Regra rápida: **a divisória tem que ser mais escura que a superfície atrás dela.**
@@ -37,32 +37,32 @@ Sobre o canvas isso já exclui `--border-subtle`.
 - **Cinco tons semânticos, mesma palavra em todo lugar** (`Badge`, `Alert`, `Toast`):
   `success` · `warning` · `error` · `info` · `neutral`.
 - Tokens: `--status-{success,warning,error,neutral,info}-{bg,fg,dot}`.
-- `Badge` não aceita mais `confirmed`/`pending`/etc. — `AppointmentCard` e `Avatar`
+- `Badge` não aceita mais `confirmed`/`pending`/etc. - `AppointmentCard` e `Avatar`
   mantêm o `status` de domínio e mapeiam por dentro (confirmed→success, pending→warning,
   cancelled→error, completed→neutral).
 - `Button` / `IconButton` (0.7.0): ganham `success` · `warning` · `error` como
   preenchimentos sólidos (tokens `--interactive-{success,warning,error}`), para o caso
-  em que a cor É a mensagem (confirmar destrutivo, aprovar). Sem `info` no botão — no
+  em que a cor É a mensagem (confirmar destrutivo, aprovar). Sem `info` no botão - no
   Sereno `info` = índigo da marca = `primary`. `destructive` foi removido → use `error`.
 - Tensão conhecida `accent × success`: o `accent` do Sereno é verde-teal e `success` é
   verde. São eixos diferentes (papel vs. valência) e a decisão foi **manter os dois**.
   Regra: nunca `accent` + `success` na mesma tela; `success` fill fica para pares
   aprovar/rejeitar (ex.: ações do card de agendamento), onde não há `accent` competindo.
 
-## Select — listbox à mão (0.8.0)
+## Select - listbox à mão (0.8.0)
 
 - Nativo estilizado vazava: o menu era do SO (feio, cobria o trigger). Trocado por
   listbox próprio, sem lib, seguindo o padrão do `DateTimePicker`.
 - **Desktop / ponteiro fino:** `<button role="combobox">` + painel `role="listbox"`
   em portal (`position:fixed`), abre abaixo, vira pra cima sem espaço. Teclado
   completo, `aria-activedescendant`, type-ahead.
-- **Touch (`pointer: coarse`):** cai pro `<select>` nativo — picker do SO é melhor no
+- **Touch (`pointer: coarse`):** cai pro `<select>` nativo - picker do SO é melhor no
   dedo. Mesma API. Detecção via `useSyncExternalStore` (SSR-safe, sem hydration flash).
 - **Trava o scroll da página enquanto aberto** (convenção de select nativo / Radix
   Select): `wheel`/`touchmove`/teclas de scroll fora do painel são engolidos; o
   overflow da própria lista ainda rola. Antes eu tinha feito "fechar no scroll", mas
   travar é o padrão pra select e mata na raiz o "samba" e o painel flutuando no header.
-- API: `value`/`defaultValue` + `onValueChange(value)` — string, não evento.
+- API: `value`/`defaultValue` + `onValueChange(value)` - string, não evento.
   `SelectOption` ganhou `disabled?`; novos `placeholder` e `name` (hidden input).
 
 ## Cor / paleta (tema claro, revisão 2026-08-29)
@@ -79,7 +79,7 @@ Sobre o canvas isso já exclui `--border-subtle`.
   lightness, hues intactos: `--text-muted` (escureceu no light, clareou no dark),
   `--text-accent` → `accent-700` no light, `--status-success/warning-fg` → novos
   `green-700`/`amber-700`, `--interactive-success/warning` (light) mais escuros.
-- **`--interactive-accent-fg` no light virou texto escuro** (`#04231F`) — branco sobre
+- **`--interactive-accent-fg` no light virou texto escuro** (`#04231F`) - branco sobre
   o turquesa vivo dava 3.0:1. O CTA accent agra é escuro-sobre-claro nos dois temas.
 - Dark `--interactive-primary` subiu um passo (`brand-400`) pro label quase-preto passar.
 - **Isentos** (documentado na página de Tokens): texto disabled (WCAG 1.4.3), bordas
@@ -87,20 +87,20 @@ Sobre o canvas isso já exclui `--border-subtle`.
   sobre `--bg-subtle`/`--bg-sunken` fica ~4.2:1 → só texto grande; use `--text-secondary`.
 - Nova seção **Contrast** na página `/design-system/tokens`.
 
-## Responsividade — componentes precisam refluir
+## Responsividade - componentes precisam refluir
 
 - `Tabs` `pill`: abraça o conteúdo (`inline-flex` + `align-self:flex-start`); nunca
   estica pra preencher um pai flex/grid. `fullWidth` opta por esticar.
 - `Tabs` contador inativo: chip branco no `pill` (o trilho já é `--bg-subtle`),
   cinza no `underline` (está sobre a página).
-- `AppointmentCard`: `flex-wrap` — badge de status + ações caem pra 2ª linha em
+- `AppointmentCard`: `flex-wrap` - badge de status + ações caem pra 2ª linha em
   largura estreita; o slot do cliente tem `min-width` pra não esmagar o nome.
 - `WeeklyScheduleEditor`: linha de dia empilha (Switch acima, horários abaixo) em
   telas estreitas; Select de buffer usa `width:100%` com `max-width`.
 
 ## Layout das superfícies (app + DS)
 
-- **`/design-system`**: app-shell fixo em todo tamanho — header não rola, sidebar e
+- **`/design-system`**: app-shell fixo em todo tamanho - header não rola, sidebar e
   conteúdo são painéis independentes. ≤900px a sidebar vira **drawer** (hambúrguer no
   header + `MobileNav`). O conteúdo é o único scroll (`ScrollPanel` reseta no route change).
 - **`/agendar`**: mobile full-bleed → tablet card contido (560px) → desktop card

@@ -10,12 +10,12 @@ export interface TypographyProps extends React.HTMLAttributes<HTMLElement> {
   variant?: TypographyVariant;
   /** Overrides the variant's own default color token. */
   color?: TypographyColor;
-  /** Render as a different element than the variant's own default tag — e.g. an
+  /** Render as a different element than the variant's own default tag - e.g. an
    *  `h3`-styled label that should not enter the document's heading outline. */
   as?: React.ElementType;
   /** Single-line ellipsis. Needs a width-constrained ancestor to actually clip. */
   truncate?: boolean;
-  /** Tabular (fixed-width) figures — digits line up column-to-column instead of
+  /** Tabular (fixed-width) figures - digits line up column-to-column instead of
    *  each taking their own width. For a value that updates or stacks with others
    *  at the same position: countdowns, ticket/queue numbers, times, prices. */
   numeric?: boolean;
@@ -68,7 +68,7 @@ const VARIANTS: Record<TypographyVariant, { as: React.ElementType; style: React.
   },
 };
 
-// Each variant's own sensible default — overridable via the `color` prop.
+// Each variant's own sensible default - overridable via the `color` prop.
 const DEFAULT_COLOR: Record<TypographyVariant, TypographyColor> = {
   display: 'primary',
   h1: 'primary',
@@ -94,7 +94,7 @@ const COLOR_TOKEN: Record<TypographyColor, string> = {
 };
 
 /**
- * Text primitive — one place for the type-scale/font-family/weight combos
+ * Text primitive - one place for the type-scale/font-family/weight combos
  * every screen otherwise reconstructs by hand (see `/design-system/tokens`
  * for the raw scale this wraps). `variant` picks the look *and* the default
  * semantic tag; `as` overrides just the tag, `color` just the color, so a
@@ -112,7 +112,7 @@ export function Typography({ variant = 'body', color, as, truncate, numeric, sty
         ...v.style,
         color: 'var(' + COLOR_TOKEN[color ?? DEFAULT_COLOR[variant]] + ')',
         // `overflow`/`textOverflow` are no-ops on a plain inline box (the
-        // default for the `span`-tagged variants) — `block` makes the
+        // default for the `span`-tagged variants) - `block` makes the
         // element actually respect a constrained-width ancestor.
         ...(truncate ? { display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : null),
         ...(numeric ? { fontVariantNumeric: 'tabular-nums' } : null),

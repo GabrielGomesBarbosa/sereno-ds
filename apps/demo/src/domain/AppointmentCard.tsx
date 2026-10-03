@@ -10,11 +10,11 @@ import { sx } from './sx';
 export interface AppointmentCardProps extends React.HTMLAttributes<HTMLDivElement> {
   client: string;
   service?: string;
-  /** "14:30" — rendered large in the brand-soft time block. */
+  /** "14:30" - rendered large in the brand-soft time block. */
   time: string;
   /** Short date under the time, e.g. "seg, 24". */
   date?: string;
-  /** Booking lifecycle — a domain concept, mapped to a semantic Badge tone internally. */
+  /** Booking lifecycle - a domain concept, mapped to a semantic Badge tone internally. */
   status?: 'confirmed' | 'pending' | 'cancelled' | 'completed';
   /** "Online" / "Presencial". */
   channel?: string;

@@ -8,7 +8,7 @@ import { Brand, Card, ThemeToggle, Typography } from '@sereno-ds/ui';
 // NEXT_PUBLIC_DS_URL for the deployed build; locally it runs on :3001.
 const DS_URL = process.env.NEXT_PUBLIC_DS_URL ?? 'http://localhost:3001';
 
-// Title / description / OG all come from the root layout (SS-204) — this is `/`.
+// Title / description / OG all come from the root layout (SS-204) - this is `/`.
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
 };
@@ -24,7 +24,7 @@ const SCREENS = [
     href: '/dashboard',
     kicker: 'Signed-in area',
     title: 'Professional dashboard',
-    body: "The day's agenda, clients, service catalog, finance and settings — including the weekly schedule.",
+    body: "The day's agenda, clients, service catalog, finance and settings, including the weekly schedule.",
   },
   {
     href: '/onboarding',
@@ -36,7 +36,7 @@ const SCREENS = [
     href: '/kiosk',
     kicker: 'Waiting room',
     title: 'Call panel',
-    body: 'A screen mounted in the waiting room announcing who’s up next — a ticket code and a time, bank-panel style, no client-identifying data at all.',
+    body: 'A screen mounted in the waiting room announcing who’s up next, a ticket code and a time, bank-panel style, no client-identifying data at all.',
   },
 ];
 
@@ -122,7 +122,7 @@ export default function DemoHome() {
             The Sereno app, built on the Design System.
           </Typography>
           <Typography variant="body" color="secondary" style={{ fontSize: 'var(--text-lg)', lineHeight: 1.6, maxWidth: 520 }}>
-            Four real product screens — a public booking flow, the professional dashboard, onboarding and a reception kiosk — assembled from{' '}
+            Four real product screens (a public booking flow, the professional dashboard, onboarding and a reception kiosk) assembled from{' '}
             <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85em', padding: '0.12em 0.4em', borderRadius: 'var(--radius-sm)', background: 'var(--bg-subtle)' }}>@sereno-ds/ui</code>{' '}
             primitives and navigable end to end on mocked data.
           </Typography>

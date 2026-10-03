@@ -6,7 +6,7 @@ import { Brand, SidebarNav } from '@sereno-ds/ui';
 import { CATEGORIES, COMPONENTS } from './catalog';
 
 /**
- * The showcase's own left nav — the SidebarNav component rendering real links.
+ * The showcase's own left nav - the SidebarNav component rendering real links.
  * No collapse toggle here: this catalogue has no per-item icons, so a collapsed
  * icon rail would have nothing to show.
  */
@@ -19,7 +19,7 @@ export function Sidebar() {
       linkComponent={Link}
       collapsible={false}
       header={
-        <Link href="/" aria-label="Sereno — home" style={{ display: 'inline-flex', textDecoration: 'none' }}>
+        <Link href="/" aria-label="Sereno: home" style={{ display: 'inline-flex', textDecoration: 'none' }}>
           <Brand variant="lockup" size={28} />
         </Link>
       }

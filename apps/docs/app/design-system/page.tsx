@@ -16,7 +16,7 @@ export default function DesignSystemOverview() {
         <>
           <p style={{ margin: 0 }}>
             25 token-driven React primitives for the Sereno scheduling platform. Minimal, clean, native dark mode. Every component
-            below has a live preview, a props table and usage examples — toggle the theme in the top-right to see light and dark.
+            below has a live preview, a props table and usage examples, toggle the theme in the top-right to see light and dark.
           </p>
           <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
             <Link href="/design-system/tokens" style={pill}>

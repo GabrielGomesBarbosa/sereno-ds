@@ -4,9 +4,9 @@ import * as React from 'react';
 import { sx } from '../_internal/style';
 
 /**
- * Sticky page header — a **compound component**. 60px tall, blurred
+ * Sticky page header - a **compound component**. 60px tall, blurred
  * translucent. `Leading` / `Title` / `Actions` are all optional, independent
- * slots — use whichever the screen needs.
+ * slots - use whichever the screen needs.
  *
  * ```tsx
  * <TopBar>
@@ -62,7 +62,7 @@ function TopBarRoot({ sticky = true, transparent = false, children, style, ...re
   );
 }
 
-/** No wrapper of its own — renders exactly what you give it, first in the row. */
+/** No wrapper of its own - renders exactly what you give it, first in the row. */
 function Leading({ children }: TopBarLeadingProps) {
   return <>{children}</>;
 }
