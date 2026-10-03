@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const professional = getProfessional(slug);
   if (!professional) return { title: 'Agendar' };
-  const title = `Agendar com ${professional.name} — ${professional.specialty}`;
+  const title = `Agendar com ${professional.name} - ${professional.specialty}`;
   const description = `${professional.bio} Escolha o serviço, a data e o horário e confirme em poucos toques.`;
   return {
     title,

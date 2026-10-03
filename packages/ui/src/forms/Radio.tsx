@@ -5,11 +5,11 @@ import { sx } from '../_internal/style';
 
 /**
  * Single-choice control for mutually exclusive options (payment method, appointment format).
- * Group by giving every option the same `name`. Visually matched to `Checkbox` — same 20px
- * box, same hover and label/description rhythm — differing only in the pill radius and dot.
+ * Group by giving every option the same `name`. Visually matched to `Checkbox` - same 20px
+ * box, same hover and label/description rhythm - differing only in the pill radius and dot.
  * Host must include the `.sereno-radio:checked` rule (see globals.css).
  *
- * Wrap every group in a `<fieldset>` / `<legend>` — `name` alone makes the browser treat
+ * Wrap every group in a `<fieldset>` / `<legend>` - `name` alone makes the browser treat
  * the options as one native group (arrow keys move between them, only one can be checked),
  * but without a `<legend>` a screen reader has no accessible name for what the choice is
  * between, only "Online, radio button, 1 of 3" with no context.
@@ -18,12 +18,12 @@ export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   label?: string;
   /** Secondary line under the label. Replaced by `error` when present. */
   description?: string;
-  /** Error message — tints the circle and the secondary line red. Replaces `description`. */
+  /** Error message - tints the circle and the secondary line red. Replaces `description`. */
   error?: string;
   /** Circle size. `sm` (16px) for dense lists; `md` (20px) everywhere else. Matches `Checkbox`. */
   size?: 'sm' | 'md';
   /**
-   * Reserve the description/error row's height even with neither set — keeps
+   * Reserve the description/error row's height even with neither set - keeps
    * the row stable as `error` comes and goes (SS-259, same mechanism as
    * `Input`'s `preserveHelperSpace`). Off by default.
    */

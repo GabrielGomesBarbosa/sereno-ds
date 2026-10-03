@@ -17,10 +17,10 @@ import { Button } from '../core/Button';
  * / multiple files use `FileUpload` instead.
  *
  * Client-side only downscales and re-encodes; it does not decode HEIC (no
- * browser but Safari can) — that is a server-side job. HEIC picks are rejected
+ * browser but Safari can) - that is a server-side job. HEIC picks are rejected
  * with a message.
  */
-/** User-facing strings — English by default; pass overrides for another locale. */
+/** User-facing strings - English by default; pass overrides for another locale. */
 export interface AvatarUploadLabels {
   trigger: string;
   upload: string;
@@ -57,22 +57,22 @@ const EN: AvatarUploadLabels = {
   cancel: 'Cancel',
   save: 'Save',
   zoom: 'Zoom',
-  heicError: "That format (HEIC) won't open in the browser — upload a JPG or PNG.",
+  heicError: "That format (HEIC) won't open in the browser, upload a JPG or PNG.",
   notImage: 'Choose an image file.',
   tooLarge: (mb) => `The image is over ${mb} MB.`,
   unreadable: "Couldn't read that image. Try a JPG or PNG.",
-  cameraError: "Couldn't open the camera — upload a photo from your library instead.",
+  cameraError: "Couldn't open the camera: upload a photo from your library instead.",
 };
 
 export interface AvatarUploadProps {
-  /** Full name — drives the initials fallback and the alt text. */
+  /** Full name - drives the initials fallback and the alt text. */
   name?: string;
   /** Current photo: a `File` (freshly cropped) or an existing URL string. */
   value?: File | string | null;
   onChange?: (file: File | null) => void;
   /** Disc diameter in px. */
   size?: number;
-  /** Exported square size in px — the crop is drawn to this. */
+  /** Exported square size in px - the crop is drawn to this. */
   outputSize?: number;
   /** Reject picks larger than this (before crop). */
   maxSizeMB?: number;
@@ -85,7 +85,7 @@ export interface AvatarUploadProps {
   disabled?: boolean;
   id?: string;
   containerStyle?: React.CSSProperties;
-  /** Reserve the hint/error row's height even with neither set — stops the
+  /** Reserve the hint/error row's height even with neither set - stops the
    *  field from growing the moment a validation message appears. */
   preserveHelperSpace?: boolean;
   /**
@@ -184,7 +184,7 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
     setMenuOpen(true);
   };
 
-  // Close the menu on outside click / Escape / scroll — it is portalled to <body>.
+  // Close the menu on outside click / Escape / scroll - it is portalled to <body>.
   React.useEffect(() => {
     if (!menuOpen) return;
     const onDown = (e: MouseEvent) => {
@@ -206,7 +206,7 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
     };
   }, [menuOpen]);
 
-  // Dialog doesn't lock scroll or bind Escape — do it here while a modal is up.
+  // Dialog doesn't lock scroll or bind Escape - do it here while a modal is up.
   // One dialog for the flow, on whichever step is current: the crop once there is a photo,
   // else the live camera. A shot or a Retake flips both at once, so the step just changes.
   const step: Step | null = cropSrc ? 'crop' : allowCamera && cameraOpen ? 'camera' : null;

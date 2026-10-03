@@ -6,12 +6,12 @@ import { useInteract } from './Button';
 
 /**
  * Square icon-only control for toolbars, card corners and top bars. Always pass `label`.
- * `success` / `warning` / `error` are solid semantic fills — same words as Button / Badge.
+ * `success` / `warning` / `error` are solid semantic fills - same words as Button / Badge.
  */
 export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'ghost' | 'secondary' | 'primary' | 'success' | 'warning' | 'error';
   size?: 'sm' | 'md' | 'lg';
-  /** Accessible name — becomes aria-label and title. Required. */
+  /** Accessible name - becomes aria-label and title. Required. */
   label: string;
   disabled?: boolean;
   /** The icon element (Lucide 20px stroke 1.75). */

@@ -16,12 +16,12 @@ export interface SelectOption {
 }
 
 /**
- * Single-choice select — a hand-rolled listbox (token-styled, full keyboard
+ * Single-choice select - a hand-rolled listbox (token-styled, full keyboard
  * support) so it looks and behaves the same in every browser. On a mouse it's
  * an anchored dropdown; on touch it opens as a bottom sheet with finger-sized
  * rows.
  *
- * Value contract: `value` / `defaultValue` + `onValueChange(value)` — a plain
+ * Value contract: `value` / `defaultValue` + `onValueChange(value)` - a plain
  * string, not a DOM event.
  */
 export interface SelectProps {
@@ -40,20 +40,20 @@ export interface SelectProps {
   /** Uncontrolled initial value. */
   defaultValue?: string;
   onValueChange?: (value: string) => void;
-  /** Form field name — mirrored to a hidden input so the value can be submitted. */
+  /** Form field name - mirrored to a hidden input so the value can be submitted. */
   name?: string;
   id?: string;
   containerStyle?: React.CSSProperties;
   /**
    * Accessible name for the trigger. Only needed when there's no visible
-   * `label` (e.g. a compact row where the context is already clear visually
-   * — a day name next to a "start time" / "end time" pair): `Field` only
+   * `label` (e.g. a compact row where the context is already clear visually,
+   * a day name next to a "start time" / "end time" pair): `Field` only
    * renders a `<label>` when `label` is set, so without either the trigger
    * has no accessible name at all. Takes precedence over `label` if both are
-   * set — don't pass both.
+   * set - don't pass both.
    */
   'aria-label'?: string;
-  /** Reserve the hint/error row's height even with neither set — stops the
+  /** Reserve the hint/error row's height even with neither set - stops the
    *  field from growing the moment a validation message appears. */
   preserveHelperSpace?: boolean;
 }
@@ -89,7 +89,7 @@ function CustomSelect({
   onCommit,
 }: {
   rid: string;
-  /** The field label — shown as the sheet header on touch so the picker has context. */
+  /** The field label - shown as the sheet header on touch so the picker has context. */
   label?: string;
   /** Falls back to `label` when there's no visible one at all. */
   ariaLabel?: string;
@@ -110,7 +110,7 @@ function CustomSelect({
   const panelRef = React.useRef<HTMLUListElement>(null);
   const typeahead = React.useRef<{ str: string; timer: number }>({ str: '', timer: 0 });
   // A <label htmlFor> forwards a fully-trusted click to this button (detail:1),
-  // indistinguishable from a direct one — but its *pointerdown* landed on the
+  // indistinguishable from a direct one - but its *pointerdown* landed on the
   // label, not here. So only toggle when the press actually started on the box.
   const pressedAt = React.useRef(0);
 
@@ -120,11 +120,11 @@ function CustomSelect({
   // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target is client-only
   React.useEffect(() => setMounted(true), []);
   // Two placement strategies, picked once per open:
-  //  • 'inline'  — the common case. A plain `position: absolute` child of the
+  //  • 'inline' - the common case. A plain `position: absolute` child of the
   //    field wrapper. The browser glues it to the field through *any* scroll
-  //    (page or an inner overflow container) for free — zero JS, zero jitter,
+  //    (page or an inner overflow container) for free - zero JS, zero jitter,
   //    never closes on scroll. Only re-flips the side if room runs out.
-  //  • 'fixed'   — used when the field is inside a `position: fixed` container
+  //  • 'fixed' - used when the field is inside a `position: fixed` container
   //    (a Dialog), where an inline child would be clipped by the dialog's
   //    overflow. Portalled to <body>, `position: fixed` at the trigger's
   //    viewport rect. The dialog itself doesn't scroll, so it stays glued;
@@ -198,7 +198,7 @@ function CustomSelect({
     }
 
     // Inline: the menu is a plain absolute child, glued for free. Never reposition
-    // or close on scroll — only re-flip the side (rare) and re-cap height on
+    // or close on scroll - only re-flip the side (rare) and re-cap height on
     // resize.
     const applyFull = () => {
       const { above, maxH } = evalRoom();
@@ -232,7 +232,7 @@ function CustomSelect({
     return () => document.removeEventListener('pointerdown', onDown, true);
   }, [open, coarse]);
 
-  // The touch sheet is a modal surface — lock the page scroll behind it.
+  // The touch sheet is a modal surface - lock the page scroll behind it.
   React.useEffect(() => {
     if (!open || !coarse) return;
     const root = document.documentElement;
@@ -399,7 +399,7 @@ function CustomSelect({
           triggerRef.current?.focus({ preventScroll: true });
         }}
         onClick={() => {
-          // Only toggle when the press started on this button — a click forwarded
+          // Only toggle when the press started on this button - a click forwarded
           // from the field <label>, or synthesised by the keyboard, never set
           // pressedAt (keyboard is handled in onKeyDown).
           if (Date.now() - pressedAt.current > 500) return;
@@ -553,11 +553,11 @@ function CustomSelect({
 
 /**
  * `ref` reaches the hidden `<input type="hidden">` that mirrors the selected
- * value (rendered only when `name` is set — pass it, as `register()` does).
+ * value (rendered only when `name` is set - pass it, as `register()` does).
  * Enough for `getValues()` / `trigger()` / `setFocus()`, but a plain
  * `{...register(name)}` spread still won't validate on change: this hidden
  * input never dispatches a native `input`/`change` event, and `onValueChange`
- * hands back a plain string, not a `ChangeEvent` — wire it through
+ * hands back a plain string, not a `ChangeEvent` - wire it through
  * `Controller`, or call the registered `onChange` yourself from
  * `onValueChange`.
  */

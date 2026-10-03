@@ -3,7 +3,7 @@ import { CheckInKiosk } from '@/screens/CheckInKiosk';
 import { DemoNav } from '@/src/DemoNav';
 
 const title = 'Painel de chamada';
-const description = 'Um painel para a sala de espera — anuncia a senha e o horário de quem está sendo chamado, sem expor nome ou motivo da consulta.';
+const description = 'Um painel para a sala de espera, anuncia a senha e o horário de quem está sendo chamado, sem expor nome ou motivo da consulta.';
 
 export const metadata: Metadata = {
   title,

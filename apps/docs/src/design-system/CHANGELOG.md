@@ -1,30 +1,30 @@
-# Sereno DS — changelog
+# Sereno DS - changelog
 
 Hand-written narrative of what shipped, per version. The version is the one in
 `packages/ui/package.json` (Changesets); `packages/ui/CHANGELOG.md` is the
 machine log. Add an entry here whenever you add a changeset.
 
-## 0.25.0 — Compound API migration (SS-213)
+## 0.25.0 - Compound API migration (SS-213)
 
 - **Breaking.** `SidebarNav`, `BottomNav`, `Stepper`, `Dialog` and `TopBar` are
-  now **compound components** — dot-notated sub-parts composed as JSX, joining
+  now **compound components** - dot-notated sub-parts composed as JSX, joining
   `Table` (SS-216) and `Tabs`. The old config-array / config-prop APIs are
   gone; pre-1.0, no external consumer yet (PO decision, 2026-09-12).
-  - `SidebarNav` — `SidebarNav.Section` / `.Item` / `.SubItem` replace the
+  - `SidebarNav` - `SidebarNav.Section` / `.Item` / `.SubItem` replace the
     `sections` data prop.
-  - `BottomNav` — `BottomNav.Item` children replace the `items` array.
-  - `Stepper` — `Stepper.Step` children (each with its own `label`) replace
+  - `BottomNav` - `BottomNav.Item` children replace the `items` array.
+  - `Stepper` - `Stepper.Step` children (each with its own `label`) replace
     the `steps: string[]` prop. Step-change now fades the counter/label row;
     the active dot/segment grows with a transition.
-  - `Dialog` — `Dialog.Header` (`title` / `description` still live here),
+  - `Dialog` - `Dialog.Header` (`title` / `description` still live here),
     `Dialog.Body`, `Dialog.Footer`, `Dialog.Close` replace `title` /
     `description` / `footer` / `showClose`. Nothing renders a close button
     unless you place `<Dialog.Close />` yourself; `Header` / `Footer` are both
     optional.
-  - `TopBar` — `TopBar.Leading` / `TopBar.Title` / `TopBar.Actions` (three
+  - `TopBar` - `TopBar.Leading` / `TopBar.Title` / `TopBar.Actions` (three
     independent optional slots) replace the `leading` / `actions` props.
 - **`Select` / `DateTimePicker` stay config-API (SS-225 decision).** Evaluated
-  for the same treatment and kept as-is — neither has a sub-part that needs
+  for the same treatment and kept as-is - neither has a sub-part that needs
   consumer-authored JSX (an option is `{value, label, disabled}`; a day is
   just a number), so the compound split wouldn't earn its complexity.
   Reasoning recorded in `AGENTS.md`.
@@ -32,9 +32,9 @@ machine log. Add an entry here whenever you add a changeset.
   examples; the showcase's live previews *and* "Show code" samples for every
   migrated component were swept to match.
 
-## 0.24.0 — Menu, the toast system, Dialog/Select overlays (SS-153 / SS-60 / SS-61)
+## 0.24.0 - Menu, the toast system, Dialog/Select overlays (SS-153 / SS-60 / SS-61)
 
-- **New `Menu` primitive** (`@sereno-ds/ui`, core) — action menu / dropdown. A
+- **New `Menu` primitive** (`@sereno-ds/ui`, core) - action menu / dropdown. A
   `trigger` you supply plus a portalled panel; same mechanics as `Select`
   (`position: fixed` panel measured off the trigger, flips up, closes on outside
   pointerdown / `Escape` / selection, focus return). `items[]` with `icon` /
@@ -42,86 +42,86 @@ machine log. Add an entry here whenever you add a changeset.
   for a rich panel (`role="dialog"`), plus `header` and `adornment` slots and a
   controlled `open` / `onOpenChange` pair. Full-width centred on a phone-width
   viewport (≤ 560px). Replaces the hand-rolled popovers in the demo dashboard.
-- **New `ToastProvider` + `useToast()`** — the toast *system* on top of the
+- **New `ToastProvider` + `useToast()`** - the toast *system* on top of the
   presentational `Toast`. `<ToastProvider position max duration>` at the app
   root; `const { toast, dismiss } = useToast()` anywhere below it. Portal
   viewport, six positions, a countdown bar that pauses with the timer on hover /
   focus, stack capped at `max` (oldest drops), `duration: 0` sticks. Error toasts
   announce as `role="alert"`.
-- **`Dialog` portals to `<body>`** and is fixed to the viewport — no ancestor's
+- **`Dialog` portals to `<body>`** and is fixed to the viewport - no ancestor's
   `overflow` / `transform` can trap it. New props: `size` (`sm`–`xl`),
   `dividers`, `showClose`, `dismissible`, and `variant="fullscreen"`. Locks page
   scroll, closes on `Escape`.
-- **`Select` — hand-rolled listbox** in every browser: two placement strategies
+- **`Select` - hand-rolled listbox** in every browser: two placement strategies
   (inline `position: absolute`, glued through any scroll; `position: fixed`
   portal only inside a `Dialog`), full keyboard support, and a **bottom sheet**
   with finger-sized rows on a touch pointer (scroll-locked, `overscroll-behavior:
   contain`). Clicking the field `<label>` no longer opens it.
 - **`Alert` / `Toast` dismiss** is now a proper 28px icon button (Lucide `X`,
   hover / focus states) instead of a bare `×` with no hit area.
-- **`Stepper`** — the counter (`stepLabel`) is customisable and defaults to
+- **`Stepper`** - the counter (`stepLabel`) is customisable and defaults to
   English `Step N of M`; no more embedded pt-BR.
-- **`TopBar`** — the `subtitle` truncates with an ellipsis (was wrapping and
+- **`TopBar`** - the `subtitle` truncates with an ellipsis (was wrapping and
   blowing out the bar height) and accepts `React.ReactNode`.
 
-## 0.23.0 — DateTimePicker navigation (SS-217)
+## 0.23.0 - DateTimePicker navigation (SS-217)
 
-- **Navigable header** — `‹` / `›` step the month; the centred title opens a
+- **Navigable header** - `‹` / `›` step the month; the centred title opens a
   popover to jump to any month, and a year sub-grid (12-year window, paged) for
-  the year. `year` / `month` are now just the *initial* view — the component owns
+  the year. `year` / `month` are now just the *initial* view - the component owns
   it after mount.
-- **Fixed height** — the day grid is always 6 rows, so navigating months no
+- **Fixed height** - the day grid is always 6 rows, so navigating months no
   longer shifts everything below it.
-- **`onMonthChange(year, month)`** — fires on every navigation; recompute
+- **`onMonthChange(year, month)`** - fires on every navigation; recompute
   `unavailable` / `renderDay` for the new month here. The showcase + demo strike
   through the actual weekends of whatever month you land on.
-- **`renderDay(day) => ReactNode`** — content under each day number (a booking
+- **`renderDay(day) => ReactNode`** - content under each day number (a booking
   count, a dot). Every cell grows to keep the grid even; scoping (e.g. future
   days only) is the caller's job. The dashboard Agenda rail shows upcoming
   booking counts; the public booking flow deliberately does not.
 - No `@sereno-ds/ui` / `@sereno-ds/tokens` version change (pre-SS-161, no changeset).
 
-## 0.22.0 — Table (SS-216 / SS-58)
+## 0.22.0 - Table (SS-216 / SS-58)
 
-- **New `Table` primitive** (`@sereno-ds/ui`, core) — the DS's first **compound
+- **New `Table` primitive** (`@sereno-ds/ui`, core) - the DS's first **compound
   component**: `Table` + `Table.Head` / `Table.Body` / `Table.Row` /
   `Table.HeaderCell` / `Table.Cell`. Cells hold real JSX, not `render`
   callbacks. Structure, `density` (`comfortable` / `compact`), row dividers and
   hover / focus / sticky / zebra ship in `@sereno-ds/ui/styles.css`, keyed off
-  `data-*` on the `<table>` — the parts stay thin.
-- **Controlled sort** — `sortKey` + `sort` + `onSort` on a `HeaderCell` shows
+  `data-*` on the `<table>` - the parts stay thin.
+- **Controlled sort** - `sortKey` + `sort` + `onSort` on a `HeaderCell` shows
   the chevron and sets `aria-sort`; the consumer sorts the `rows`. The DS never
   reorders data. `Table.Row onClick` makes a row a button (hover, `Enter` /
   `Space`, focus ring, `selected`). Semantic `<table>` / `scope="col"` /
   `<caption>` / scroll `role="region"`.
 - **Demo:** the dashboard's *Clientes* view is now a real `Table` (sort by name,
   selectable rows) instead of a hand-rolled row list.
-- **`minWidth` + `nowrap` cells** — cells are `white-space: nowrap` by default and
+- **`minWidth` + `nowrap` cells** - cells are `white-space: nowrap` by default and
   `<Table minWidth={…}>` floors the table width, so on a phone the scroll
   `region` takes a sideways scrollbar instead of the columns crushing.
   `<Table.Cell wrap>` opts one column back into wrapping. The scroll region
-  (`position: relative`, `min-width: 0`, `overflow: auto` — inline, so a stale
+  (`position: relative`, `min-width: 0`, `overflow: auto` - inline, so a stale
   stylesheet can't defeat it) keeps both the wide table and the visually-hidden
   `<caption>` from stretching the page's scroll in either axis.
-- **Row states** are a brand-tinted progression — hover < selected <
-  selected+hover — so none of them blends into the neutral header fill.
+- **Row states** are a brand-tinted progression - hover < selected <
+  selected+hover - so none of them blends into the neutral header fill.
 - **Demo:** Financeiro → "A receber" → *Pagamentos pendentes* is a real `Table`
-  now too — every tabular view in the demo goes through `@sereno-ds/ui`.
+  now too - every tabular view in the demo goes through `@sereno-ds/ui`.
 - Catalogue is now **28 primitives**. Showcase page at `/design-system/core/table`.
 - No `@sereno-ds/ui` / `@sereno-ds/tokens` version change (pre-SS-161, no changeset).
-- Sets the reference for the compound pattern — see `CLAUDE.md` and SS-213.
+- Sets the reference for the compound pattern - see `CLAUDE.md` and SS-213.
 
-## 0.21.1 — Onboarding "Formato" fix (no ticket)
+## 0.21.1 - Onboarding "Formato" fix (no ticket)
 
 - Onboarding "first service" step: the "Online e presencial" option carried the
   value `Ambos`, which leaked verbatim into the `ServiceCard` preview badge. It's
   now `Presencial/Online`.
 
-## 0.21.0 — Domain cards out of the DS (SS-212)
+## 0.21.0 - Domain cards out of the DS (SS-212)
 
 - **The `domain` category is gone from `@sereno-ds/ui`.** `ServiceCard`,
   `ProfessionalCard`, `AppointmentCard` and `WeeklyScheduleEditor` encoded
-  Sereno's product domain, not reusable UI — a published DS should not ship
+  Sereno's product domain, not reusable UI - a published DS should not ship
   them. They moved to `apps/demo/src/domain/` as a reference for building product
   components on top of the DS (compose primitives, local `sx` helper). The real
   app (SS-104) builds its own.
@@ -131,25 +131,25 @@ machine log. Add an entry here whenever you add a changeset.
 - `WeeklyScheduleEditor`'s 560px reflow rule moved from `@sereno-ds/ui/styles.css`
   to `apps/demo/app/globals.css` with the component.
 - `ProfessionalCard` (previously only in the showcase) now renders the
-  professional's identity at the top of the booking flow — mobile hero and
-  desktop rail — replacing the hand-rolled `Avatar` + text.
+  professional's identity at the top of the booking flow - mobile hero and
+  desktop rail - replacing the hand-rolled `Avatar` + text.
 - Booking flow polish: the plain "Sereno" wordmark is now the `Brand` lockup
   (drop + wordmark); the desktop "Voltar" link is a real `@sereno-ds/ui` ghost
   `Button`; the in-step service/time recap card is hidden on desktop (the rail
   already shows it); `ServiceCard` moves the duration under the price,
   right-aligned. (`Brand` in the dashboard / onboarding screens is still SS-180.)
 - Onboarding "first service" step gains an optional **Descrição** `Textarea`,
-  fed into the "como o cliente vai ver" `ServiceCard` preview — it was missing
+  fed into the "como o cliente vai ver" `ServiceCard` preview - it was missing
   the description line that real services show in the booking flow.
 - No `@sereno-ds/ui` / `@sereno-ds/tokens` version change (pre-SS-161, packages at
   `0.0.0`, no changeset).
 - Drive-by: the `Brand` lockup in the `/design-system` sidebar header is now a
   link back to the docs landing (`/`).
 
-## 0.20.0 — Demo app front door (SS-206)
+## 0.20.0 - Demo app front door (SS-206)
 
 - **`apps/demo` hub moved from `/demo` to `/`.** The client redirect
-  (`apps/demo/app/page.tsx`) and the `app/demo/` route are gone —
+  (`apps/demo/app/page.tsx`) and the `app/demo/` route are gone -
   `http://localhost:3001/` is the hub directly. `sitemap.ts` / `canonical`
   updated.
 - **New demo landing** (lean): `Brand` lockup header, hero ("The Sereno app,
@@ -158,7 +158,7 @@ machine log. Add an entry here whenever you add a changeset.
   the product screens stay pt-BR.
 - **`Brand` in the demo hub header** (replaces the plain-text "Sereno · App").
   The dashboard / onboarding / booking screens keep `SerenoMark` until SS-180.
-- **`DemoNav`** — a fixed bottom-center pill on the three screens (not the hub):
+- **`DemoNav`** - a fixed bottom-center pill on the three screens (not the hub):
   the mark links back to the hub, plus Booking / Dashboard / Onboarding with the
   current one marked. Demo-harness chrome, mounted from each route's `page.tsx`,
   not from `src/screens/`.
@@ -170,29 +170,29 @@ machine log. Add an entry here whenever you add a changeset.
   with an `ExternalLink` icon, via `NEXT_PUBLIC_DS_URL` / `NEXT_PUBLIC_DEMO_URL`
   (SS-158 sets them; fallbacks `:3000` / `:3001`).
 
-## 0.19.3 — Landing polish + deterministic dev ports (no ticket)
+## 0.19.3 - Landing polish + deterministic dev ports (no ticket)
 
 - **"See the app"** (hero CTA + path card) now opens the demo app in a new tab
-  with an `ExternalLink` icon — it's a separate app. URL from
+  with an `ExternalLink` icon - it's a separate app. URL from
   `NEXT_PUBLIC_DEMO_URL` (SS-158 sets it for the deployed build; falls back to
   `http://localhost:3001`).
 - Feature grid: `` `data-theme` ``, `` `:focus-visible` ``, `` `var(--token)` ``
   now render as styled `<code>` instead of literal backticks (`withCode` helper).
-- Richer landing background — three layered indigo blooms over `--bg-canvas`
+- Richer landing background - three layered indigo blooms over `--bg-canvas`
   (top-center, top-right, mid-left), still one hue (keeps clear of the
   `accent × success` rule).
 - Dev ports pinned: `apps/docs` → `next dev -p 3000`, `apps/demo` →
   `next dev -p 3001` (`.claude/launch.json` `autoPort: false`). No more
-  race for port 3000 — the DS is always `:3000`.
+  race for port 3000 - the DS is always `:3000`.
 
-## 0.19.2 — Open Graph images + apple-touch-icons (SS-204)
+## 0.19.2 - Open Graph images + apple-touch-icons (SS-204)
 
 - **`opengraph-image.png` (1200×630) + `apple-icon.png` (180×180)** for both
   apps, in `apps/{docs,demo}/app/`. The water-drop mark + wordmark on the dark
-  canvas. Both cards are framed as the Design System — docs "Design System",
+  canvas. Both cards are framed as the Design System - docs "Design System",
   demo "Design System · Demo" (the demo is a DS artifact, not a standalone
   scheduling product).
-- Committed PNGs, not `opengraph-image.tsx` routes — with `output: 'export'` the
+- Committed PNGs, not `opengraph-image.tsx` routes - with `output: 'export'` the
   dynamic route emits an extensionless file a static host won't serve as
   `image/png`. Regenerated by `npm run gen:brand-images`
   (`scripts/generate-brand-images.mjs`, uses `next/og`).
@@ -201,30 +201,30 @@ machine log. Add an entry here whenever you add a changeset.
   each screen's `openGraph`/`twitter` (page-level `openGraph` overrides the file
   convention, so it must be explicit); the app-level `title`/`description` no
   longer read as "agendamento online…" but as the DS demo.
-- Favicon (`icon.svg`) unchanged — shipped in 0.19.0 (SS-202).
+- Favicon (`icon.svg`) unchanged - shipped in 0.19.0 (SS-202).
 
-## 0.19.1 — Landing page rebuilt (SS-203)
+## 0.19.1 - Landing page rebuilt (SS-203)
 
 - `apps/docs/app/page.tsx` is no longer a placeholder. A proper DS home:
-  - **Split hero** — copy (eyebrow, big headline, sub, React / Next.js marks, two
+  - **Split hero** - copy (eyebrow, big headline, sub, React / Next.js marks, two
     CTAs, an `import { Button, Card } from '@sereno-ds/ui'` code block) next to a
-    **live preview panel** (`HeroPreview`) that wires up real primitives — a
+    **live preview panel** (`HeroPreview`) that wires up real primitives - a
     booking card with Avatar, Badge, Tabs, Switch, Buttons and a floating
     success Alert. Proof, not a screenshot. A soft indigo radial glow behind it.
-  - **Feature grid** — six points with Lucide icons in brand-soft tiles.
-  - **"The primitives"** — a live `ComponentGallery`: six cards, one per
+  - **Feature grid** - six points with Lucide icons in brand-soft tiles.
+  - **"The primitives"** - a live `ComponentGallery`: six cards, one per
     category (Actions, Status, Forms, Navigation, Feedback, Loading), wiring up
     ~15 interactive primitives, next to a "Browse all 30" link.
   - **Path cards** to `/design-system` and `/demo`, plus a footer with the mono
     mark and a GitHub link.
 - All landing copy in **English** (product screens stay pt-BR).
-- Built from `@sereno-ds/ui` + tokens only — no external images, responsive, light +
+- Built from `@sereno-ds/ui` + tokens only - no external images, responsive, light +
   dark. New `apps/docs/src/home/` (`HeroPreview`, `ComponentGallery`, mono
   React / Next.js / GitHub marks); `@/home/*` tsconfig path added.
 
-## 0.19.0 — `Brand` component + the water-drop mark (SS-202)
+## 0.19.0 - `Brand` component + the water-drop mark (SS-202)
 
-- **New `Brand` primitive** (`@sereno-ds/ui`, core) — the Sereno mark: an indigo
+- **New `Brand` primitive** (`@sereno-ds/ui`, core) - the Sereno mark: an indigo
   water-drop symbol (`#7d8bdf` → `#4f46e5` gradient), optionally locked up with
   the lowercase `sereno` wordmark (`--font-display` at 500). `variant`
   (`symbol` / `lockup` / `lockup-vertical`), `size` (px), `mono` (drops the
@@ -233,25 +233,25 @@ machine log. Add an entry here whenever you add a changeset.
   `/design-system` sidebar header and the landing header now render `<Brand>`.
   The product screens (`apps/demo`: dashboard, booking, onboarding) keep the old
   `SerenoMark` until SS-180 decides whether the drop is the product's mark too.
-- **Favicons** — `apps/docs/app/icon.svg` and `apps/demo/app/icon.svg` are the
+- **Favicons** - `apps/docs/app/icon.svg` and `apps/demo/app/icon.svg` are the
   drop; downloadable SVGs in `apps/docs/public/brand/`.
 - Showcase page for `Brand` (catalogue + examples: variants, monochrome, sizes).
 
-## 0.18.1 — Monorepo (npm workspaces + Turborepo) (SS-155)
+## 0.18.1 - Monorepo (npm workspaces + Turborepo) (SS-155)
 
 - The repo is now four workspaces: **`packages/tokens`** (`@sereno-ds/tokens`),
-  **`packages/ui`** (`@sereno-ds/ui` — the 31 primitives + `styles.css` + `theme`),
+  **`packages/ui`** (`@sereno-ds/ui` - the 31 primitives + `styles.css` + `theme`),
   **`apps/docs`** (this showcase) and **`apps/demo`** (the 3 product screens).
 - Both apps consume `@sereno-ds/ui` / `@sereno-ds/tokens` through the workspace link;
   the `@/components` / `@/theme` tsconfig aliases are gone. Each app's
   `globals.css` `@import`s `@sereno-ds/tokens/tokens.css` + `@sereno-ds/ui/styles.css`
   and then only its own shell rules.
 - `turbo run build | lint | typecheck` from the root. No component API or visual
-  change — plumbing only. Deploy is a stopgap on `apps/docs` until SS-158.
+  change - plumbing only. Deploy is a stopgap on `apps/docs` until SS-158.
 - `CLAUDE.md` / `AGENTS.md` / `README.md` are rewritten for the new layout in
   SS-171.
 
-## 0.18.0 — Component stylesheet split out of the app (SS-154)
+## 0.18.0 - Component stylesheet split out of the app (SS-154)
 
 - **The CSS the components can't inline now lives with the components**, in
   `src/components/styles.css`: the `@keyframes` (`sereno-spin`, `-pop`,
@@ -260,7 +260,7 @@ machine log. Add an entry here whenever you add a changeset.
   `::-webkit-scrollbar` rules for `Tabs` and `SidebarNav`, the in-field
   `.ds-affix-btn`, `WeeklyScheduleEditor`'s one narrow-screen reflow, and a
   `prefers-reduced-motion` damp. Before this they were scattered through
-  `app/globals.css` — a component installed on its own rendered wrong.
+  `app/globals.css` - a component installed on its own rendered wrong.
 - **`app/globals.css` now just `@import`s that file** (one line, right after the
   tokens). What stays in the app is genuinely host-only: the `pointer: coarse`
   16px bump, the `html/body` reset, and every `.ds-*` / `.cv-*` / `.dash-*` /
@@ -268,28 +268,28 @@ machine log. Add an entry here whenever you add a changeset.
 - **New consumer contract:** load the component stylesheet once at the app root.
   Today that's the `@import` above; once the library is packaged it becomes
   `import '@sereno-ds/ui/styles.css'`.
-- No component API or visual change — first step of the "@sereno-ds/ui as a
+- No component API or visual change - first step of the "@sereno-ds/ui as a
   publishable package" epic (SS-153).
 
-## 0.17.1 — Stepper showcase + design-system chrome on SidebarNav (SS-53)
+## 0.17.1 - Stepper showcase + design-system chrome on SidebarNav (SS-53)
 
 - **`Stepper`** examples (Bar · Dots · Clickable back) are now a **live 4-step
-  wizard** — Back / Next controls, a step-content panel, clickable segments in
+  wizard** - Back / Next controls, a step-content panel, clickable segments in
   the third. The component's counter line stopped running on: it's now
   "Passo N de M" + a dot separator + the step label.
-- **`SidebarNav`**: `href` on items + a `linkComponent` prop — a leaf with an
+- **`SidebarNav`**: `href` on items + a `linkComponent` prop - a leaf with an
   `href` renders through it (Next's `Link`) instead of a `<button>`, so routing
   / new-tab / SSR-active all work. Group headings are lighter (`--text-disabled`)
   and hug their list; the between-group divider is `--border-default`. When
   collapsed the rail hides its own scrollbar so the gutter can't shove the
   centred icons off-axis from the header mark.
-- The **`/design-system` showcase now uses `SidebarNav`** for its own left nav —
+- The **`/design-system` showcase now uses `SidebarNav`** for its own left nav -
   desktop panel *and* the mobile drawer, with the brand mark in the `header`
   slot. The shell matches the dashboard's: a **full-height sidebar** with the
   **header only over the content column** (it starts after the sidebar). No
-  collapse toggle here — this catalogue has no per-item icons, so a collapsed
+  collapse toggle here - this catalogue has no per-item icons, so a collapsed
   icon rail would have nothing to show.
-- **Every showcase page is now the same 3-column MUI-style layout** — nav flush
+- **Every showcase page is now the same 3-column MUI-style layout** - nav flush
   left, article centred at `--ds-content-max`, a sticky **"On this page"** index
   flush right. Overview and Tokens moved onto the shared `DocPage` shell so they
   carry the index too. The bespoke `.ds-nav` styles and the drawer's own header
@@ -298,23 +298,23 @@ machine log. Add an entry here whenever you add a changeset.
   `--bg-canvas`, so every `--border-subtle` divider sitting on the plain canvas
   (the "On this page" rule, the Tokens type-scale rows and contrast table, the
   Props table) was reading as a stray white line. All bumped to
-  `--border-default`; `guidelines-draft.md` gets an "Evite / Faça" section —
+  `--border-default`; `guidelines-draft.md` gets an "Evite / Faça" section -
   `--border-subtle` only over `--bg-surface`, never the canvas.
 
-## 0.17.0 — SidebarNav + dashboard rebuild (SS-52)
+## 0.17.0 - SidebarNav + dashboard rebuild (SS-52)
 
-- New **`SidebarNav`** primitive (29th; net-new) — the desktop counterpart to
+- New **`SidebarNav`** primitive (29th; net-new) - the desktop counterpart to
   `BottomNav`.
   - **Grouped sections** (`sections: { label?, items }[]`) with a hairline
     divider between each and an uppercase heading.
   - **Second level**: an item with `children` is not a destination. Expanded, it
     opens as an **inline accordion** (seeded open on the active branch);
-    collapsed, it opens as a **hover flyout** to the right of the icon — a
+    collapsed, it opens as a **hover flyout** to the right of the icon - a
     titled card (parent icon + label + divider), dotted rows, a caret pointing
     back at the rail, and a slide-in. Portalled, close grace-delay, one open at
     a time.
   - **Collapsible** to a 72px icon rail via a round toggle on the sidebar's
-    right edge, vertically centred on the `header` — `collapsed` /
+    right edge, vertically centred on the `header` - `collapsed` /
     `onCollapsedChange` (uncontrolled via `defaultCollapsed`), animated width.
     Labels hide, group headings become bare dividers, counts become a dot, the
     active parent carries the pill, and each leaf icon gets a **portalled hover
@@ -325,24 +325,24 @@ machine log. Add an entry here whenever you add a changeset.
   - New `.sereno-sidenav` host rules (thin scrollbar + focus ring on the plain
     `<button>` rows).
 - **`Dashboard` screen rebuilt** around it: a real app shell (fixed sidebar +
-  a centred scrolling content column), a **`TopBar`** header — page title, a
+  a centred scrolling content column), a **`TopBar`** header - page title, a
   borderless theme toggle (`ThemeToggle` gained a `variant` prop), a
   **notifications** dropdown (unread badge, mark-all-read) and a **user menu**
-  (Configurações · Sair). A full grouped nav — Atendimento /
-  Gestão / Marketing / Conta — with a placeholder brand mark, second levels
-  under Financeiro and Configurações, and a "— em breve" fallback for sections
+  (Configurações · Sair). A full grouped nav - Atendimento /
+  Gestão / Marketing / Conta - with a placeholder brand mark, second levels
+  under Financeiro and Configurações, and a " - em breve" fallback for sections
   the design system doesn't define yet. Per-status appointment actions
   (Confirmar · Entrar · Reagendar); Agenda's Hoje/Semana/Mês tabs switch real
   content; new "Próximo atendimento" card; "A receber" list under Financeiro.
 - **Responsive nav.** Under 900px the sidebar becomes an **off-canvas drawer**
   (hamburger in the `TopBar`, brand mark beside it, slide in/out with a scrim,
-  Esc / scrim / select to close) holding the full `SidebarNav` — so every one
+  Esc / scrim / select to close) holding the full `SidebarNav` - so every one
   of the ~15 destinations stays reachable. The old 5-slot BottomNav is gone.
   Agenda's date subtitle shortens to "Seg, 24 de agosto" on narrow screens.
 - Showcase `/design-system/navigation/sidebar-nav`: Groups and second level ·
   Collapsible rail. `28 primitives` → 29 (43 routes).
 
-## 0.16.0 — Tabs scroll + navigation showcase (SS-51)
+## 0.16.0 - Tabs scroll + navigation showcase (SS-51)
 
 - **`Tabs` scrolls when it overflows.** The strip is a horizontal scroll
   container (no wrapping, no squishing); a **chevron** appears on whichever side
@@ -350,18 +350,18 @@ machine log. Add an entry here whenever you add a changeset.
   host rule hides the scrollbar. `style` / `className` now land on the outer
   strip.
 - **Showcase demos:** `Tabs` gains a live content panel under each example (it's
-  a controlled switch — the screen renders the content) and an **Overflow**
+  a controlled switch - the screen renders the content) and an **Overflow**
   example. `TopBar` / `BottomNav` demos now render inside a phone-screen frame
   with body content, so their divider reaches the edges instead of looking cut
   at the rounded corners.
 - **`Card` refresh.** The edge is now a pixel-crisp `box-shadow` ring
   (`--border-default`, `--border-strong` on hover, `--border-brand` at 1.5px when
-  `selected`) with the elevation drop-shadow layered beneath it — no more a real
+  `selected`) with the elevation drop-shadow layered beneath it - no more a real
   `border` fighting the shadow and seaming at the rounded corners. Same props,
   same API.
 - Closes SS-51 (`Tabs` and `BottomNav` already shipped in 0.1.0).
 
-## 0.15.0 — SearchInput (SS-50)
+## 0.15.0 - SearchInput (SS-50)
 
 - New **`SearchInput`** primitive (28th; net-new). `Input` + a leading magnifier
   + a clear (**×**) button that shows once there is text + a **debounced**
@@ -373,7 +373,7 @@ machine log. Add an entry here whenever you add a changeset.
 - Showcase `/design-system/forms/search-input`: Basic · Live results · Sizes ·
   Disabled. `27 primitives` → 28 (42 routes).
 
-## 0.14.0 — AvatarUpload (SS-146)
+## 0.14.0 - AvatarUpload (SS-146)
 
 - New **`AvatarUpload`** primitive (the 27th; net-new). The profile-photo case,
   split out of `FileUpload`.
@@ -382,12 +382,12 @@ machine log. Add an entry here whenever you add a changeset.
     `getUserMedia` camera capture, with a graceful fallback message if the
     camera is blocked), **Remove** (once set). The menu is portalled to
     `<body>` so a clipped container can't hide it.
-  - Picking opens a **circular crop** — drag to frame, scroll / slider to zoom,
+  - Picking opens a **circular crop** - drag to frame, scroll / slider to zoom,
     **Salvar** draws the circle region to a canvas at `outputSize` (512) and
     `toBlob('image/jpeg', 0.85)`. So `onChange` hands back a **cropped +
-    downscaled** `File` — the "iPhone photo is 8 MB" problem handled for free.
+    downscaled** `File` - the "iPhone photo is 8 MB" problem handled for free.
   - `value` also takes an existing URL string (shows straight away, no crop).
-  - **HEIC** picks are rejected with a message — no browser but Safari decodes
+  - **HEIC** picks are rejected with a message - no browser but Safari decodes
     it; that conversion is a server job. Documented.
   - Hand-rolled, no dependency. Crop modal locks body scroll, Esc closes.
   - All UI strings (menu, crop dialog, messages) are **English by default**;
@@ -398,24 +398,24 @@ machine log. Add an entry here whenever you add a changeset.
 - Showcase page (`/design-system/forms/avatar-upload`): Basic · With a photo ·
   Sizes · Disabled. `26 primitives` → 27 (41 routes).
 
-## 0.13.1 — Onboarding polish (SS-145)
+## 0.13.1 - Onboarding polish (SS-145)
 
 - `/onboarding` is now a **contained card** at ≥768px (surface, border,
-  `radius-xl`, `shadow-md`, `space-8` padding) — the same shape as the booking
-  flow's tablet layout — instead of a column floating on the canvas. Mobile stays
+  `radius-xl`, `shadow-md`, `space-8` padding) - the same shape as the booking
+  flow's tablet layout - instead of a column floating on the canvas. Mobile stays
   full-bleed and document-scrolled.
 - Step actions moved into an `.onb-footer` with a divider rule above them; the
   "Preencher depois" skip lost its underline and is a quiet muted button
   (`.onb-skip`).
-- The done-screen summary drops to `elevation="none"` — no card-inside-a-card
+- The done-screen summary drops to `elevation="none"` - no card-inside-a-card
   shadow. FileUpload prompt on step 1 shortened to "Adicionar foto".
-- Layout only — no component or flow change.
+- Layout only - no component or flow change.
 
-## 0.13.0 — FileUpload (SS-49)
+## 0.13.0 - FileUpload (SS-49)
 
-- New **`FileUpload`** primitive — the 26th component, and the first that is
+- New **`FileUpload`** primitive - the 26th component, and the first that is
   net-new rather than ported from the approved DS source.
-  - Picked by click, keyboard, or drag-and-drop. **No upload** — `onChange` hands
+  - Picked by click, keyboard, or drag-and-drop. **No upload** - `onChange` hands
     the consumer the `File`(s); the preview is local.
   - **Single** (default): dashed drop area → swaps to a preview row with
     **Replace** / **Remove**. `shape` `circle` (avatars) or `square`. `value`
@@ -425,35 +425,35 @@ machine log. Add an entry here whenever you add a changeset.
   - Image previews use a `usePreviewUrl` hook that creates *and* revokes the
     object URL in one effect, so a re-render / StrictMode remount never leaves a
     dead `blob:` on screen.
-  - Non-image files get a **colour-coded type glyph** — PDF red, doc/rtf blue,
-    xls/csv green, ppt/zip amber, else grey — on a faint tint of that colour.
+  - Non-image files get a **colour-coded type glyph** - PDF red, doc/rtf blue,
+    xls/csv green, ppt/zip amber, else grey - on a faint tint of that colour.
   - `accept` and `maxSizeMB` enforced on drop too. A rejected single file is a
     field error; a "skipped N" in `multiple` mode is an informational note.
   - Comfortable tap targets throughout (36px+), no bare micro-links.
-- Wired into `Onboarding` step 1 — replaces the dead "Enviar foto" button (and
+- Wired into `Onboarding` step 1 - replaces the dead "Enviar foto" button (and
   its decorative `Avatar`) with a real `FileUpload shape="circle"`.
 - Showcase page (`/design-system/forms/file-upload`): Basic · Avatar · Multiple
   files · Rejected file · Disabled. `25 primitives` references bumped to 26.
 - Closes SS-49 (its phone-mask half shipped in 0.10.0).
 
-## 0.12.0 — Switch & Select: fuller examples, Switch size + keyboard (SS-144)
+## 0.12.0 - Switch & Select: fuller examples, Switch size + keyboard (SS-144)
 
 - `Switch` gains a **`size`** prop (`sm` 36×22 / `md` 44×26) to match
-  `Checkbox` / `Radio` / `Input`, and is now **keyboard-operable** — the toggle
+  `Checkbox` / `Radio` / `Input`, and is now **keyboard-operable** - the toggle
   takes focus (with a focus ring), Space / Enter flip it, `disabled` drops it
   from the tab order.
 - Switch showcase 2 → 4 examples: **Basic**, **Settings list** (the stacked
   instant-apply rows Switch is actually for), **Disabled** (off + on), **Sizes**.
-- Select showcase gains an **Error** example — the `error` contract was
+- Select showcase gains an **Error** example - the `error` contract was
   documented but never shown. No component change.
 
-## 0.11.0 — Checkbox & Radio: indeterminate, size, fuller examples (SS-47)
+## 0.11.0 - Checkbox & Radio: indeterminate, size, fuller examples (SS-47)
 
-- `Checkbox` gains an **`indeterminate`** prop — the mixed state for a "select
+- `Checkbox` gains an **`indeterminate`** prop - the mixed state for a "select
   all" parent. It's a DOM property (not an attribute), so the component sets it
   imperatively via a ref; you just pass the boolean. New
   `.sereno-check:indeterminate` global rule (dash icon, same fill as `:checked`).
-- `Checkbox` and `Radio` gain a matching **`size`** prop — `sm` (16px) for dense
+- `Checkbox` and `Radio` gain a matching **`size`** prop - `sm` (16px) for dense
   filter lists, `md` (20px) default. The check glyph now scales with the box
   (`background-size: 70%`); `.sereno-radio[data-size=sm]` tightens the dot.
 - Checkbox showcase 2 → 5 examples: **Basic**, **Disabled** (plain + locked-on),
@@ -461,45 +461,45 @@ machine log. Add an entry here whenever you add a changeset.
   (`<fieldset>` / `<legend>` multi-select).
 - Radio showcase 1 → 4 examples: **Vertical** (3 options), **Horizontal**
   (label-only row), **Disabled**, **Sizes**.
-- Still *not* adding MUI's per-instance `color` — the box is one brand colour on
+- Still *not* adding MUI's per-instance `color` - the box is one brand colour on
   purpose (Don't list).
 
-## 0.10.2 — /design-system scrolls the document on mobile (SS-143)
+## 0.10.2 - /design-system scrolls the document on mobile (SS-143)
 
 - Replaces the v0.10.1 `KeyboardReveal` shim with the structural fix. At ≤900px
   the showcase drops the fixed app-shell: `.ds-root` / `.ds-body` / `.ds-main`
   go back to normal flow (no `100dvh` lock, no nested `overflow:auto`), and
   `.ds-header` becomes `position: sticky`. The document is the scroller now, so
   iOS Safari **and Brave** reveal a focused field above the software keyboard
-  natively — fluid, like `/onboarding`. Zero JS.
+  natively - fluid, like `/onboarding`. Zero JS.
 - `ScrollPanel` also resets `window` scroll on route change; `MobileNav` locks
   body scroll while the drawer is open (the old `overflow:hidden` shell did that
   implicitly).
 - `app/_shell/KeyboardReveal.tsx` **removed**. Desktop unchanged.
-- `/agendar` (mobile) still has a nested scroller + sticky footer — same fix is
+- `/agendar` (mobile) still has a nested scroller + sticky footer - same fix is
   a follow-up.
 
-## 0.10.1 — Brave iOS keyboard reveal (SS-142)
+## 0.10.1 - Brave iOS keyboard reveal (SS-142)
 
-- `app/_shell/KeyboardReveal.tsx` — an app-shell workaround, **not** part of the
+- `app/_shell/KeyboardReveal.tsx` - an app-shell workaround, **not** part of the
   component library. `/design-system` and `/agendar` (mobile) scroll inside a
   nested `overflow: auto` container; iOS Safari / Chrome reveal a focused field
   above the software keyboard in that setup but Brave for iOS does not. On
   `focusin` of a text control at `pointer: coarse`, after the keyboard settles,
-  it `scrollIntoView({ block: 'center' })` — but only when the field is actually
+  it `scrollIntoView({ block: 'center' })` - but only when the field is actually
   covered, so it is a no-op everywhere else (Safari, Chrome, desktop). Mounted
   once in `app/layout.tsx`. No dependency; `src/components/**` untouched.
 
-## 0.10.0 — Input: masks, prefix, password reveal, counter (SS-46, SS-141)
+## 0.10.0 - Input: masks, prefix, password reveal, counter (SS-46, SS-141)
 
-- `Input` gains a **`mask`** prop — hand-rolled, no dependency
+- `Input` gains a **`mask`** prop - hand-rolled, no dependency
   (`src/components/_internal/mask.ts`). Presets: `phone` (switches 8/9-digit),
   `cpf`, `cep`, `currency` (digits read as cents → `1.234,56`); or a custom
   `#`-per-digit pattern. It also sets `inputMode` and `maxLength`. `onChange`
   receives the formatted value in `e.currentTarget.value`. Known limit: the
   caret jumps to the end after re-format (fine for forward typing; no
   caret-preservation yet).
-- `Input` gains a **`prefix`** prop — leading text adornment (`R$`, `@`, `+55`),
+- `Input` gains a **`prefix`** prop - leading text adornment (`R$`, `@`, `+55`),
   the mirror of `suffix`. Neither is part of the value. `mask="currency"` now
   outputs the plain number and is paired with `prefix="R$"`, so the stored
   value stays a number string.
@@ -512,7 +512,7 @@ machine log. Add an entry here whenever you add a changeset.
   keeps focus, and flips `aria-label` between "Mostrar senha" / "Ocultar senha".
   When both apply, the eye wins over `suffix`.
 - **Character counter** on `Input` and `Textarea`: set `maxLength` (or pass
-  `showCount`) for an `n / max` readout on the hint row — right-aligned, tabular
+  `showCount`) for an `n / max` readout on the hint row - right-aligned, tabular
   figures, turns `--interactive-error` at the limit. `Field` gained a `counter`
   slot; shared `_internal/CharCount.tsx`.
 - **iOS / WebKit focus-zoom fix**: text controls are forced to 16px at
@@ -524,19 +524,19 @@ machine log. Add an entry here whenever you add a changeset.
   as inline `code` (were literal); the "Next" prev/next card is now right-aligned
   to mirror "Previous".
 
-## 0.9.0 — colour contrast pass (SS-45)
+## 0.9.0 - colour contrast pass (SS-45)
 
 Full WCAG 2.1 AA audit of every meaningful text/bg and non-text pair, light and
 dark. Token value changes (hues kept, lightness nudged):
 
 - `--text-muted` darkened in light (`neutral-500` → `#616A7B`), lightened in dark
-  (`#828B9C` → `#909AAD`) — was < 4.5:1 as body text.
+  (`#828B9C` → `#909AAD`) - was < 4.5:1 as body text.
 - `--text-accent` (light) → `accent-700`; failed AA on white.
-- `--interactive-accent-fg` (light) is now **dark teal instead of white** — white
+- `--interactive-accent-fg` (light) is now **dark teal instead of white** - white
   on the vivid turquoise fill was 3.0:1. The accent CTA now has dark-on-bright
   text, matching dark mode.
 - `--interactive-success` (light) → `green-600`, `--interactive-warning` (light)
-  → `#9C6414` — white label was < 4.5:1 on the old fills.
+  → `#9C6414` - white label was < 4.5:1 on the old fills.
 - `--status-success-fg` / `--status-warning-fg` (light) → new `green-700` /
   `amber-700` steps; badge text was < 4.5:1.
 - Dark `--interactive-primary` ladder moved one step lighter (`brand-400` fill)
@@ -569,7 +569,7 @@ dark. Token value changes (hues kept, lightness nudged):
   (they were falling back to the site default). `/` and `/agendar/[slug]` were
   already correct.
 
-## 0.8.0 — breaking (`Select`)
+## 0.8.0 - breaking (`Select`)
 
 - **`Select` is no longer a styled native `<select>` on desktop.** On pointer
   devices it renders a hand-rolled listbox: token-styled panel in a portal,
@@ -577,21 +577,21 @@ dark. Token value changes (hues kept, lightness nudged):
   checked, full keyboard (`↑ ↓`, `Home` / `End`, type-ahead, `Enter`, `Esc`,
   `Tab`), `role="combobox"` + `role="listbox"` with `aria-activedescendant`.
   Page scrolling is **locked while the menu is open** (the native-select / Radix
-  Select convention) — the list's own overflow still scrolls.
+  Select convention) - the list's own overflow still scrolls.
 - On **touch devices** (`pointer: coarse`) it falls back to the native
-  `<select>` — the OS picker is the better experience with a finger. Same API.
-- **API change:** `value` / `defaultValue` + `onValueChange(value: string)` —
+  `<select>` - the OS picker is the better experience with a finger. Same API.
+- **API change:** `value` / `defaultValue` + `onValueChange(value: string)` -
   a plain string, not a DOM event. `SelectOption` gains `disabled?`. `placeholder`
   and `name` (mirrored to a hidden input) are new. Swept every call site
   (`Onboarding`, `WeeklyScheduleEditor`, `Dashboard`).
-- No new dependency — hand-rolled, consistent with `DateTimePicker`.
+- No new dependency - hand-rolled, consistent with `DateTimePicker`.
 
 ## 0.7.0
 
 - **Semantic fills on the action components.** `Button` and `IconButton` gain
   `success` · `warning` · `error` variants, driven by new
   `--interactive-{success,warning,error}` tokens (light + dark). Same three words
-  as `Badge` / `Alert` / `Toast`. There is no `info` fill — in Sereno that is the
+  as `Badge` / `Alert` / `Toast`. There is no `info` fill - in Sereno that is the
   brand indigo, i.e. `primary`.
 - `Button` variant `destructive` is removed. Use `variant="error"` (a destructive
   confirm is where the colour itself is the message).
@@ -603,14 +603,14 @@ dark. Token value changes (hues kept, lightness nudged):
   and the renamed **Status tones** block spells out the five-word family.
 - All `/design-system` demos and code samples are in English; the product screens
   stay pt-BR.
-- Sidebar: hover and the active item no longer read as the same state — active is a
+- Sidebar: hover and the active item no longer read as the same state - active is a
   brand-tinted wash + blue bar + blue label, hover is a plain neutral wash, and the
   focus ring is a tidy inset outline instead of a floating halo.
 
-## 0.6.0 — breaking
+## 0.6.0 - breaking
 
 - **Unified semantic tone vocabulary** across `Badge`, `Alert` and `Toast`:
-  `success · warning · error · info · neutral` — the same five words everywhere.
+  `success · warning · error · info · neutral` - the same five words everywhere.
   Token groups renamed: `--status-confirmed-*` → `--status-success-*`,
   `--status-pending-*` → `--status-warning-*`, `--status-cancelled-*` → `--status-error-*`,
   `--status-completed-*` → `--status-neutral-*`.

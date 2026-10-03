@@ -1,4 +1,4 @@
-// Sereno Design System — public component surface. See the /design-system
+// Sereno Design System - public component surface. See the /design-system
 // showcase for the live catalog, or the barrel smoke test for the full list.
 // Icons are passed in as props (lucide-react), never imported here; theming is
 // 100% CSS custom properties.
@@ -65,6 +65,6 @@ export { Dialog, type DialogProps, type DialogHeaderProps, type DialogBodyProps,
 export { Skeleton, type SkeletonProps } from './feedback/Skeleton';
 export { EmptyState, type EmptyStateProps } from './feedback/EmptyState';
 
-// theme — the `data-theme` provider (next-themes) + the light/dark toggle
+// theme - the `data-theme` provider (next-themes) + the light/dark toggle
 export { ThemeProvider } from './theme/ThemeProvider';
 export { ThemeToggle } from './theme/ThemeToggle';

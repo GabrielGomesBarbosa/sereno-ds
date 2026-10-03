@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
 
-# One PR at a time — cancel superseded runs on the same ref.
+# One PR at a time - cancel superseded runs on the same ref.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -21,6 +21,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
+
+      # No em dash anywhere in the repo (SS-330): cheap, so it runs before the install.
+      - run: npm run check:dashes
 
       - run: npm ci
 
@@ -43,7 +46,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build --workspace=@sereno-ds/ui
-      - name: "@sereno-ds/tokens — tarball contents"
+      - name: "@sereno-ds/tokens: tarball contents"
         run: npm publish --dry-run --workspace=@sereno-ds/tokens
-      - name: "@sereno-ds/ui — tarball contents"
+      - name: "@sereno-ds/ui: tarball contents"
         run: npm publish --dry-run --workspace=@sereno-ds/ui

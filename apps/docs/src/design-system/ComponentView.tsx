@@ -71,7 +71,7 @@ export function ComponentView({ meta }: { meta: ComponentMeta }) {
                       {p.type}
                     </Table.Cell>
                     <Table.Cell style={{ ...propCell, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
-                      {p.default ?? '—'}
+                      {p.default ?? '-'}
                     </Table.Cell>
                     <Table.Cell wrap style={{ ...propCell, color: 'var(--text-secondary)' }}>
                       <InlineCode text={p.description} />
@@ -161,7 +161,7 @@ function GuidelineList({ tone, items }: { tone: 'do' | 'dont'; items: string[] }
   );
 }
 
-// Props rows read better top-aligned — the DS Table cell default is middle.
+// Props rows read better top-aligned - the DS Table cell default is middle.
 const propCell: React.CSSProperties = { verticalAlign: 'top', lineHeight: 1.5 };
 const prevNextLink: React.CSSProperties = {
   display: 'inline-flex',

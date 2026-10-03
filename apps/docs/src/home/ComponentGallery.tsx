@@ -21,7 +21,7 @@ const TABS = [
   { value: 'month', label: 'Month' },
 ] as const;
 
-/** A live spread of primitives from every category — a real preview, not a screenshot. */
+/** A live spread of primitives from every category - a real preview, not a screenshot. */
 export function ComponentGallery() {
   const [tab, setTab] = React.useState('week');
   const [checks, setChecks] = React.useState({ a: true, b: false });
@@ -98,7 +98,7 @@ export function ComponentGallery() {
       <Card padding="lg" style={cell}>
         <span style={tag}>Feedback</span>
         <Alert tone="info" title="3 open slots on Friday">
-          Two after 4pm — a good window for follow-ups.
+          Two after 4pm: a good window for follow-ups.
         </Alert>
       </Card>
 

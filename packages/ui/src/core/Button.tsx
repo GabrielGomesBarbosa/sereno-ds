@@ -6,7 +6,7 @@ import { sx } from '../_internal/style';
 /**
  * Primary action control. `primary` for navigation-level commitment, `accent` for the single
  * conversion action on a view. `success` / `warning` / `error` are the semantic fills, using the
- * same words as Badge / Alert / Toast. (No `info` — in Sereno that is the brand indigo = `primary`.)
+ * same words as Badge / Alert / Toast. (No `info` - in Sereno that is the brand indigo = `primary`.)
  */
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** Visual role. Only one `accent` button per screen. */

@@ -86,7 +86,7 @@ describe('SidebarNav', () => {
       expect(btn).toHaveAttribute('aria-disabled', 'true');
       fireEvent.click(btn);
       expect(onChange).not.toHaveBeenCalled();
-      // aria-disabled, not the native attribute — still in the accessibility
+      // aria-disabled, not the native attribute - still in the accessibility
       // tree, but out of the Tab order (a locked menu shouldn't cost a dead tab stop per item).
       expect(btn).not.toBeDisabled();
       expect(btn).toHaveAttribute('tabindex', '-1');
@@ -113,7 +113,7 @@ describe('SidebarNav', () => {
       expect(screen.getByRole('button', { name: 'Pro' })).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('a disabled item can still be the current page — `value` pointing at it keeps aria-current, and it is still not clickable', () => {
+    it('a disabled item can still be the current page, `value` pointing at it keeps aria-current, and it is still not clickable', () => {
       const onChange = vi.fn();
       render(
         <SidebarNav value="domain" onChange={onChange} collapsible={false}>
@@ -237,7 +237,7 @@ describe('SidebarNav', () => {
         expect(onChange).toHaveBeenCalledWith('help');
       });
 
-      it('SubItems inherit from their parent Item, not straight from the root — an explicitly-enabled parent is not re-locked underneath', () => {
+      it('SubItems inherit from their parent Item, not straight from the root, an explicitly-enabled parent is not re-locked underneath', () => {
         render(
           <SidebarNav value="agenda" disabled>
             <SidebarNav.Section>
@@ -254,7 +254,7 @@ describe('SidebarNav', () => {
         expect(screen.getByRole('button', { name: 'Payouts' })).toHaveAttribute('aria-disabled', 'true');
       });
 
-      it('the collapse toggle, header and footer stay live — they are not destinations', () => {
+      it('the collapse toggle, header and footer stay live; they are not destinations', () => {
         const onCollapsedChange = vi.fn();
         render(<Locked onCollapsedChange={onCollapsedChange} />);
         expect(screen.getByText('Brand')).toBeInTheDocument();
@@ -268,7 +268,7 @@ describe('SidebarNav', () => {
   });
 
   describe('label tooltip', () => {
-    // jsdom has no layout — fake the ellipsis by giving the label span a
+    // jsdom has no layout - fake the ellipsis by giving the label span a
     // scrollWidth wider than its clientWidth (what a truncated one reports).
     const truncate = (el: HTMLElement) => {
       Object.defineProperty(el, 'scrollWidth', { configurable: true, value: 240 });
@@ -300,7 +300,7 @@ describe('SidebarNav', () => {
       expect(screen.queryByRole('tooltip')).toBeNull();
     });
 
-    it('shows nothing for a label that fits — no redundant tooltip', () => {
+    it('shows nothing for a label that fits, no redundant tooltip', () => {
       render(<Nav />);
       fireEvent.mouseEnter(screen.getByRole('button', { name: 'Agenda' }));
       expect(screen.queryByRole('tooltip')).toBeNull();

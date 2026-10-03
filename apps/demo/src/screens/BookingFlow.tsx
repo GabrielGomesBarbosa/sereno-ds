@@ -131,7 +131,7 @@ export function BookingFlow({ professional, services }: { professional: Professi
         </aside>
 
         <div className="booking-stepcol">
-          {/* Mobile / tablet chrome — hidden on desktop, where the rail takes over */}
+          {/* Mobile / tablet chrome - hidden on desktop, where the rail takes over */}
           {step === 'profile' && (
             <div className="booking-chrome">
               <Hero professional={professional} />
@@ -177,7 +177,7 @@ export function BookingFlow({ professional, services }: { professional: Professi
 
           {step === 'profile' && (
             <div className="booking-scroll" style={{ paddingBlock: 'var(--space-5) var(--space-8)', gap: 0 }}>
-              {/* The public profile's real sections — page-level, exactly what
+              {/* The public profile's real sections - page-level, exactly what
                   `underline` is for. Narrow enough on this booking card that
                   it overflows on its own, no forced narrowing needed. */}
               <Tabs value={profileTab} onChange={setProfileTab}>
@@ -271,9 +271,9 @@ export function BookingFlow({ professional, services }: { professional: Professi
                     <MapPin size={20} strokeWidth={1.75} style={{ color: 'var(--text-brand)', flexShrink: 0, marginTop: 2 }} />
                     <div style={vcol('2px')}>
                       <Typography variant="h3" style={{ fontSize: 'var(--text-sm)' }}>
-                        Consultório — {professional.location}
+                        Consultório: {professional.location}
                       </Typography>
-                      <Typography variant="bodySm">Rua Fradique Coutinho, 501 — Pinheiros</Typography>
+                      <Typography variant="bodySm">Rua Fradique Coutinho, 501, Pinheiros</Typography>
                     </div>
                   </Card>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
@@ -365,7 +365,7 @@ export function BookingFlow({ professional, services }: { professional: Professi
               <Typography as="span" variant="h2" className="booking-step-title" style={{ fontSize: 'var(--text-xl)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 'var(--space-2)' }}>
                 Seus dados
               </Typography>
-              {/* Recap of the choice so far — the desktop rail already shows it, so mobile/tablet only. */}
+              {/* Recap of the choice so far - the desktop rail already shows it, so mobile/tablet only. */}
               <div className="booking-chrome">
                 <Card padding="md" style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', background: 'var(--bg-brand-soft)', border: '1px solid transparent' }}>
                   <Calendar size={20} strokeWidth={1.75} />

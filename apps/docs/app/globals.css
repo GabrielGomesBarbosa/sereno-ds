@@ -1,4 +1,4 @@
-/* apps/docs — the showcase shell. Component-level CSS comes from the packages;
+/* apps/docs - the showcase shell. Component-level CSS comes from the packages;
    what's here is host-app: the token layer, the reset, and the `.ds-*` / `.cv-*`
    layout that only the showcase uses. */
 @import url("@sereno-ds/tokens/tokens.css");
@@ -16,7 +16,7 @@ html, body { padding: 0; margin: 0; }
   }
 }
 
-/* ── Design System showcase — fixed app-shell ─────────────────────────────────
+/* ── Design System showcase - fixed app-shell ─────────────────────────────────
    The whole DS lives in one contained column that is exactly the viewport tall.
    The header never scrolls; the sidebar and the content are two independent
    scroll panels, each 100% height, so the divider runs edge to edge and there is
@@ -67,7 +67,7 @@ html, body { padding: 0; margin: 0; }
   scrollbar-gutter: stable both-edges;
   padding: var(--space-7) var(--gutter-desktop) var(--space-10);
 }
-/* Component pages own their own 3-column padding — the shell backs off. */
+/* Component pages own their own 3-column padding - the shell backs off. */
 .ds-main:has(> .cv-layout) { padding: 0; }
 
 /* Mobile-only drawer nav (hidden / no-op on desktop) */
@@ -77,7 +77,7 @@ html, body { padding: 0; margin: 0; }
 
 /* Mobile: keep the app-shell, collapse the sidebar into a hamburger + drawer. */
 @media (max-width: 900px) {
-  /* The document scrolls on mobile — not a nested panel. iOS / Brave then reveal
+  /* The document scrolls on mobile - not a nested panel. iOS / Brave then reveal
      a focused field above the software keyboard natively (same as /onboarding).
      Do not reintroduce a nested overflow:auto scroller here. */
   .ds-root { display: block; height: auto; overflow: visible; }
@@ -134,7 +134,7 @@ html, body { padding: 0; margin: 0; }
 /* sereno-fade-in comes from @sereno-ds/ui/styles.css. */
 @keyframes sereno-drawer-in { from { transform: translateX(-100%); } }
 
-/* ── Component page (MUI-style) — nav flush left, TOC flush right, article centred ── */
+/* ── Component page (MUI-style) - nav flush left, TOC flush right, article centred ── */
 .cv-layout { display: grid; grid-template-columns: minmax(0, 1fr) var(--ds-toc); align-items: start; min-height: 100%; }
 .cv-article { min-width: 0; width: 100%; max-width: var(--ds-content-max); margin-inline: auto; padding: var(--space-8) var(--space-9) var(--space-10); }
 .cv-toc {

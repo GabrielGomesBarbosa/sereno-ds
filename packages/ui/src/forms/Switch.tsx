@@ -15,7 +15,7 @@ export interface SwitchProps {
   style?: React.CSSProperties;
   /**
    * Accessible name for the `role="switch"` element. Wrapping it in a
-   * `<label>` (below) only associates text for *native* labelable controls —
+   * `<label>` (below) only associates text for *native* labelable controls -
    * a custom ARIA widget still announces with no name at all otherwise (SS-232
    * caught this live via axe: `aria-toggle-field-name`). Defaults to `label`;
    * only pass this separately for a label-less switch (an icon-only row).
@@ -26,11 +26,11 @@ export interface SwitchProps {
 const TRACK = { sm: { w: 36, h: 22, thumb: 16 }, md: { w: 44, h: 26, thumb: 20 } } as const;
 
 /**
- * `ref` reaches the `<span role="switch">` — there's no native form element
+ * `ref` reaches the `<span role="switch">` - there's no native form element
  * underneath, so this only gives you `.focus()` (useful for
  * `setFocus()`-on-error), never `.value`/`.checked`. Switch is documented as
  * "never use inside a form that needs Save" already; it isn't a
- * `react-hook-form` `register()` candidate regardless of `ref` — use
+ * `react-hook-form` `register()` candidate regardless of `ref` - use
  * `Controller` if one genuinely needs to live in a saved form.
  */
 export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>(function Switch({

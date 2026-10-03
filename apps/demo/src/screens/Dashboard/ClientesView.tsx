@@ -9,7 +9,7 @@ import { AGENDA_SCHEDULE, CLIENTS, CLIENT_STATUS_LABEL, type ClientRow } from '@
 import { vcol, ComingSoon, ViewHeader } from './shared';
 
 /**
- * A client's profile — Tabs' real-world use case for the `underline`
+ * A client's profile - Tabs' real-world use case for the `underline`
  * variant: page-level sections inside one view, not a filter. `Tabs.Panel`
  * does the section switch here instead of the screen hand-rolling it.
  */
@@ -103,7 +103,7 @@ export function ClientesView() {
   const [openClient, setOpenClient] = React.useState<ClientRow | null>(null);
   const q = query.trim().toLowerCase();
 
-  // The DS never reorders the rows — the screen sorts and hands the result back.
+  // The DS never reorders the rows - the screen sorts and hands the result back.
   const rows = React.useMemo(() => {
     const filtered = q ? CLIENTS.filter((c) => c.name.toLowerCase().includes(q)) : [...CLIENTS];
     if (!sort) return filtered;

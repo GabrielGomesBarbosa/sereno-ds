@@ -2,7 +2,7 @@
 // Fails the build if src/breakpoints.ts ever disagrees with the --bp-*
 // custom properties in spacing.css. The two are hand-kept in two different
 // syntaxes (CSS can't read the JS export, and CSS @media can't read the
-// custom property) — this is the guard that keeps them from silently
+// custom property) - this is the guard that keeps them from silently
 // drifting apart across a release.
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -17,7 +17,7 @@ const ts = readFileSync(tsPath, 'utf8');
 
 const cssMatches = [...css.matchAll(/--bp-(\w+):(\d+)px/g)];
 if (cssMatches.length === 0) {
-  console.error('check-breakpoints: found no --bp-* custom properties in spacing.css — did the token names change?');
+  console.error('check-breakpoints: found no --bp-* custom properties in spacing.css, did the token names change?');
   process.exit(1);
 }
 const fromCss = Object.fromEntries(cssMatches.map(([, key, px]) => [key, Number(px)]));

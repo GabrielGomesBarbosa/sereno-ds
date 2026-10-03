@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 import { sx } from '../_internal/style';
 
 /**
- * Persistent in-page notice — stays until the user dismisses it or the underlying
+ * Persistent in-page notice - stays until the user dismisses it or the underlying
  * condition is resolved. Sits in the content flow (never floating, no shadow),
  * unlike `Toast`, which is transient and self-dismissing.
  */
@@ -19,7 +19,7 @@ export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
   /** Body copy, passed as children. */
   children?: React.ReactNode;
-  /** Leading glyph — a Lucide icon matching the tone. */
+  /** Leading glyph - a Lucide icon matching the tone. */
   icon?: React.ReactNode;
   /** Inline action(s), rendered under the body. Use `Button size="sm"`. */
   action?: React.ReactNode;

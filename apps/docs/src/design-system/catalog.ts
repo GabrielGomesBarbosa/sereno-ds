@@ -30,7 +30,7 @@ export interface ComponentMeta {
   category: CategoryId;
   summary: string;
   props: PropRow[];
-  /** Single usage snippet — fallback for components not yet broken into `examples`. */
+  /** Single usage snippet - fallback for components not yet broken into `examples`. */
   code: string;
   /** MUI-style example sections. When present, the page renders these instead of `code`. */
   examples?: Example[];
@@ -47,7 +47,7 @@ export const CATEGORIES: { id: CategoryId; label: string; blurb: string }[] = [
 const R = (name: string, type: string, description: string, def?: string): PropRow => ({ name, type, description, default: def });
 
 /**
- * Semantic tone vocabulary shared by Badge, Alert and Toast — the same five words
+ * Semantic tone vocabulary shared by Badge, Alert and Toast - the same five words
  * everywhere: `success` (green), `warning` (amber), `error` (red), `info` (indigo),
  * `neutral` (grey). Booking-lifecycle props map onto these:
  * confirmed → success · pending → warning · cancelled → error · completed → neutral.
@@ -60,7 +60,7 @@ export const COMPONENTS: ComponentMeta[] = [
     slug: 'typography',
     name: 'Typography',
     category: 'core',
-    summary: 'The type-scale/font-family/weight combos every screen otherwise reconstructs by hand — one component instead of a new style object each time.',
+    summary: 'The type-scale/font-family/weight combos every screen otherwise reconstructs by hand, one component instead of a new style object each time.',
     props: [
       R(
         'variant',
@@ -74,7 +74,7 @@ export const COMPONENTS: ComponentMeta[] = [
         'Overrides the variant\'s own default (`bodySm` → secondary, `caption`/`eyebrow` → muted, the rest → primary).',
         'variant-dependent',
       ),
-      R('as', 'React.ElementType', 'Render as a different tag without changing the variant\'s styling — a heading-styled label that should not enter the document outline.'),
+      R('as', 'React.ElementType', 'Render as a different tag without changing the variant\'s styling, a heading-styled label that should not enter the document outline.'),
       R('truncate', 'boolean', 'Single-line ellipsis. Needs a width-constrained ancestor to actually clip.', 'false'),
       R('numeric', 'boolean', 'Tabular (fixed-width) figures. For a value that updates or stacks with others at the same position: countdowns, ticket/queue numbers, times, prices.', 'false'),
     ],
@@ -85,13 +85,13 @@ export const COMPONENTS: ComponentMeta[] = [
         id: 'variants',
         title: 'Variants',
         description:
-          'Every variant embeds `fontFamily` / `fontSize` / `fontWeight` / `letterSpacing` / `lineHeight` and its own default tag — this is the whole type scale, not a subset.',
+          'Every variant embeds `fontFamily` / `fontSize` / `fontWeight` / `letterSpacing` / `lineHeight` and its own default tag; this is the whole type scale, not a subset.',
         code: `<Typography variant="display">Display</Typography>
 <Typography variant="h1">Heading 1</Typography>
 <Typography variant="h2">Heading 2</Typography>
 <Typography variant="h3">Heading 3</Typography>
-<Typography variant="body">Body — the default paragraph text.</Typography>
-<Typography variant="bodySm">Body small — secondary paragraph text.</Typography>
+<Typography variant="body">Body: the default paragraph text.</Typography>
+<Typography variant="bodySm">Body small: secondary paragraph text.</Typography>
 <Typography variant="label">Label</Typography>
 <Typography variant="caption">Caption</Typography>
 <Typography variant="eyebrow">Eyebrow</Typography>`,
@@ -99,7 +99,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'colors',
         title: 'Colors',
-        description: '`color` overrides the variant\'s own default — every color is a text token, never a raw value.',
+        description: '`color` overrides the variant\'s own default: every color is a text token, never a raw value.',
         code: `<Typography variant="label" color="brand">Brand</Typography>
 <Typography variant="label" color="accent">Accent</Typography>
 <Typography variant="label" color="error">Error</Typography>
@@ -109,7 +109,7 @@ export const COMPONENTS: ComponentMeta[] = [
         id: 'as',
         title: 'A different tag, the same look',
         description:
-          '`as` swaps the rendered element without touching the variant\'s style — an `h3`-styled card title that is not actually a heading in the page outline, or an `h1`-styled `span` inline with other text.',
+          '`as` swaps the rendered element without touching the variant\'s style, an `h3`-styled card title that is not actually a heading in the page outline, or an `h1`-styled `span` inline with other text.',
         code: `<Typography variant="h3" as="div">
   Looks like a heading, isn't one in the outline
 </Typography>`,
@@ -128,7 +128,7 @@ export const COMPONENTS: ComponentMeta[] = [
         id: 'numeric',
         title: 'Numeric (tabular figures)',
         description:
-          '`numeric` fixes every digit to the same width, so a value that changes in place — or several stacked at the same x-position — doesn\'t jiggle. Use it for countdowns, queue/ticket numbers, clocks, prices in a column.',
+          '`numeric` fixes every digit to the same width, so a value that changes in place, or several stacked at the same x-position, doesn\'t jiggle. Use it for countdowns, queue/ticket numbers, clocks, prices in a column.',
         code: `<Typography variant="display" numeric>A002</Typography>
 <Typography variant="h1" color="brand" numeric>11:00</Typography>`,
       },
@@ -137,12 +137,12 @@ export const COMPONENTS: ComponentMeta[] = [
       do: [
         'Reach for a variant instead of retyping `fontFamily`/`fontSize`/`fontWeight` inline.',
         '`as` when the visual weight of a heading is right but the tag would break the document outline (e.g. two `h1`-styled titles on one page).',
-        '`color` for state (an error message, a muted secondary line) — never a raw color value.',
-        '`numeric` on any figure that updates in place or lines up with others — a queue number, a countdown, a price column.',
+        '`color` for state (an error message, a muted secondary line), never a raw color value.',
+        '`numeric` on any figure that updates in place or lines up with others, a queue number, a countdown, a price column.',
       ],
       dont: [
-        'A `variant` chosen for its color instead of its size/weight — use `color` for that axis, they\'re independent.',
-        'Wrapping every single span of text in `Typography` — plain inline text next to an icon, inside a `Badge`, etc. doesn\'t need it.',
+        'A `variant` chosen for its color instead of its size/weight, use `color` for that axis, they\'re independent.',
+        'Wrapping every single span of text in `Typography`, plain inline text next to an icon, inside a `Badge`, etc. doesn\'t need it.',
       ],
     },
   },
@@ -184,7 +184,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'semantic',
         title: 'Semantic fills',
-        description: 'Use `success` · `warning` · `error` only when the button colour IS the message — a destructive confirm, an approve step. Same words as `Badge` / `Alert` / `Toast`. There is no `info` fill: in Sereno that is the brand indigo, i.e. `primary`.',
+        description: 'Use `success` · `warning` · `error` only when the button colour IS the message, a destructive confirm, an approve step. Same words as `Badge` / `Alert` / `Toast`. There is no `info` fill: in Sereno that is the brand indigo, i.e. `primary`.',
         code: `<Button variant="success" iconLeft={<Check size={16} />}>Approve</Button>
 <Button variant="warning">Review flags</Button>
 <Button variant="error" iconLeft={<Trash2 size={16} />}>Delete account</Button>`,
@@ -192,7 +192,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'sizes',
         title: 'Sizes',
-        description: '`sm` and `md` on desktop; `lg` and `xl` are the mobile default — they guarantee the 44px tap target.',
+        description: '`sm` and `md` on desktop; `lg` and `xl` are the mobile default; they guarantee the 44px tap target.',
         code: `<Button size="sm">Small</Button>
 <Button size="md">Medium</Button>
 <Button size="lg">Large</Button>
@@ -210,14 +210,14 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'states',
         title: 'Loading and disabled',
-        description: '`loading` swaps the left icon for a spinner and blocks clicks — use it on async actions. `disabled` uses its own fill and text (never just opacity).',
+        description: '`loading` swaps the left icon for a spinner and blocks clicks, use it on async actions. `disabled` uses its own fill and text (never just opacity).',
         code: `<Button loading>Sending</Button>
 <Button disabled>Unavailable</Button>`,
       },
       {
         id: 'full-width',
         title: 'Full width',
-        description: '`fullWidth` stretches the button to 100% of its container — used by the fixed footer actions on mobile.',
+        description: '`fullWidth` stretches the button to 100% of its container, used by the fixed footer actions on mobile.',
         code: `<Button variant="accent" size="lg" fullWidth>
   Confirm booking
 </Button>`,
@@ -225,17 +225,17 @@ export const COMPONENTS: ComponentMeta[] = [
     ],
     guidelines: {
       do: [
-        'Use a single `accent` action per screen — the main conversion ("Confirm booking", "Subscribe now").',
+        'Use a single `accent` action per screen, the main conversion ("Confirm booking", "Subscribe now").',
         'Sentence-case label, verb in the infinitive: "Confirm booking", "Add service".',
         '`lg` or `xl` on mobile and in fixed footer actions.',
-        'Turn on `loading` for async actions — it blocks the double click and communicates progress.',
+        'Turn on `loading` for async actions; it blocks the double click and communicates progress.',
       ],
       dont: [
         'Two `accent` buttons competing on the same screen.',
-        '`ghost` on a tinted surface (the grey hover looks muddy) — use `secondary`.',
+        '`ghost` on a tinted surface (the grey hover looks muddy), use `secondary`.',
         'All-caps, a period, or "!" in the label.',
-        '`link` for the primary action — it is only for inline navigation inside text.',
-        'Scattering `success`/`warning`/`error` fills. Most buttons carry role (`primary`/`accent`/`secondary`); a semantic fill is only for the case where the colour itself is the warning — a destructive confirm, an approve step.',
+        '`link` for the primary action; it is only for inline navigation inside text.',
+        'Scattering `success`/`warning`/`error` fills. Most buttons carry role (`primary`/`accent`/`secondary`); a semantic fill is only for the case where the colour itself is the warning, a destructive confirm, an approve step.',
       ],
     },
   },
@@ -245,7 +245,7 @@ export const COMPONENTS: ComponentMeta[] = [
     category: 'core',
     summary: 'Square icon-only control for bars, card corners and top bars. Always pass `label`.',
     props: [
-      R('label', 'string', 'Accessible name — becomes aria-label and title. Required.'),
+      R('label', 'string', 'Accessible name: becomes aria-label and title. Required.'),
       R('variant', "'ghost' | 'secondary' | 'primary' | 'success' | 'warning' | 'error'", 'Visual role. Semantic fills follow the same words as `Badge` / `Alert`.', "'ghost'"),
       R('size', "'sm' | 'md' | 'lg'", 'Square side (32 / 40 / 48px).', "'md'"),
       R('children', 'React.ReactNode', 'The icon (Lucide 20px, stroke 1.75).'),
@@ -257,7 +257,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'variants',
         title: 'Variants',
-        description: '`ghost` is the default (bars and card corners). `secondary` when you need a visible border — including on a tinted surface. `primary` for the standout action in a bar.',
+        description: '`ghost` is the default (bars and card corners). `secondary` when you need a visible border, including on a tinted surface. `primary` for the standout action in a bar.',
         code: `<IconButton label="Back"><ChevronLeft size={18} /></IconButton>
 <IconButton label="Search" variant="secondary"><Search size={18} /></IconButton>
 <IconButton label="New" variant="primary"><Plus size={18} /></IconButton>`,
@@ -265,7 +265,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'semantic',
         title: 'Semantic fills',
-        description: '`success` · `warning` · `error` — the same words as `Button` and `Badge`. Only when the colour is the message (a destructive control in a card corner). No `info`: that is `primary`.',
+        description: '`success` · `warning` · `error`: the same words as `Button` and `Badge`. Only when the colour is the message (a destructive control in a card corner). No `info`: that is `primary`.',
         code: `<IconButton label="Approve" variant="success"><Check size={18} /></IconButton>
 <IconButton label="Flag" variant="warning"><Flag size={18} /></IconButton>
 <IconButton label="Delete" variant="error"><Trash2 size={18} /></IconButton>`,
@@ -281,22 +281,22 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'disabled',
         title: 'Disabled',
-        description: 'Disabled fill and colour, `not-allowed` cursor — applies to every variant.',
+        description: 'Disabled fill and colour, `not-allowed` cursor: applies to every variant.',
         code: `<IconButton label="Back" disabled><ChevronLeft size={18} /></IconButton>
 <IconButton label="New" variant="primary" disabled><Plus size={18} /></IconButton>`,
       },
     ],
     guidelines: {
       do: [
-        'Always pass `label` — it is the `aria-label` and the `title`.',
+        'Always pass `label`; it is the `aria-label` and the `title`.',
         'Use `variant="secondary"` when the button sits on a tinted surface (the grey `ghost` hover looks muddy).',
         '`lucide-react` icon with `strokeWidth={1.75}`, 18–20px.',
         'A semantic fill (`success`/`warning`/`error`) only when the colour itself carries the meaning.',
       ],
       dont: [
-        'An action that has text — use `Button` with `iconLeft`.',
-        'An icon carrying meaning alone in a status — `Badge` always has a word.',
-        'A semantic fill for a plain toolbar action — `ghost` · `secondary` · `primary` cover those.',
+        'An action that has text: use `Button` with `iconLeft`.',
+        'An icon carrying meaning alone in a status, `Badge` always has a word.',
+        'A semantic fill for a plain toolbar action, `ghost` · `secondary` · `primary` cover those.',
       ],
     },
   },
@@ -304,7 +304,7 @@ export const COMPONENTS: ComponentMeta[] = [
     slug: 'badge',
     name: 'Badge',
     category: 'core',
-    summary: 'Small status pill. Semantic `tone` — the same five tones as Alert and Toast.',
+    summary: 'Small status pill. Semantic `tone`: the same five tones as Alert and Toast.',
     props: [
       R('tone', "'success' | 'warning' | 'error' | 'info' | 'neutral'", 'Semantic tone. `neutral` renders as an outlined chip.', "'neutral'"),
       R('size', "'sm' | 'md'", 'Pill size.', "'md'"),
@@ -325,7 +325,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'labels',
         title: 'As a label',
-        description: 'Drop the dot with `dot={false}` for a plain label. `neutral` is an outlined chip — it reads on any background, including a tinted one.',
+        description: 'Drop the dot with `dot={false}` for a plain label. `neutral` is an outlined chip; it reads on any background, including a tinted one.',
         code: `<Badge tone="info" dot={false}>Online</Badge>
 <Badge tone="neutral" dot={false}>São Paulo</Badge>`,
       },
@@ -339,13 +339,13 @@ export const COMPONENTS: ComponentMeta[] = [
     ],
     guidelines: {
       do: [
-        'Use only the five semantic tones — never invent a sixth.',
+        'Use only the five semantic tones: never invent a sixth.',
         'Always with a word: a `Badge` never signals status by colour alone.',
         'Keep `dot` on for lifecycle states.',
       ],
       dont: [
-        'A `Badge` as a button — it is not clickable.',
-        'The old lifecycle names (`confirmed`, `pending`…) as `tone` — those are gone; use the semantic tones.',
+        'A `Badge` as a button; it is not clickable.',
+        'The old lifecycle names (`confirmed`, `pending`…) as `tone`; those are gone; use the semantic tones.',
       ],
     },
   },
@@ -356,7 +356,7 @@ export const COMPONENTS: ComponentMeta[] = [
     summary: 'Neutral surface: a crisp 1px ring + an optional soft lift + 14px radius. The base of every list row and panel.',
     props: [
       R('padding', "'none' | 'sm' | 'md' | 'lg'", 'Inner spacing.', "'md'"),
-      R('elevation', "'none' | 'sm' | 'md' | 'lg'", 'Drop-shadow under the ring — `none` = ring only, `sm` a whisper. Never stack two.', "'sm'"),
+      R('elevation', "'none' | 'sm' | 'md' | 'lg'", 'Drop-shadow under the ring: `none` = ring only, `sm` a whisper. Never stack two.', "'sm'"),
       R('interactive', 'boolean', 'Adds hover lift, press scale and pointer cursor.', 'false'),
       R('selected', 'boolean', 'Brand ring for a chosen option.', 'false'),
     ],
@@ -379,7 +379,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'elevation',
         title: 'Elevation',
-        description: 'Short, diffuse shadows. **Never stack two levels** — a card inside a card drops to `elevation="none"`.',
+        description: 'Short, diffuse shadows. **Never stack two levels**: a card inside a card drops to `elevation="none"`.',
         code: `<Card elevation="none">…</Card>
 <Card elevation="sm">…</Card>
 <Card elevation="md">…</Card>
@@ -388,10 +388,10 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'interactive',
         title: 'Interactive and selected',
-        description: '`interactive` adds hover lift + press scale. `selected` marks the choice with a brand ring on all four sides — never a left-edge stripe.',
+        description: '`interactive` adds hover lift + press scale. `selected` marks the choice with a brand ring on all four sides, never a left-edge stripe.',
         code: `<Card interactive selected={plan === 'year'} onClick={() => setPlan('year')}>
   <h4>Yearly</h4>
-  <p>Billed once a year — two months free.</p>
+  <p>Billed once a year, two months free.</p>
   <strong>R$ 39 / mo</strong>
 </Card>`,
       },
@@ -411,7 +411,7 @@ export const COMPONENTS: ComponentMeta[] = [
     category: 'core',
     summary: 'Circular professional/client identity. Falls back to initials on a brand tint when there is no photo.',
     props: [
-      R('name', 'string', 'Full name — drives the initials and the image alt.'),
+      R('name', 'string', 'Full name: drives the initials and the image alt.'),
       R('src', 'string', 'Photo URL. Without it, shows initials.'),
       R('size', "'xs' | 'sm' | 'md' | 'lg' | 'xl'", 'Diameter (24 → 80px).', "'md'"),
       R('status', "'confirmed' | 'pending' | 'cancelled'", 'Lifecycle dot in the lower-right corner (a domain concept).'),
@@ -431,32 +431,32 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'initials-photo',
         title: 'Initials and photo',
-        description: 'Without `src`, shows the first two initials in Manrope on a brand tint — legible even on a tinted surface.',
+        description: 'Without `src`, shows the first two initials in Manrope on a brand tint, legible even on a tinted surface.',
         code: `<Avatar name="Ana Beatriz Ramos" size="lg" />
 <Avatar name="Carlos Dias" src="/foto.jpg" size="lg" />`,
       },
       {
         id: 'status',
         title: 'With status',
-        description: 'A lifecycle dot in the lower-right corner. Use sparingly — only where the avatar’s status matters.',
+        description: 'A lifecycle dot in the lower-right corner. Use sparingly: only where the avatar’s status matters.',
         code: `<Avatar name="Carlos Dias" size="lg" status="confirmed" />
 <Avatar name="Rafael & Bia" size="lg" status="pending" />`,
       },
     ],
     guidelines: {
       do: ['Let the initials fallback do its job when there is no photo.', 'Crop photos to a circle (`radius-avatar`).'],
-      dont: ['A generic illustration/blob in place of the photo.', '`status` on every avatar — only where it says something.'],
+      dont: ['A generic illustration/blob in place of the photo.', '`status` on every avatar: only where it says something.'],
     },
   },
   {
     slug: 'brand',
     name: 'Brand',
     category: 'core',
-    summary: 'The Sereno mark — an indigo water-drop symbol, optionally locked up with the `sereno` wordmark. Gradient is the brand indigo; the wordmark is `--font-display` at 500.',
+    summary: 'The Sereno mark: an indigo water-drop symbol, optionally locked up with the `sereno` wordmark. Gradient is the brand indigo; the wordmark is `--font-display` at 500.',
     props: [
       R('variant', "'symbol' | 'lockup' | 'lockup-vertical'", 'Symbol only, or the symbol locked up with the wordmark (horizontal / stacked).', "'symbol'"),
       R('size', 'number', 'Symbol height in px. In the lockups it also drives the wordmark size.', '24'),
-      R('mono', 'boolean', 'One-colour rendering (`currentColor`) instead of the gradient — favicons, print, tinted surfaces.', 'false'),
+      R('mono', 'boolean', 'One-colour rendering (`currentColor`) instead of the gradient, favicons, print, tinted surfaces.', 'false'),
     ],
     code: `<Brand variant="lockup" size={28} />`,
     examples: [
@@ -471,7 +471,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'mono',
         title: 'Monochrome',
-        description: '`mono` drops the gradient and paints in `currentColor` — so it takes the text colour of wherever it sits. For favicons, print and tinted surfaces.',
+        description: '`mono` drops the gradient and paints in `currentColor`, so it takes the text colour of wherever it sits. For favicons, print and tinted surfaces.',
         code: `<span style={{ color: 'var(--text-primary)' }}>
   <Brand variant="lockup" size={28} mono />
 </span>`,
@@ -496,13 +496,13 @@ export const COMPONENTS: ComponentMeta[] = [
     name: 'Menu',
     category: 'core',
     summary:
-      'Action menu / dropdown — a `trigger` you supply plus a portalled panel. Same mechanics as `Select`: `position: fixed` panel measured off the trigger, flips up when there is no room, closes on outside pointerdown / `Escape` / selection and returns focus to the trigger.',
+      'Action menu / dropdown: a `trigger` you supply plus a portalled panel. Same mechanics as `Select`: `position: fixed` panel measured off the trigger, flips up when there is no room, closes on outside pointerdown / `Escape` / selection and returns focus to the trigger.',
     props: [
-      R('trigger', 'React.ReactElement', 'The element that opens the menu — an `IconButton`, `Button`, an avatar button. `Menu` clones it to wire `onClick` + `aria-*`.'),
+      R('trigger', 'React.ReactElement', 'The element that opens the menu: an `IconButton`, `Button`, an avatar button. `Menu` clones it to wire `onClick` + `aria-*`.'),
       R('adornment', 'React.ReactNode', 'Overlaid on the trigger (a notification count, a status dot) in a `pointer-events: none` layer.'),
       R('items', 'MenuEntry[]', 'Rows: `{ label, icon?, onClick, disabled?, tone?, keepOpen? }`, `{ separator: true }`, or `{ heading }`. Omit when using the render function.'),
-      R('children', '(close) => ReactNode', 'Rich panel content instead of `items` — receives `close`. The panel is a `role="dialog"` then.'),
-      R('header', 'React.ReactNode', 'A block above the items — a name + email, a title. Not part of the keyboard roving.'),
+      R('children', '(close) => ReactNode', 'Rich panel content instead of `items`: receives `close`. The panel is a `role="dialog"` then.'),
+      R('header', 'React.ReactNode', 'A block above the items: a name + email, a title. Not part of the keyboard roving.'),
       R('label', 'string', 'Accessible name for the panel; also a heading row when `items` is used.'),
       R('align', "'start' | 'end'", 'Which trigger edge the panel lines up with.', "'end'"),
       R('width', 'number | string', 'Panel width. Default: fits the content (min 180px), capped to the viewport.'),
@@ -554,14 +554,14 @@ export const COMPONENTS: ComponentMeta[] = [
     ],
     guidelines: {
       do: [
-        'Use it for **actions** — verbs the user picks and the menu closes. For picking a value, that is `Select`.',
+        'Use it for **actions**: verbs the user picks and the menu closes. For picking a value, that is `Select`.',
         'Give the trigger a clear affordance (a chevron, "•••", an icon) so it reads as openable.',
         'One `tone: "danger"` row at most, at the bottom, behind a separator.',
       ],
       dont: [
-        'Nest submenus — flatten, or open a `Dialog`.',
+        'Nest submenus: flatten, or open a `Dialog`.',
         'Put more than ~7 items in it; past that it is a list or a `Dialog`.',
-        'Use it as a `Select` — no checkmarks, no single-choice semantics.',
+        'Use it as a `Select`: no checkmarks, no single-choice semantics.',
       ],
     },
   },
@@ -569,19 +569,19 @@ export const COMPONENTS: ComponentMeta[] = [
     slug: 'table',
     name: 'Table',
     category: 'core',
-    summary: 'Data table — a **compound component**. Cells hold real JSX; structure, density, dividers and hover / focus / sticky / zebra ship in the stylesheet. Sorting is controlled — the DS never reorders the rows.',
+    summary: 'Data table: a **compound component**. Cells hold real JSX; structure, density, dividers and hover / focus / sticky / zebra ship in the stylesheet. Sorting is controlled: the DS never reorders the rows.',
     props: [
       R('caption', 'string', 'Visually-hidden `<caption>` and the default accessible name for the scroll region. Always set one.'),
       R('density', "'comfortable' | 'compact'", 'Row padding. `compact` for dense CRM / reports.', "'comfortable'"),
       R('minWidth', 'number | string', 'Floor width for the table. Below it the scroll region takes a sideways scrollbar instead of the columns squashing. Set it on anything with more than ~3 columns that has to survive a phone.'),
-      R('stickyHeader / maxHeight', 'boolean / number | string', 'Pin the header while the body scrolls — pair them so the head has a bounded region to stick within.'),
-      R('zebra', 'boolean', 'Faint striping on even rows. Off by default — the hover is usually enough.', 'false'),
+      R('stickyHeader / maxHeight', 'boolean / number | string', 'Pin the header while the body scrolls, pair them so the head has a bounded region to stick within.'),
+      R('zebra', 'boolean', 'Faint striping on even rows. Off by default: the hover is usually enough.', 'false'),
       R('Table.Row · onClick', '() => void', 'Makes the row a button: hover, pointer, focusable, Enter / Space.'),
       R('Table.Row · selected', 'boolean', 'Brand-soft fill for the chosen row.', 'false'),
-      R('Table.HeaderCell · sortKey / sort / onSort', 'string / TableSort | null / (s) => void', 'Turns the header into a sort control. React to `onSort` and feed sorted rows back — the DS does not sort.'),
-      R('Table.HeaderCell · srOnly', 'boolean', 'Visually-hide the header label (e.g. an actions column) — still read by assistive tech.'),
+      R('Table.HeaderCell · sortKey / sort / onSort', 'string / TableSort | null / (s) => void', 'Turns the header into a sort control. React to `onSort` and feed sorted rows back, the DS does not sort.'),
+      R('Table.HeaderCell · srOnly', 'boolean', 'Visually-hide the header label (e.g. an actions column): still read by assistive tech.'),
       R('Table.Cell / Table.HeaderCell · align', "'left' | 'center' | 'right'", 'Text alignment. Right for numbers.', "'left'"),
-      R('Table.Cell · wrap', 'boolean', 'Let this cell wrap. Cells are `nowrap` by default so `minWidth` can do its job — opt one column back in for long free text.', 'false'),
+      R('Table.Cell · wrap', 'boolean', 'Let this cell wrap. Cells are `nowrap` by default so `minWidth` can do its job, opt one column back in for long free text.', 'false'),
     ],
     code: `<Table caption="Clients" density="compact" stickyHeader>
   <Table.Head>
@@ -605,7 +605,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'basic',
         title: 'Basic',
-        description: '`Table.Head` + `Table.Body`, plain `Table.Cell`s. Always pass a `caption` — it names the table and the scroll region for assistive tech.',
+        description: '`Table.Head` + `Table.Body`, plain `Table.Cell`s. Always pass a `caption`; it names the table and the scroll region for assistive tech.',
         code: `<Table caption="Clients">
   <Table.Head>
     <Table.Row>
@@ -628,7 +628,7 @@ export const COMPONENTS: ComponentMeta[] = [
       {
         id: 'sortable',
         title: 'Sortable',
-        description: '`sortKey` + controlled `sort` / `onSort` on a `HeaderCell`. The chevron reflects the state; **you** sort the `rows` and pass them back — the DS never reorders data.',
+        description: '`sortKey` + controlled `sort` / `onSort` on a `HeaderCell`. The chevron reflects the state; **you** sort the `rows` and pass them back, the DS never reorders data.',
         code: `const [sort, setSort] = useState({ key: 'name', direction: 'asc' });
 const rows = useMemo(() => sortRows(DATA, sort), [sort]);
 
@@ -638,7 +638,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       {
         id: 'interactive',
         title: 'Clickable rows',
-        description: '`onClick` on `Table.Row` makes the whole row a button — hover, `Enter` / `Space`, focus ring. `selected` marks one. Don’t also put a `<button>` in a cell — pick one target.',
+        description: '`onClick` on `Table.Row` makes the whole row a button, hover, `Enter` / `Space`, focus ring. `selected` marks one. Don’t also put a `<button>` in a cell, pick one target.',
         code: `<Table.Row selected={r.id === picked} onClick={() => setPicked(r.id)}>
   <Table.Cell>{r.name}</Table.Cell>
   <Table.Cell align="right">{r.sessions}</Table.Cell>
@@ -648,12 +648,12 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       {
         id: 'row-actions',
         title: 'Row actions',
-        description: 'A per-row `Menu` in a trailing `srOnly` cell — the pattern for when each row has several verbs. The row itself is **not** a button; the `IconButton` trigger is. `Menu` portals out, so the table\'s scroll region never clips it.',
+        description: 'A per-row `Menu` in a trailing `srOnly` cell, the pattern for when each row has several verbs. The row itself is **not** a button; the `IconButton` trigger is. `Menu` portals out, so the table\'s scroll region never clips it.',
         code: `<Table.HeaderCell srOnly width={44}>Actions</Table.HeaderCell>
 …
 <Table.Cell align="right">
   <Menu
-    trigger={<IconButton label={\`Ações — \${r.name}\`} size="sm"><MoreHorizontal size={16} /></IconButton>}
+    trigger={<IconButton label={\`Ações de \${r.name}\`} size="sm"><MoreHorizontal size={16} /></IconButton>}
     items={[
       { label: 'Editar', icon: <Pencil size={16} />, onClick: () => edit(r) },
       { label: 'Duplicar', icon: <Copy size={16} />, onClick: () => dup(r) },
@@ -674,7 +674,7 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       {
         id: 'empty',
         title: 'Empty state',
-        description: 'The table has no built-in empty slot — the screen swaps in an `EmptyState` when `rows.length === 0`. Keeps the contract small.',
+        description: 'The table has no built-in empty slot, the screen swaps in an `EmptyState` when `rows.length === 0`. Keeps the contract small.',
         code: `{rows.length === 0
   ? <EmptyState icon={<Search />} title="No clients" description="…" />
   : <Table caption="Clients">…</Table>}`,
@@ -682,16 +682,16 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
     ],
     guidelines: {
       do: [
-        'Always set `caption` — it’s the accessible name for the table and its scroll region.',
+        'Always set `caption`; it’s the accessible name for the table and its scroll region.',
         'Sort the `rows` in the consumer and pass them back; `sort` is display-only.',
         '`compact` for CRM / reports, `comfortable` everywhere else. Right-align numeric columns.',
-        'Set `minWidth` on multi-column tables — the region scrolls sideways on a phone instead of the text crushing.',
-        'For several verbs per row, a `Menu` in a trailing `srOnly` cell — not a clickable row.',
+        'Set `minWidth` on multi-column tables: the region scrolls sideways on a phone instead of the text crushing.',
+        'For several verbs per row, a `Menu` in a trailing `srOnly` cell, not a clickable row.',
       ],
       dont: [
-        'Nesting an interactive control in a clickable row (`onClick` on `Table.Row` **and** a `<button>` cell) — pick one.',
+        'Nesting an interactive control in a clickable row (`onClick` on `Table.Row` **and** a `<button>` cell), pick one.',
         'Expecting the `Table` to sort, filter or paginate for you. Slice the rows yourself and pair it with `Pagination`.',
-        'Putting the `Table` in a flex / grid track without `min-width: 0` on the track — the `minWidth` will push the *page* wide instead of the region.',
+        'Putting the `Table` in a flex / grid track without `min-width: 0` on the track: the `minWidth` will push the *page* wide instead of the region.',
       ],
     },
   },
@@ -712,13 +712,13 @@ const rows = useMemo(() => sortRows(DATA, sort), [sort]);
       R('iconLeft', 'React.ReactNode', 'Icon on the left inside the field.'),
       R('prefix', 'React.ReactNode', 'Leading text adornment ("R$", "@", "+55"). Not part of the value.'),
       R('suffix', 'React.ReactNode', 'Trailing text or control (e.g. "min"). Not part of the value.'),
-      R('mask', "'phone' | 'cpf' | 'cep' | 'currency' | string", "Format as you type — a preset or a custom `#`-per-digit pattern (`(##) #####-####`). Sets `inputMode` + `maxLength`."),
+      R('mask', "'phone' | 'cpf' | 'cep' | 'currency' | string", "Format as you type: a preset or a custom `#`-per-digit pattern (`(##) #####-####`). Sets `inputMode` + `maxLength`."),
       R('type', "'text' | 'password' | 'email' | …", 'Native input type. `password` adds a show/hide eye toggle at the end of the field.', "'text'"),
       R('showCount', 'boolean', 'Show a `n / max` character counter on the hint row. Implied when `maxLength` is set. It counts the field\'s real value, also when a form library or code writes it (`reset()`, `setValue()`, `el.value = …`).', 'false'),
       R(
         'preserveHelperSpace',
         'boolean',
-        'Reserve the hint/error row\'s height even with neither set — several fields validating at once (e.g. a login form submitted empty) then invalidate in place instead of the whole form growing under the user.',
+        'Reserve the hint/error row\'s height even with neither set, several fields validating at once (e.g. a login form submitted empty) then invalidate in place instead of the whole form growing under the user.',
         'false',
       ),
     ],
@@ -799,19 +799,19 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'no-layout-shift',
         title: 'No layout shift on validation',
         description:
-          'Submit a form with several fields at once and every one of them can invalidate in the same instant — a login form with nothing filled in is the classic case. Without `preserveHelperSpace`, each field only grows once its own error text mounts, so the whole form jumps in height right under the user\'s cursor. With it, the hint/error row\'s height is reserved from the start; the error just fills a slot that was already there.',
+          'Submit a form with several fields at once and every one of them can invalidate in the same instant, a login form with nothing filled in is the classic case. Without `preserveHelperSpace`, each field only grows once its own error text mounts, so the whole form jumps in height right under the user\'s cursor. With it, the hint/error row\'s height is reserved from the start; the error just fills a slot that was already there.',
         code: `<Input label="Email" required error="This field is required." preserveHelperSpace />
 <Input label="Password" type="password" required error="This field is required." preserveHelperSpace />`,
       },
     ],
     guidelines: {
       do: [
-        'Always a `label` — never `placeholder` alone.',
+        'Always a `label`: never `placeholder` alone.',
         '`size="lg"` on mobile and in the public flow.',
         'Full error sentence with a period: "Enter a valid email."',
         'Pass the message through `error` (not a separate element under the field): that is what marks the field invalid and ties the message to it for screen readers.',
         'On submit, focus the first invalid field (react-hook-form\'s `shouldFocusError` does): the screen reader reads its error. If you validate when the user leaves a field, announce those errors yourself, with one polite status region (`aria-live="polite"`) for the whole form: the field does not announce an error as it appears.',
-        '`preserveHelperSpace` on every field of a form that validates several at once (e.g. on submit) — keeps the layout still while errors appear.',
+        '`preserveHelperSpace` on every field of a form that validates several at once (e.g. on submit): keeps the layout still while errors appear.',
       ],
       dont: ['Placeholder instead of the label.', 'An error with no text (just the red border).', 'A hand-made red line under the field instead of `error`: it looks the same, but a screen reader never links it to the field.'],
     },
@@ -825,7 +825,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       R('label / hint / error / required', 'string / string / string / boolean', 'Same label contract as Input, including the `aria-invalid` / `aria-describedby` / `aria-required` wiring and a merged `aria-describedby`.'),
       R('rows', 'number', 'Initial height in lines.', '4'),
       R('showCount', 'boolean', 'Show a `n / max` character counter on the hint row. Implied when `maxLength` is set. It counts the field\'s real value, also when a form library or code writes it (`reset()`, `setValue()`, `el.value = …`).', 'false'),
-      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set — see Input.", 'false'),
+      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set, see Input.", 'false'),
     ],
     code: `<Textarea label="Any notes?" rows={3} hint="Optional." />`,
     examples: [
@@ -854,7 +854,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     ],
     guidelines: {
       do: ['Use for booking notes and service descriptions.', 'Set `rows` to the expected length (3 for notes).'],
-      dont: ['A textarea for a short one-line value — use `Input`.'],
+      dont: ['A textarea for a short one-line value, use `Input`.'],
     },
   },
   {
@@ -862,17 +862,17 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     name: 'Select',
     category: 'forms',
     summary:
-      'Single choice from ≤12 flat options. A hand-rolled listbox — the same in every browser, full keyboard support. On a mouse it drops down anchored to the field; on touch it opens as a bottom sheet with finger-sized rows.',
+      'Single choice from ≤12 flat options. A hand-rolled listbox: the same in every browser, full keyboard support. On a mouse it drops down anchored to the field; on touch it opens as a bottom sheet with finger-sized rows.',
     props: [
       R('options', 'SelectOption[]', 'List of `{ value, label, disabled? }`.', '[]'),
       R('value / defaultValue', 'string', 'Controlled / uncontrolled selection.'),
-      R('onValueChange', '(value: string) => void', 'Fires with the chosen value — a string, not a DOM event.'),
+      R('onValueChange', '(value: string) => void', 'Fires with the chosen value: a string, not a DOM event.'),
       R('placeholder', 'string', 'Shown when nothing is selected.'),
-      R('label / hint / error / required', '—', 'Same label contract as Input, including the `aria-invalid` / `aria-describedby` / `aria-required` wiring on the trigger.'),
+      R('label / hint / error / required', '-', 'Same label contract as Input, including the `aria-invalid` / `aria-describedby` / `aria-required` wiring on the trigger.'),
       R('size', "'sm' | 'md' | 'lg'", 'Control height.', "'md'"),
       R('disabled', 'boolean', 'Disabled fill and text, not-allowed cursor.', 'false'),
       R('name', 'string', 'Mirrored to a hidden input so the value can be submitted in a form.'),
-      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set — see Input.", 'false'),
+      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set, see Input.", 'false'),
     ],
     code: `<Select
   label="Duration"
@@ -929,7 +929,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'disabled',
         title: 'Disabled',
-        description: 'The whole control with `disabled`, or a single row with `{ ..., disabled: true }` — kept in place, skipped by keyboard and pointer.',
+        description: 'The whole control with `disabled`, or a single row with `{ ..., disabled: true }`: kept in place, skipped by keyboard and pointer.',
         code: `<Select label="Duration" defaultValue="30 min" disabled options={opts} />
 <Select
   label="Plan"
@@ -943,7 +943,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'sizes',
         title: 'Sizes',
-        description: '`sm` fits dense rows — inline filters, a time-range picker.',
+        description: '`sm` fits dense rows: inline filters, a time-range picker.',
         code: `<Select label="Field" size="sm" options={opts} />
 <Select label="Field" size="md" options={opts} />
 <Select label="Field" size="lg" options={opts} />`,
@@ -952,19 +952,19 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'long',
         title: 'Long list',
         description:
-          'The panel caps its height and scrolls the rest — a dropdown to the room around the field, the touch sheet to 60% of the screen. It still *works*, but past ~12 options a search field beats scrolling; treat this as the ceiling, not the target.',
+          'The panel caps its height and scrolls the rest, a dropdown to the room around the field, the touch sheet to 60% of the screen. It still *works*, but past ~12 options a search field beats scrolling; treat this as the ceiling, not the target.',
         code: `<Select label="Home city" placeholder="Search the list" options={cities} />`,
       },
     ],
     guidelines: {
       do: [
         'Use for up to ~12 flat options (duration, time zone, professional).',
-        'Keep labels short — the chevron takes space on the right.',
+        'Keep labels short: the chevron takes space on the right.',
         'Give a `placeholder` when there is no sensible default.',
       ],
       dont: [
-        'Many options or grouped options as the norm — past ~12, that is a combobox/search, a different pattern.',
-        'Expecting a DOM event in `onValueChange` — it hands you the value string.',
+        'Many options or grouped options as the norm, past ~12, that is a combobox/search, a different pattern.',
+        'Expecting a DOM event in `onValueChange`; it hands you the value string.',
       ],
     },
   },
@@ -976,11 +976,11 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     props: [
       R('label', 'string', 'Label next to the box.'),
       R('description', 'string', 'Secondary line below the label. Replaced by `error` when present.'),
-      R('error', 'string', 'Error message — tints the box and the secondary line red. Replaces `description`. The box is marked invalid (`aria-invalid`); the message is already part of its accessible name, since it sits inside the label.'),
-      R('indeterminate', 'boolean', 'Mixed state (some children selected). Visual only — a form still submits it as unchecked.', 'false'),
-      R('size', "'sm' | 'md'", 'Box size — `sm` is 16px for dense filter lists.', "'md'"),
+      R('error', 'string', 'Error message: tints the box and the secondary line red. Replaces `description`. The box is marked invalid (`aria-invalid`); the message is already part of its accessible name, since it sits inside the label.'),
+      R('indeterminate', 'boolean', 'Mixed state (some children selected). Visual only: a form still submits it as unchecked.', 'false'),
+      R('size', "'sm' | 'md'", 'Box size: `sm` is 16px for dense filter lists.', "'md'"),
       R('checked / defaultChecked / disabled', 'boolean', 'Native input props passed through.'),
-      R('preserveHelperSpace', 'boolean', "Reserve the description/error row's height even with neither set — see Input.", 'false'),
+      R('preserveHelperSpace', 'boolean', "Reserve the description/error row's height even with neither set, see Input.", 'false'),
     ],
     code: `<Checkbox
   label="Send me WhatsApp reminders"
@@ -1010,7 +1010,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'indeterminate',
         title: 'Indeterminate',
         description:
-          'A "select all" parent is `checked` when every child is, `indeterminate` when only some are. `indeterminate` is a DOM property, so the component sets it via a ref — you just pass the boolean.',
+          'A "select all" parent is `checked` when every child is, `indeterminate` when only some are. `indeterminate` is a DOM property, so the component sets it via a ref; you just pass the boolean.',
         code: `<Checkbox
   label="All channels"
   checked={on.every(Boolean)}
@@ -1030,13 +1030,13 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'error',
         title: 'Error',
-        description: '`error` replaces `description` and tints the box red — a required consent left unchecked on submit is the classic case.',
+        description: '`error` replaces `description` and tints the box red, a required consent left unchecked on submit is the classic case.',
         code: `<Checkbox label="I accept the terms" error="You must accept the terms to continue." />`,
       },
       {
         id: 'group',
         title: 'Group',
-        description: 'Multi-select: independent boxes sharing a `<fieldset>` / `<legend>`. This is the filter-list pattern — for a single yes/no, one `Checkbox` is enough.',
+        description: 'Multi-select: independent boxes sharing a `<fieldset>` / `<legend>`. This is the filter-list pattern: for a single yes/no, one `Checkbox` is enough.',
         code: `<fieldset>
   <legend>Filter by specialty</legend>
   {OPTS.map((o) => (
@@ -1047,7 +1047,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'horizontal',
         title: 'Horizontal',
-        description: 'Same multi-select group, laid out in a row for short, label-only options. Wrap them in a flex row — `Checkbox` itself does not manage layout. Matches `Radio`\'s own `Horizontal` example.',
+        description: 'Same multi-select group, laid out in a row for short, label-only options. Wrap them in a flex row: `Checkbox` itself does not manage layout. Matches `Radio`\'s own `Horizontal` example.',
         code: `<fieldset>
   <legend>Preferred contact channels</legend>
   <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
@@ -1062,14 +1062,14 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       do: [
         'Consents and multi-select filters.',
         'Affirmative label ("I accept…", "I want…").',
-        '`indeterminate` for a "select all" parent — never a plain third state.',
+        '`indeterminate` for a "select all" parent: never a plain third state.',
         '`size="sm"` in dense filter panels; `md` in forms.',
-        '`error` for a required consent left unchecked on submit — full sentence, same as `Input`.',
+        '`error` for a required consent left unchecked on submit, full sentence, same as `Input`.',
       ],
       dont: [
-        'A mutually exclusive single choice — use `Radio`.',
-        'An instant-apply setting — use `Switch`.',
-        'A `color` prop — the box is one brand colour on purpose.',
+        'A mutually exclusive single choice: use `Radio`.',
+        'An instant-apply setting: use `Switch`.',
+        'A `color` prop: the box is one brand colour on purpose.',
       ],
     },
   },
@@ -1081,11 +1081,11 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     props: [
       R('label', 'string', 'Label next to the circle.'),
       R('description', 'string', 'Secondary line below the label. Replaced by `error` when present.'),
-      R('error', 'string', 'Error message — tints the circle and the secondary line red. Replaces `description`. The message sits inside the label, so it is part of the radio\'s accessible name. ARIA has no invalid state for one radio: to flag the whole group, put `aria-invalid` on a `role="radiogroup"` wrapper.'),
+      R('error', 'string', 'Error message: tints the circle and the secondary line red. Replaces `description`. The message sits inside the label, so it is part of the radio\'s accessible name. ARIA has no invalid state for one radio: to flag the whole group, put `aria-invalid` on a `role="radiogroup"` wrapper.'),
       R('name', 'string', 'Same value on every option in the group.'),
-      R('size', "'sm' | 'md'", 'Circle size — `sm` is 16px. Matches `Checkbox`.', "'md'"),
+      R('size', "'sm' | 'md'", 'Circle size: `sm` is 16px. Matches `Checkbox`.', "'md'"),
       R('checked / defaultChecked / disabled', 'boolean', 'Native input props passed through.'),
-      R('preserveHelperSpace', 'boolean', "Reserve the description/error row's height even with neither set — see Input.", 'false'),
+      R('preserveHelperSpace', 'boolean', "Reserve the description/error row's height even with neither set, see Input.", 'false'),
     ],
     code: `<>
   <Radio name="format" label="Online" description="By video." defaultChecked />
@@ -1095,7 +1095,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'vertical',
         title: 'Vertical',
-        description: 'The default: options stacked, every one sharing the same `name`. A `description` explains each choice — good for payment method and appointment format. Wrap the group in `<fieldset>`/`<legend>` — without it a screen reader has no sense of what the choice is between.',
+        description: 'The default: options stacked, every one sharing the same `name`. A `description` explains each choice: good for payment method and appointment format. Wrap the group in `<fieldset>`/`<legend>`: without it a screen reader has no sense of what the choice is between.',
         code: `<fieldset>
   <legend>Appointment format</legend>
   <Radio name="format" label="Online" description="By video call." defaultChecked />
@@ -1106,7 +1106,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'horizontal',
         title: 'Horizontal',
-        description: 'Lay the same options in a row for short, label-only choices (duration, party size). Wrap them in a flex row — `Radio` itself does not manage layout.',
+        description: 'Lay the same options in a row for short, label-only choices (duration, party size). Wrap them in a flex row: `Radio` itself does not manage layout.',
         code: `<fieldset>
   <legend>Session duration</legend>
   <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
@@ -1123,7 +1123,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         code: `<fieldset>
   <legend>Plan</legend>
   <Radio name="plan" label="Free" defaultChecked />
-  <Radio name="plan" label="Pro — coming soon" disabled />
+  <Radio name="plan" label="Pro (coming soon)" disabled />
 </fieldset>
 <Radio name="plan2" label="Locked selection" disabled defaultChecked />`,
       },
@@ -1141,7 +1141,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'error',
         title: 'Error',
         description:
-          '`error` replaces `description` and tints the circle red. There\'s no separate "group error" slot — pass it to one option (the last one reads naturally) to show a single message for the whole required group.',
+          '`error` replaces `description` and tints the circle red. There\'s no separate "group error" slot: pass it to one option (the last one reads naturally) to show a single message for the whole required group.',
         code: `<fieldset>
   <legend>Payment method</legend>
   <Radio name="pay" label="Credit card" />
@@ -1153,15 +1153,15 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     guidelines: {
       do: [
         'Same `name` across the whole group.',
-        'A `<fieldset>`/`<legend>` around every group — the accessible name for what the choice is between.',
+        'A `<fieldset>`/`<legend>` around every group: the accessible name for what the choice is between.',
         'A `description` per option when the difference is not obvious.',
         'Horizontal only for short, label-only options.',
         '`error` on one option (the last reads naturally) for a required group left unselected.',
       ],
       dont: [
-        'A single lone `Radio` — if it is yes/no, use `Checkbox` or `Switch`.',
-        'A group with more than ~6 options — becomes a `Select`.',
-        'Horizontal rows when options carry a `description` — they get too tall.',
+        'A single lone `Radio`: if it is yes/no, use `Checkbox` or `Switch`.',
+        'A group with more than ~6 options, becomes a `Select`.',
+        'Horizontal rows when options carry a `description`; they get too tall.',
       ],
     },
   },
@@ -1175,7 +1175,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       R('description', 'string', 'Secondary line below the label.'),
       R('checked', 'boolean', 'Toggle state.', 'false'),
       R('disabled', 'boolean', 'Dims the row, not-allowed cursor, drops out of the tab order.', 'false'),
-      R('size', "'sm' | 'md'", 'Track size — `sm` for dense settings lists. Matches `Checkbox` / `Radio`.', "'md'"),
+      R('size', "'sm' | 'md'", 'Track size: `sm` for dense settings lists. Matches `Checkbox` / `Radio`.', "'md'"),
       R('onChange', '(e: { target: { checked: boolean } }) => void', 'Fired on toggle (click, or Space / Enter when focused).'),
     ],
     code: `<Switch
@@ -1187,7 +1187,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'basic',
         title: 'Basic',
-        description: '`onChange` receives `{ target: { checked } }` — mirrors an input event without being one. Applies immediately, no "Save". Focusable; Space / Enter toggle.',
+        description: '`onChange` receives `{ target: { checked } }`: mirrors an input event without being one. Applies immediately, no "Save". Focusable; Space / Enter toggle.',
         code: `<Switch label="24h reminder" checked={a} onChange={(e) => setA(e.target.checked)} />
 <Switch
   label="Daily email digest"
@@ -1207,7 +1207,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'states',
         title: 'Disabled',
-        description: '`disabled` dims the row and removes it from the tab order — off or on.',
+        description: '`disabled` dims the row and removes it from the tab order, off or on.',
         code: `<Switch label="Paid-plan feature (off)" disabled />
 <Switch label="Locked on" checked disabled />`,
       },
@@ -1222,12 +1222,12 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     guidelines: {
       do: [
         'Settings rows that apply immediately (reminders, accepting bookings, theme).',
-        'A `description` on every row — the label alone rarely says what "on" does.',
+        'A `description` on every row: the label alone rarely says what "on" does.',
         '`size="sm"` in a long settings panel.',
       ],
       dont: [
-        'Inside a form that only saves on "Save" — use `Checkbox`.',
-        'For a choice between two things — that is `Radio`, not on/off.',
+        'Inside a form that only saves on "Save", use `Checkbox`.',
+        'For a choice between two things; that is `Radio`, not on/off.',
       ],
     },
   },
@@ -1235,26 +1235,26 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     slug: 'date-time-picker',
     name: 'DateTimePicker',
     category: 'forms',
-    summary: 'Month calendar + available time slots — the heart of the public flow. Days and months render in pt-BR.',
+    summary: 'Month calendar + available time slots: the heart of the public flow. Days and months render in pt-BR.',
     props: [
-      R('year / month', 'number', 'The *initial* month (`month` is 0-indexed). The component then owns navigation — re-mount with a `key` to force a new start.'),
+      R('year / month', 'number', 'The *initial* month (`month` is 0-indexed). The component then owns navigation: re-mount with a `key` to force a new start.'),
       R('selectedDate', 'number', 'Selected day.'),
       R(
         'times',
         '(string | { value, disabled, capacity, booked })[]',
-        'Time-slot labels or objects. `disabled` hard-blocks it. `capacity`/`booked` show "booked de capacity vagas" and switch to a warning look once full — a full slot stays pickable (a deliberate overbook) unless also `disabled`.',
+        'Time-slot labels or objects. `disabled` hard-blocks it. `capacity`/`booked` show "booked de capacity vagas" and switch to a warning look once full, a full slot stays pickable (a deliberate overbook) unless also `disabled`.',
         '[]',
       ),
       R('selectedTime', 'string', 'Selected time (marked in turquoise).'),
-      R('unavailable', 'number[]', 'Days with no availability — struck through and unclickable.'),
+      R('unavailable', 'number[]', 'Days with no availability: struck through and unclickable.'),
       R('onSelectDate / onSelectTime', '(v) => void', 'Selection callbacks.'),
-      R('onMonthChange', '(year, month) => void', 'Fires on ‹ / › or the month/year popover — recompute `unavailable` / `renderDay` for the new month here.'),
-      R('renderDay', '(day) => ReactNode', 'Content under each day number (a count, a dot). Return `null` for nothing. Every cell grows to stay even — scope it yourself (e.g. future days only).'),
+      R('onMonthChange', '(year, month) => void', 'Fires on ‹ / › or the month/year popover, recompute `unavailable` / `renderDay` for the new month here.'),
+      R('renderDay', '(day) => ReactNode', 'Content under each day number (a count, a dot). Return `null` for nothing. Every cell grows to stay even: scope it yourself (e.g. future days only).'),
       R('timeLabel', 'string', 'Overrides the section heading above the slots.', 'locale-dependent'),
       R(
         'locale',
         "'pt-BR' | 'en'",
-        "The real Sereno product always renders pt-BR — `'en'` exists for an English-speaking docs/demo audience, not for the product itself.",
+        "The real Sereno product always renders pt-BR, `'en'` exists for an English-speaking docs/demo audience, not for the product itself.",
         "'pt-BR'",
       ),
     ],
@@ -1273,7 +1273,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'calendar',
         title: 'Calendar only',
         description:
-          'Without `times`, it’s just the calendar. `month` (0-indexed) is only the *starting* view — the header navigates from there, and the grid stays 6 rows so nothing below it shifts. `onMonthChange` keeps `unavailable` in sync — here, the weekends of whatever month you land on. Shown here with `locale="en"` — the real product always renders pt-BR.',
+          'Without `times`, it’s just the calendar. `month` (0-indexed) is only the *starting* view, the header navigates from there, and the grid stays 6 rows so nothing below it shifts. `onMonthChange` keeps `unavailable` in sync: here, the weekends of whatever month you land on. Shown here with `locale="en"`: the real product always renders pt-BR.',
         code: `const [off, setOff] = useState(() => weekendsOf(2026, 7));
 
 <DateTimePicker
@@ -1290,7 +1290,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'render-day',
         title: 'Content under each day',
         description:
-          '`renderDay` drops a node under the day number — a booking count, a dot. Return `null` for days with nothing. Scope it in the consumer (this one shows counts for **future** days only). Every cell grows so the grid stays even. Shown here with `locale="en"` — the real product always renders pt-BR.',
+          '`renderDay` drops a node under the day number, a booking count, a dot. Return `null` for days with nothing. Scope it in the consumer (this one shows counts for **future** days only). Every cell grows so the grid stays even. Shown here with `locale="en"`: the real product always renders pt-BR.',
         code: `<DateTimePicker
   year={2026}
   month={7}
@@ -1307,7 +1307,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'with-times',
         title: 'With time slots',
         description:
-          'Pass `times` as strings or `{ value, disabled }`. The selected time is the only turquoise (accent) element — the moment of decision in the flow. Shown here with `locale="en"` — the real product always renders pt-BR.',
+          'Pass `times` as strings or `{ value, disabled }`. The selected time is the only turquoise (accent) element, the moment of decision in the flow. Shown here with `locale="en"`: the real product always renders pt-BR.',
         code: `<DateTimePicker
   year={2026}
   month={7}
@@ -1323,7 +1323,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'capacity',
         title: 'Capacity / overbooking',
         description:
-          'Group sessions and classes hold more than one person. Set `capacity` and `booked` on a slot to show "booked of capacity spots"; once `booked` reaches `capacity` it switches to a warning look and reads "Full" — but stays clickable, since a full slot is a deliberate overbook the caller can still allow. Add `disabled: true` on top for the actual hard "no". A plain slot mixed into the same list (no `capacity` at all) grows the same two-line layout with a generic "Available" filler instead of looking short next to its neighbors. Shown here with `locale="en"` — the real product always renders pt-BR ("Lotado", "de vagas"); this prop exists only for an English-speaking docs audience.',
+          'Group sessions and classes hold more than one person. Set `capacity` and `booked` on a slot to show "booked of capacity spots"; once `booked` reaches `capacity` it switches to a warning look and reads "Full", but stays clickable, since a full slot is a deliberate overbook the caller can still allow. Add `disabled: true` on top for the actual hard "no". A plain slot mixed into the same list (no `capacity` at all) grows the same two-line layout with a generic "Available" filler instead of looking short next to its neighbors. Shown here with `locale="en"`: the real product always renders pt-BR ("Lotado", "de vagas"); this prop exists only for an English-speaking docs audience.',
         code: `<DateTimePicker
   year={2026}
   month={7}
@@ -1346,15 +1346,15 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       do: [
         '`month` is 0-indexed and is only the *starting* view.',
         'Recompute `unavailable` / `renderDay` inside `onMonthChange` so they track the visible month.',
-        'Unavailable slots as `{ value, disabled: true }` — they keep their place in the grid.',
+        'Unavailable slots as `{ value, disabled: true }`; they keep their place in the grid.',
         'Let the accent time marker be the only one on the screen.',
-        'A full (`booked >= capacity`) slot stays pickable unless you also set `disabled` — that is the real "no".',
+        'A full (`booked >= capacity`) slot stays pickable unless you also set `disabled`; that is the real "no".',
       ],
       dont: [
-        'Removing unavailable slots from the list — the grid "jumps".',
-        'Putting `renderDay` counts in the public booking flow — that’s the pro’s private data.',
-        'Treating "full" as "disabled" — they mean different things; disable it explicitly when it truly can\'t be booked.',
-        'Setting `locale="en"` in the real product — Sereno is pt-BR only; the prop exists for this docs site.',
+        'Removing unavailable slots from the list: the grid "jumps".',
+        'Putting `renderDay` counts in the public booking flow; that’s the pro’s private data.',
+        'Treating "full" as "disabled"; they mean different things; disable it explicitly when it truly can\'t be booked.',
+        'Setting `locale="en"` in the real product. Sereno is pt-BR only; the prop exists for this docs site.',
       ],
     },
   },
@@ -1362,23 +1362,23 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     slug: 'date-picker',
     name: 'DatePicker',
     category: 'forms',
-    summary: 'A single date, no time, no slots — that’s `DateTimePicker`. A text-field-styled trigger opens the same calendar grid in a popover.',
+    summary: 'A single date, no time, no slots; that’s `DateTimePicker`. A text-field-styled trigger opens the same calendar grid in a popover.',
     props: [
       R('label / hint / error / required', 'string / boolean', 'Same label contract as Input, including the `aria-invalid` / `aria-describedby` wiring on the trigger. `required` draws the asterisk only: the trigger is a button, which cannot carry `aria-required`.'),
       R('placeholder', 'string', 'Trigger text with no value.', "'Selecionar data'"),
       R('size', "'sm' | 'md' | 'lg'", '', "'md'"),
-      R('value / defaultValue', 'string', 'ISO `"YYYY-MM-DD"` — controlled / uncontrolled, same contract as every other field.'),
+      R('value / defaultValue', 'string', 'ISO `"YYYY-MM-DD"`: controlled / uncontrolled, same contract as every other field.'),
       R('onChange', '(value: string) => void', 'Fires with the new ISO date on pick.'),
-      R('min / max', 'string', 'ISO date bounds — every day outside the range is unavailable.'),
+      R('min / max', 'string', 'ISO date bounds: every day outside the range is unavailable.'),
       R('disabled', 'boolean', '', 'false'),
       R('clearLabel', 'string', 'aria-label for the clear (×) button that appears once a value is set.', 'locale-dependent'),
       R(
         'locale',
         "'pt-BR' | 'en'",
-        "The real Sereno product always renders pt-BR — `'en'` exists for an English-speaking docs/demo audience, not for the product itself.",
+        "The real Sereno product always renders pt-BR, `'en'` exists for an English-speaking docs/demo audience, not for the product itself.",
         "'pt-BR'",
       ),
-      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set — see Input.", 'false'),
+      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set, see Input.", 'false'),
     ],
     code: `<DatePicker
   label="Date of birth"
@@ -1390,14 +1390,14 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'basic',
         title: 'Basic',
         description:
-          'Value is a plain ISO `"YYYY-MM-DD"` string, same shape `<input type="date">` uses — drops into a form the same way, themed instead of the browser\'s own date picker. A clear (×) button appears once a value is set. Shown here with `locale="en"` — the real product always renders pt-BR.',
+          'Value is a plain ISO `"YYYY-MM-DD"` string, same shape `<input type="date">` uses, drops into a form the same way, themed instead of the browser\'s own date picker. A clear (×) button appears once a value is set. Shown here with `locale="en"`: the real product always renders pt-BR.',
         code: `<DatePicker label="Date of birth" value={date} onChange={setDate} locale="en" />`,
       },
       {
         id: 'range',
         title: 'Bounded range',
         description:
-          '`min` / `max` mark every day outside the range unavailable (struck through, unclickable) — recomputed for whichever month the popover is currently showing.',
+          '`min` / `max` mark every day outside the range unavailable (struck through, unclickable), recomputed for whichever month the popover is currently showing.',
         code: `<DatePicker
   label="Schedule for"
   hint="Only the next 30 days."
@@ -1411,13 +1411,13 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     ],
     guidelines: {
       do: [
-        'A single date with no time component — birth date, a deadline, a one-off blocked day.',
+        'A single date with no time component, birth date, a deadline, a one-off blocked day.',
         '`min` / `max` instead of validating the picked date after the fact.',
       ],
       dont: [
-        'A date **and** a time in the same control — that’s `DateTimePicker`.',
-        'Multiple dates or a range picker — not this component\'s job.',
-        'Setting `locale="en"` in the real product — Sereno is pt-BR only; the prop exists for this docs site.',
+        'A date **and** a time in the same control; that’s `DateTimePicker`.',
+        'Multiple dates or a range picker: not this component\'s job.',
+        'Setting `locale="en"` in the real product. Sereno is pt-BR only; the prop exists for this docs site.',
       ],
     },
   },
@@ -1425,17 +1425,17 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     slug: 'file-upload',
     name: 'FileUpload',
     category: 'forms',
-    summary: 'Pick one file — click, keyboard or drag-and-drop — with a local preview. No upload happens here; `onChange` hands you the `File`.',
+    summary: 'Pick one file (click, keyboard or drag-and-drop) with a local preview. No upload happens here; `onChange` hands you the `File`.',
     props: [
       R('multiple', 'boolean', 'A list instead of one file. Flips `value` to `File[]` and `onChange` to `(files: File[]) => void`.', 'false'),
       R('value', 'File | string | null  ·  File[]', 'Single: the picked file or an existing URL. Multiple: the file list. Omit for uncontrolled.'),
       R('onChange', '(file: File | null) => void  ·  (files: File[]) => void', 'The chosen file(s). Signature follows `multiple`.'),
-      R('accept', 'string', '`accept` attribute — also enforced on drop.', "'image/*'"),
+      R('accept', 'string', '`accept` attribute: also enforced on drop.', "'image/*'"),
       R('maxSizeMB', 'number', 'Files above this are rejected with a message.', '5'),
-      R('shape', "'circle' | 'square'", 'Thumbnail shape for image previews — `circle` for avatars (single only).', "'square'"),
+      R('shape', "'circle' | 'square'", 'Thumbnail shape for image previews: `circle` for avatars (single only).', "'square'"),
       R('prompt', 'string', 'Text inside the empty drop area.'),
-      R('label / hint / error / required / disabled', '—', 'Same label contract as Input. The `aria-invalid` / `aria-describedby` wiring is on the drop zone (and on Replace once a file is chosen), since the file input itself is hidden. A single rejected file counts as an error; the "skipped N" note of `multiple` does not. With a `label`, the drop zone is named by it followed by the prompt ("Document Drag a file here, or click to choose"), since the label cannot reach the hidden input. `required` draws the asterisk only: the zone is a button, which cannot carry `aria-required`.'),
-      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set — see Input.", 'false'),
+      R('label / hint / error / required / disabled', '-', 'Same label contract as Input. The `aria-invalid` / `aria-describedby` wiring is on the drop zone (and on Replace once a file is chosen), since the file input itself is hidden. A single rejected file counts as an error; the "skipped N" note of `multiple` does not. With a `label`, the drop zone is named by it followed by the prompt ("Document Drag a file here, or click to choose"), since the label cannot reach the hidden input. `required` draws the asterisk only: the zone is a button, which cannot carry `aria-required`.'),
+      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set, see Input.", 'false'),
     ],
     code: `<FileUpload
   label="Profile photo"
@@ -1448,7 +1448,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'basic',
         title: 'Basic',
-        description: 'Empty state is a dashed drop area — click, `Enter` / `Space`, or drop a file on it. Once a file is set it swaps to a preview with **Replace** and **Remove**. `hint` carries the accepted types / size.',
+        description: 'Empty state is a dashed drop area, click, `Enter` / `Space`, or drop a file on it. Once a file is set it swaps to a preview with **Replace** and **Remove**. `hint` carries the accepted types / size.',
         code: `<FileUpload
   label="Attachment"
   hint="PDF or image, up to 5 MB."
@@ -1460,7 +1460,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'avatar',
         title: 'Circle thumbnail',
-        description: '`shape="circle"` rounds the preview — a logo or a round-cropped asset where you do not need a crop step. For a person’s photo use `AvatarUpload` instead (pencil button + circular crop).',
+        description: '`shape="circle"` rounds the preview: a logo or a round-cropped asset where you do not need a crop step. For a person’s photo use `AvatarUpload` instead (pencil button + circular crop).',
         code: `<FileUpload label="Logo" hint="Square PNG, transparent background." shape="circle" value={logo} onChange={setLogo} />`,
       },
       {
@@ -1479,14 +1479,14 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'error',
         title: 'Rejected file',
-        description: 'A file outside `accept`, or over `maxSizeMB`, is refused with a message in the `error` slot — the field itself keeps its last valid value. You can also drive `error` yourself.',
+        description: 'A file outside `accept`, or over `maxSizeMB`, is refused with a message in the `error` slot, the field itself keeps its last valid value. You can also drive `error` yourself.',
         code: `<FileUpload label="Logo" accept="image/png" maxSizeMB={1} onChange={setLogo} />
-// drop a 4 MB JPG -> "File is too large — keep it under 1 MB."`,
+// drop a 4 MB JPG -> "File is too large, keep it under 1 MB."`,
       },
       {
         id: 'disabled',
         title: 'Disabled',
-        description: 'No picker, no drop, no Replace / Remove — an existing `value` still shows as a static preview.',
+        description: 'No picker, no drop, no Replace / Remove, an existing `value` still shows as a static preview.',
         code: `<FileUpload label="Profile photo" shape="circle" value="/img/ana.jpg" disabled />`,
       },
     ],
@@ -1496,8 +1496,8 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         '`multiple` for a gallery / attachment list; single (default) for one document.',
       ],
       dont: [
-        'Expecting it to upload — it only hands you the `File`(s); the screen does the request.',
-        'A profile photo — that is `AvatarUpload` (pencil button + circular crop).',
+        'Expecting it to upload; it only hands you the `File`(s); the screen does the request.',
+        'A profile photo; that is `AvatarUpload` (pencil button + circular crop).',
       ],
     },
   },
@@ -1505,18 +1505,18 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     slug: 'avatar-upload',
     name: 'AvatarUpload',
     category: 'forms',
-    summary: 'Profile-photo picker — an avatar disc with a pencil button, a library / camera / remove menu, and a circular crop. Hands back a cropped, downscaled JPEG.',
+    summary: 'Profile-photo picker: an avatar disc with a pencil button, a library / camera / remove menu, and a circular crop. Hands back a cropped, downscaled JPEG.',
     props: [
-      R('name', 'string', 'Full name — the initials fallback and the alt text.'),
-      R('value', 'File | string | null', 'The current photo — a `File` (freshly cropped) or an existing URL string.'),
+      R('name', 'string', 'Full name: the initials fallback and the alt text.'),
+      R('value', 'File | string | null', 'The current photo: a `File` (freshly cropped) or an existing URL string.'),
       R('onChange', '(file: File | null) => void', 'The cropped JPEG `File`, or `null` on remove.'),
       R('size', 'number', 'Disc diameter in px.', '96'),
       R('outputSize', 'number', 'The crop is drawn to this square size before export.', '512'),
       R('maxSizeMB', 'number', 'Picks larger than this are rejected (before crop).', '8'),
-      R('labels', 'Partial<AvatarUploadLabels>', 'Override the English UI strings — menu, crop dialog, error messages.'),
+      R('labels', 'Partial<AvatarUploadLabels>', 'Override the English UI strings: menu, crop dialog, error messages.'),
       R('allowCamera', 'boolean', 'Whether to allow taking a photo via camera (omit "Take a photo" option and camera modal). Useful for logos.', 'true'),
-      R('label / hint / error / required / disabled', '—', 'Same label contract as Input. The `aria-invalid` / `aria-describedby` wiring is on the pencil button, since the file input itself is hidden. A rejected pick (type, size, unreadable) counts as an error. `required` draws the asterisk only: the pencil is a button, which cannot carry `aria-required`.'),
-      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set — see Input.", 'false'),
+      R('label / hint / error / required / disabled', '-', 'Same label contract as Input. The `aria-invalid` / `aria-describedby` wiring is on the pencil button, since the file input itself is hidden. A rejected pick (type, size, unreadable) counts as an error. `required` draws the asterisk only: the pencil is a button, which cannot carry `aria-required`.'),
+      R('preserveHelperSpace', 'boolean', "Reserve the hint/error row's height even with neither set, see Input.", 'false'),
     ],
     code: `<AvatarUpload
   label="Profile photo"
@@ -1535,7 +1535,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'existing',
         title: 'With a photo',
-        description: 'Pass an existing URL string as `value` — it shows straight away, no crop. The menu then offers Replace / Remove.',
+        description: 'Pass an existing URL string as `value`; it shows straight away, no crop. The menu then offers Replace / Remove.',
         code: `<AvatarUpload name="Marcos Lima" value="/img/marcos.jpg" onChange={setPhoto} />`,
       },
       {
@@ -1549,20 +1549,20 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       {
         id: 'disabled',
         title: 'Disabled',
-        description: 'No edit button, no menu — an existing `value` still shows as a static disc.',
+        description: 'No edit button, no menu: an existing `value` still shows as a static disc.',
         code: `<AvatarUpload name="Ana" value="/img/ana.jpg" disabled />`,
       },
     ],
     guidelines: {
       do: [
-        'Use for one person’s photo — profiles, team members, account settings.',
+        'Use for one person’s photo: profiles, team members, account settings.',
         'Let the crop do the framing; store the returned `File` and upload it server-side.',
-        'Keep `hint` short — the affordance (the pencil button) speaks for itself.',
+        'Keep `hint` short: the affordance (the pencil button) speaks for itself.',
       ],
       dont: [
-        'Documents / attachments / multiple files — that is `FileUpload`.',
-        'Expecting HEIC to work — no browser but Safari decodes it; convert server-side. HEIC picks are rejected with a message.',
-        'Skipping the server round-trip — `onChange` only gives you the cropped `File`.',
+        'Documents / attachments / multiple files; that is `FileUpload`.',
+        'Expecting HEIC to work: no browser but Safari decodes it; convert server-side. HEIC picks are rejected with a message.',
+        'Skipping the server round-trip: `onChange` only gives you the cropped `File`.',
       ],
     },
   },
@@ -1573,12 +1573,12 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
     summary: '`Input` with a magnifier, a clear (×) button, and a debounced `onSearch`. `Enter` searches now, `Esc` clears.',
     props: [
       R('value / defaultValue', 'string', 'Controlled / uncontrolled text.'),
-      R('onValueChange', '(value: string) => void', 'Every keystroke and on clear — the plain string.'),
+      R('onValueChange', '(value: string) => void', 'Every keystroke and on clear: the plain string.'),
       R('onSearch', '(value: string) => void', 'Debounced; also fires on `Enter` and on clear. Run the query here.'),
       R('debounce', 'number', 'Debounce for `onSearch`, ms.', '250'),
       R('clearLabel', 'string', 'aria-label for the × button.', "'Clear search'"),
       R('placeholder', 'string', '', "'Search…'"),
-      R('label / hint / error / size / disabled / preserveHelperSpace', '—', 'Passed through to `Input`.'),
+      R('label / hint / error / size / disabled / preserveHelperSpace', '-', 'Passed through to `Input`.'),
     ],
     code: `<SearchInput
   placeholder="Buscar cliente"
@@ -1604,7 +1604,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       {
         id: 'sizes',
         title: 'Sizes',
-        description: 'Same `size` scale as `Input` — `lg` for a page-level search, `sm` inside a toolbar.',
+        description: 'Same `size` scale as `Input`: `lg` for a page-level search, `sm` inside a toolbar.',
         code: `<SearchInput size="sm" placeholder="Search" />
 <SearchInput size="md" placeholder="Search" />
 <SearchInput size="lg" placeholder="Search" />`,
@@ -1617,13 +1617,13 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
     ],
     guidelines: {
       do: [
-        'Put the query behind `onSearch` (debounced) — not `onValueChange`.',
+        'Put the query behind `onSearch` (debounced): not `onValueChange`.',
         'Show an `EmptyState` when a non-empty query returns nothing.',
-        'A short, concrete placeholder — "Search clients", not just "Search".',
+        'A short, concrete placeholder: "Search clients", not just "Search".',
       ],
       dont: [
-        'Running an expensive query on every keystroke — that is what the debounce is for.',
-        'A search field with no clear affordance — the × is part of the contract.',
+        'Running an expensive query on every keystroke; that is what the debounce is for.',
+        'A search field with no clear affordance, the × is part of the contract.',
       ],
     },
   },
@@ -1633,13 +1633,13 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
     slug: 'top-bar',
     name: 'TopBar',
     category: 'navigation',
-    summary: 'Sticky page header — a **compound component**. `Leading` / `Title` / `Actions` are independent, optional slots. 60px, translucent with blur.',
+    summary: 'Sticky page header: a **compound component**. `Leading` / `Title` / `Actions` are independent, optional slots. 60px, translucent with blur.',
     props: [
       R('sticky', 'boolean', 'Sticks to the top on scroll.', 'true'),
       R('transparent', 'boolean', 'Drops the blur/border for hero headers.', 'false'),
-      R('TopBar.Leading', 'React.ReactNode', 'Usually a back `IconButton` or the wordmark. No wrapper of its own — renders exactly what you give it.'),
+      R('TopBar.Leading', 'React.ReactNode', 'Usually a back `IconButton` or the wordmark. No wrapper of its own: renders exactly what you give it.'),
       R('TopBar.Title', 'React.ReactNode', 'The title text, as children.'),
-      R('TopBar.Title · subtitle', 'React.ReactNode', 'A second line — plain string in most cases, or a node for e.g. a `<time>` element.'),
+      R('TopBar.Title · subtitle', 'React.ReactNode', 'A second line: plain string in most cases, or a node for e.g. a `<time>` element.'),
       R('TopBar.Actions', 'React.ReactNode', 'Trailing actions.'),
     ],
     code: `<TopBar>
@@ -1668,7 +1668,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       {
         id: 'transparent',
         title: 'Transparent',
-        description: '`transparent` drops the blur and border — for hero headers over a coloured surface.',
+        description: '`transparent` drops the blur and border: for hero headers over a coloured surface.',
         code: `<TopBar transparent>
   <TopBar.Leading><span className="wordmark">Sereno</span></TopBar.Leading>
 </TopBar>`,
@@ -1676,19 +1676,19 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
     ],
     guidelines: {
       do: ['60px, `sticky` to the top by default.', '`Leading` = back or the wordmark; never both.'],
-      dont: ['More than two `Actions` — that becomes a menu.'],
+      dont: ['More than two `Actions`; that becomes a menu.'],
     },
   },
   {
     slug: 'tabs',
     name: 'Tabs',
     category: 'navigation',
-    summary: 'Horizontal section switcher — a **compound component**. `underline` for page-level sections, `pill` for filters inside a panel. `Tabs.Panel` is optional; your screen can render its own content instead, keyed off `value`.',
+    summary: 'Horizontal section switcher: a **compound component**. `underline` for page-level sections, `pill` for filters inside a panel. `Tabs.Panel` is optional; your screen can render its own content instead, keyed off `value`.',
     props: [
-      R('value / onChange', 'string / (value) => void', 'Active tab and callback. Lives on the root — every subcomponent reads it from context.'),
+      R('value / onChange', 'string / (value) => void', 'Active tab and callback. Lives on the root: every subcomponent reads it from context.'),
       R('variant', "'underline' | 'pill'", 'Visual style.', "'underline'"),
       R('fullWidth', 'boolean', 'Distributes the tabs evenly.', 'false'),
-      R('Tabs.Tab · value', 'string', 'This tab’s identity — compared against the root `value`.'),
+      R('Tabs.Tab · value', 'string', 'This tab’s identity: compared against the root `value`.'),
       R('Tabs.Tab · icon / count', 'ReactNode / number', 'Leading icon and a trailing chip (a count, a badge number).'),
       R('Tabs.Panel · value', 'string', 'Renders its children only while it matches the active `value`; otherwise renders nothing.'),
     ],
@@ -1702,7 +1702,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       {
         id: 'underline',
         title: 'Underline',
-        description: 'For page-level sections. The active tab is in `text-brand` with an underline. `Tabs.Panel` renders the matching content — optional, your screen can do this itself instead.',
+        description: 'For page-level sections. The active tab is in `text-brand` with an underline. `Tabs.Panel` renders the matching content: optional, your screen can do this itself instead.',
         code: `<Tabs value={view} onChange={setView}>
   <Tabs.List>
     <Tabs.Tab value="agenda">Calendar</Tabs.Tab>
@@ -1717,7 +1717,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       {
         id: 'pill',
         title: 'Pill',
-        description: 'For filters inside a panel. The group hugs its content — it never stretches to fill the container. `count` becomes a chip next to the label.',
+        description: 'For filters inside a panel. The group hugs its content; it never stretches to fill the container. `count` becomes a chip next to the label.',
         code: `<Tabs variant="pill" value={filter} onChange={setFilter}>
   <Tabs.List>
     <Tabs.Tab value="today" count={5}>Today</Tabs.Tab>
@@ -1729,7 +1729,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       {
         id: 'full-width',
         title: 'Full width',
-        description: '`fullWidth` distributes the tabs evenly — good for 2–3 sections in a narrow panel.',
+        description: '`fullWidth` distributes the tabs evenly: good for 2–3 sections in a narrow panel.',
         code: `<Tabs fullWidth value={v} onChange={setV}>
   <Tabs.List>
     <Tabs.Tab value="a">A</Tabs.Tab>
@@ -1752,7 +1752,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       do: [
         '`underline` = page sections. `pill` = filters in a panel.',
         '`count` only when the number helps a decision.',
-        'Let it scroll for a long strip — don’t wrap tabs onto two lines.',
+        'Let it scroll for a long strip, don’t wrap tabs onto two lines.',
       ],
       dont: ['A stretched `pill` taking the full width (unless `fullWidth`).', 'A dozen tabs where a `Select` or side navigation would read better.'],
     },
@@ -1761,11 +1761,11 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
     slug: 'bottom-nav',
     name: 'BottomNav',
     category: 'navigation',
-    summary: 'Mobile primary navigation — a **compound component**. 3 to 5 destinations, 64px, translucent blurred surface.',
+    summary: 'Mobile primary navigation: a **compound component**. 3 to 5 destinations, 64px, translucent blurred surface.',
     props: [
-      R('value / onChange', 'string / (value) => void', 'Active destination and callback. Lives on the root — `BottomNav.Item` reads it from context.'),
+      R('value / onChange', 'string / (value) => void', 'Active destination and callback. Lives on the root: `BottomNav.Item` reads it from context.'),
       R('BottomNav.Item · value / label / icon', 'string / string / ReactNode', 'This destination’s identity, label, and icon.'),
-      R('BottomNav.Item · badge', 'boolean', 'An accent dot on the icon corner — "there’s something new here".'),
+      R('BottomNav.Item · badge', 'boolean', 'An accent dot on the icon corner, "there’s something new here".'),
     ],
     code: `<BottomNav value={tab} onChange={setTab}>
   <BottomNav.Item value="agenda" label="Calendar" icon={<Calendar size={22} />} />
@@ -1785,14 +1785,14 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       {
         id: 'with-badge',
         title: 'With badge',
-        description: '`badge` puts an accent dot on the icon corner — for "there’s something new here".',
+        description: '`badge` puts an accent dot on the icon corner, for "there’s something new here".',
         code: `<BottomNav.Item value="agenda" label="Calendar" icon={<Calendar size={22} />} />
 <BottomNav.Item value="clientes" label="Clients" icon={<Users size={22} />} badge />`,
       },
     ],
     guidelines: {
       do: ['3 to 5 destinations.', 'The label always visible below the icon.'],
-      dont: ['More than 5 items.', 'Using it on desktop — that is the sidebar’s job.'],
+      dont: ['More than 5 items.', 'Using it on desktop; that is the sidebar’s job.'],
     },
   },
   {
@@ -1800,14 +1800,14 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
     name: 'SidebarNav',
     category: 'navigation',
     summary:
-      'Desktop primary navigation — a **compound component**, the counterpart to `BottomNav`. Grouped sections with dividers, an inline second level (a hover flyout on the rail), and an edge toggle that drops it to a 72px icon rail.',
+      'Desktop primary navigation: a **compound component**, the counterpart to `BottomNav`. Grouped sections with dividers, an inline second level (a hover flyout on the rail), and an edge toggle that drops it to a 72px icon rail.',
     props: [
       R(
         'value / onChange',
         'string / (value) => void',
-        'Active destination and callback. Lives on the root — every subcomponent reads it from context. An `Item` with `SubItem` children is not a destination itself — it toggles its submenu.',
+        'Active destination and callback. Lives on the root: every subcomponent reads it from context. An `Item` with `SubItem` children is not a destination itself; it toggles its submenu.',
       ),
-      R('linkComponent', 'React.ElementType', 'Items with an `href` render through this (e.g. Next `Link`) instead of a `<button>` — routing, new-tab, SSR-active.'),
+      R('linkComponent', 'React.ElementType', 'Items with an `href` render through this (e.g. Next `Link`) instead of a `<button>`: routing, new-tab, SSR-active.'),
       R('collapsed / onCollapsedChange', 'boolean / (c) => void', 'Rail state. Uncontrolled via `defaultCollapsed`.', 'false'),
       R('collapsible', 'boolean', 'Show the round collapse toggle on the sidebar’s right edge.', 'true'),
       R('header', 'React.ReactNode', 'Brand / logo slot at the top.'),
@@ -1816,10 +1816,10 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       R(
         'disabled',
         'boolean',
-        'Disables every `Item` / `SubItem` at once — a gated area, an account that isn’t active yet. An item can opt back in with its own `disabled={false}`. The collapse toggle, `header` and `footer` stay live: they aren’t destinations.',
+        'Disables every `Item` / `SubItem` at once, a gated area, an account that isn’t active yet. An item can opt back in with its own `disabled={false}`. The collapse toggle, `header` and `footer` stay live: they aren’t destinations.',
         'false',
       ),
-      R('SidebarNav.Section · label', 'string', 'Small uppercase heading above the block. Omit for an unlabelled group — the divider still shows.'),
+      R('SidebarNav.Section · label', 'string', 'Small uppercase heading above the block. Omit for an unlabelled group: the divider still shows.'),
       R('SidebarNav.Item · value / label / icon / count', 'string / string / ReactNode / number', 'This destination’s identity, label, leading icon, and a trailing count chip.'),
       R('SidebarNav.Item · href', 'string', 'Renders this leaf through `linkComponent` instead of a `<button>`. Ignored while `disabled`.'),
       R(
@@ -1848,7 +1848,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
         id: 'basic',
         title: 'Groups and second level',
         description:
-          'Each `SidebarNav.Section` is a divided block with an optional uppercase `label`. An `Item` with `SubItem` children is not a destination — it opens an inline second level (the branch holding the active child starts open). On the collapsed rail the same list opens as a hover flyout instead. A label the row can’t fit is cut with an ellipsis — hover or Tab onto it and the full text shows in a tooltip (only when it is actually cut; a short label gets none).',
+          'Each `SidebarNav.Section` is a divided block with an optional uppercase `label`. An `Item` with `SubItem` children is not a destination; it opens an inline second level (the branch holding the active child starts open). On the collapsed rail the same list opens as a hover flyout instead. A label the row can’t fit is cut with an ellipsis, hover or Tab onto it and the full text shows in a tooltip (only when it is actually cut; a short label gets none).',
         code: `<SidebarNav value={view} onChange={setView}>
   <SidebarNav.Section label="Workspace">
     <SidebarNav.Item value="agenda" label="Calendar" icon={<Calendar size={18} />} />
@@ -1873,7 +1873,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
         id: 'collapsible',
         title: 'Collapsible rail',
         description:
-          'A round toggle on the sidebar’s right edge (level with the `header`) drops it to a 72px icon rail — labels hide, group headings become bare dividers, counts become a dot, and each icon gets a tooltip on hover and on keyboard focus. A parent still opens its flyout from the rail. Pass `header` (a mark shows on the rail) / `footer` (hidden on the rail).',
+          'A round toggle on the sidebar’s right edge (level with the `header`) drops it to a 72px icon rail, labels hide, group headings become bare dividers, counts become a dot, and each icon gets a tooltip on hover and on keyboard focus. A parent still opens its flyout from the rail. Pass `header` (a mark shows on the rail) / `footer` (hidden on the rail).',
         code: `const [collapsed, setCollapsed] = React.useState(false);
 
 <SidebarNav
@@ -1892,7 +1892,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
         id: 'disabled',
         title: 'Disabled items',
         description:
-          'Per item with `disabled` (a leaf, a `SubItem` or a whole parent), or for the whole menu with `disabled` on the root — flip the switch. An item can opt back in with `disabled={false}` (Settings stays live under the lock). A disabled row uses `aria-disabled`, leaves the Tab order, never navigates (even with an `href`), and its parent won’t open a flyout on the rail. If it is the current page it keeps `aria-current`, just muted.',
+          'Per item with `disabled` (a leaf, a `SubItem` or a whole parent), or for the whole menu with `disabled` on the root, flip the switch. An item can opt back in with `disabled={false}` (Settings stays live under the lock). A disabled row uses `aria-disabled`, leaves the Tab order, never navigates (even with an `href`), and its parent won’t open a flyout on the rail. If it is the current page it keeps `aria-current`, just muted.',
         code: `<SidebarNav value={view} onChange={setView} disabled={locked}>
   <SidebarNav.Section label="Management">
     <SidebarNav.Item value="finance" label="Finance" icon={<Wallet size={18} />}>
@@ -1911,8 +1911,8 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
     guidelines: {
       do: [
         'Group into 2–4 labelled sections; keep each to ~6 items.',
-        'Keep a locked destination visible but `disabled` when hiding it would confuse (a higher plan, an inactive account) — and explain why somewhere near.',
-        'Second level only one deep — no grandchildren.',
+        'Keep a locked destination visible but `disabled` when hiding it would confuse (a higher plan, an inactive account), and explain why somewhere near.',
+        'Second level only one deep: no grandchildren.',
         'On mobile it hides; `BottomNav` takes over under 900px.',
       ],
       dont: ['A parent item that both navigates and has children.', 'More than two levels.', 'Using it as the mobile navigation.'],
@@ -1922,14 +1922,14 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
     slug: 'stepper',
     name: 'Stepper',
     category: 'navigation',
-    summary: 'Progress indicator for a linear multi-step flow — a **compound component** (onboarding, guided setup).',
+    summary: 'Progress indicator for a linear multi-step flow, a **compound component** (onboarding, guided setup).',
     props: [
-      R('current', 'number', '0-based index of the active step. Lives on the root — `Stepper.Step` reads it from context.', '0'),
+      R('current', 'number', '0-based index of the active step. Lives on the root: `Stepper.Step` reads it from context.', '0'),
       R('onStepClick', '(index: number) => void', 'When present, completed steps become clickable (back only).'),
       R('variant', "'bar' | 'dots'", 'bar = full-width segments (desktop). dots = compact pills (mobile).', "'bar'"),
-      R('stepLabel', '(current, total) => ReactNode', 'Formats the counter (1-based). Default `Step N of M` — the DS ships no localised copy. Return `null` to drop the counter.'),
+      R('stepLabel', '(current, total) => ReactNode', 'Formats the counter (1-based). Default `Step N of M`: the DS ships no localised copy. Return `null` to drop the counter.'),
       R('Stepper.Step · label', 'string', 'Shown next to the counter while this step is active.'),
-      R('Stepper.Step · value', 'string', 'Optional — not read by `Stepper` itself, only for your own `key` / bookkeeping.'),
+      R('Stepper.Step · value', 'string', 'Optional: not read by `Stepper` itself, only for your own `key` / bookkeeping.'),
     ],
     code: `<Stepper current={step} onStepClick={setStep}>
   <Stepper.Step value="perfil" label="Your profile" />
@@ -1941,7 +1941,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
         id: 'bar',
         title: 'Bar',
         description:
-          'Full-width segments + a `Step N of M · <label>` line (a dot separates the counter from the step label). The default for desktop wizards. Drive it with `current` — **Back** / **Next** below walk a live 4-step flow.',
+          'Full-width segments + a `Step N of M · <label>` line (a dot separates the counter from the step label). The default for desktop wizards. Drive it with `current`: **Back** / **Next** below walk a live 4-step flow.',
         code: `const [step, setStep] = React.useState(0);
 
 <Stepper current={step}>
@@ -1956,7 +1956,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       {
         id: 'dots',
         title: 'Dots',
-        description: 'Compact pills — the current step stretches. For mobile. Same `current` contract; walk it with the buttons.',
+        description: 'Compact pills: the current step stretches. For mobile. Same `current` contract; walk it with the buttons.',
         code: `<Stepper variant="dots" current={step}>
   <Stepper.Step value="profile" label="Your profile" />
   <Stepper.Step value="service" label="First service" />
@@ -1966,7 +1966,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
         id: 'clickable',
         title: 'Clickable back',
         description:
-          'With `onStepClick`, completed steps and the current one become buttons — **back only**; the disabled forward segments still need the primary **Next**. Try clicking an earlier segment.',
+          'With `onStepClick`, completed steps and the current one become buttons, **back only**; the disabled forward segments still need the primary **Next**. Try clicking an earlier segment.',
         code: `<Stepper current={step} onStepClick={setStep}>
   <Stepper.Step value="profile" label="Your profile" />
   <Stepper.Step value="service" label="First service" />
@@ -1976,7 +1976,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
         id: 'step-label',
         title: 'Localised / custom counter',
         description:
-          'The counter defaults to `Step N of M` — the DS embeds no localised text. Pass `stepLabel` for another language or a compact form; return `null` to show only the step label.',
+          'The counter defaults to `Step N of M`, the DS embeds no localised text. Pass `stepLabel` for another language or a compact form; return `null` to show only the step label.',
         code: `<Stepper current={step} stepLabel={(c, t) => \`Passo \${c} de \${t}\`}>...</Stepper>   // pt-BR
 
 <Stepper current={step} stepLabel={(c, t) => \`\${c} / \${t}\`}>...</Stepper>          // compact`,
@@ -1986,7 +1986,7 @@ const rows = q ? ITEMS.filter((i) => i.name.toLowerCase().includes(q.toLowerCase
       do: [
         '`onStepClick` navigates back only.',
         '`bar` on desktop, `dots` on mobile.',
-        'Pass `stepLabel` for the counter in your app’s language — the DS default is English.',
+        'Pass `stepLabel` for the counter in your app’s language, the DS default is English.',
       ],
       dont: ['Letting the user skip ahead via the Stepper.'],
     },
@@ -2102,7 +2102,7 @@ const pageSize = 10;
     slug: 'alert',
     name: 'Alert',
     category: 'feedback',
-    summary: 'Persistent in-page notice — stays until the user dismisses it or the condition is resolved. Unlike Toast, which is transient.',
+    summary: 'Persistent in-page notice: stays until the user dismisses it or the condition is resolved. Unlike Toast, which is transient.',
     props: [
       R('tone', "'info' | 'success' | 'warning' | 'error'", 'Semantic tone (same words as Badge / Toast).', "'info'"),
       R('title', 'string', 'Notice title.'),
@@ -2161,12 +2161,12 @@ const pageSize = 10;
     ],
     guidelines: {
       do: [
-        'Use `Alert` for conditions that **persist** — schedule not set, plan limit, failed charge.',
+        'Use `Alert` for conditions that **persist**: schedule not set, plan limit, failed charge.',
         'If the user can leave and come back and the message should still be there, it is an `Alert`.',
       ],
       dont: [
-        'Confirming an action that just happened — that is a `Toast`.',
-        'A floating `Alert` or one with a shadow — it lives in the page flow.',
+        'Confirming an action that just happened; that is a `Toast`.',
+        'A floating `Alert` or one with a shadow; it lives in the page flow.',
       ],
     },
   },
@@ -2183,7 +2183,7 @@ const pageSize = 10;
       R('icon / action', 'React.ReactNode', 'Glyph and inline action ("Undo" / "View").'),
       R('onClose', '() => void', 'Renders the × close control. The provider wires this for you.'),
       R('<ToastProvider> position', "'bottom-right' | 'bottom-left' | 'bottom-center' | 'top-right' | 'top-left' | 'top-center'", 'Viewport corner.', "'bottom-right'"),
-      R('<ToastProvider> max', 'number', 'Most toasts on screen at once — the oldest drops.', '3'),
+      R('<ToastProvider> max', 'number', 'Most toasts on screen at once: the oldest drops.', '3'),
       R('<ToastProvider> duration', 'number', 'Default auto-dismiss in ms. Per-call `duration: 0` makes one stick.', '4000'),
       R('useToast() → toast', "(msg, opts?) => string & { success, error, warning, info, neutral }", 'Fire a toast; returns its id. `toast.success("Saved")`, `toast("Link copied")`.'),
       R('useToast() → dismiss', '(id?: string) => void', '`dismiss(id)` removes one; `dismiss()` clears them all.'),
@@ -2197,7 +2197,7 @@ toast.success('Booking confirmed', {
         id: 'system',
         title: 'The toast system',
         description:
-          'Wrap the app once in `<ToastProvider>`, then call `useToast()` anywhere under it. Toasts stack newest-nearest-the-edge, show a countdown bar, auto-dismiss after `duration` (the bar and timer both pause while hovered or focused), and cap at `max`. `duration: 0` keeps one until `dismiss()`. Six `position`s — every corner and both centres.',
+          'Wrap the app once in `<ToastProvider>`, then call `useToast()` anywhere under it. Toasts stack newest-nearest-the-edge, show a countdown bar, auto-dismiss after `duration` (the bar and timer both pause while hovered or focused), and cap at `max`. `duration: 0` keeps one until `dismiss()`. Six `position`s: every corner and both centres.',
         code: `// app root
 <ToastProvider position="bottom-right">
   <App />
@@ -2214,7 +2214,7 @@ dismiss(id);`,
       {
         id: 'tones',
         title: 'The card',
-        description: 'The presentational `<Toast>` on its own — one line of `title` (required) + optional `description`. It enters with a slide-up; without the provider the host owns the lifetime and position.',
+        description: 'The presentational `<Toast>` on its own: one line of `title` (required) + optional `description`. It enters with a slide-up; without the provider the host owns the lifetime and position.',
         code: `<Toast tone="success" title="Booking cancelled"
   description="The client was notified via WhatsApp." icon={<Check size={18} />} />
 <Toast tone="neutral" title="Link copied" />`,
@@ -2222,7 +2222,7 @@ dismiss(id);`,
       {
         id: 'with-action',
         title: 'With action and close',
-        description: '`onClose` renders the × . `action` sits on the right — use it for "Undo".',
+        description: '`onClose` renders the × . `action` sits on the right: use it for "Undo".',
         code: `<Toast
   tone="success"
   title="Service removed"
@@ -2235,11 +2235,11 @@ dismiss(id);`,
       do: [
         'Confirms what **just happened** and leaves the screen.',
         'A one-line `title`; `description` only if it adds something.',
-        'One `<ToastProvider>` at the app root — call `useToast()` everywhere else.',
+        'One `<ToastProvider>` at the app root: call `useToast()` everywhere else.',
       ],
       dont: [
-        'A condition that persists (schedule, limit, charge) — use `Alert`.',
-        'Queueing a dozen at once — the provider caps at `max` (3), but that is a smell.',
+        'A condition that persists (schedule, limit, charge), use `Alert`.',
+        'Queueing a dozen at once: the provider caps at `max` (3), but that is a smell.',
       ],
     },
   },
@@ -2248,20 +2248,20 @@ dismiss(id);`,
     name: 'Dialog',
     category: 'feedback',
     summary:
-      'Modal (desktop), bottom sheet (mobile) or full-screen — a **compound component**. Portalled to `<body>` and fixed to the viewport; while open it locks page scroll and closes on Escape. Needs the sereno-pop / sereno-slide-up keyframes on the host.',
+      'Modal (desktop), bottom sheet (mobile) or full-screen, a **compound component**. Portalled to `<body>` and fixed to the viewport; while open it locks page scroll and closes on Escape. Needs the sereno-pop / sereno-slide-up keyframes on the host.',
     props: [
       R('open', 'boolean', 'Controls visibility.', 'true'),
       R('onClose', '() => void', 'Called on scrim click, on Escape, and by `Dialog.Close`.'),
       R('variant', "'center' | 'sheet' | 'fullscreen'", 'sheet slides up from the bottom (mobile default); fullscreen fills the viewport.', "'center'"),
       R('size', "'sm' | 'md' | 'lg' | 'xl'", 'Max width of the centered modal (440 / 600 / 800 / 1000).', "'sm'"),
       R('dividers', 'boolean', 'Hairline rules between header / body / footer; the body scrolls on its own.', 'false'),
-      R('dismissible', 'boolean', 'When false, a scrim click and Escape no longer close it — only `Dialog.Close`, a footer action, or open={false}.', 'true'),
-      R('width', 'number', 'Explicit pixel width — overrides size.'),
+      R('dismissible', 'boolean', 'When false, a scrim click and Escape no longer close it, only `Dialog.Close`, a footer action, or open={false}.', 'true'),
+      R('width', 'number', 'Explicit pixel width: overrides size.'),
       R('Dialog.Header · title / description', 'string', 'Both optional. Put `Dialog.Close` here too, if you want one.'),
-      R('Dialog.Body', 'React.ReactNode', 'The scrolling content area. Optional — a header + footer alone is a valid dialog.'),
+      R('Dialog.Body', 'React.ReactNode', 'The scrolling content area. Optional: a header + footer alone is a valid dialog.'),
       R('Dialog.Footer', 'React.ReactNode', 'Action buttons, right-aligned.'),
       R('Dialog.Footer · fill', 'boolean', 'The buttons share the row and grow to fill it, and each line if they wrap, instead of hugging the right edge. For three actions or long translated labels, where a plain wrap would leave the last button alone, small and pushed right on a second line.', 'false'),
-      R('Dialog.Close', '—', 'A ✕ button that calls the root’s `onClose`. Nothing renders one unless you add it — no more auto-default for `fullscreen`.'),
+      R('Dialog.Close', '-', 'A ✕ button that calls the root’s `onClose`. Nothing renders one unless you add it, no more auto-default for `fullscreen`.'),
     ],
     code: `<Dialog open={open} onClose={() => setOpen(false)}>
   <Dialog.Header title="Cancel booking?" description="A cliente será avisada por WhatsApp." />
@@ -2296,7 +2296,7 @@ dismiss(id);`,
       {
         id: 'sizes',
         title: 'Sizes',
-        description: '`size` caps the centered modal at a fixed max-width — `sm` (440), `md` (600), `lg` (800), `xl` (1000). It still shrinks to fit narrow screens. `width` takes an explicit pixel value instead.',
+        description: '`size` caps the centered modal at a fixed max-width, `sm` (440), `md` (600), `lg` (800), `xl` (1000). It still shrinks to fit narrow screens. `width` takes an explicit pixel value instead.',
         code: `<Dialog size="lg" open={open} onClose={close}>
   <Dialog.Header title="Report" />
   <Dialog.Body>{/* wide content */}</Dialog.Body>
@@ -2315,7 +2315,7 @@ dismiss(id);`,
       {
         id: 'form',
         title: 'Form inside',
-        description: 'Inputs, selects and checkboxes sit inside a `Dialog.Body` without ceremony. Keep the form short enough not to need `dividers` — a `Select` menu opens within the panel, so a scrolling body would clip it.',
+        description: 'Inputs, selects and checkboxes sit inside a `Dialog.Body` without ceremony. Keep the form short enough not to need `dividers`, a `Select` menu opens within the panel, so a scrolling body would clip it.',
         code: `<Dialog size="md" open={open} onClose={close}>
   <Dialog.Header title="New booking"><Dialog.Close /></Dialog.Header>
   <Dialog.Body>
@@ -2328,7 +2328,7 @@ dismiss(id);`,
       {
         id: 'fullscreen',
         title: 'Full screen',
-        description: '`variant="fullscreen"` fills the viewport (no radius, no scrim gap) — for immersive multi-section flows. Add a `Dialog.Close` yourself; nothing shows one automatically.',
+        description: '`variant="fullscreen"` fills the viewport (no radius, no scrim gap), for immersive multi-section flows. Add a `Dialog.Close` yourself; nothing shows one automatically.',
         code: `<Dialog variant="fullscreen" dividers open={open} onClose={close}>
   <Dialog.Header title="Edit availability"><Dialog.Close /></Dialog.Header>
   <Dialog.Body>{/* full-page form */}</Dialog.Body>
@@ -2338,7 +2338,7 @@ dismiss(id);`,
       {
         id: 'dismissible',
         title: 'Require a choice',
-        description: '`dismissible={false}` drops the scrim-click and Escape shortcuts, so the user has to pick a footer action (or a `Dialog.Close`, if you added one). Reserve it for a decision that really can’t be deferred — a stray click shouldn’t trap people.',
+        description: '`dismissible={false}` drops the scrim-click and Escape shortcuts, so the user has to pick a footer action (or a `Dialog.Close`, if you added one). Reserve it for a decision that really can’t be deferred, a stray click shouldn’t trap people.',
         code: `<Dialog dismissible={false} open={open} onClose={close}>
   <Dialog.Header title="Discard 3 unsaved changes?" description="…" />
   <Dialog.Footer>{footer}</Dialog.Footer>
@@ -2351,9 +2351,9 @@ dismiss(id);`,
         '`sheet` on mobile, `center` on desktop; `fullscreen` for long multi-step flows.',
         '`dividers` whenever the body can scroll.',
         'The destructive action on the right of the `footer`.',
-        '`dismissible={false}` only for a genuinely blocking choice — and always leave a visible way out (a ✕ or a footer button).',
+        '`dismissible={false}` only for a genuinely blocking choice, and always leave a visible way out (a ✕ or a footer button).',
       ],
-      dont: ['"Tem certeza?" as the title.', 'A `Dialog` for information that would fit in an in-page `Alert`.', 'A tall form with no `dividers` — the header scrolls away with it.', '`dismissible={false}` as a default — most dialogs should let a scrim click out.'],
+      dont: ['"Tem certeza?" as the title.', 'A `Dialog` for information that would fit in an in-page `Alert`.', 'A tall form with no `dividers`: the header scrolls away with it.', '`dismissible={false}` as a default: most dialogs should let a scrim click out.'],
     },
   },
   {
@@ -2386,8 +2386,8 @@ dismiss(id);`,
       },
     ],
     guidelines: {
-      do: ['Use `card` for lists that load from the network (agenda, catalogue).', 'Same shape/height as the real content — the screen must not "jump" when it loads.'],
-      dont: ['A skeleton for more than ~2s with no other signal — consider an error state.'],
+      do: ['Use `card` for lists that load from the network (agenda, catalogue).', 'Same shape/height as the real content: the screen must not "jump" when it loads.'],
+      dont: ['A skeleton for more than ~2s with no other signal, consider an error state.'],
     },
   },
   {
@@ -2411,7 +2411,7 @@ dismiss(id);`,
       {
         id: 'basic',
         title: 'Basic',
-        description: 'An `icon` in a brand-soft badge, a `title` (required) and a `description` that suggests the next step — no dwelling on the emptiness.',
+        description: 'An `icon` in a brand-soft badge, a `title` (required) and a `description` that suggests the next step, no dwelling on the emptiness.',
         code: `<EmptyState
   icon={<CalendarCheck size={22} />}
   title="No bookings today"
@@ -2432,14 +2432,14 @@ dismiss(id);`,
       {
         id: 'compact',
         title: 'Compact',
-        description: '`compact` reduces the vertical padding — for inside a card, not the whole screen.',
+        description: '`compact` reduces the vertical padding: for inside a card, not the whole screen.',
         code: `<EmptyState compact icon={<BarChart3 size={22} />}
   title="Reports coming soon" />`,
       },
     ],
     guidelines: {
       do: ['A tone that points to the next step: "A good time to review your services."'],
-      dont: ['"Que vazio por aqui…" — no dwelling on the empty state.', 'A generic vector illustration.'],
+      dont: ['"Que vazio por aqui…": no dwelling on the empty state.', 'A generic vector illustration.'],
     },
   },
 ];
@@ -2452,14 +2452,14 @@ export function componentsByCategory(id: CategoryId): ComponentMeta[] {
   return COMPONENTS.filter((c) => c.category === id);
 }
 
-/** Previous / next component in the flat catalogue order — for the page footer nav. */
+/** Previous / next component in the flat catalogue order - for the page footer nav. */
 export function adjacentComponents(slug: string): { prev?: ComponentMeta; next?: ComponentMeta } {
   const i = COMPONENTS.findIndex((c) => c.slug === slug);
   if (i === -1) return {};
   return { prev: COMPONENTS[i - 1], next: COMPONENTS[i + 1] };
 }
 
-/** Example sections for the page — the real list, or a single fallback from `code`. */
+/** Example sections for the page - the real list, or a single fallback from `code`. */
 export function examplesFor(meta: ComponentMeta): Example[] {
   return meta.examples ?? [{ id: 'example', title: 'Example', code: meta.code }];
 }

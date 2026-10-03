@@ -30,7 +30,7 @@ describe('Stepper', () => {
     expect(screen.getByRole('button', { name: 'Two' })).toHaveAttribute('aria-current', 'step');
   });
 
-  it('counter defaults to "Step N of M" (1-based, English — no embedded pt-BR)', () => {
+  it('counter defaults to "Step N of M" (1-based, English, no embedded pt-BR)', () => {
     render(<Basic current={0} />);
     expect(screen.getByText('Step 1 of 3')).toBeInTheDocument();
     expect(screen.queryByText(/Passo/)).toBeNull();

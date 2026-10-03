@@ -30,7 +30,7 @@ function mount(apiRef: ApiRef, props?: Partial<ToastProviderProps>) {
 const cards = () => [...document.body.querySelectorAll('[role="status"], [role="alert"]')] as HTMLElement[];
 
 /**
- * The visible card carrying `text` — not the sr-only aria-live announcer,
+ * The visible card carrying `text` - not the sr-only aria-live announcer,
  * which deliberately carries the same text (see ToastProvider's two
  * persistent live regions), so a plain `screen.getByText` now matches both.
  */
@@ -111,7 +111,7 @@ describe('ToastProvider / useToast', () => {
     expect(cards()).toHaveLength(0);
   });
 
-  it('caps the stack at `max` — the oldest drops', () => {
+  it('caps the stack at `max`: the oldest drops', () => {
     vi.useFakeTimers();
     const api: ApiRef = { current: null };
     mount(api, { max: 2 });
@@ -180,7 +180,7 @@ describe('ToastProvider / useToast', () => {
       const region = screen.getByRole('region', { name: 'Notifications' });
       const [edge, side] = position.split('-');
       expect(region.style.getPropertyValue(edge)).toBe('0px');
-      // `side` (left/right) carries a small outward offset, not flush 0 — see
+      // `side` (left/right) carries a small outward offset, not flush 0 - see
       // ToastProvider's viewport style: a macOS Safari overlay scrollbar can
       // paint right over a flush edge, inside what should have been the
       // toast's only clearance from it.
@@ -205,7 +205,7 @@ describe('ToastProvider / useToast', () => {
   it('announces through a persistent aria-live region, not just the freshly-mounted card', () => {
     const api: ApiRef = { current: null };
     mount(api);
-    // The polite region exists from the start (mount), before any toast fires —
+    // The polite region exists from the start (mount), before any toast fires -
     // that persistence is the whole point: a live region only reliably
     // announces a *change*, not a node that mounts already carrying content.
     const polite = document.body.querySelector('[aria-live="polite"]');

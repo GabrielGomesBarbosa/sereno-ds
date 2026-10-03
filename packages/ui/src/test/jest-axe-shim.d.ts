@@ -1,11 +1,11 @@
 /**
  * `jest-axe` ships no types of its own, and `@types/jest-axe` only augments
  * Jest's `jest.Matchers` (plus a `/// <reference types="jest" />` we don't
- * want pulled in) — so the module shape is hand-rolled here instead.
+ * want pulled in) - so the module shape is hand-rolled here instead.
  *
  * No top-level import/export in this file on purpose: that's what makes
  * this a genuine global ambient module declaration (providing types for an
- * untyped package) rather than an augmentation of one — a file with any
+ * untyped package) rather than an augmentation of one - a file with any
  * top-level import/export turns every `declare module` in it into an
  * augmentation, which silently does nothing for a module with no existing
  * declaration to augment. The Vitest `Assertion` augmentation is a real
@@ -26,7 +26,7 @@ declare module 'jest-axe' {
 
   export function configureAxe(options?: JestAxeConfigureOptions): JestAxe;
 
-  /** Passed straight to `expect.extend(...)` — the key is the matcher name. */
+  /** Passed straight to `expect.extend(...)` - the key is the matcher name. */
   export const toHaveNoViolations: {
     toHaveNoViolations(results: AxeResults): { pass: boolean; message(): string };
   };

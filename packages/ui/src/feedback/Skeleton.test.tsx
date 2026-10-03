@@ -28,7 +28,7 @@ describe('Skeleton', () => {
     expect(bars(container)).toHaveLength(5);
   });
 
-  it('every bar is aria-hidden — a skeleton is not content', () => {
+  it('every bar is aria-hidden: a skeleton is not content', () => {
     const { container } = render(<Skeleton variant="text" lines={3} />);
     const all = container.querySelectorAll('span');
     expect(all.length).toBeGreaterThan(0);

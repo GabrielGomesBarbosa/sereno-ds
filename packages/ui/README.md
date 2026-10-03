@@ -1,6 +1,6 @@
 # @sereno-ds/ui
 
-React primitives for the Sereno Design System — token-driven, inline styles, **no UI base library** (no Radix / MUI / Tailwind). Native light/dark via one `data-theme` attribute.
+React primitives for the Sereno Design System, token-driven, inline styles, **no UI base library** (no Radix / MUI / Tailwind). Native light/dark via one `data-theme` attribute.
 
 > Browse every component with a live preview: the Sereno DS showcase.
 
@@ -10,9 +10,9 @@ React primitives for the Sereno Design System — token-driven, inline styles, *
 npm i @sereno-ds/ui @sereno-ds/tokens lucide-react
 ```
 
-`@sereno-ds/tokens` (the CSS custom properties everything reads) and `lucide-react` (icons — see below) are **peer/companion deps** you install alongside. `react` / `react-dom` (>=18, works on 19) you already have. `next-themes` comes bundled.
+`@sereno-ds/tokens` (the CSS custom properties everything reads) and `lucide-react` (icons, see below) are **peer/companion deps** you install alongside. `react` / `react-dom` (>=18, works on 19) you already have. `next-themes` comes bundled.
 
-## Setup — three things, once, at the app root
+## Setup - three things, once, at the app root
 
 ### 1. Import the stylesheets, in this order
 
@@ -21,11 +21,11 @@ import '@sereno-ds/tokens/tokens.css'; // the token layer (colors, spacing, dark
 import '@sereno-ds/ui/styles.css';     // component keyframes + a few structural rules
 ```
 
-`tokens.css` **must** come first. Both are side-effect CSS — import them once (a root layout, `_app`, or `main.tsx`), not per-component.
+`tokens.css` **must** come first. Both are side-effect CSS: import them once (a root layout, `_app`, or `main.tsx`), not per-component.
 
 ### 2. Provide the fonts
 
-Components reference three font CSS variables. Define them however you host fonts; the tokens already carry a system fallback, so text renders without them — just off-brand.
+Components reference three font CSS variables. Define them however you host fonts; the tokens already carry a system fallback, so text renders without them, just off-brand.
 
 | Variable | Family |
 |---|---|
@@ -75,7 +75,7 @@ import { ThemeProvider } from '@sereno-ds/ui';
 <ThemeProvider>{children}</ThemeProvider>;
 ```
 
-It writes `data-theme="light" | "dark"` on `<html>` (defaults to the OS preference, remembers the choice). If you already manage `data-theme` yourself, you can skip it — the tokens only need that attribute to be set.
+It writes `data-theme="light" | "dark"` on `<html>` (defaults to the OS preference, remembers the choice). If you already manage `data-theme` yourself, you can skip it, the tokens only need that attribute to be set.
 
 ## Use
 
@@ -98,7 +98,7 @@ export function Example() {
 ## Compound components
 
 `Table`, `Tabs`, `SidebarNav`, `BottomNav`, `Stepper`, `Dialog` and `TopBar` are
-the root plus dot-notated sub-parts — compose them like JSX, not a config
+the root plus dot-notated sub-parts, compose them like JSX, not a config
 object/array:
 
 ```tsx
@@ -129,15 +129,15 @@ import { Dialog, Button } from '@sereno-ds/ui';
 </Dialog>;
 ```
 
-- Only the root is exported — `Dialog.Header`, `Tabs.Tab`, etc. resolve to
+- Only the root is exported: `Dialog.Header`, `Tabs.Tab`, etc. resolve to
   `undefined` if imported from a Server Component. Everything compound needs
   `'use client'` somewhere above it in the tree.
 - Sub-parts outside their root throw at render (`` <Tabs.Tab> must be
   rendered inside <Tabs>. ``) instead of failing silently.
 - `Header` / `Footer` (`Dialog`), `List` / `Panel` (`Tabs`), `Section`
-  (`SidebarNav`) are optional — render only the sub-parts a given screen
+  (`SidebarNav`) are optional, render only the sub-parts a given screen
   needs.
-- `Select` and `DateTimePicker` are hand-rolled but **not** compound — each
+- `Select` and `DateTimePicker` are hand-rolled but **not** compound, each
   option / day is plain data (`options`, `times`), not JSX a consumer
   composes. See each component's own JSDoc, or the showcase's Props tab, for
   the rest of the sub-parts per component.
@@ -145,8 +145,8 @@ import { Dialog, Button } from '@sereno-ds/ui';
 ## Contract
 
 - **Tokens are required.** Components read only CSS custom properties (`--bg-*`, `--text-*`, `--border-*`, `--radius-*`, `--space-*`, `--font-*`, …). They live in `@sereno-ds/tokens`; without it, everything renders unstyled.
-- **Dark mode** is the same components on `[data-theme="dark"]` — no `theme` prop, no variant.
-- **Icons come from you.** Where a component takes an icon (`Button` `iconLeft`, `TopBar` actions, …) you pass a node — typically `lucide-react`, but any 20px-ish SVG works. `@sereno-ds/ui` also uses `lucide-react` for its own built-in affordances (the `Select` caret, the `Input` password eye, `ThemeToggle`), so it's a required peer.
+- **Dark mode** is the same components on `[data-theme="dark"]`, no `theme` prop, no variant.
+- **Icons come from you.** Where a component takes an icon (`Button` `iconLeft`, `TopBar` actions, …) you pass a node, typically `lucide-react`, but any 20px-ish SVG works. `@sereno-ds/ui` also uses `lucide-react` for its own built-in affordances (the `Select` caret, the `Input` password eye, `ThemeToggle`), so it's a required peer.
 - **Zero CSS-in-JS runtime.** Styles are plain inline `style={{ … }}` reading `var(--token)`.
 
 ## License

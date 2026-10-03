@@ -232,7 +232,7 @@ function ServicoStep({ data, set }: { data: Data; set: (p: Partial<Data>) => voi
           name={data.svcName || 'Nome do serviço'}
           description={data.svcDesc || undefined}
           duration={data.duration}
-          price={data.price ? 'R$ ' + data.price : 'R$ —'}
+          price={data.price ? 'R$ ' + data.price : 'R$ -'}
           tag={data.mode}
         />
       </div>
@@ -252,7 +252,7 @@ function GradeStep({ data, set }: { data: Data; set: (p: Partial<Data>) => void 
 function DoneScreen({ data, onRestart }: { data: Data; onRestart: () => void }) {
   const rows: [React.ReactNode, string][] = [
     [<User key="u" size={18} strokeWidth={1.75} />, data.name || 'Seu perfil'],
-    [<Sparkles key="s" size={18} strokeWidth={1.75} />, `${data.svcName || 'Primeiro serviço'} · ${data.duration} · R$ ${data.price || '—'}`],
+    [<Sparkles key="s" size={18} strokeWidth={1.75} />, `${data.svcName || 'Primeiro serviço'} · ${data.duration} · R$ ${data.price || '-'}`],
     [<Calendar key="c" size={18} strokeWidth={1.75} />, 'Grade semanal configurada'],
     [<Link2 key="l" size={18} strokeWidth={1.75} />, 'sereno.app/ana-ramos'],
   ];

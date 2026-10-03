@@ -2,30 +2,30 @@
 
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+This version has breaking changes - APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+This block is written and re-added by `next dev` - verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
 
-# Sereno DS — project instructions
+# Sereno DS - project instructions
 
-For any coding agent working in this repo (Claude, Gemini, Codex, Cursor, …) —
+For any coding agent working in this repo (Claude, Gemini, Codex, Cursor, …) -
 `CLAUDE.md` at the repo root is just `@AGENTS.md`, so this file is the single
 source of truth regardless of which agent reads it.
 
 Sereno DS is a token-driven React component library (`@sereno-ds/ui` +
-`@sereno-ds/tokens`) for the Sereno scheduling/booking platform — 30
+`@sereno-ds/tokens`) for the Sereno scheduling/booking platform - 30
 primitives as inline styles reading CSS custom properties, no UI base
 library, native light/dark theming. This file is the short orientation:
 layout, unbreakable rules, versioning, board flow. For the full per-component
-reference — every prop, every example, every do/don't — see
+reference - every prop, every example, every do/don't - see
 [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) (SS-102), generated from
-`apps/docs/src/design-system/catalog.ts` via `npm run gen:component-docs` —
+`apps/docs/src/design-system/catalog.ts` via `npm run gen:component-docs` -
 edit the catalog, not the generated file, and re-run after.
 
 Full context and scope: Jira card **SS-39** (project SS). The DS is being turned
-into a publishable package — Epic **SS-153** (now Done). Read the relevant
+into a publishable package - Epic **SS-153** (now Done). Read the relevant
 card before any large change.
 
 ## Monorepo layout
@@ -40,15 +40,15 @@ npm workspaces + Turborepo. Four workspaces:
 | `apps/demo` | `demo` | landing at `/` + `/agendar/[slug]` + `/dashboard/[[...slug]]` + `/onboarding` + `src/screens/` + `src/domain/` (product cards on `@sereno-ds/ui`) + `src/lib/mock.ts` |
 
 - Apps import from `@sereno-ds/ui` / `@sereno-ds/tokens` (workspace symlink +
-  `transpilePackages: ['@sereno-ds/ui']` — the package is TS source until it's built
-  in SS-156). **There is no `@/components` alias** — each app keeps only its own
+  `transpilePackages: ['@sereno-ds/ui']` - the package is TS source until it's built
+  in SS-156). **There is no `@/components` alias** - each app keeps only its own
   (`@/design-system/*` in docs; `@/screens/*` / `@/lib/*` in demo).
 - Each app's `app/globals.css` `@import`s `@sereno-ds/tokens/tokens.css` then
   `@sereno-ds/ui/styles.css`, then only its own shell rules (`.ds-*` / `.cv-*` in
   docs; `.dash-*` / `.onb-*` / `.booking-*` in demo).
 - `turbo run build | lint | typecheck | dev` from the root. Dev ports are pinned:
   docs `:3001`, demo `:3002` (`-p` in each `package.json`, `.claude/launch.json`
-  `autoPort: false`) — `:3000` is left free for the real product app
+  `autoPort: false`) - `:3000` is left free for the real product app
   (`schedule-system`). The docs landing links to the demo via `NEXT_PUBLIC_DEMO_URL`
   (fallback `http://localhost:3002`).
 - Brand raster assets (`app/opengraph-image.png`, `app/apple-icon.png` in both
@@ -56,34 +56,34 @@ npm workspaces + Turborepo. Four workspaces:
   (`scripts/generate-brand-images.mjs`). Favicon is `app/icon.svg`. The drop mark
   itself lives in `@sereno-ds/ui`'s `Brand`.
 - `apps/demo`'s `/dashboard` is an optional catch-all route
-  (`app/dashboard/[[...slug]]/page.tsx`) — the active view comes from
+  (`app/dashboard/[[...slug]]/page.tsx`) - the active view comes from
   `usePathname()`, not `useState`, so deep-links and F5 land on the right screen.
   `SIDEBAR_SECTIONS` + the `value` ⇄ path helpers live in
   `apps/demo/src/lib/dashboardNav.tsx` (a plain module, no `'use client'`, so the
   server-side `page.tsx` can read them for `generateStaticParams` without
   importing the client component that renders them). `Dashboard.tsx` itself is a
-  folder (`apps/demo/src/screens/Dashboard/`) — one file per view/concern, same
+  folder (`apps/demo/src/screens/Dashboard/`) - one file per view/concern, same
   shape as `domain/`.
 
 ## Board flow (required)
 
-One human, one AI agent — so **the `In Progress` column holds exactly one card
+One human, one AI agent - so **the `In Progress` column holds exactly one card
 at a time**. Columns: `To Do` → `In Progress` → `In Review` → `To Test` →
 `Testing` → `Done`.
 
-**Who moves what** — the human touches exactly one transition, `To Test →
+**Who moves what** - the human touches exactly one transition, `To Test →
 Testing`. Every other move on the board is the AI's:
 
 | Transition | Owner |
 | --- | --- |
 | `To Do → In Progress` | AI |
 | `In Progress → In Review` | AI |
-| `In Review` — review the PR(s), post the self-review, decide pass/fail | **AI** |
+| `In Review` - review the PR(s), post the self-review, decide pass/fail | **AI** |
 | `In Review → In Progress` (found something) / `In Review → To Test` (clean) | AI |
 | `To Test → Testing` | **human** (the only one) |
 | `Testing → Done` (after the human says it passed) / `Testing → In Progress` (failed) | AI |
 
-`In Review` is **not** a hand-off — the human does nothing there. The AI owns
+`In Review` is **not** a hand-off - the human does nothing there. The AI owns
 the code review of its own PR: read the whole diff, run the checks, post real
 findings as PR comments, fix or clear each one. The card only leaves `In
 Review` when the AI is satisfied. The human's turn starts at `To Test`.
@@ -92,23 +92,23 @@ Review` when the AI is satisfied. The human's turn starts at `To Test`.
    (scope, acceptance criteria, decisions). If anything is ambiguous, ask the
    human before moving it. Then move it to **`In Progress`** (only if that
    column is empty).
-2. **AI does the work** — one branch off `main`
+2. **AI does the work** - one branch off `main`
    (`feat|fix|chore|docs|refactor/SS-<id>-<slug>`), one or more PRs. Only the
    **parent** competes for the single `In Progress` slot; its **subtasks are
    the checklist**. As the AI starts a subtask's chunk it moves **that
    subtask** to `In Progress` (several subtasks of the one active parent may
-   sit in `In Progress` together — that's fine), and to **`Done`** when the
+   sit in `In Progress` together - that's fine), and to **`Done`** when the
    chunk lands. So at any moment the board shows which subtasks are finished,
    which is being worked, and which remain. `npm run lint && npm run test &&
    npm run build` (all proxy `turbo run …`) green first. Never push or merge
    straight to `main`.
-3. **AI moves the parent to `In Review` — and `In Review` is the AI's job, not
+3. **AI moves the parent to `In Review` - and `In Review` is the AI's job, not
    a hand-off.** The human does nothing here. The AI does a real self
    code-review of every open PR for it: read the entire diff, confirm the
    checks are green, post findings as PR comments, don't rubber-stamp.
    - Found something worth fixing → move the parent back to **`In Progress`**
      (and re-open whatever subtask the fix belongs to), fix, repeat.
-   - Clean → move the parent to **`To Test`** — **only once every subtask is
+   - Clean → move the parent to **`To Test`** - **only once every subtask is
      already `Done`.** The human must never be handed a parent whose sub-work
      isn't finished, or whose PR hasn't been self-reviewed.
 4. **The human drags `To Test` → `Testing`** (their only move on the board) and
@@ -118,12 +118,12 @@ Review` when the AI is satisfied. The human's turn starts at `To Test`.
      **`Done`** (the subtasks are already there).
    - Fail → the AI moves the parent back to **`In Progress`** (re-opening the
      affected subtask); same loop.
-5. **A parent reaches `Done` only when every subtask is `Done`** — which, by
+5. **A parent reaches `Done` only when every subtask is `Done`** - which, by
    step 3, is already true before it ever enters `To Test`. The AI never drags
-   a parent to `Done` on its own initiative — only after the human's pass on
+   a parent to `Done` on its own initiative - only after the human's pass on
    `Testing`.
 
-Also: every change starts from a Jira task (project SS) — no task, no work. An
+Also: every change starts from a Jira task (project SS) - no task, no work. An
 ad-hoc tweak asked for in chat → ask whether to create a task before touching
 code. Branch names carry the ID: `feat|fix|chore|docs|refactor/SS-<id>-<slug>`.
 The PR body says what it contains and how to test, and notes which workspace(s)
@@ -132,10 +132,10 @@ it touches.
 ## Versioning & releases
 
 **One version.** It lives in `packages/ui/package.json` + `packages/tokens/package.json`
-(lockstep — always equal, `fixed` in `.changeset/config.json`). That number is
+(lockstep - always equal, `fixed` in `.changeset/config.json`). That number is
 what publishes to npm **and** what the `/design-system` header shows
 (`apps/docs/src/design-system/version.ts` just re-reads `@sereno-ds/ui/package.json`
-— never hand-edit a version anywhere). Like MUI: the version in the docs *is* the
+ - never hand-edit a version anywhere). Like MUI: the version in the docs *is* the
 package version.
 
 - **Bump only via Changesets, only for a `packages/**` change.** A PR that
@@ -144,15 +144,15 @@ package version.
   structure / breaking (pre-1.0), one line for the consumer changelog. Commit
   the generated `.changeset/*.md` with the PR.
 - **`apps/docs` (the showcase) and `apps/demo` never bump anything.** They are
-  `private` and in the Changesets `ignore` list — they can't be versioned or
-  published. A showcase-only or demo-only PR (or a pure repo-meta PR —
+  `private` and in the Changesets `ignore` list - they can't be versioned or
+  published. A showcase-only or demo-only PR (or a pure repo-meta PR -
   `AGENTS.md` / `CLAUDE.md`, `.github/`, `turbo.json`, …) carries **no
   changeset, no bump, no release**.
-- **Cutting a release is automated, direct-publish (no "Version Packages" PR)** —
+- **Cutting a release is automated, direct-publish (no "Version Packages" PR)** -
   `.github/workflows/release.yml` (SS-159), separate from the showcase/demo
   deploy (that's Railway, § Deploy). On every push to `main`, one job:
   1. Builds + lints + tests `@sereno-ds/ui` and `@sereno-ds/tokens`.
-  2. `changeset version` — bumps both `package.json`s, rewrites
+  2. `changeset version` - bumps both `package.json`s, rewrites
      `packages/*/CHANGELOG.md`, deletes the consumed `.changeset/*.md`. **No
      pending changesets → the job no-ops** (config-only PRs, the bump commit
      itself).
@@ -160,35 +160,35 @@ package version.
      with `GITHUB_TOKEN` so it doesn't re-trigger), then `changeset publish` →
      `npm publish` for each package whose version isn't on the registry, then
      pushes the `@sereno-ds/ui@X.Y.Z` / `@sereno-ds/tokens@X.Y.Z` tags. Also
-     tags that commit `vX.Y.Z` and cuts a GitHub Release from it — **title is
+     tags that commit `vX.Y.Z` and cuts a GitHub Release from it - **title is
      always just `vX.Y.Z`**, no description in the title. Notes body comes
      from `.github/scripts/build-release-notes.mjs`: the
      `apps/docs/src/design-system/CHANGELOG.md` narrative section for that
      version (falls back to the machine `packages/*/CHANGELOG.md`s if that
      entry is missing).
-  The version review happens on the **feature PR** — `ci.yml` runs
-  `changeset status` + `npm publish --dry-run` there — not in a dedicated PR.
-- **npm auth is OIDC trusted publishing — there is no `NPM_TOKEN`.** `release.yml`
+  The version review happens on the **feature PR** - `ci.yml` runs
+  `changeset status` + `npm publish --dry-run` there - not in a dedicated PR.
+- **npm auth is OIDC trusted publishing - there is no `NPM_TOKEN`.** `release.yml`
   runs with `permissions: id-token: write`; it installs on Node 20 (matches
   `ci.yml`'s lockfile) then `npm i -g npm@11` for the publish step (OIDC needs
   npm ≥ 11.5.1; `npm@latest` is 12.x / Node 22+). npm has a **Trusted Publisher**
   configured for this repo + `release.yml` on each package. `publishConfig` in
   both `package.json`s carries `access: "public"` + `provenance: true`.
-- **Manual publish** (only the very first time — OIDC can't create a package
-  that doesn't exist yet, only publish new versions of one that does — or to
+- **Manual publish** (only the very first time - OIDC can't create a package
+  that doesn't exist yet, only publish new versions of one that does - or to
   recover): `npm publish --workspace=@sereno-ds/tokens --no-provenance` then
   `--workspace=@sereno-ds/ui`. `--no-provenance` because provenance signing
   only works from CI; needs your npm login + an OTP (2FA is required to
-  publish — pass `--otp=<code>` if the CLI doesn't prompt). Never commit a
+  publish - pass `--otp=<code>` if the CLI doesn't prompt). Never commit a
   token. This is how `0.24.0` shipped (2026-09-12).
 - **`ci.yml` runs `npm publish --dry-run`** for both packages on every PR
-  touching `packages/**` — the job log is the tarball contents; a stray file
+  touching `packages/**` - the job log is the tarball contents; a stray file
   shows up there before it can ship.
 - `apps/docs/src/design-system/CHANGELOG.md` stays as the hand-written narrative
   ("what shipped, in prose"); `packages/ui/CHANGELOG.md` is the Changesets
   machine log. Keep the narrative one in sync when you add a changeset.
 
-**Tags:** one stream — `@sereno-ds/ui@X.Y.Z` (`@sereno-ds/tokens@X.Y.Z` in lockstep),
+**Tags:** one stream - `@sereno-ds/ui@X.Y.Z` (`@sereno-ds/tokens@X.Y.Z` in lockstep),
 created by Changesets, plus a `vX.Y.Z` tag on the same commit for the GitHub
 Release (see above). The old `vX.Y.Z` showcase-tag stream from before the
 direct-publish flow (v0.19–v0.23) is retired history; the showcase has no
@@ -196,12 +196,12 @@ version of its own now.
 
 ## Deploy
 
-**Railway**, static (SS-158) — full setup in [`docs/deploy.md`](docs/deploy.md).
+**Railway**, static (SS-158) - full setup in [`docs/deploy.md`](docs/deploy.md).
 Both apps are `output: 'export'`. Railway serves the built `out/` with `serve`
 (a root `dependency`). Two services (`docs`, `demo`) in one project, monorepo
 Root Directory `/`, differing only in command: `npm run build:docs` / `serve:docs`
 and the `demo` pair. Each service's own origin comes from build-time
-`NEXT_PUBLIC_DS_URL` / `NEXT_PUBLIC_DEMO_URL` — used for metadata, sitemap/robots,
+`NEXT_PUBLIC_DS_URL` / `NEXT_PUBLIC_DEMO_URL` - used for metadata, sitemap/robots,
 and the cross-app links. One domain per service, deployed from `main`; no per-PR
 previews (test locally + on the branch).
 
@@ -209,6 +209,16 @@ previews (test locally + on the branch).
 
 - **Two Next.js 16 App Router apps** under `apps/`, both `output: 'export'`
   (static). No SSR / Node server.
+- **No em dash (U+2014), anywhere (SS-330).** Not in the showcase or the demo, not in
+  README / docs / changesets / commit messages / PR text, not in code or comments. In text
+  people read, rewrite with a period, comma or colon (never a plain swap of the character:
+  "A - B" is not a fix for a sentence that needed a full stop); in comments and developer
+  docs a spaced hyphen ` - ` is fine; a "no value" placeholder is `-`. The narrative
+  `CHANGELOG.md` titles its sections `## X.Y.Z - Title (SS-xxx)`, and
+  `.github/scripts/build-release-notes.mjs` strips that `X.Y.Z - ` prefix, so the two
+  move together. `npm run check:dashes` (`scripts/check-no-em-dash.mjs`, a CI step) fails on
+  any git-tracked text file that has one. The en dash (U+2013) is a different character and
+  is not covered.
 - **No UI base library.** The 31 primitives in `packages/ui/src/` are token-driven
   inline styles reading CSS custom properties. When editing them, preserve
   behaviour; do not introduce Radix / MUI / Tailwind.
@@ -216,41 +226,41 @@ previews (test locally + on the branch).
   `Select` `prefix` / `suffix` (and any inline text next to an `<input>`) uses the
   same `size`-driven `font-size` **and** `line-height: 1.2` as the control, and
   the `<input>` itself resets `padding` / `margin` to `0`. The field row is
-  `align-items: center`, which centres *boxes*, not baselines — unequal line
+  `align-items: center`, which centres *boxes*, not baselines - unequal line
   boxes make the affix drift off the value's baseline (this bit us in SS-215:
   `prefix` was hard-coded to `--text-sm` and inherited the body's `line-height`).
-- **Compound components — two reference patterns, pick by whether sub-parts
+- **Compound components - two reference patterns, pick by whether sub-parts
   share *runtime* state.** Both export only the root, via
-  `Object.assign(Root, { … })` — sub-components are plain, unexported
+  `Object.assign(Root, { … })` - sub-components are plain, unexported
   `function`s in the same file.
-  - **`data-*` + CSS — reference `Table` (SS-216).** Use this when the
+  - **`data-*` + CSS - reference `Table` (SS-216).** Use this when the
     sub-parts are mostly structural and their config barely changes across a
     render (density, sticky, sortable, selected row). The root puts config on
     the semantic element as `data-*` (`data-density`, `data-sticky`,
-    `data-sortable`, `data-interactive`); **all the structural CSS —
-    dividers, density, hover / focus-visible / sticky / zebra — lives in
+    `data-sortable`, `data-interactive`); **all the structural CSS -
+    dividers, density, hover / focus-visible / sticky / zebra - lives in
     `packages/ui/src/styles.css`**, keyed off those `data-*`. No React
     context. Controlled state (sort, selection) is passed to the sub-part
     that needs it, explicitly, as a prop.
-  - **React Context — reference `Tabs` (SS-213, go from the SS-220 spike).**
-    Use this when sub-parts genuinely coordinate at every interaction — an
-    active `value`, a shared `onChange`, the visual `variant` — the way
+  - **React Context - reference `Tabs` (SS-213, go from the SS-220 spike).**
+    Use this when sub-parts genuinely coordinate at every interaction - an
+    active `value`, a shared `onChange`, the visual `variant` - the way
     `Tabs.Tab` and `Tabs.Panel` both need to know which value is active right
     now. One `createContext` per component (not shared across components); a
     `useXContext(componentName)` hook that throws
     `` `<X.Sub> must be rendered inside <X>.` `` when a sub-part renders
-    outside the root — this is the real safety net, not TypeScript, since
+    outside the root - this is the real safety net, not TypeScript, since
     nothing stops a consumer from importing `Tabs.Tab` alone. The root's
     context value is `React.useMemo`'d off its props so identity is stable
     across renders that don't change them. Inline styles (not `data-*` + CSS)
-    are fine here — the compound split is about API ergonomics
+    are fine here - the compound split is about API ergonomics
     (`<Tabs.Tab>` reads better than a config array), not about moving styling
     into the stylesheet.
     - A root that needs a child's data *before* render (a segment track's
       total count, an active label) can read it straight off
-      `React.Children.toArray(children)` — see `SidebarNav.Item`'s own
+      `React.Children.toArray(children)` - see `SidebarNav.Item`'s own
       `SubItem` children, or `Stepper`'s `Step`s. That only works with the
-      sub-parts as **direct** children of the root or that sub-part — a
+      sub-parts as **direct** children of the root or that sub-part - a
       wrapper component returning them breaks the lookup (the introspection
       is static, over the JSX tree, not over what a custom component
       eventually renders). Real usage in this repo is always a plain
@@ -258,7 +268,7 @@ previews (test locally + on the branch).
       helper component that only returns them.
   - Either way: `'use client'` at the top (compound components read
     `React.useContext` or hold interactive state, so they never survive the
-    RSC boundary — see the props-table lesson below), and the root is the
+    RSC boundary - see the props-table lesson below), and the root is the
     **only** named export; `Table.Head` etc. resolve to `undefined` if
     imported from a Server Component.
   - The full compound migration (`Tabs`, `SidebarNav`, `BottomNav`, `Stepper`,
@@ -268,28 +278,28 @@ previews (test locally + on the branch).
     consumer-authored JSX (`Dialog.Header`'s children, `Tabs.Tab`'s content)
     or must read a sibling's data before render. Neither component has that:
     a `Select` option is a `{value, label, disabled}` row the root renders
-    itself — there's no per-option custom content to hand back to the
+    itself - there's no per-option custom content to hand back to the
     consumer, so `options` stays a plain array (like a native `<select>`).
-    `DateTimePicker` is one tightly-coupled view — `viewIndex` (month nav),
+    `DateTimePicker` is one tightly-coupled view - `viewIndex` (month nav),
     `selectionIndex` (which month a `selectedDate` highlight belongs to), the
     inline/fixed popover placement and the touch-vs-mouse day grid all read
     off each other inside a single component; splitting the calendar and the
     time-slot list into sub-parts would just relay that shared state through
-    context for no ergonomic gain — nothing a consumer would want to author
+    context for no ergonomic gain - nothing a consumer would want to author
     per-cell today. Revisit only if a real use case needs custom per-option
     or per-day JSX.
 - **Accessibility testing (SS-227/232).** Every case in `packages/ui/src/test/components.smoke.test.tsx`'s
   `CASES` map is also run through `jest-axe` (`describe('component accessibility
-  — axe (SS-232)')`) — add a component there and it gets an axe pass for free.
+ - axe (SS-232)')`) - add a component there and it gets an axe pass for free.
   It's a floor, not the whole audit: only the default render is checked (not
-  interactive/open state — a `Select` listbox, a `Menu` panel), and colour
-  contrast doesn't work under jsdom (`region` is disabled too — a landmark
+  interactive/open state - a `Select` listbox, a `Menu` panel), and colour
+  contrast doesn't work under jsdom (`region` is disabled too - a landmark
   check that only makes sense scanning a whole page, not one isolated
   component). `jest-axe` ships no types and its Jest-matcher typing doesn't
   apply to Vitest's `Assertion` interface, so both are hand-rolled in
-  `packages/ui/src/test/jest-axe-shim.d.ts` (the untyped-module shim — no
+  `packages/ui/src/test/jest-axe-shim.d.ts` (the untyped-module shim - no
   top-level import/export, or it stops being a fresh ambient declaration) and
-  `vitest-axe-matchers.d.ts` (the `Assertion` augmentation — same `T = any`
+  `vitest-axe-matchers.d.ts` (the `Assertion` augmentation - same `T = any`
   default as `@testing-library/jest-dom`'s own, or the two merges conflict
   and silently drop each other's matchers).
 - **Tokens** live in `packages/tokens/*.css`. Adjustments are made and documented
@@ -299,7 +309,7 @@ previews (test locally + on the branch).
   - `colors.css`: `:root` is widened to `:root, [data-theme="light"]` (theme
     islands on the tokens page).
   - `colors.css`: **the light-theme background scale was revised** (PO decision,
-    2026-08-29) — `--bg-canvas:#E8ECF3`, `--bg-subtle:#DFE4EC`,
+    2026-08-29) - `--bg-canvas:#E8ECF3`, `--bg-subtle:#DFE4EC`,
     `--bg-sunken:#D9DFE9`, plus a step on the low-emphasis fills. Text / brand /
     status hues + dark mode untouched.
 - **Icons:** always `lucide-react` passed as a prop. `@sereno-ds/ui` lists it as a
@@ -307,19 +317,19 @@ previews (test locally + on the branch).
 - **Fonts:** `next/font/google` only, per app. The `--font-inter` /
   `--font-manrope` / `--font-jetbrains-mono` vars are the `@sereno-ds/ui` contract.
 - **Theming:** always through `next-themes`, via `@sereno-ds/ui`'s own
-  `ThemeProvider` (`packages/ui/src/theme/ThemeProvider.tsx`) — it writes
+  `ThemeProvider` (`packages/ui/src/theme/ThemeProvider.tsx`) - it writes
   `data-theme="light|dark"` on `<html>`, the exact hook every token file
   switches on. Never a custom theme context, a `dark` prop, or a second
   theme mechanism living in an app's own code.
-- **A new component must be accessible the day it's created — not fixed in a
+- **A new component must be accessible the day it's created - not fixed in a
   later audit.** Keyboard-operable (logical tab order, a visible focus
   indicator, Enter/Space/Escape/arrows per the WAI-ARIA APG pattern for that
   widget), correct ARIA roles/labels, WCAG AA contrast. SS-227 exists only
   because earlier components shipped without this and had to be retrofitted
-  one by one — don't add to that backlog. It also needs a Vitest +
+  one by one - don't add to that backlog. It also needs a Vitest +
   `@testing-library/react` smoke test: add its case to
   `packages/ui/src/test/components.smoke.test.tsx`'s `CASES` map (see the
-  next bullet) — everything there renders, gets a basic interaction check,
+  next bullet) - everything there renders, gets a basic interaction check,
   and an automatic `jest-axe` pass, so one line of setup buys three checks.
 - **A form control that shows an `error` / `hint` must tie it to the field (SS-328).**
   Render it through `_internal/Field` and spread `fieldA11y(id, { hint, error, describedBy,
@@ -342,22 +352,22 @@ previews (test locally + on the branch).
 - **Component keyframes / pseudo-class rules** (`sereno-spin`, `-pop`, `-slide-up`,
   `-pulse`, `-flyout-in`, `-fade-in`; `.sereno-check` / `.sereno-radio` /
   `.sereno-switch` states; `.sereno-tab-scroll` and `.sereno-sidenav*` scrollbar
-  rules; the in-field `.ds-affix-btn`; the whole `.sereno-table*` block —
-  dividers, density, sticky, zebra, hover / focus) live in **`packages/ui/src/styles.css`** —
+  rules; the in-field `.ds-affix-btn`; the whole `.sereno-table*` block -
+  dividers, density, sticky, zebra, hover / focus) live in **`packages/ui/src/styles.css`** -
   they ship with the components. Each app's `globals.css` only `@import`s it. Edit
   the rule where it lives.
   App-shell drawer keyframes (`sereno-drawer-in/out`, `sereno-fade-out`) and the
   `WeeklyScheduleEditor` 560px reflow (a product card, now in `apps/demo/src/domain/`)
-  live in the app `globals.css` files — no `@sereno-ds/ui` component uses them.
-- **Host-app (shell) concerns — not the library.** These live in the app
+  live in the app `globals.css` files - no `@sereno-ds/ui` component uses them.
+- **Host-app (shell) concerns - not the library.** These live in the app
   `globals.css` files, not `packages/ui`:
-  - `@media (pointer: coarse)` — forces text controls to 16px so iOS / WebKit
+  - `@media (pointer: coarse)` - forces text controls to 16px so iOS / WebKit
     don't zoom on focus.
   - **Mobile shells scroll the document, not a nested `overflow:auto` panel.**
     `/design-system` uses a fixed app-shell (nested scroller) only at ≥900px; on
     mobile `.ds-root` / `.ds-main` go back to normal flow and `.ds-header` is
     `position: sticky`. Don't reintroduce a nested mobile scroller. `/agendar`
-    still has one — same fix pending.
+    still has one - same fix pending.
 - Dynamic routes need `generateStaticParams`. `robots.ts` / `sitemap.ts` need
   `export const dynamic = 'force-static'`.
 - The **docs app is `noindex` in full** (`apps/docs/app/robots.ts` disallows `/`).
@@ -368,11 +378,12 @@ previews (test locally + on the branch).
 
 ```bash
 npm run lint && npm run build   # = turbo run lint / turbo run build, all workspaces
+npm run check:dashes            # no em dash in any tracked file (SS-330)
 ```
 
 `turbo run build` must be green: **docs = 36 routes** (28 component pages + tokens
 + overview + robots + a few static assets) and **demo = 48 routes** (hub + 3
 `/agendar` slugs + all 36 `/dashboard` nav destinations, generated from
 `SIDEBAR_SECTIONS` + `/dashboard` itself + onboarding + robots + sitemap + a few
-static assets) — both counts move as components / nav items are added; treat
+static assets) - both counts move as components / nav items are added; treat
 them as a sanity check, not a hardcoded target.

@@ -19,7 +19,7 @@ describe('DatePicker', () => {
 
   it('opens the calendar popover on click', () => {
     // A <label> takes over the accessible name from the button's own text
-    // (correct ARIA name computation) — query by the label here.
+    // (correct ARIA name computation) - query by the label here.
     render(<DatePicker label="Data" defaultValue="2026-10-12" />);
     fireEvent.click(screen.getByRole('button', { name: 'Data' }));
     expect(screen.getByRole('dialog', { name: 'Data' })).toBeInTheDocument();
@@ -35,7 +35,7 @@ describe('DatePicker', () => {
     expect(screen.getByRole('button', { name: /20\/10\/2026/ })).toBeInTheDocument();
   });
 
-  it('calls onChange with the new ISO value (controlled) — value stays put until the prop changes', () => {
+  it('calls onChange with the new ISO value (controlled), value stays put until the prop changes', () => {
     const onChange = vi.fn();
     render(<DatePicker value="2026-10-12" onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: /12\/10\/2026/ }));
@@ -113,7 +113,7 @@ describe('DatePicker', () => {
     expect(screen.getByRole('button', { name: 'Clear date' })).toBeInTheDocument();
   });
 
-  it('ref exposes an imperative focus() that lands on the trigger — no native element to read a value from', () => {
+  it('ref exposes an imperative focus() that lands on the trigger, no native element to read a value from', () => {
     const ref = React.createRef<DatePickerHandle>();
     render(<DatePicker label="Data" defaultValue="2026-10-12" ref={ref} />);
     ref.current?.focus();

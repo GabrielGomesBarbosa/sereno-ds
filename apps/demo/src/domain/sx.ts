@@ -5,6 +5,6 @@ import type { CSSProperties } from 'react';
  * `var(--token)` string, which csstype types narrowly (fontWeight, zIndex…).
  * `sx` accepts a loose style map and hands back a `CSSProperties` so the
  * component bodies can stay declarative. Local copy of the `@sereno-ds/ui`
- * internal helper — these components are demo-app code, not library code.
+ * internal helper - these components are demo-app code, not library code.
  */
 export const sx = (style: Record<string, unknown>): CSSProperties => style as CSSProperties;

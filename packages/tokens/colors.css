@@ -3,15 +3,15 @@
    a dark page (theme islands). Token VALUES are unchanged from the DS source. */
 :root, [data-theme="light"]{
 /* ── Base ramps ─────────────────────────────────────────────── */
-/* Brand — calm indigo-blue. Trust without corporate coldness. */
+/* Brand - calm indigo-blue. Trust without corporate coldness. */
 --brand-50:#EFF1FD;--brand-100:#DFE3FA;--brand-200:#C3CAF4;--brand-300:#A0ABEB;--brand-400:#7D8BDF;
 --brand-500:#5D6BCE;--brand-600:#4A55B4;--brand-700:#3C4593;--brand-800:#2F3672;--brand-900:#242A55;--brand-950:#171B38;
 
-/* Accent — vivid turquoise. Reserved for the single most important action on a view. */
+/* Accent - vivid turquoise. Reserved for the single most important action on a view. */
 --accent-50:#E6F8F5;--accent-100:#C4EFE9;--accent-200:#8DE1D6;--accent-300:#52CFC1;--accent-400:#20BCAC;
 --accent-500:#0FA695;--accent-600:#0A8B7C;--accent-700:#0A6F64;--accent-800:#0B564F;--accent-900:#09423D;
 
-/* Neutrals — cool slate, very slightly blue so it sits under the brand hue. */
+/* Neutrals - cool slate, very slightly blue so it sits under the brand hue. */
 --neutral-0:#FFFFFF;--neutral-25:#FAFBFD;--neutral-50:#F5F7FA;--neutral-100:#ECEFF4;--neutral-200:#DDE2EA;
 --neutral-300:#C5CBD6;--neutral-400:#9BA3B3;--neutral-500:#6F788A;--neutral-600:#545C6E;--neutral-700:#3E4554;
 --neutral-800:#2A303C;--neutral-900:#1B202A;--neutral-950:#12161E;
@@ -66,7 +66,7 @@
 --interactive-accent:var(--accent-500);
 --interactive-accent-hover:var(--accent-600);
 --interactive-accent-active:var(--accent-700);
---interactive-accent-fg:#04231F; /* dark-on-vivid — white failed AA on accent-500 (SS-45) */
+--interactive-accent-fg:#04231F; /* dark-on-vivid - white failed AA on accent-500 (SS-45) */
 /* Solid semantic action fills (Button / IconButton). Same words as the tint tones. */
 --interactive-success:var(--green-600);
 --interactive-success-hover:var(--green-700);
@@ -81,7 +81,7 @@
 --interactive-disabled-bg:#DFE4EC;
 --interactive-disabled-fg:var(--neutral-400);
 
-/* Status — booking lifecycle */
+/* Status - booking lifecycle */
 --status-success-bg:var(--green-100);--status-success-fg:var(--green-700);--status-success-dot:var(--green-500);
 --status-warning-bg:var(--amber-100);--status-warning-fg:var(--amber-700);--status-warning-dot:var(--amber-500);
 --status-error-bg:var(--red-100);--status-error-fg:var(--red-600);--status-error-dot:var(--red-500);

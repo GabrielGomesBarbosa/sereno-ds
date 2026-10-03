@@ -38,7 +38,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
    */
   showCount?: boolean;
   containerStyle?: React.CSSProperties;
-  /** Reserve the hint/error row's height even with neither set — stops the
+  /** Reserve the hint/error row's height even with neither set - stops the
    *  field from growing the moment a validation message appears. */
   preserveHelperSpace?: boolean;
 }
@@ -115,7 +115,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
       }
     : onChange;
 
-  // Composed the same way as `handleChange` above — the focus ring's own
+  // Composed the same way as `handleChange` above - the focus ring's own
   // onFocus/onBlur must never be silently replaced by a caller's handler
   // (or by react-hook-form's `register()`, which always injects its own
   // onBlur), the way a plain `{...rest}` spread after them would do.
@@ -175,7 +175,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
             flex: 1,
             minWidth: 0,
             margin: 0,
-            padding: 0, // reset the UA input padding — the row's own padding insets it
+            padding: 0, // reset the UA input padding - the row's own padding insets it
             border: 'none',
             outline: 'none',
             background: 'transparent',

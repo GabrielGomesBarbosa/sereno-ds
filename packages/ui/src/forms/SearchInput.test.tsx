@@ -5,7 +5,7 @@ import { SearchInput } from './SearchInput';
 
 afterEach(cleanup);
 
-describe('SearchInput — ref', () => {
+describe('SearchInput: ref', () => {
   it('forwards ref through to the underlying Input\'s native input', () => {
     const ref = React.createRef<HTMLInputElement>();
     render(<SearchInput placeholder="Search" ref={ref} />);

@@ -2,7 +2,7 @@ import { defineConfig } from 'tsup';
 
 /**
  * The token layer is CSS-first (see the `.css` files at the package root,
- * published as-is via `exports` — no build step for them). This only builds
+ * published as-is via `exports` - no build step for them). This only builds
  * the small JS/TS surface (`src/breakpoints.ts` today) for values a CSS
  * custom property can't serve on its own, e.g. inside a `@media` query.
  */

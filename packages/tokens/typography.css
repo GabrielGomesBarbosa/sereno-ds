@@ -1,5 +1,5 @@
 :root{
-/* Font families are provided by next/font/google (self-hosted, no CDN — SS-39 decisão 3).
+/* Font families are provided by next/font/google (self-hosted, no CDN - SS-39 decisão 3).
    The scale, weights and tracking below are untouched from the Design System tokens;
    only the family strings are wired to the next/font CSS variables set in app/layout.tsx. */
 --font-display:var(--font-manrope),"Segoe UI",system-ui,sans-serif;

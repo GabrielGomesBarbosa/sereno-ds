@@ -69,7 +69,7 @@ import {
 
 const row: React.CSSProperties = { display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' };
 const col: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 12 };
-// A <fieldset>/<legend> gives a Checkbox/Radio group its accessible name — without
+// A <fieldset>/<legend> gives a Checkbox/Radio group its accessible name - without
 // it a screen reader announces just "Online, radio button, 1 of 3" with no sense
 // of what the choice is between. `border: none` etc. strip the default fieldset
 // chrome; the legend keeps the same look as every other section kicker.
@@ -90,8 +90,8 @@ function TypographyVariantes() {
       <Typography variant="h1">Heading 1</Typography>
       <Typography variant="h2">Heading 2</Typography>
       <Typography variant="h3">Heading 3</Typography>
-      <Typography variant="body">Body — the default paragraph text.</Typography>
-      <Typography variant="bodySm">Body small — secondary paragraph text.</Typography>
+      <Typography variant="body">Body: the default paragraph text.</Typography>
+      <Typography variant="bodySm">Body small: secondary paragraph text.</Typography>
       <Typography variant="label">Label</Typography>
       <Typography variant="caption">Caption</Typography>
       <Typography variant="eyebrow">Eyebrow</Typography>
@@ -337,7 +337,7 @@ function CardPadding() {
             padding {p}
           </Badge>
           <h4 style={{ ...cardTitle, marginTop: 'var(--space-3)' }}>Weekly summary</h4>
-          <p style={cardText}>You saw 18 clients this week — 3 more than last week. Two Friday slots are still open.</p>
+          <p style={cardText}>You saw 18 clients this week: 3 more than last week. Two Friday slots are still open.</p>
         </Card>
       ))}
     </div>
@@ -359,7 +359,7 @@ function CardInterativo() {
   const [picked, setPicked] = React.useState<string>('year');
   const plans = [
     { id: 'month', name: 'Monthly', price: 'R$ 49 / mo', note: 'Billed every month. Cancel anytime.' },
-    { id: 'year', name: 'Yearly', price: 'R$ 39 / mo', note: 'Billed once a year — two months free.' },
+    { id: 'year', name: 'Yearly', price: 'R$ 39 / mo', note: 'Billed once a year: two months free.' },
   ];
   return (
     <div style={{ ...row, alignItems: 'stretch' }}>
@@ -646,7 +646,7 @@ function TableRowActionsInner() {
             <Table.Cell align="right">
               <Menu
                 trigger={
-                  <IconButton label={`Ações — ${r.name}`} size="sm">
+                  <IconButton label={`Ações de ${r.name}`} size="sm">
                     <MoreHorizontal size={16} strokeWidth={1.75} />
                   </IconButton>
                 }
@@ -699,7 +699,7 @@ function TableCompactSticky() {
 function TableVazia() {
   return (
     <div style={{ ...col, gap: 12 }}>
-      <EmptyState icon={<Search size={22} strokeWidth={1.75} />} title="No clients" description="The table has no built-in empty slot — the screen swaps in an EmptyState when there are no rows." />
+      <EmptyState icon={<Search size={22} strokeWidth={1.75} />} title="No clients" description="The table has no built-in empty slot, the screen swaps in an EmptyState when there are no rows." />
     </div>
   );
 }
@@ -1020,7 +1020,7 @@ function RadioEstados() {
       <fieldset style={{ border: 'none', margin: 0, padding: 0, ...col }}>
         <legend style={legendStyle}>Plan</legend>
         <Radio name="plan-d" label="Free" defaultChecked />
-        <Radio name="plan-d" label="Pro — coming soon" disabled />
+        <Radio name="plan-d" label="Pro (coming soon)" disabled />
       </fieldset>
       <Radio name="plan2-d" label="Locked selection" disabled defaultChecked />
     </div>
@@ -1161,7 +1161,7 @@ function SearchInputBasico() {
   return (
     <div style={{ ...fieldCol, gap: 8 }}>
       <SearchInput placeholder="Search clients" onSearch={setLast} />
-      <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>onSearch: {last ? `"${last}"` : '—'}</span>
+      <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>onSearch: {last ? `"${last}"` : '-'}</span>
     </div>
   );
 }
@@ -1202,7 +1202,7 @@ function SearchInputDesabilitado() {
   );
 }
 
-// Weekend day-numbers for a month — the examples strike those through so the
+// Weekend day-numbers for a month - the examples strike those through so the
 // pattern stays meaningful as you navigate (recomputed via `onMonthChange`).
 const weekendsOf = (y: number, m: number) =>
   Array.from({ length: new Date(y, m + 1, 0).getDate() }, (_, i) => i + 1).filter((d) => {
@@ -1256,7 +1256,7 @@ function DateTimeComHorarios() {
   );
 }
 
-// Group-session slots: some room left, some full (but still pickable — a
+// Group-session slots: some room left, some full (but still pickable - a
 // deliberate overbook), one full AND hard-blocked (SS-64).
 const GROUP_SLOTS = [
   { value: '09:00', capacity: 8, booked: 3 },
@@ -1285,7 +1285,7 @@ function DateTimeCapacidade() {
   );
 }
 
-// Deterministic sample booking counts for a month — weekdays only, and only
+// Deterministic sample booking counts for a month - weekdays only, and only
 // from a fixed "today" forward, so `renderDay` scoping is visible.
 const DEMO_TODAY = { y: 2026, m: 7, d: 14 };
 const bookingCountsOf = (y: number, m: number): Record<number, number> => {
@@ -1321,7 +1321,7 @@ function DateTimeRenderDay() {
                 fontSize: 10,
                 fontWeight: 700,
                 lineHeight: 1,
-                // soft accent chip — legible on white and on the selected day
+                // soft accent chip - legible on white and on the selected day
                 background: 'var(--bg-accent-soft)',
                 color: 'var(--text-accent)',
               }}
@@ -1347,7 +1347,7 @@ function DatePickerBasico() {
   );
 }
 
-// Local YYYY-MM-DD — not toISOString(), which is UTC and can land on the
+// Local YYYY-MM-DD - not toISOString(), which is UTC and can land on the
 // *next* day for anyone west of it (e.g. 22:00 in São Paulo is already
 // tomorrow in UTC), marking "today" itself as unavailable below.
 const localISO = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -1366,10 +1366,10 @@ function DatePickerFaixa() {
   );
 }
 
-// A phone-screen frame — the bars sit flush to its edges, so their border reads
+// A phone-screen frame - the bars sit flush to its edges, so their border reads
 // as an in-screen divider, not a broken frame edge.
 // A phone-screen frame. box-shadow for the outline (a real border + radius +
-// overflow:hidden seams at the corners); no overflow clip — instead the first
+// overflow:hidden seams at the corners); no overflow clip - instead the first
 // and last child are rounded to match, so an edge-to-edge bar's divider still
 // meets the outline cleanly.
 const R = 'var(--radius-card)';
@@ -1498,7 +1498,7 @@ function TabsUnderline() {
         </Tabs.List>
         {TAB_ITEMS.map((t) => (
           <Tabs.Panel key={t.value} value={t.value} style={tabPanel}>
-            The “{t.label}” section — your screen renders this, keyed off the active value.
+            The “{t.label}” section: your screen renders this, keyed off the active value.
           </Tabs.Panel>
         ))}
       </Tabs>
@@ -1725,7 +1725,7 @@ function sidePaneLabel(v: string) {
   }
   return v;
 }
-/** `SIDE_SECTIONS` mapped to `SidebarNav`'s compound children — shared by both demos below. */
+/** `SIDE_SECTIONS` mapped to `SidebarNav`'s compound children - shared by both demos below. */
 function SideSections() {
   return (
     <>
@@ -1782,7 +1782,7 @@ function SidebarNavDesabilitado() {
     <div style={col}>
       <Switch
         label="Lock the whole menu"
-        description="Sets disabled on the root — Settings opts back in with its own disabled={false}."
+        description="Sets disabled on the root. Settings opts back in with its own disabled={false}."
         checked={locked}
         onChange={(e) => setLocked(e.target.checked)}
       />
@@ -2111,7 +2111,7 @@ function DialogForm() {
     <div>
       <Button onClick={() => setOpen(true)}>New booking</Button>
       <Dialog open={open} size="md" onClose={() => setOpen(false)}>
-        <Dialog.Header title="New booking" description="Forms sit inside a Dialog without ceremony — inputs, selects and checkboxes all work.">
+        <Dialog.Header title="New booking" description="Forms sit inside a Dialog without ceremony, inputs, selects and checkboxes all work.">
           <Dialog.Close />
         </Dialog.Header>
         <Dialog.Body>
@@ -2166,7 +2166,7 @@ function DialogFullscreen() {
     <div>
       <Button onClick={() => setOpen(true)}>Open full screen</Button>
       <Dialog open={open} variant="fullscreen" dividers onClose={() => setOpen(false)}>
-        <Dialog.Header title="Edit availability" description="Fills the viewport — for immersive, multi-section flows on any screen size.">
+        <Dialog.Header title="Edit availability" description="Fills the viewport: for immersive, multi-section flows on any screen size.">
           <Dialog.Close />
         </Dialog.Header>
         <Dialog.Body>
@@ -2201,7 +2201,7 @@ function DialogRequired() {
     <div>
       <Button onClick={() => setOpen(true)}>Leave editor</Button>
       <Dialog open={open} dismissible={false} onClose={() => setOpen(false)}>
-        <Dialog.Header title="Discard 3 unsaved changes?" description="A scrim click and Escape are off here — pick one. There is still a way out on the left." />
+        <Dialog.Header title="Discard 3 unsaved changes?" description="A scrim click and Escape are off here, pick one. There is still a way out on the left." />
         <Dialog.Footer>
           <Button variant="ghost" onClick={() => setOpen(false)}>
             Keep editing

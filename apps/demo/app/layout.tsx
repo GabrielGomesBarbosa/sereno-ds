@@ -3,17 +3,17 @@ import { Inter, Manrope, JetBrains_Mono } from 'next/font/google';
 import { ThemeProvider } from '@sereno-ds/ui';
 import './globals.css';
 
-// Self-hosted, optimised by next/font — no Google Fonts CDN (SS-39 decisão 3).
+// Self-hosted, optimised by next/font - no Google Fonts CDN (SS-39 decisão 3).
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-inter', display: 'swap' });
 const manrope = Manrope({ subsets: ['latin'], weight: ['500', '600', '700', '800'], variable: '--font-manrope', display: 'swap' });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-jetbrains-mono', display: 'swap' });
 
-// Canonical origin for metadata / OG — set per Railway service (SS-158).
+// Canonical origin for metadata / OG - set per Railway service (SS-158).
 const SITE = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3002';
 
-// This app is the Design System's demo, not a standalone scheduling product —
+// This app is the Design System's demo, not a standalone scheduling product -
 // the screens render pt-BR mock content, but the app identity is the DS.
-const TITLE = 'Sereno Design System — demo';
+const TITLE = 'Sereno Design System: demo';
 const DESCRIPTION =
   'Demo screens of the Sereno Design System: the booking flow, professional dashboard and onboarding, built with @sereno-ds/ui and navigable on mocked data.';
 

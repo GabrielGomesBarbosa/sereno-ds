@@ -4,10 +4,10 @@ import * as React from 'react';
 import { sx } from '../_internal/style';
 
 /**
- * Progress indicator for a linear multi-step flow — a **compound component**
+ * Progress indicator for a linear multi-step flow - a **compound component**
  * (onboarding, guided setup). Renders the segment track plus a
  * `<counter> · <label>` line (a dot separates the counter from the current
- * step's label). The counter defaults to `Step N of M` — the DS ships no
+ * step's label). The counter defaults to `Step N of M` - the DS ships no
  * localised copy; pass `stepLabel` for another language.
  *
  * ```tsx
@@ -35,11 +35,11 @@ export interface StepperProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export interface StepperStepProps {
-  /** Stable identifier — not read by `Stepper` itself, only for the caller's own use (e.g. a React `key`). */
+  /** Stable identifier - not read by `Stepper` itself, only for the caller's own use (e.g. a React `key`). */
   value?: string;
-  /** Short label — shown next to the step counter while this step is active. */
+  /** Short label - shown next to the step counter while this step is active. */
   label: string;
-  /** Set by the root via `cloneElement` — this step's position among its siblings. Not for consumers to pass. */
+  /** Set by the root via `cloneElement` - this step's position among its siblings. Not for consumers to pass. */
   index?: number;
 }
 

@@ -15,7 +15,7 @@ export interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
   onClose?: () => void;
   /**
    * Auto-dismiss countdown bar along the bottom edge. `ms` is the full duration;
-   * `paused` freezes it. `ToastProvider` wires this — you rarely set it by hand.
+   * `paused` freezes it. `ToastProvider` wires this - you rarely set it by hand.
    */
   progress?: { ms: number; paused?: boolean };
 }

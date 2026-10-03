@@ -53,7 +53,7 @@ describe('Tabs', () => {
     expect(screen.getByRole('tab', { name: /Clients/ })).toHaveAttribute('tabindex', '-1');
   });
 
-  it('ArrowRight/ArrowLeft move focus and select — automatic activation, wrapping at the ends', () => {
+  it('ArrowRight/ArrowLeft move focus and select: automatic activation, wrapping at the ends', () => {
     const onChange = vi.fn();
     function Wrapped() {
       const [v, setV] = React.useState('agenda');
@@ -105,13 +105,13 @@ describe('Tabs', () => {
     expect(onChange).toHaveBeenLastCalledWith('financeiro');
   });
 
-  it('the active panel has tabIndex 0 — Tab from the tablist lands in the content, not whatever follows it in the DOM', () => {
+  it('the active panel has tabIndex 0. Tab from the tablist lands in the content, not whatever follows it in the DOM', () => {
     render(<Basic value="agenda" />);
     expect(screen.getByText('Agenda panel')).toHaveAttribute('tabindex', '0');
   });
 
   it('throws when a subcomponent is rendered outside <Tabs>', () => {
-    // Expected: React logs the error too — this only asserts the throw.
+    // Expected: React logs the error too - this only asserts the throw.
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => render(<Tabs.Tab value="a">A</Tabs.Tab>)).toThrow(/must be rendered inside <Tabs>/);
     spy.mockRestore();

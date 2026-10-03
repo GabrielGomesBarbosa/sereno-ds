@@ -1,5 +1,5 @@
 /**
- * Hand-rolled input masks — no dependency. `formatMask` takes a preset name (or a
+ * Hand-rolled input masks - no dependency. `formatMask` takes a preset name (or a
  * custom `#`-per-digit pattern) and a raw string, and returns the formatted value.
  * Extra characters are dropped; separators are inserted positionally.
  */
@@ -25,7 +25,7 @@ const PHONE_10 = '(##) ####-####'; // landline
 const PHONE_11 = '(##) #####-####'; // mobile
 
 /**
- * BR currency amount — digits are read as cents. "1234" → "12,34". No symbol:
+ * BR currency amount - digits are read as cents. "1234" → "12,34". No symbol:
  * pair it with `prefix="R$"` on the field so the value stays a plain number string.
  */
 function currencyBRL(raw: string): string {

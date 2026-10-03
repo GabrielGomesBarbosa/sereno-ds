@@ -5,7 +5,7 @@ import { sx } from '../_internal/style';
 
 /**
  * The Sereno mark: an indigo water-drop symbol, optionally locked up with the
- * "sereno" wordmark. Token-driven — the gradient is the brand indigo
+ * "sereno" wordmark. Token-driven - the gradient is the brand indigo
  * (`#7d8bdf` → `#4f46e5`), the wordmark uses `--font-display` (Manrope) at 500.
  */
 export interface BrandProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -13,7 +13,7 @@ export interface BrandProps extends React.HTMLAttributes<HTMLSpanElement> {
   size?: number;
   /** `symbol` (default), `lockup` (symbol + wordmark, horizontal) or `lockup-vertical`. */
   variant?: 'symbol' | 'lockup' | 'lockup-vertical';
-  /** One-colour rendering (`currentColor`) instead of the gradient — for favicons, print, tinted surfaces. */
+  /** One-colour rendering (`currentColor`) instead of the gradient - for favicons, print, tinted surfaces. */
   mono?: boolean;
 }
 

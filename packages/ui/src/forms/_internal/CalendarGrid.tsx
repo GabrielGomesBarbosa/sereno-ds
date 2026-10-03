@@ -6,11 +6,11 @@ import { sx } from '../../_internal/style';
 import { IconButton } from '../../core/IconButton';
 
 /**
- * The month calendar body — header (‹ / › month nav + a month/year jump
+ * The month calendar body - header (‹ / › month nav + a month/year jump
  * popover) and the day grid with roving-tabindex keyboard navigation
  * (SS-228). Shared by `DateTimePicker` (rendered inline, with an optional
  * time-slot list under it) and `DatePicker` (rendered inside its own
- * trigger+popover shell) — extracted so neither has to duplicate the
+ * trigger+popover shell) - extracted so neither has to duplicate the
  * keyboard-grid math (SS-243). See `DateTimePicker`'s own doc comment for
  * the full behavior description; this component owns exactly the same
  * state and logic it always has, just without the outer card chrome or
@@ -26,22 +26,22 @@ export interface CalendarGridProps {
   renderDay?: (day: number) => React.ReactNode;
   /**
    * Day cells are perfect squares (`aspect-ratio`) instead of a fixed pixel
-   * height — `DatePicker` (SS-243) opts into this since its popover can be
+   * height - `DatePicker` (SS-243) opts into this since its popover can be
    * narrower than `DateTimePicker`'s own card, where a fixed height was
-   * already tuned and shipped. Ignored when `renderDay` is set — that case
+   * already tuned and shipped. Ignored when `renderDay` is set - that case
    * always needs the extra fixed height for its own content.
    */
   squareCells?: boolean;
   /**
    * Drop wholly-blank trailing rows instead of always padding to 6 (SS-243)
-   * — `DateTimePicker` needs the fixed 6 rows so its *always-visible* card
+   * `DateTimePicker` needs the fixed 6 rows so its *always-visible* card
    * never jumps height as you navigate months; `DatePicker`'s popover opens
    * and closes anyway, so a variable height per month reads better than a
    * dead empty row (e.g. a 30-day month starting on Sunday only needs 5).
    */
   trimEmptyRows?: boolean;
   /**
-   * The product itself (Sereno's real booking app) always renders pt-BR —
+   * The product itself (Sereno's real booking app) always renders pt-BR -
    * this only exists so the docs showcase can demo an English-speaking
    * consumer without forking the component. Default stays `'pt-BR'`.
    */
@@ -93,17 +93,17 @@ export function CalendarGrid({
 }: CalendarGridProps) {
   const t = I18N[locale];
   const now = React.useMemo(() => new Date(), []);
-  // One integer for the visible month — `year*12 + month`. Keeps ‹ / › arithmetic
+  // One integer for the visible month - `year*12 + month`. Keeps ‹ / › arithmetic
   // (and rapid clicks) correct across year boundaries with no Date() juggling.
   // `year` / `month` are the *initial* view; the component then owns it. A
   // consumer that needs to reset the view (DatePicker, on reopen) remounts
-  // this component instead — see its own comment.
+  // this component instead - see its own comment.
   const initialIndex = (year ?? now.getFullYear()) * 12 + (month ?? now.getMonth());
   const [viewIndex, setViewIndex] = React.useState(initialIndex);
   const viewYear = Math.floor(viewIndex / 12);
   const viewMonth = viewIndex % 12;
   // `selectedDate` is only a day number, so remember which month that pick was
-  // made in — the highlight shows only there, never on the same day of another
+  // made in - the highlight shows only there, never on the same day of another
   // month you navigate to.
   const [selectionIndex, setSelectionIndex] = React.useState(initialIndex);
   const [open, setOpen] = React.useState(false);
@@ -117,7 +117,7 @@ export function CalendarGrid({
 
   // Roving tabindex for the day grid: only one cell is ever in the Tab
   // order (below), so Tab enters/leaves the whole grid in one stop instead
-  // of one per day. `activeDay` is the day-of-month that cell represents —
+  // of one per day. `activeDay` is the day-of-month that cell represents -
   // clamped to the visible month's length at render (below), since it
   // persists across a month change (‹ / › or an arrow-key crossing) where
   // the same day number may no longer exist (e.g. the 31st, into February).
@@ -127,12 +127,12 @@ export function CalendarGrid({
     return todayIndex === initialIndex ? now.getDate() : 1;
   });
   // Set right before a keyboard move changes activeDay/viewIndex; consumed
-  // by the layout effect below to focus the new cell once it's in the DOM —
+  // by the layout effect below to focus the new cell once it's in the DOM -
   // never on an unrelated render (a prop change, a re-render from the
   // parent) or the initial mount.
   const shouldFocusDayRef = React.useRef(false);
 
-  // Notify on navigation — never on mount, always with the settled value.
+  // Notify on navigation - never on mount, always with the settled value.
   const onMonthChangeRef = React.useRef(onMonthChange);
   React.useEffect(() => {
     onMonthChangeRef.current = onMonthChange;
@@ -178,14 +178,14 @@ export function CalendarGrid({
   const first = new Date(viewYear, viewMonth, 1).getDay();
   const total = daysIn(viewYear, viewMonth);
   // Always 6 rows (42 cells) so the calendar's height never shifts between
-  // months — trailing blanks pad it out and carry the cell height too.
+  // months - trailing blanks pad it out and carry the cell height too.
   const cells: (number | null)[] = [...Array(first).fill(null), ...Array.from({ length: total }, (_, i) => i + 1)];
   while (cells.length < 42) cells.push(null);
   if (trimEmptyRows) {
     while (cells.length > 7 && cells.slice(-7).every((c) => c === null)) cells.length -= 7;
   }
   // A plain day cell is a perfect square via aspect-ratio when `squareCells`
-  // is set — its height then tracks the grid's actual column width (SS-243:
+  // is set - its height then tracks the grid's actual column width (SS-243:
   // DatePicker's popover can be narrower than DateTimePicker's own card)
   // instead of a fixed guess that only looks square at one particular width.
   // `renderDay` needs literal extra height for its own content underneath
@@ -194,7 +194,7 @@ export function CalendarGrid({
   const years = Array.from({ length: 12 }, (_, i) => yearBase + i);
   const rovingDay = Math.min(Math.max(1, activeDay), total);
 
-  // Arrow keys move the roving cursor by real calendar days — crossing into
+  // Arrow keys move the roving cursor by real calendar days - crossing into
   // the adjacent month's grid when they overflow the visible one, rather
   // than stopping dead at the edge. Home/End stay within the current week
   // row; PageUp/PageDown step the month (reusing the same ‹ / › state
@@ -250,7 +250,7 @@ export function CalendarGrid({
   };
 
   // Runs after the grid above (keyed on viewIndex, so a month change remounts
-  // it) has committed the DOM for the new activeDay/viewIndex — only then
+  // it) has committed the DOM for the new activeDay/viewIndex - only then
   // does the target cell actually exist to focus.
   React.useLayoutEffect(() => {
     if (!shouldFocusDayRef.current) return;
@@ -450,7 +450,7 @@ export function CalendarGrid({
           </span>
         ))}
       </div>
-      {/* keyed on the month so cells remount cleanly — no bg transition when a
+      {/* keyed on the month so cells remount cleanly - no bg transition when a
           slot morphs from one day to another on navigation. */}
       <div
         key={viewIndex}
@@ -470,7 +470,7 @@ export function CalendarGrid({
               key={i}
               type="button"
               data-day={d}
-              // Not the native `disabled` — an unavailable day stays a real,
+              // Not the native `disabled` - an unavailable day stays a real,
               // focusable stop on the roving cursor (aria-disabled only) so
               // arrow-key navigation can still land on it and the user can
               // tell it exists, matching the WAI-ARIA date-grid pattern. A
@@ -482,7 +482,7 @@ export function CalendarGrid({
               onClick={() => {
                 if (off) return;
                 setSelectionIndex(viewIndex);
-                // Keep the roving cursor in sync with a mouse pick too — a
+                // Keep the roving cursor in sync with a mouse pick too - a
                 // click already moves real DOM focus onto this button
                 // natively, so without this the *next* arrow press would
                 // jump from wherever the keyboard cursor was left instead
@@ -508,7 +508,7 @@ export function CalendarGrid({
                 fontWeight: sel ? 'var(--weight-bold)' : 'var(--weight-medium)',
                 textDecoration: off ? 'line-through' : 'none',
                 transition: 'var(--transition-control)',
-                // Not inline outline:none — that would always beat the
+                // Not inline outline:none - that would always beat the
                 // .sereno-dtp-days:focus-visible rule below no matter what
                 // it says (inline style always outranks a class selector).
                 // Suppressed as a class rule instead, same specificity as

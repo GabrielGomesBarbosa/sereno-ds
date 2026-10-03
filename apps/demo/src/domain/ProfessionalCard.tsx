@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Card, Avatar, Typography } from '@sereno-ds/ui';
 import { sx } from './sx';
 
-/** Identity card for a professional — public directory, booking header, team lists. */
+/** Identity card for a professional - public directory, booking header, team lists. */
 export interface ProfessionalCardProps extends React.HTMLAttributes<HTMLDivElement> {
   name: string;
   /** e.g. "Psicóloga clínica". */

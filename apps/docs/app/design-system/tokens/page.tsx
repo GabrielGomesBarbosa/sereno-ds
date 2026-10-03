@@ -79,7 +79,7 @@ const SPACE_SCALE: [string, string][] = [
 
 const CONTAINERS: [string, string, string][] = [
   ['--container-narrow', '480', 'Focused single-column flow (booking card)'],
-  ['--container-content', '760', 'Reading width — docs, forms, marketing'],
+  ['--container-content', '760', 'Reading width: docs, forms, marketing'],
   ['--container-app', '1240', 'Full app shell (dashboard)'],
 ];
 
@@ -98,7 +98,7 @@ const ICON_SIZES: [string, string][] = [
   ['--icon-xl', '24'],
 ];
 
-// WCAG 2.1 contrast ratios — worst case in the group, light × dark.
+// WCAG 2.1 contrast ratios - worst case in the group, light × dark.
 // Recompute if any colour token changes (see the SS-45 audit). AA = 4.5:1 for
 // body text, 3:1 for large text / non-text UI.
 const CONTRAST: { pair: string; need: string; light: string; dark: string }[] = [
@@ -187,7 +187,7 @@ function ThemePanel({ theme }: { theme: 'light' | 'dark' }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {TEXTS.map(([v, n]) => (
             <Typography as="span" key={v} variant="body" style={{ fontWeight: 'var(--weight-semibold)', lineHeight: 'normal', color: `var(${v})` }}>
-              {n} — {v}
+              {n}: {v}
             </Typography>
           ))}
         </div>
@@ -218,8 +218,8 @@ function ThemePanel({ theme }: { theme: 'light' | 'dark' }) {
           ))}
         </div>
         <Typography variant="bodySm" style={{ lineHeight: 1.6, maxWidth: 560 }}>
-          The five-word tone family — <code style={mono}>success</code>, <code style={mono}>warning</code>, <code style={mono}>error</code>,{' '}
-          <code style={mono}>info</code>, <code style={mono}>neutral</code> — shared by <code style={mono}>Badge</code>, <code style={mono}>Alert</code>{' '}
+          The five-word tone family (<code style={mono}>success</code>, <code style={mono}>warning</code>, <code style={mono}>error</code>,{' '}
+          <code style={mono}>info</code>, <code style={mono}>neutral</code>) shared by <code style={mono}>Badge</code>, <code style={mono}>Alert</code>{' '}
           and <code style={mono}>Toast</code>. Each has <code style={mono}>-bg</code>, <code style={mono}>-fg</code> and <code style={mono}>-dot</code> tokens.
         </Typography>
       </div>
@@ -241,7 +241,7 @@ export default function TokensPage() {
     >
       <section id="colours" style={{ ...docSectionAnchor, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
         <Typography as="h2" variant="eyebrow" style={SECTION_LABEL_OVERRIDE}>
-          Colours — light × dark
+          Colours: light × dark
         </Typography>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4)' }}>
           <ThemePanel theme="light" />
@@ -389,8 +389,8 @@ export default function TokensPage() {
         </div>
 
         <Typography variant="bodySm" style={{ lineHeight: 1.6, maxWidth: 560 }}>
-          <strong>Exemptions:</strong> disabled text (<code style={mono}>--text-disabled</code>, ~2.5:1) — WCAG 1.4.3 excludes
-          inactive controls. Resting <code style={mono}>--border-default</code> / <code style={mono}>--border-strong</code> —
+          <strong>Exemptions:</strong> disabled text (<code style={mono}>--text-disabled</code>, ~2.5:1). WCAG 1.4.3 excludes
+          inactive controls. Resting <code style={mono}>--border-default</code> / <code style={mono}>--border-strong</code>:
           decorative, and never the only affordance (fields also carry a label, fill and focus ring).{' '}
           <code style={mono}>--text-muted</code> on <code style={mono}>--bg-subtle</code> / <code style={mono}>--bg-sunken</code>{' '}
           lands ~4.2:1 → large text only; use <code style={mono}>--text-secondary</code> there for body copy.

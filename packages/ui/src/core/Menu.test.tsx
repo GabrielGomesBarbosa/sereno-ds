@@ -150,7 +150,7 @@ describe('Menu', () => {
     expect(screen.queryByRole('menu')).toBeNull();
     fireEvent.click(screen.getByText('Open'));
     expect(onOpenChange).toHaveBeenCalledWith(true);
-    // still closed — parent owns the state
+    // still closed - parent owns the state
     expect(screen.queryByRole('menu')).toBeNull();
     rerender(<Menu trigger={<Trigger />} open onOpenChange={onOpenChange} items={[{ label: 'One' }]} />);
     expect(screen.getByRole('menu')).toBeInTheDocument();

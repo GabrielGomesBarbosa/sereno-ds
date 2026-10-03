@@ -7,25 +7,25 @@ import { vcol } from '@/domain/layout';
 import { TODAY_APPOINTMENTS, type Appointment } from '@/lib/mock';
 
 /**
- * The waiting-room call panel (SS-66's "modo Kiosk") — a screen mounted in
+ * The waiting-room call panel (SS-66's "modo Kiosk") - a screen mounted in
  * the physical waiting room, watched by everyone sitting there, not touched
  * by them. Check-in itself already happened elsewhere (on the client's own
- * phone, via a QR code or geolocation prompt sent for their appointment —
+ * phone, via a QR code or geolocation prompt sent for their appointment -
  * the two mechanisms SS-66 also names); this panel's only job is announcing
  * who's up, the same shape as a bank's "Senha A042" display.
  *
- * Went through two corrections live, both about the same thing — this
+ * Went through two corrections live, both about the same thing - this
  * screen is watched by every stranger in the room, so it can carry *zero*
  * client-identifying information:
- * 1. First pass showed a tap-your-own-name list of everyone booked today —
+ * 1. First pass showed a tap-your-own-name list of everyone booked today -
  *    name, time **and appointment reason** ("Sessão de psicoterapia") next
  *    to it. That's someone else's sensitive health data (LGPD Art. 5º II)
  *    on a shared public screen with no access control.
- * 2. Second pass dropped the browsable list but still showed "Carlos D." —
+ * 2. Second pass dropped the browsable list but still showed "Carlos D." -
  *    a first name + last initial is still enough to identify someone to
  *    anyone who already knows them, which in a waiting room is common.
  *
- * What's left is a ticket code with no name in it at all — `TICKET_OF`
+ * What's left is a ticket code with no name in it at all - `TICKET_OF`
  * below, assigned once per today's appointment. The client only recognizes
  * their own from the code they were given at check-in (not built here); the
  * panel itself carries nothing that ties a code back to a person.
@@ -36,11 +36,11 @@ import { TODAY_APPOINTMENTS, type Appointment } from '@/lib/mock';
 
 type Status = Appointment['status'];
 
-// One ticket code per today's appointment, assigned by time order — stable
+// One ticket code per today's appointment, assigned by time order - stable
 // for the whole day, independent of which ones get filtered out below.
 const TICKET_OF = new Map<Appointment, string>(TODAY_APPOINTMENTS.map((a, i) => [a, `A${String(i + 1).padStart(3, '0')}`]));
 
-// Today's queue, in order, minus anyone who cancelled — a cancelled slot is
+// Today's queue, in order, minus anyone who cancelled - a cancelled slot is
 // never called. Whoever is already `completed` was served earlier today,
 // before this panel was ever opened.
 const QUEUE: Appointment[] = TODAY_APPOINTMENTS.filter((a): a is Appointment & { status: Exclude<Status, 'cancelled'> } => a.status !== 'cancelled');
@@ -143,7 +143,7 @@ export function CheckInKiosk() {
         )}
       </main>
 
-      {/* Stands in for the receptionist's own "next" control — not part of
+      {/* Stands in for the receptionist's own "next" control - not part of
           the public panel itself. */}
       <div className="kiosk-staff-bar">
         <Typography as="span" variant="caption" style={{ lineHeight: 'normal' }}>

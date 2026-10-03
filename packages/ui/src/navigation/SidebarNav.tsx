@@ -7,7 +7,7 @@ import { sx } from '../_internal/style';
 import { useInteract } from '../core/Button';
 
 /**
- * Desktop primary navigation — a **compound component**, the counterpart to
+ * Desktop primary navigation - a **compound component**, the counterpart to
  * `BottomNav`. Grouped sections with dividers, an optional second level per
  * item, and a collapse toggle that drops it to a 72px icon rail.
  *
@@ -23,7 +23,7 @@ import { useInteract } from '../core/Button';
  * </SidebarNav>
  * ```
  *
- * `Item` is not a destination once it has `SubItem` children — it toggles
+ * `Item` is not a destination once it has `SubItem` children - it toggles
  * them instead (an inline accordion when expanded, a hover flyout on the
  * collapsed rail).
  */
@@ -44,7 +44,7 @@ export interface SidebarNavProps extends Omit<React.HTMLAttributes<HTMLElement>,
   /** Component used to render items that carry `href` (e.g. Next's `Link`). Defaults to `'a'`. */
   linkComponent?: React.ElementType;
   /**
-   * Disables every `Item` / `SubItem` at once — a gated area, an account that
+   * Disables every `Item` / `SubItem` at once - a gated area, an account that
    * isn't active yet. An item can still opt back in with its own
    * `disabled={false}` (e.g. a "Help" link that must stay reachable). Only the
    * destinations are affected: the collapse toggle, `header` and `footer` stay
@@ -55,7 +55,7 @@ export interface SidebarNavProps extends Omit<React.HTMLAttributes<HTMLElement>,
 }
 
 export interface SidebarNavSectionProps {
-  /** Small uppercase heading above the block. Omit for an unlabelled group — the divider still shows. */
+  /** Small uppercase heading above the block. Omit for an unlabelled group - the divider still shows. */
   label?: string;
   children: React.ReactNode;
 }
@@ -63,18 +63,18 @@ export interface SidebarNavSectionProps {
 export interface SidebarNavItemProps {
   value: string;
   label: string;
-  /** A Lucide icon passed as a node — sized by the caller. */
+  /** A Lucide icon passed as a node - sized by the caller. */
   icon?: React.ReactNode;
   count?: number;
   /** Render this leaf as a real link (routing, new-tab, SSR-active) via `linkComponent`. Ignored while `disabled`. */
   href?: string;
   /**
-   * Not selectable — e.g. a feature locked behind a higher plan. Inherits the
+   * Not selectable - e.g. a feature locked behind a higher plan. Inherits the
    * root's `disabled` when unset; an explicit `false` opts back in under a
    * disabled root.
    *
    * `aria-disabled` (not the native attribute), so the row is still in the
-   * accessibility tree and a screen reader finds it — but it leaves the Tab
+   * accessibility tree and a screen reader finds it - but it leaves the Tab
    * order (a locked area shouldn't cost a dead tab stop per item), a click
    * never fires `onChange`, `href` never navigates (it renders as a `<button>`,
    * never a link), and a parent `Item` doesn't toggle its accordion or open its
@@ -82,7 +82,7 @@ export interface SidebarNavItemProps {
    * `aria-current` and the active look, just muted.
    */
   disabled?: boolean;
-  /** `SidebarNav.SubItem`s — a second level. Present ⇒ this item is not a destination itself, it toggles them. */
+  /** `SidebarNav.SubItem`s - a second level. Present ⇒ this item is not a destination itself, it toggles them. */
   children?: React.ReactNode;
 }
 
@@ -92,19 +92,19 @@ export interface SidebarNavSubItemProps {
   count?: number;
   /** Not selectable. Inherits from its parent `Item` (which inherits the root); an explicit value wins. Same contract as `SidebarNav.Item`'s `disabled`. */
   disabled?: boolean;
-  /** Set by the parent `Item` when rendering this into the collapsed rail's flyout popover — not for consumers to pass. */
+  /** Set by the parent `Item` when rendering this into the collapsed rail's flyout popover - not for consumers to pass. */
   compact?: boolean;
 }
 
 interface SidebarNavContextValue {
   value?: string;
-  /** The root's `disabled` — what an `Item` falls back to when it doesn't set its own. */
+  /** The root's `disabled` - what an `Item` falls back to when it doesn't set its own. */
   disabled: boolean;
   /** Closes any open flyout, then calls the root's `onChange`. What `Item` / `SubItem` call on click. */
   select: (value: string) => void;
   collapsed: boolean;
   linkComponent?: React.ElementType;
-  /** Which item's collapsed-rail flyout is open, if any — single, cross-item (opening one closes another). */
+  /** Which item's collapsed-rail flyout is open, if any - single, cross-item (opening one closes another). */
   flyoutValue: string | null;
   openFlyout: (value: string) => void;
   closeFlyoutSoon: () => void;
@@ -153,7 +153,7 @@ function useSidebarNavContext(component: string): SidebarNavContextValue {
   return ctx;
 }
 
-/** The `value`s of a node's `SidebarNav.SubItem` children — used for "does this branch hold the active leaf". */
+/** The `value`s of a node's `SidebarNav.SubItem` children - used for "does this branch hold the active leaf". */
 function childValuesOf(children: React.ReactNode): string[] {
   const out: string[] = [];
   React.Children.forEach(children, (child) => {
@@ -165,14 +165,14 @@ function childValuesOf(children: React.ReactNode): string[] {
 /**
  * Shows `label` as a tooltip beside `row`. On the icon-only rail every label is
  * hidden (`labelEl` is null), so it always shows; expanded, only when the
- * ellipsis is actually cutting the text off — a short label gets no redundant tooltip.
+ * ellipsis is actually cutting the text off - a short label gets no redundant tooltip.
  */
 function showLabelTip(row: HTMLElement, labelEl: HTMLElement | null, label: string, showTip: SidebarNavContextValue['showTip']) {
   if (labelEl && labelEl.scrollWidth <= labelEl.clientWidth) return;
   showTip(label, row.getBoundingClientRect());
 }
 
-/** Keyboard focus only — a mouse click focuses the row too, but the pointer is already showing (or has dismissed) the tip. */
+/** Keyboard focus only - a mouse click focuses the row too, but the pointer is already showing (or has dismissed) the tip. */
 function isKeyboardFocus(el: HTMLElement): boolean {
   try {
     return el.matches(':focus-visible');
@@ -204,7 +204,7 @@ function SidebarNavRoot({
     onCollapsedChange?.(c);
   };
 
-  // Custom hover tooltip for the collapsed rail — portalled so the rail's own
+  // Custom hover tooltip for the collapsed rail - portalled so the rail's own
   // overflow clipping can't hide it.
   const [mounted, setMounted] = React.useState(false);
   // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target is client-only
@@ -418,27 +418,27 @@ function Item({ value, label, icon, count, href, disabled: disabledProp, childre
     showTip,
     hideTip,
   } = useSidebarNavContext('Item');
-  // Its own `disabled` wins — including an explicit `false` under a disabled root.
+  // Its own `disabled` wins - including an explicit `false` under a disabled root.
   const disabled = disabledProp ?? rootDisabled;
   const st = useInteract(disabled);
   const btnRef = React.useRef<HTMLButtonElement>(null);
   const labelRef = React.useRef<HTMLSpanElement>(null);
   const hasChildren = React.Children.count(children) > 0;
   const childVals = hasChildren ? childValuesOf(children) : [];
-  // Still the current page while disabled (a locked area can be showing you where you are) — just muted.
+  // Still the current page while disabled (a locked area can be showing you where you are) - just muted.
   const selfActive = activeValue === value && !hasChildren;
   const childActive = hasChildren && childVals.includes(activeValue ?? '');
   const highlight = selfActive || (collapsed && childActive);
   // A disabled parent has nothing to open: no rail flyout (it falls back to the plain label tooltip).
   const railFlyout = collapsed && hasChildren && !disabled;
-  // A disabled item is never a real link — `href` must not navigate.
+  // A disabled item is never a real link - `href` must not navigate.
   const asLink = !hasChildren && !!href && !!linkComponent && !disabled;
   const Link = linkComponent ?? 'a';
 
   // Expanded: an inline accordion, local per-item and seeded open once (on
-  // mount) for the branch holding the active child — that seed still applies
+  // mount) for the branch holding the active child - that seed still applies
   // while disabled, so the "you are here" branch stays visible (it just can't
-  // be toggled). Collapsed: a hover flyout instead — that one is cross-item
+  // be toggled). Collapsed: a hover flyout instead - that one is cross-item
   // (only one open at a time), so it lives in the root's flyoutValue, not
   // here, and a disabled parent never opens it.
   const [localOpen, setLocalOpen] = React.useState(() => childActive);
@@ -524,7 +524,7 @@ function Item({ value, label, icon, count, href, disabled: disabledProp, childre
       if (railFlyout) closeFlyoutSoon();
       else hideTip();
     },
-    // Keyboard parity with hover — on the rail a Tab stop is otherwise just an unlabelled icon.
+    // Keyboard parity with hover - on the rail a Tab stop is otherwise just an unlabelled icon.
     onFocus: (e: React.FocusEvent<HTMLElement>) => {
       st.handlers.onFocus?.(e);
       if (isKeyboardFocus(e.currentTarget)) showLabelTip(e.currentTarget, labelRef.current, label, showTip);

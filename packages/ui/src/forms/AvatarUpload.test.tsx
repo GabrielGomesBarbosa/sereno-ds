@@ -135,7 +135,7 @@ async function shootPhoto() {
   await screen.findByRole('button', { name: 'Save' });
 }
 
-describe('AvatarUpload — ref', () => {
+describe('AvatarUpload: ref', () => {
   it('forwards ref to the hidden native file input', () => {
     const ref = React.createRef<HTMLInputElement>();
     render(<AvatarUpload ref={ref} />);
@@ -544,7 +544,7 @@ describe('AvatarUpload, one dialog across the camera and crop steps', () => {
   });
 });
 
-describe('AvatarUpload — allowCamera prop', () => {
+describe('AvatarUpload: allowCamera prop', () => {
   it('triggers native file picker directly without opening menu when allowCamera=false and no photo is set', () => {
     const clickSpy = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {});
     render(<AvatarUpload label="Logo" allowCamera={false} />);

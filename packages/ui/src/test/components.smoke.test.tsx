@@ -116,7 +116,7 @@ describe('@sereno-ds/ui barrel', () => {
   });
 });
 
-describe('component smoke — renders without throwing', () => {
+describe('component smoke: renders without throwing', () => {
   for (const name of EXPECTED) {
     it(name, () => {
       const el = name === 'ThemeProvider' ? CASES[name] : <UI.ThemeProvider>{CASES[name]}</UI.ThemeProvider>;
@@ -128,20 +128,20 @@ describe('component smoke — renders without throwing', () => {
   }
 });
 
-// SS-232: an automated floor, not the whole audit — this only sees each
+// SS-232: an automated floor, not the whole audit - this only sees each
 // component's default render (the same CASES above), so it can't catch
 // state that only exists once open/interactive (a Select's listbox, a
 // Menu's panel) or anything jest-axe can't check in jsdom (colour
-// contrast — see SS-230, done separately against the tokens themselves).
+// contrast - see SS-230, done separately against the tokens themselves).
 // Complements the manual keyboard/ARIA/focus passes (SS-228/229/231); it
 // doesn't replace them.
 //
 // `region` is off: it wants the *whole page* wrapped in a landmark, which
 // is a page-composition concern (checked where a real page exists, not
-// here) — every isolated component render trips it by construction.
+// here) - every isolated component render trips it by construction.
 const AXE_OPTIONS = { rules: { region: { enabled: false } } };
 
-describe('component accessibility — axe (SS-232)', () => {
+describe('component accessibility: axe (SS-232)', () => {
   for (const name of EXPECTED) {
     it(
       name,

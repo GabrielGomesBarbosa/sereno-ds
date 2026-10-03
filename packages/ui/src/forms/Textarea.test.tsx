@@ -5,7 +5,7 @@ import { Textarea } from './Textarea';
 
 afterEach(cleanup);
 
-describe('Textarea — ref', () => {
+describe('Textarea: ref', () => {
   it('forwards ref to the native textarea', () => {
     const ref = React.createRef<HTMLTextAreaElement>();
     render(<Textarea label="Bio" ref={ref} />);
@@ -13,8 +13,8 @@ describe('Textarea — ref', () => {
   });
 });
 
-describe('Textarea — focus ring', () => {
-  it('a caller onBlur does not stop the focus ring from resetting (regression: a plain {...rest} spread used to let it silently replace the internal handler — the exact shape react-hook-form\'s register() injects)', () => {
+describe('Textarea: focus ring', () => {
+  it('a caller onBlur does not stop the focus ring from resetting (regression: a plain {...rest} spread used to let it silently replace the internal handler, the exact shape react-hook-form\'s register() injects)', () => {
     const onBlur = vi.fn();
     const { container } = render(<Textarea label="Bio" onBlur={onBlur} />);
     const textarea = container.querySelector('textarea')!;

@@ -16,6 +16,7 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "turbo run build --filter=\"./packages/*\" && changeset publish",
+    "check:dashes": "node scripts/check-no-em-dash.mjs",
     "gen:brand-images": "node scripts/generate-brand-images.mjs",
     "gen:component-docs": "tsx scripts/generate-design-system-docs.ts",
     "build:docs": "turbo run build --filter=docs",

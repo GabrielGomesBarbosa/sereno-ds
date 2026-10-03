@@ -11,7 +11,7 @@ const OPTS = [
   { value: 'c', label: 'Cherry' },
 ];
 
-/** A press that starts on the trigger, then the click — a real box click. */
+/** A press that starts on the trigger, then the click - a real box click. */
 const boxClick = (el: Element) => {
   fireEvent.pointerDown(el);
   fireEvent.click(el);
@@ -47,7 +47,7 @@ describe('Select (custom listbox)', () => {
     expect(listbox.style.position).toBe('absolute'); // …glued to the field by the browser
   });
 
-  it('never closes on scroll in the inline case — the browser keeps it glued', () => {
+  it('never closes on scroll in the inline case, the browser keeps it glued', () => {
     render(
       <div data-testid="scroller" style={{ overflowY: 'auto' }}>
         <Select label="Fruit" options={OPTS} />
@@ -127,7 +127,7 @@ describe('Select (custom listbox)', () => {
       // page scroll is locked behind the sheet
       expect(document.body.style.overflow).toBe('hidden');
       expect(document.documentElement.style.overflow).toBe('hidden');
-      // tapping a row selects and closes — and restores the page scroll
+      // tapping a row selects and closes - and restores the page scroll
       fireEvent.click(within(listbox).getByText('Cherry'));
       expect(onValueChange).toHaveBeenCalledWith('c');
       expect(screen.queryByRole('listbox')).toBeNull();
@@ -185,7 +185,7 @@ describe('Select (custom listbox)', () => {
     expect(ref.current?.value).toBe('b');
   });
 
-  it('ref is null when `name` is not set — there is no hidden input to forward to', () => {
+  it('ref is null when `name` is not set; there is no hidden input to forward to', () => {
     const ref = React.createRef<HTMLInputElement>();
     render(<Select label="Fruit" options={OPTS} ref={ref} />);
     expect(ref.current).toBeNull();

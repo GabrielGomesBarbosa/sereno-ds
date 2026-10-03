@@ -1,5 +1,5 @@
 // tsup's `bundle: false` mode transpiles each file independently (esbuild
-// "transform", not "bundle"), so it never rewrites import/export specifiers —
+// "transform", not "bundle"), so it never rewrites import/export specifiers -
 // relative ones come out exactly as written in source (no extension), which
 // violates the Node ESM spec and breaks strict resolvers (Vitest, plain Node,
 // ts-node). Bundler resolution (webpack/Next/Vite) tolerates it, which is why
