@@ -4,6 +4,7 @@ import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { sx } from '../_internal/style';
+import { acquireScrollLock } from '../_internal/scrollLock';
 import { Typography } from '../core/Typography';
 
 /**
@@ -139,10 +140,7 @@ function DialogRoot({
   React.useEffect(() => {
     if (!open) return;
     const previouslyFocused = document.activeElement as HTMLElement | null;
-    const root = document.documentElement;
-    const prev = { h: root.style.overflow, b: document.body.style.overflow };
-    root.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
+    const unlock = acquireScrollLock();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (dismissibleRef.current) onCloseRef.current?.();
@@ -170,8 +168,7 @@ function DialogRoot({
     };
     document.addEventListener('keydown', onKey);
     return () => {
-      root.style.overflow = prev.h;
-      document.body.style.overflow = prev.b;
+      unlock();
       document.removeEventListener('keydown', onKey);
       // The trigger may itself have unmounted (e.g. a row it lived in was
       // removed) - focus() on a detached element is a silent no-op, not a

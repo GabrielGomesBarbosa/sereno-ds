@@ -206,32 +206,12 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
     };
   }, [menuOpen]);
 
-  // Dialog doesn't lock scroll or bind Escape - do it here while a modal is up.
   // One dialog for the flow, on whichever step is current: the crop once there is a photo,
   // else the live camera. A shot or a Retake flips both at once, so the step just changes.
+  // The `Dialog` it is drawn in already locks the page scroll and closes on Escape (through the
+  // `onClose` handed to it below), so nothing here does: a second lock of our own used to be
+  // released after the Dialog's and left the page unable to scroll (SS-402).
   const step: Step | null = cropSrc ? 'crop' : allowCamera && cameraOpen ? 'camera' : null;
-  const modalUp = step !== null;
-  React.useEffect(() => {
-    if (!modalUp) return;
-    const root = document.documentElement;
-    const prev = { h: root.style.overflow, b: document.body.style.overflow };
-    root.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      setCameraOpen(false);
-      setCropSrc((s) => {
-        if (s) URL.revokeObjectURL(s);
-        return null;
-      });
-    };
-    document.addEventListener('keydown', onKey);
-    return () => {
-      root.style.overflow = prev.h;
-      document.body.style.overflow = prev.b;
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [modalUp]);
 
   const pick = (files: FileList | null) => {
     const f = files?.[0];

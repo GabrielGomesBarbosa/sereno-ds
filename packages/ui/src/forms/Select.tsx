@@ -4,6 +4,7 @@ import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
 import { sx } from '../_internal/style';
+import { acquireScrollLock } from '../_internal/scrollLock';
 import { useIsoLayoutEffect } from '../_internal/useIsoLayoutEffect';
 import { Field } from '../_internal/Field';
 import { fieldA11y } from '../_internal/fieldA11y';
@@ -232,17 +233,11 @@ function CustomSelect({
     return () => document.removeEventListener('pointerdown', onDown, true);
   }, [open, coarse]);
 
-  // The touch sheet is a modal surface - lock the page scroll behind it.
+  // The touch sheet is a modal surface - lock the page scroll behind it. Through the shared lock,
+  // so a Select inside a Dialog (two held at once) frees the page whichever lets go first.
   React.useEffect(() => {
     if (!open || !coarse) return;
-    const root = document.documentElement;
-    const prev = { h: root.style.overflow, b: document.body.style.overflow };
-    root.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-    return () => {
-      root.style.overflow = prev.h;
-      document.body.style.overflow = prev.b;
-    };
+    return acquireScrollLock();
   }, [open, coarse]);
 
   // Keep the active option in view.
