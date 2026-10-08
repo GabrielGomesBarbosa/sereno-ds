@@ -2,6 +2,7 @@ import * as React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { Select } from './Select';
+import { Dialog } from '../feedback/Dialog';
 
 afterEach(cleanup);
 
@@ -189,5 +190,124 @@ describe('Select (custom listbox)', () => {
     const ref = React.createRef<HTMLInputElement>();
     render(<Select label="Fruit" options={OPTS} ref={ref} />);
     expect(ref.current).toBeNull();
+  });
+});
+
+/**
+ * The page scroll lock on a touch screen (SS-402): the bottom sheet locks the page scroll, and
+ * a Select inside a Dialog is two locks held at once. Released in the wrong order they left
+ * `overflow: hidden` on <html> and <body>.
+ */
+describe('Select: the page scroll lock on a coarse pointer', () => {
+  // These tests set the page's own overflow on purpose: put it back so the next one starts clean.
+  afterEach(() => {
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  });
+
+  const html = () => document.documentElement.style.overflow;
+  const body = () => document.body.style.overflow;
+  const withTouch = (fn: () => void) => {
+    const orig = window.matchMedia;
+    window.matchMedia = ((q: string) => ({
+      matches: q.includes('coarse'),
+      media: q,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
+    try {
+      fn();
+    } finally {
+      window.matchMedia = orig;
+    }
+  };
+  const inDialog = (open: boolean) => (
+    <Dialog open={open}>
+      <Dialog.Body>
+        <Select label="Fruit" options={OPTS} />
+      </Dialog.Body>
+    </Dialog>
+  );
+
+  it('the sheet locks the page while open, and picking an option gives it back', () => {
+    withTouch(() => {
+      render(<Select label="Fruit" options={OPTS} />);
+      boxClick(screen.getByRole('combobox'));
+      expect(screen.getByRole('listbox')).toBeInTheDocument();
+      expect([html(), body()]).toEqual(['hidden', 'hidden']);
+      fireEvent.click(screen.getByRole('option', { name: 'Banana' }));
+      expect(screen.queryByRole('listbox')).toBeNull();
+      expect([html(), body()]).toEqual(['', '']);
+    });
+  });
+
+  it('on a mouse it does not lock the page at all', () => {
+    render(<Select label="Fruit" options={OPTS} />);
+    boxClick(screen.getByRole('combobox'));
+    expect([html(), body()]).toEqual(['', '']);
+  });
+
+  it('inside a Dialog: picking an option keeps the Dialog lock, and closing the Dialog frees the page', () => {
+    withTouch(() => {
+      const { rerender } = render(inDialog(true));
+      expect(html()).toBe('hidden');
+      boxClick(screen.getByRole('combobox'));
+      fireEvent.click(screen.getByRole('option', { name: 'Cherry' }));
+      expect([html(), body()]).toEqual(['hidden', 'hidden']); // the Dialog still holds the page
+      rerender(inDialog(false));
+      expect([html(), body()]).toEqual(['', '']);
+    });
+  });
+
+  it('inside a Dialog that closes while the sheet is still open: the page is free afterwards', () => {
+    withTouch(() => {
+      const { rerender } = render(inDialog(true));
+      boxClick(screen.getByRole('combobox'));
+      expect(screen.getByRole('listbox')).toBeInTheDocument();
+      rerender(inDialog(false)); // the Dialog goes, taking the open sheet with it
+      expect([html(), body()]).toEqual(['', '']);
+    });
+  });
+
+  it('a Dialog that opens while the sheet is open and outlives it: the page stays locked behind it, then is freed', () => {
+    // E.g. a notification or a timer opens a Dialog over an open sheet, and the sheet is then
+    // closed. Each used to put back the value it had found, so the sheet closing unlocked the
+    // page behind the open Dialog, and the Dialog closing then locked it for good.
+    withTouch(() => {
+      const ui = (open: boolean) => (
+        <>
+          <Select label="Fruit" options={OPTS} />
+          <Dialog open={open}>
+            <Dialog.Body>more</Dialog.Body>
+          </Dialog>
+        </>
+      );
+      const { rerender } = render(ui(false));
+      boxClick(screen.getByRole('combobox'));
+      expect(screen.getByRole('listbox')).toBeInTheDocument();
+      rerender(ui(true)); // its own commit: the sheet is still open
+      expect([html(), body()]).toEqual(['hidden', 'hidden']);
+      fireEvent.click(screen.getByRole('option', { name: 'Banana' }));
+      expect(screen.queryByRole('listbox')).toBeNull();
+      expect([html(), body()]).toEqual(['hidden', 'hidden']); // the Dialog still holds the page
+      rerender(ui(false));
+      expect([html(), body()]).toEqual(['', '']);
+    });
+  });
+
+  it('gives back what the page had, not an empty value', () => {
+    document.documentElement.style.overflow = 'auto';
+    document.body.style.overflow = 'scroll';
+    withTouch(() => {
+      const { unmount } = render(<Select label="Fruit" options={OPTS} />);
+      boxClick(screen.getByRole('combobox'));
+      expect([html(), body()]).toEqual(['hidden', 'hidden']);
+      unmount();
+    });
+    expect([html(), body()]).toEqual(['auto', 'scroll']);
   });
 });

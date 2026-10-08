@@ -544,6 +544,106 @@ describe('AvatarUpload, one dialog across the camera and crop steps', () => {
   });
 });
 
+/**
+ * The page scroll lock (SS-402). The crop / camera step is drawn by `Dialog`, which locks the
+ * scroll, and `AvatarUpload` used to lock it a second time on its own. Closed in the wrong order
+ * the two left `overflow: hidden` on <html> and <body>, and the page did not scroll again (a
+ * Next.js navigation does not reload it) until F5.
+ */
+describe('AvatarUpload: the page scroll lock', () => {
+  // These tests set the page's own overflow on purpose: put it back so the next one starts clean.
+  afterEach(() => {
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  });
+
+  const html = () => document.documentElement.style.overflow;
+  const body = () => document.body.style.overflow;
+
+  it('the crop step locks the page, and Cancel gives it back', () => {
+    withFakeImage(() => {
+      openCropModalFromLibrary();
+      expect([html(), body()]).toEqual(['hidden', 'hidden']);
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect([html(), body()]).toEqual(['', '']);
+    });
+  });
+
+  it('Escape closes the crop step and gives the page back (the Dialog binds it, AvatarUpload no longer does)', () => {
+    withFakeImage(() => {
+      openCropModalFromLibrary();
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect([html(), body()]).toEqual(['', '']);
+    });
+  });
+
+  it('gives back what the page had before, not an empty value', () => {
+    document.documentElement.style.overflow = 'auto';
+    document.body.style.overflow = 'scroll';
+    withFakeImage(() => {
+      openCropModalFromLibrary();
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    });
+    expect([html(), body()]).toEqual(['auto', 'scroll']);
+  });
+
+  it('the camera step locks the page, and Cancel gives it back', async () => {
+    await withCamera(async () => {
+      render(<AvatarUpload label="Photo" />);
+      fireEvent.click(screen.getByRole('button', { name: 'Change photo' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Take a photo' }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Capture' })).toBeEnabled());
+      expect([html(), body()]).toEqual(['hidden', 'hidden']);
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect([html(), body()]).toEqual(['', '']);
+    });
+  });
+
+  it('camera, crop, Retake, crop again, Cancel: locked the whole way, free at the end', async () => {
+    await withCamera(async () => {
+      await shootPhoto();
+      expect([html(), body()]).toEqual(['hidden', 'hidden']);
+      fireEvent.click(screen.getByRole('button', { name: 'Retake' }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Capture' })).toBeEnabled());
+      expect([html(), body()]).toEqual(['hidden', 'hidden']);
+      const video = document.querySelector('video')!;
+      Object.defineProperty(video, 'videoWidth', { value: 640, configurable: true });
+      Object.defineProperty(video, 'videoHeight', { value: 640, configurable: true });
+      fireEvent.click(screen.getByRole('button', { name: 'Capture' }));
+      await screen.findByRole('button', { name: 'Save' });
+      expect([html(), body()]).toEqual(['hidden', 'hidden']);
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect([html(), body()]).toEqual(['', '']);
+    });
+  });
+
+  it('opening and closing the crop step twice in a row leaves the page free each time', () => {
+    withFakeImage(() => {
+      render(<AvatarUpload label="Photo" />);
+      const input = document.querySelector('input[type="file"]')!;
+      for (let i = 0; i < 2; i++) {
+        fireEvent.change(input, { target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] } });
+        expect([html(), body()]).toEqual(['hidden', 'hidden']);
+        fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+        expect([html(), body()]).toEqual(['', '']);
+      }
+    });
+  });
+
+  it('unmounting while the crop step is open frees the page too', () => {
+    withFakeImage(() => {
+      const { unmount } = render(<AvatarUpload label="Photo" />);
+      const input = document.querySelector('input[type="file"]')!;
+      fireEvent.change(input, { target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] } });
+      expect(html()).toBe('hidden');
+      unmount();
+      expect([html(), body()]).toEqual(['', '']);
+    });
+  });
+});
+
 describe('AvatarUpload: allowCamera prop', () => {
   it('triggers native file picker directly without opening menu when allowCamera=false and no photo is set', () => {
     const clickSpy = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {});

@@ -219,6 +219,13 @@ previews (test locally + on the branch).
   move together. `npm run check:dashes` (`scripts/check-no-em-dash.mjs`, a CI step) fails on
   any git-tracked text file that has one. The en dash (U+2013) is a different character and
   is not covered.
+- **Locking the page scroll goes through `_internal/scrollLock.ts` (SS-402).** Call
+  `acquireScrollLock()` in an effect and return what it gives you (it returns the function
+  that lets go). Never write `overflow` on `<html>` / `<body>` yourself, and never "remember
+  the previous value and put it back": with two things open at once, whichever lets go in the
+  wrong order leaves the page stuck on `hidden` for good (and a client-side navigation does not
+  reload it). The lock counts holders, records the page's own value on the first one and gives
+  it back when the last lets go. A component drawn inside a `Dialog` needs no lock of its own.
 - **No UI base library.** The 31 primitives in `packages/ui/src/` are token-driven
   inline styles reading CSS custom properties. When editing them, preserve
   behaviour; do not introduce Radix / MUI / Tailwind.

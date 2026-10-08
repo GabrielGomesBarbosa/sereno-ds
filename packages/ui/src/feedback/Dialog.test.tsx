@@ -286,3 +286,66 @@ describe('Dialog', () => {
     spy.mockRestore();
   });
 });
+
+/**
+ * The page scroll lock (SS-402). Three components locked the scroll each on its own, remembering
+ * the value they found and putting it back on close, so two held at once and released in the
+ * wrong order left `overflow: hidden` stuck on <html> and <body>. They share one lock now.
+ */
+describe('Dialog: the page scroll lock', () => {
+  const html = () => document.documentElement.style.overflow;
+  const body = () => document.body.style.overflow;
+
+  it('locks the scroll while open and gives it back on close', () => {
+    const { rerender } = render(<Dialog open={false}><Dialog.Body>x</Dialog.Body></Dialog>);
+    expect([html(), body()]).toEqual(['', '']);
+    rerender(<Dialog open><Dialog.Body>x</Dialog.Body></Dialog>);
+    expect([html(), body()]).toEqual(['hidden', 'hidden']);
+    rerender(<Dialog open={false}><Dialog.Body>x</Dialog.Body></Dialog>);
+    expect([html(), body()]).toEqual(['', '']);
+  });
+
+  it('gives back whatever the page had, not just an empty value', () => {
+    document.documentElement.style.overflow = 'auto';
+    document.body.style.overflow = 'scroll';
+    const { unmount } = render(<Dialog open><Dialog.Body>x</Dialog.Body></Dialog>);
+    expect([html(), body()]).toEqual(['hidden', 'hidden']);
+    unmount();
+    expect([html(), body()]).toEqual(['auto', 'scroll']);
+  });
+
+  it.each([
+    ['the first one opened closes first', [true, false] as const],
+    ['the last one opened closes first', [false, true] as const],
+  ])('two dialogs open at once: %s, and the page is as it was once both are closed', (_name, order) => {
+    const two = (a: boolean, b: boolean) => (
+      <>
+        <Dialog open={a}><Dialog.Body>one</Dialog.Body></Dialog>
+        <Dialog open={b}><Dialog.Body>two</Dialog.Body></Dialog>
+      </>
+    );
+    const { rerender } = render(two(true, true));
+    expect(html()).toBe('hidden');
+    // The first closes while the other is still open: the page stays locked.
+    rerender(two(order[0] ? false : true, order[1] ? false : true));
+    expect([html(), body()]).toEqual(['hidden', 'hidden']);
+    rerender(two(false, false));
+    expect([html(), body()]).toEqual(['', '']);
+  });
+
+  it('a dialog opened inside another one: closing the outer one first still frees the page', () => {
+    const nested = (outer: boolean, inner: boolean) => (
+      <Dialog open={outer}>
+        <Dialog.Body>
+          <Dialog open={inner}><Dialog.Body>inner</Dialog.Body></Dialog>
+        </Dialog.Body>
+      </Dialog>
+    );
+    const { rerender, unmount } = render(nested(true, true));
+    expect(html()).toBe('hidden');
+    rerender(nested(false, true)); // the outer unmounts, taking the inner with it
+    expect([html(), body()]).toEqual(['', '']);
+    unmount();
+    expect([html(), body()]).toEqual(['', '']);
+  });
+});
