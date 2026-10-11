@@ -4,11 +4,27 @@ import * as React from 'react';
 import { sx } from '../_internal/style';
 
 export type TypographyVariant = 'display' | 'h1' | 'h2' | 'h3' | 'body' | 'bodySm' | 'label' | 'caption' | 'eyebrow';
-export type TypographyColor = 'primary' | 'secondary' | 'muted' | 'disabled' | 'inverse' | 'brand' | 'accent' | 'link' | 'error';
+export type TypographyColor =
+  | 'primary'
+  | 'secondary'
+  | 'muted'
+  | 'disabled'
+  | 'inverse'
+  | 'brand'
+  | 'accent'
+  | 'link'
+  | 'error'
+  | 'success'
+  | 'inherit';
 
 export interface TypographyProps extends React.HTMLAttributes<HTMLElement> {
   variant?: TypographyVariant;
-  /** Overrides the variant's own default color token. */
+  /**
+   * Overrides the variant's own default color token. `success` is the text green (a
+   * satisfied rule, a confirmed state). `inherit` is not a token: the text takes the color of
+   * its parent, for text on a colored strip or whose color is the parent's to set (so the
+   * contrast is then the parent's to keep).
+   */
   color?: TypographyColor;
   /** Render as a different element than the variant's own default tag - e.g. an
    *  `h3`-styled label that should not enter the document's heading outline. */
@@ -81,7 +97,8 @@ const DEFAULT_COLOR: Record<TypographyVariant, TypographyColor> = {
   eyebrow: 'muted',
 };
 
-const COLOR_TOKEN: Record<TypographyColor, string> = {
+// `inherit` is the one color that is not a token, so it is not in this map (see `colorValue`).
+const COLOR_TOKEN: Record<Exclude<TypographyColor, 'inherit'>, string> = {
   primary: '--text-primary',
   secondary: '--text-secondary',
   muted: '--text-muted',
@@ -91,7 +108,12 @@ const COLOR_TOKEN: Record<TypographyColor, string> = {
   accent: '--text-accent',
   link: '--text-link',
   error: '--interactive-error',
+  success: '--status-success-fg',
 };
+
+function colorValue(color: TypographyColor): string {
+  return color === 'inherit' ? 'inherit' : 'var(' + COLOR_TOKEN[color] + ')';
+}
 
 /**
  * Text primitive - one place for the type-scale/font-family/weight combos
@@ -110,7 +132,7 @@ export function Typography({ variant = 'body', color, as, truncate, numeric, sty
       style={sx({
         margin: 0,
         ...v.style,
-        color: 'var(' + COLOR_TOKEN[color ?? DEFAULT_COLOR[variant]] + ')',
+        color: colorValue(color ?? DEFAULT_COLOR[variant]),
         // `overflow`/`textOverflow` are no-ops on a plain inline box (the
         // default for the `span`-tagged variants) - `block` makes the
         // element actually respect a constrained-width ancestor.

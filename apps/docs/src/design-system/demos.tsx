@@ -110,9 +110,17 @@ function TypographyCores() {
       <Typography variant="label" color="error">
         Error
       </Typography>
+      <Typography variant="label" color="success">
+        Success
+      </Typography>
       <Typography variant="label" color="muted">
         Muted
       </Typography>
+      <div style={{ background: 'var(--interactive-primary)', color: 'var(--interactive-primary-fg)', padding: 'var(--space-3) var(--space-4)', borderRadius: 'var(--radius-md)' }}>
+        <Typography variant="label" color="inherit">
+          Takes the strip&apos;s color
+        </Typography>
+      </div>
     </div>
   );
 }

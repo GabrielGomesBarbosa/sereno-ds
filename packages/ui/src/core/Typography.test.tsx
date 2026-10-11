@@ -100,3 +100,120 @@ describe('Typography', () => {
     expect(el.style.fontSize).toBe('10px');
   });
 });
+
+/**
+ * `success` and `inherit` (SS-452). The color is painted inline, so a color class passed to a
+ * `Typography` never won and the app worked around it with `style={{ color: 'inherit' }}` and the
+ * color on a parent. Both are now a value of `color`; nothing that existed changes.
+ */
+describe('Typography, color: success and inherit', () => {
+  it('`success` is the text green, var(--status-success-fg)', () => {
+    render(<Typography color="success">8+ characters</Typography>);
+    expect(screen.getByText('8+ characters').style.color).toBe('var(--status-success-fg)');
+  });
+
+  it('`inherit` is `color: inherit`, with no token behind it', () => {
+    render(<Typography color="inherit">On a strip</Typography>);
+    const el = screen.getByText('On a strip');
+    expect(el.style.color).toBe('inherit');
+    // no `color: var(...)` declaration (the other var()s in the style are the variant's own size, weight, ...)
+    expect(el.getAttribute('style')).not.toMatch(/(^|;)\s*color:\s*var\(/);
+  });
+
+  it('`inherit` leaves the color to the parent: it declares none of its own, and the strip keeps its own', () => {
+    // jsdom does not resolve `inherit` to the parent's value (a real browser does, and the showcase
+    // was checked in one); what is asserted here is who is left holding the color.
+    render(
+      <div data-testid="strip" style={{ color: 'rgb(11, 22, 33)', background: 'rgb(200, 0, 0)' }}>
+        <Typography color="inherit">Header text</Typography>
+        <Typography>Default text</Typography>
+      </div>,
+    );
+    const strip = screen.getByTestId('strip');
+    expect(strip.style.color).toBe('rgb(11, 22, 33)'); // the Typography does not touch its parent
+    expect(screen.getByText('Header text').parentElement).toBe(strip);
+    expect(screen.getByText('Header text').style.color).toBe('inherit');
+    // a Typography with no `color` still paints its own token, so the strip's color never reaches it
+    expect(screen.getByText('Default text').style.color).toBe('var(--text-primary)');
+  });
+
+  it('`inherit` goes back to its own variant color when `color` is dropped', () => {
+    const { rerender } = render(<Typography variant="caption" color="inherit">Switch</Typography>);
+    expect(screen.getByText('Switch').style.color).toBe('inherit');
+    rerender(<Typography variant="caption">Switch</Typography>);
+    expect(screen.getByText('Switch').style.color).toBe('var(--text-muted)');
+  });
+
+  it.each(['success', 'inherit'] as const)('the consumer `style` still has the last word over `%s`', (color) => {
+    render(
+      <Typography color={color} style={{ color: 'rgb(5, 6, 7)' }}>
+        Mine
+      </Typography>,
+    );
+    expect(screen.getByText('Mine').style.color).toBe('rgb(5, 6, 7)');
+  });
+
+  it.each(['success', 'inherit'] as const)('`%s` changes the color only: the variant keeps its size, weight and tag', (color) => {
+    render(
+      <Typography variant="label" color={color}>
+        Label
+      </Typography>,
+    );
+    const el = screen.getByText('Label');
+    expect(el.tagName).toBe('SPAN');
+    expect(el.style.fontSize).toBe('var(--text-sm)');
+    expect(el.style.fontWeight).toBe('var(--weight-semibold)');
+  });
+
+  it('works on every variant, as any color does', () => {
+    for (const variant of ['display', 'h1', 'h2', 'h3', 'body', 'bodySm', 'label', 'caption', 'eyebrow'] as const) {
+      const { unmount } = render(
+        <>
+          <Typography variant={variant} color="success">
+            ok-{variant}
+          </Typography>
+          <Typography variant={variant} color="inherit">
+            in-{variant}
+          </Typography>
+        </>,
+      );
+      expect(screen.getByText('ok-' + variant).style.color, variant).toBe('var(--status-success-fg)');
+      expect(screen.getByText('in-' + variant).style.color, variant).toBe('inherit');
+      unmount();
+    }
+  });
+});
+
+/** Only added to: every color and every variant default that existed keeps painting what it painted. */
+describe('Typography, nothing that existed changes', () => {
+  it.each([
+    ['primary', 'var(--text-primary)'],
+    ['secondary', 'var(--text-secondary)'],
+    ['muted', 'var(--text-muted)'],
+    ['disabled', 'var(--text-disabled)'],
+    ['inverse', 'var(--text-inverse)'],
+    ['brand', 'var(--text-brand)'],
+    ['accent', 'var(--text-accent)'],
+    ['link', 'var(--text-link)'],
+    ['error', 'var(--interactive-error)'],
+  ] as const)('color="%s" is still %s', (color, expected) => {
+    render(<Typography color={color}>x</Typography>);
+    expect(screen.getByText('x').style.color).toBe(expected);
+  });
+
+  it.each([
+    ['display', 'var(--text-primary)'],
+    ['h1', 'var(--text-primary)'],
+    ['h2', 'var(--text-primary)'],
+    ['h3', 'var(--text-primary)'],
+    ['body', 'var(--text-primary)'],
+    ['bodySm', 'var(--text-secondary)'],
+    ['label', 'var(--text-primary)'],
+    ['caption', 'var(--text-muted)'],
+    ['eyebrow', 'var(--text-muted)'],
+  ] as const)('variant "%s" with no color still paints %s', (variant, expected) => {
+    render(<Typography variant={variant}>y</Typography>);
+    expect(screen.getByText('y').style.color).toBe(expected);
+  });
+});
+
