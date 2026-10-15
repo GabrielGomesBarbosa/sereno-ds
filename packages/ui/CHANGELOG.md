@@ -1,5 +1,36 @@
 # @sereno-ds/ui
 
+## 0.39.0
+
+### Minor Changes
+
+- 639b50f: The month calendar tells `renderDay` about the day, can draw its own dots, marks today, and comes with a legend (SS-474).
+
+  An app that drew a dot under the days with bookings had to work out which day was selected by itself, to turn the dot to `--interactive-primary-fg` (on the selected day the cell is filled with the primary color, so a primary dot vanished), and to build the legend by hand. All of that now lives in the calendar.
+
+  - **`renderDay(day, context)`**: the second argument is `{ selected, today, unavailable }` (type `CalendarDayContext`). `unavailable` is true for a day listed in `unavailable` and for one outside `min` / `max`. A `(day) =>` that ignores it keeps working.
+  - **`dayDots`** on `DateTimePicker` and `DatePicker`: day numbers (`[3, 17]`) or an object keyed by day (`{ 3: { tone: 'warning', label: 'Pending' } }`), with `tone` one of `brand`, `success`, `warning`, `error`, `info` (status tokens, never a loose color). The calendar places the 6px dot under the number, turns it to `--interactive-primary-fg` on the selected day and fades it on a day that cannot be picked. Each dot is named for a screen reader (`label`, else `dayDotLabel`, else "com marcador" / "marked"). Day numbers of the month on screen, like `unavailable`: refresh them in `onMonthChange`. It shares the slot under the number with `renderDay`.
+  - **Today is marked**: a thin inset ring in `--border-brand` on today's cell (3.17:1 against the card in the light theme and 3.47:1 in the dark one, where `--border-strong` would be 1.63:1), and `aria-current="date"`. No ring when today is the selected day (the fill says it). This is the one visual change to a calendar that uses none of the new props; it applies to `DateTimePicker` and `DatePicker` alike.
+  - **`DatePicker`** gains `renderDay`, `dayDots`, `dayDotLabel` and `onMonthChange` (`(year, month) => void`, fired on each step, not when the popover opens), so a consumer can tell which month is on screen.
+  - **`CalendarLegend`**: `items={[{ label, dot?, outline? }]}`. Draws the same dot (`dot: true` or a tone) and the same ring (`outline`) as the calendar, from the same functions, as a centered list that wraps on a narrow screen.
+  - Types exported: `CalendarDayContext`, `CalendarDayDot`, `CalendarDayDots`, `CalendarDotTone`, `CalendarLegendProps`, `CalendarLegendItem`.
+
+  Only added to: with no `dayDots` and no `renderDay`, a day is its number and nothing else, at the same height as before. With either set, the cells grow to 48px, as `renderDay` always did.
+
+- 639b50f: New component: `StatCard`, a figure on a dashboard (SS-475).
+
+  Apps that show indicators at the top of a screen ("Appointments today", "Pending this week") put one together from `Card`, `Typography` and `Skeleton` each time. It is now one component, with the lines, the sizes and the loading state decided once.
+
+  - **`label`** (the eyebrow), **`value`** (any node, large, in tabular figures) and **`hint`** (one line of context under it).
+  - **`tone`**: `default`, `neutral` (a quieter, tinted card with no shadow) and the status tones `success`, `warning`, `error`, `info` (the names `Badge`, `Alert` and `Toast` use). A status tone draws a ring in the tone's `--status-*-dot` and colors the label and the number with its `--status-*-fg`; the hint stays secondary.
+  - **`progress`**: `{ percent, label? }`, a thin bar with `role="progressbar"`. `percent` is held to 0 to 100; without a `label` the bar takes the card's. The fill is the primary color, or the tone's text color.
+  - **`loading`**: the label, the number and the hint become placeholders (`Skeleton`) that hold the same height as the real lines, so nothing jumps when the data arrives. It mirrors the props you pass. The card is `aria-busy`.
+  - Built on `Card`: `className`, `style` and the rest go to it, and your `style` comes last.
+
+  Contrast (WCAG AA is 4.5:1 for small text, 3:1 for large text and for graphics): the status text colors are 5.91:1 or more on the card in both themes (light: success 5.91, warning 6.26, error 6.20, info 6.46; dark: 9.66, 9.69, 7.99, 10.16). The bar fill uses the text color of the tone, not its dot, because the dot is a hair under 3:1 against the track in the light theme. `neutral` uses a secondary label, since the muted one is 4.27:1 on its fill in the light theme.
+
+  The primitive count goes from 31 to 33 (this and `CalendarLegend`).
+
 ## 0.38.0
 
 ### Minor Changes
