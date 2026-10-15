@@ -37,6 +37,8 @@ import {
   Brand,
   BottomNav,
   Button,
+  CalendarLegend,
+  type CalendarDayDot,
   Card,
   Checkbox,
   DatePicker,
@@ -54,6 +56,7 @@ import {
   Select,
   SidebarNav,
   Skeleton,
+  StatCard,
   Stepper,
   Switch,
   Table,
@@ -1382,6 +1385,127 @@ function DatePickerFaixa() {
   );
 }
 
+// The current month, known only on the client: a calendar that starts on "today" would otherwise
+// render the build's month on the server and the visitor's on hydration. `null` on the server.
+const noSubscribe = () => () => {};
+let clientNow: Date | null = null;
+const getClientNow = () => (clientNow ??= new Date());
+function useClientNow(): Date | null {
+  return React.useSyncExternalStore(noSubscribe, getClientNow, () => null);
+}
+
+// Deterministic sample "days with bookings" for a month: most are plain dots, every third one is
+// still pending (a warning dot with a label of its own).
+const bookedDaysOf = (y: number, m: number): Record<number, CalendarDayDot> => {
+  const out: Record<number, CalendarDayDot> = {};
+  for (let d = 1; d <= new Date(y, m + 1, 0).getDate(); d++) {
+    if ((d * 5 + m) % 7 < 2) out[d] = d % 3 === 0 ? { tone: 'warning', label: 'pending' } : {};
+  }
+  return out;
+};
+const firstDayOf = (dots: Record<number, CalendarDayDot>) => Number(Object.keys(dots)[0]);
+
+const LEGEND_ITEMS = [
+  { label: 'Has bookings', dot: true },
+  { label: 'Pending', dot: 'warning' as const },
+  { label: 'Today', outline: true },
+];
+
+function DateTimeDotsCalendar({ now }: { now: Date }) {
+  const [dots, setDots] = React.useState(() => bookedDaysOf(now.getFullYear(), now.getMonth()));
+  const [day, setDay] = React.useState<number | undefined>(() => firstDayOf(bookedDaysOf(now.getFullYear(), now.getMonth())));
+  return (
+    <div style={{ maxWidth: 380 }}>
+      <DateTimePicker
+        year={now.getFullYear()}
+        month={now.getMonth()}
+        dayDots={dots}
+        dayDotLabel="has bookings"
+        onMonthChange={(y, m) => setDots(bookedDaysOf(y, m))}
+        selectedDate={day}
+        onSelectDate={setDay}
+        locale="en"
+      />
+      <CalendarLegend items={LEGEND_ITEMS} />
+    </div>
+  );
+}
+function DateTimeDots() {
+  const now = useClientNow();
+  return now ? <DateTimeDotsCalendar now={now} /> : <Skeleton variant="block" height={380} style={{ maxWidth: 380 }} />;
+}
+
+function DatePickerMarcadores() {
+  const [date, setDate] = React.useState('2026-08-14');
+  const [dots, setDots] = React.useState(() => bookedDaysOf(2026, 7));
+  return (
+    <div style={{ maxWidth: 260 }}>
+      <DatePicker
+        label="Reschedule to"
+        value={date}
+        onChange={setDate}
+        dayDots={dots}
+        dayDotLabel="has bookings"
+        onMonthChange={(y, m) => setDots(bookedDaysOf(y, m))}
+        locale="en"
+      />
+    </div>
+  );
+}
+
+function CalendarLegendBasica() {
+  return <CalendarLegend items={LEGEND_ITEMS} />;
+}
+
+const statGrid: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 };
+
+function StatCardBasico() {
+  return (
+    <div style={statGrid}>
+      <StatCard label="Today" value={12} hint="3 confirmed, 2 pending" />
+      <StatCard label="This week" value={48} hint="6 more than last week" />
+      <StatCard label="Revenue" value="R$ 4.320" hint="Closed this month" />
+    </div>
+  );
+}
+function StatCardTons() {
+  return (
+    <div style={statGrid}>
+      <StatCard label="Default" value={12} hint="Plain card" />
+      <StatCard tone="neutral" label="Neutral" value={12} hint="Quieter, for background figures" />
+      <StatCard tone="success" label="Confirmed" value={9} hint="All set" />
+      <StatCard tone="warning" label="Pending" value={5} hint="Waiting for a reply" />
+      <StatCard tone="error" label="Cancelled" value={2} hint="This week" />
+      <StatCard tone="info" label="New clients" value={7} hint="Joined this month" />
+    </div>
+  );
+}
+function StatCardProgresso() {
+  return (
+    <div style={statGrid}>
+      <StatCard label="Grid occupancy" value="75%" hint="6 of 8 slots taken" progress={{ percent: 75, label: 'Occupied slots' }} />
+      <StatCard tone="warning" label="Grid occupancy" value="95%" hint="Almost full" progress={{ percent: 95 }} />
+    </div>
+  );
+}
+function StatCardCarregando() {
+  const [loading, setLoading] = React.useState(true);
+  return (
+    <div style={col}>
+      <div style={row}>
+        <Button variant="secondary" size="sm" onClick={() => setLoading((v) => !v)}>
+          {loading ? 'Show the data' : 'Show loading'}
+        </Button>
+      </div>
+      <div style={statGrid}>
+        <StatCard loading={loading} label="Today" value={12} hint="3 confirmed, 2 pending" />
+        <StatCard loading={loading} tone="warning" label="Pending" value={5} hint="Waiting for a reply" />
+        <StatCard loading={loading} label="Grid occupancy" value="75%" hint="6 of 8 slots taken" progress={{ percent: 75 }} />
+      </div>
+    </div>
+  );
+}
+
 // A phone-screen frame - the bars sit flush to its edges, so their border reads
 // as an in-screen divider, not a broken frame edge.
 // A phone-screen frame. box-shadow for the outline (a real border + radius +
@@ -2415,6 +2539,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   },
   badge: { tones: BadgeCiclo, labels: BadgeGenericos, sizes: BadgeTamanhos },
   card: { padding: CardPadding, elevation: CardElevacao, interactive: CardInterativo },
+  'stat-card': { basic: StatCardBasico, tones: StatCardTons, progress: StatCardProgresso, loading: StatCardCarregando },
   avatar: { sizes: AvatarTamanhos, 'initials-photo': AvatarIniciais, status: AvatarStatus },
   brand: { variants: BrandVariantes, mono: BrandMono, sizes: BrandTamanhos },
   menu: { basic: MenuBasicoWrap, 'danger-disabled': MenuDangerDisabled, rich: MenuRico },
@@ -2472,11 +2597,13 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   'date-time-picker': {
     calendar: DateTimeCalendario,
     'render-day': DateTimeRenderDay,
+    'day-dots': DateTimeDots,
     'with-times': DateTimeComHorarios,
     capacity: DateTimeCapacidade,
     bounded: DateTimeLimitado,
   },
-  'date-picker': { basic: DatePickerBasico, range: DatePickerFaixa },
+  'date-picker': { basic: DatePickerBasico, range: DatePickerFaixa, markers: DatePickerMarcadores },
+  'calendar-legend': { basic: CalendarLegendBasica, 'with-calendar': DateTimeDots },
   'top-bar': { basic: TopBarBasico, full: TopBarCompleto, transparent: TopBarTransparente },
   tabs: { underline: TabsUnderline, pill: TabsPill, 'full-width': TabsFullWidth, overflow: TabsOverflow },
   'bottom-nav': { basic: BottomNavBasico, 'with-badge': BottomNavBadge },

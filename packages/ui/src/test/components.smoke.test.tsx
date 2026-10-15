@@ -8,8 +8,8 @@ afterEach(cleanup);
 
 /** Every component the barrel is meant to export. */
 const EXPECTED = [
-  'Typography', 'Button', 'IconButton', 'Badge', 'Card', 'Avatar', 'Brand', 'Menu', 'Table',
-  'Input', 'Textarea', 'Select', 'Checkbox', 'Radio', 'Switch', 'DateTimePicker', 'DatePicker',
+  'Typography', 'Button', 'IconButton', 'Badge', 'Card', 'StatCard', 'Avatar', 'Brand', 'Menu', 'Table',
+  'Input', 'Textarea', 'Select', 'Checkbox', 'Radio', 'Switch', 'DateTimePicker', 'DatePicker', 'CalendarLegend',
   'FileUpload', 'AvatarUpload', 'SearchInput',
   'TopBar', 'Tabs', 'BottomNav', 'SidebarNav', 'Stepper', 'Pagination',
   'Alert', 'Toast', 'Dialog', 'Skeleton', 'EmptyState',
@@ -25,6 +25,7 @@ const CASES: Record<string, React.ReactElement> = {
   IconButton: <UI.IconButton label="Back">{icon}</UI.IconButton>,
   Badge: <UI.Badge>New</UI.Badge>,
   Card: <UI.Card>body</UI.Card>,
+  StatCard: <UI.StatCard label="Agendamentos hoje" value={12} hint="3 confirmados" progress={{ percent: 60 }} />,
   Avatar: <UI.Avatar name="Ana Ramos" />,
   Brand: <UI.Brand />,
   Menu: <UI.Menu trigger={<button type="button">Menu</button>} items={[{ label: 'One', onClick: () => {} }]} />,
@@ -52,6 +53,7 @@ const CASES: Record<string, React.ReactElement> = {
   Switch: <UI.Switch label="Notificações" />,
   DateTimePicker: <UI.DateTimePicker year={2026} month={0} selectedDate={5} times={['09:00', { value: '10:00', disabled: true }]} />,
   DatePicker: <UI.DatePicker label="Data" defaultValue="2026-10-12" />,
+  CalendarLegend: <UI.CalendarLegend items={[{ label: 'Tem agendamento', dot: true }, { label: 'Hoje', outline: true }]} />,
   FileUpload: <UI.FileUpload />,
   AvatarUpload: <UI.AvatarUpload />,
   SearchInput: <UI.SearchInput placeholder="Search" />,

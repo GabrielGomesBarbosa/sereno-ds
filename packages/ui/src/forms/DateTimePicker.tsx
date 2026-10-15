@@ -3,6 +3,9 @@
 import * as React from 'react';
 import { sx } from '../_internal/style';
 import { CalendarGrid } from './_internal/CalendarGrid';
+import type { CalendarDayContext, CalendarDayDots } from './_internal/calendarDots';
+
+export type { CalendarDayContext, CalendarDayDot, CalendarDayDots, CalendarDotTone } from './_internal/calendarDots';
 
 const TEXT = {
   'pt-BR': {
@@ -89,11 +92,25 @@ export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivEl
   /** Fires whenever the visible month changes (arrows or the month/year popover). */
   onMonthChange?: (year: number, month: number) => void;
   /**
-   * Extra content under each day number - a count badge, a dot, etc. Return
+   * Extra content under each day number - a count badge, a note, etc. Return
    * `null` for days with nothing to show. When set, every cell grows to keep the
    * grid even. It's the caller's job to scope this (e.g. future days only).
+   * The second argument says what the calendar already knows about the day: whether it is
+   * `selected` (painted with the primary color, so content there needs `--interactive-primary-fg`),
+   * `today`, or `unavailable`.
    */
-  renderDay?: (day: number) => React.ReactNode;
+  renderDay?: (day: number, context: CalendarDayContext) => React.ReactNode;
+  /**
+   * The days that get a dot under their number, for "something happens this day": a list of day
+   * numbers (`[3, 17]`), or an object keyed by day number when a dot needs its own `tone` or
+   * `label` (`{ 3: { tone: 'warning' } }`). The calendar places the dot and turns it to
+   * `--interactive-primary-fg` on the selected day, so nothing has to be redone in `renderDay`.
+   * Day numbers of the month on screen, like `unavailable`: refresh them in `onMonthChange`.
+   * Shares the slot under the number with `renderDay`, and grows the cells the same way.
+   */
+  dayDots?: CalendarDayDots;
+  /** What a screen reader says for a dot with no `label` of its own, after the day number. Defaults to the `locale`-appropriate text ("com marcador" / "marked"). */
+  dayDotLabel?: string;
   /** Defaults to the `locale`-appropriate label ("Horários disponíveis" / "Available times"). */
   timeLabel?: string;
   /**
@@ -127,6 +144,8 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
     onSelectTime,
     onMonthChange,
     renderDay,
+    dayDots,
+    dayDotLabel,
     timeLabel,
     locale = 'pt-BR',
     style,
@@ -164,6 +183,8 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
         onSelectDate={onSelectDate}
         onMonthChange={onMonthChange}
         renderDay={renderDay}
+        dayDots={dayDots}
+        dayDotLabel={dayDotLabel}
         locale={locale}
       />
       {times.length > 0 && (
