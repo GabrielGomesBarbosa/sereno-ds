@@ -9,6 +9,7 @@ export { Button, type ButtonProps } from './core/Button';
 export { IconButton, type IconButtonProps } from './core/IconButton';
 export { Badge, type BadgeProps } from './core/Badge';
 export { Card, type CardProps } from './core/Card';
+export { StatCard, type StatCardProps, type StatCardTone } from './core/StatCard';
 export { Avatar, type AvatarProps } from './core/Avatar';
 export { Brand, type BrandProps } from './core/Brand';
 export { Menu, type MenuProps, type MenuItem, type MenuEntry, type MenuSeparator, type MenuHeading } from './core/Menu';
@@ -29,7 +30,16 @@ export { Select, type SelectProps, type SelectOption } from './forms/Select';
 export { Checkbox, type CheckboxProps } from './forms/Checkbox';
 export { Radio, type RadioProps } from './forms/Radio';
 export { Switch, type SwitchProps } from './forms/Switch';
-export { DateTimePicker, type DateTimePickerProps, type TimeSlot } from './forms/DateTimePicker';
+export {
+  DateTimePicker,
+  type DateTimePickerProps,
+  type TimeSlot,
+  type CalendarDayContext,
+  type CalendarDayDot,
+  type CalendarDayDots,
+  type CalendarDotTone,
+} from './forms/DateTimePicker';
+export { CalendarLegend, type CalendarLegendProps, type CalendarLegendItem } from './forms/CalendarLegend';
 export { DatePicker, type DatePickerProps, type DatePickerHandle } from './forms/DatePicker';
 export { FileUpload, type FileUploadProps } from './forms/FileUpload';
 export { AvatarUpload, type AvatarUploadProps } from './forms/AvatarUpload';

@@ -128,7 +128,7 @@ packages/
   ui/
     src/
       index.ts            the barrel
-      core/ forms/ navigation/ feedback/   the 31 primitives
+      core/ forms/ navigation/ feedback/   the 33 primitives
       _internal/           Field, CharCount, mask, style helpers
       theme/               ThemeProvider + ThemeToggle
       styles.css           keyframes + :checked / scrollbar / reflow rules

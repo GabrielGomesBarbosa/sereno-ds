@@ -6,6 +6,7 @@ import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
 import { fieldA11y } from '../_internal/fieldA11y';
 import { CalendarGrid } from './_internal/CalendarGrid';
+import type { CalendarDayContext, CalendarDayDots } from './_internal/calendarDots';
 import { parseISODate as parseISO, toISODate as toISO } from './_internal/calendarRange';
 import { fieldBoxStyle } from './_internal/fieldBoxStyle';
 
@@ -50,6 +51,26 @@ export interface DatePickerProps {
   min?: string;
   /** Latest selectable date, ISO "YYYY-MM-DD". The mirror image of `min`: later days are struck through and later months and years cannot be reached. */
   max?: string;
+  /**
+   * Fires when the month on screen changes (the arrows, or the month / year popover), with the
+   * new year and the 0-indexed month. Not when the popover opens: it opens on the month of the
+   * value, or on the current one. Refresh `dayDots` / `renderDay` here.
+   */
+  onMonthChange?: (year: number, month: number) => void;
+  /**
+   * Content under each day number (a count, a note), the same as `DateTimePicker`'s. The second
+   * argument says whether the day is `selected`, `today` or `unavailable`. When set, the day cells
+   * grow taller to hold it.
+   */
+  renderDay?: (day: number, context: CalendarDayContext) => React.ReactNode;
+  /**
+   * The days that get a dot under their number, the same as `DateTimePicker`'s: day numbers
+   * (`[3, 17]`), or an object keyed by day number for a per-dot `tone` or `label`. Day numbers of
+   * the month on screen, so refresh them in `onMonthChange`.
+   */
+  dayDots?: CalendarDayDots;
+  /** What a screen reader says for a dot with no `label` of its own. Defaults to the `locale`-appropriate text. */
+  dayDotLabel?: string;
   id?: string;
   containerStyle?: React.CSSProperties;
   /** aria-label for the clear (×) button. Defaults to the `locale`-appropriate text. */
@@ -101,6 +122,10 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
     onChange,
     min,
     max,
+    onMonthChange,
+    renderDay,
+    dayDots,
+    dayDotLabel,
     id,
     containerStyle,
     clearLabel,
@@ -286,7 +311,11 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
               onMonthChange={(y, m) => {
                 setViewYear(y);
                 setViewMonth(m);
+                onMonthChange?.(y, m);
               }}
+              renderDay={renderDay}
+              dayDots={dayDots}
+              dayDotLabel={dayDotLabel}
               onSelectDate={commit}
               squareCells
               trimEmptyRows

@@ -416,6 +416,95 @@ export const COMPONENTS: ComponentMeta[] = [
     },
   },
   {
+    slug: 'stat-card',
+    name: 'StatCard',
+    category: 'core',
+    summary: 'A figure on a dashboard: a small label, the number big, one line of context and, if it helps, a thin "how full" bar. Built on `Card`, so it follows the theme and the rest of the surface.',
+    props: [
+      R('label', 'string', 'The small line above the number: what is being counted.'),
+      R('value', 'ReactNode', 'The number, or a short text. Any node, so a formatted price or a `Badge` fits. Shown large, in tabular figures, so a row of cards lines its digits up.'),
+      R('hint', 'string', 'One line of context under the number ("3 confirmed", "vs last week").'),
+      R('tone', "'default' | 'neutral' | 'success' | 'warning' | 'error' | 'info'", '`default` is the plain card. `neutral` is a quieter one (a tinted fill, no shadow) for figures that are background. The four status tones are the same names `Badge`, `Alert` and `Toast` use: the card gets a ring in the tone\'s color and the label and number take its text color. The hint stays secondary, so the tone does not tint every line.', "'default'"),
+      R('progress', '{ percent: number; label?: string }', 'A thin bar under the number, for "how full" (a day\'s grid, a quota). `percent` is 0 to 100; anything outside is held to it. `label` names the bar for a screen reader, and without it the bar takes the card\'s `label`. The fill is the primary color, or the tone\'s text color in a status tone.'),
+      R('loading', 'boolean', 'The data has not arrived: the label, the number and the hint become placeholders that take the same room as the real text, so nothing jumps when it arrives. It mirrors the props you pass, so give `hint` and `progress` while loading too if the loaded card will have them. Marks the card `aria-busy`.', 'false'),
+      R('className / style / …', '-', 'Passed to the `Card` (it is a `div`). Your `style` comes last.'),
+    ],
+    code: `<StatCard
+  label="Appointments today"
+  value={12}
+  hint="3 confirmed, 2 pending"
+/>`,
+    examples: [
+      {
+        id: 'basic',
+        title: 'Basic',
+        description: 'Label, number, hint. Put three or four in a grid at the top of a screen: each card is one figure.',
+        code: `<StatCard label="Today" value={12} hint="3 confirmed, 2 pending" />
+<StatCard label="This week" value={48} hint="6 more than last week" />
+<StatCard label="Revenue" value="R$ 4.320" hint="Closed this month" />`,
+      },
+      {
+        id: 'tones',
+        title: 'Tones',
+        description:
+          'The status tones draw a ring in the tone and color the label and the number with its text color (all of them pass AA on the card, in both themes). Use one when the number *means* something: pending piling up is `warning`, a failure count above zero is `error`. `neutral` is for a figure that is only background. Keep most cards `default`: when everything is highlighted, nothing is.',
+        code: `<StatCard label="Default" value={12} hint="Plain card" />
+<StatCard tone="neutral" label="Neutral" value={12} hint="Quieter, for background figures" />
+<StatCard tone="success" label="Confirmed" value={9} hint="All set" />
+<StatCard tone="warning" label="Pending" value={5} hint="Waiting for a reply" />
+<StatCard tone="error" label="Cancelled" value={2} hint="This week" />
+<StatCard tone="info" label="New clients" value={7} hint="Joined this month" />`,
+      },
+      {
+        id: 'progress',
+        title: 'With a progress bar',
+        description:
+          '`progress` draws a thin bar for how full something is, here the day\'s grid. It is a real `progressbar` (`aria-valuenow`), named by its own `label` or, without one, by the card\'s. It takes the tone\'s color too.',
+        code: `<StatCard
+  label="Grid occupancy"
+  value="75%"
+  hint="6 of 8 slots taken"
+  progress={{ percent: 75, label: 'Occupied slots' }}
+/>
+<StatCard
+  tone="warning"
+  label="Grid occupancy"
+  value="95%"
+  hint="Almost full"
+  progress={{ percent: 95 }}
+/>`,
+      },
+      {
+        id: 'loading',
+        title: 'Loading',
+        description:
+          '`loading` swaps the label, the number and the hint for placeholders that hold the same height as the real lines, so the grid does not move when the data arrives. Pass the same props while loading (a placeholder `hint`, the `progress`) so the card has the same lines before and after. Toggle it to see the card keep its size.',
+        code: `<StatCard
+  loading={isLoading}
+  label="Appointments today"
+  value={data?.today ?? 0}
+  hint="3 confirmed, 2 pending"
+/>`,
+      },
+    ],
+    guidelines: {
+      do: [
+        'One figure per card, in a grid of three or four at the top of a screen.',
+        'A `hint` that says what the number is made of or compared to ("3 confirmed", "vs last week").',
+        'A status `tone` only when the number means something; the rest stay `default`.',
+        'The same props while `loading`, so the card keeps its lines and nothing jumps.',
+        'A `progress` bar only for a share of a whole (slots taken, quota used).',
+      ],
+      dont: [
+        'Two figures in one card: that is two cards.',
+        'A tone on every card: the one that matters stops standing out.',
+        'A sentence in `value`: it is the big number, not the copy.',
+        'A progress bar for something that is not a share of a whole.',
+        'Colouring the card yourself: a status tone is the tone, and `style` is for layout.',
+      ],
+    },
+  },
+  {
     slug: 'avatar',
     name: 'Avatar',
     category: 'core',
@@ -1260,7 +1349,9 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       R('min / max', 'string', 'ISO `"YYYY-MM-DD"` bounds, the same props `DatePicker` has. The calendar cannot be navigated outside them: the previous-month (next-month) arrow disables in the first (last) month, PageUp / PageDown and the arrow keys stop at the edge, and the month / year popover disables every month and year out of range. Days outside the range are struck through on their own, merged with `unavailable`, so you do not work out the past days yourself. A `year` / `month` that starts outside the range moves to the nearest month inside it, and `onMonthChange` reports that month at mount.'),
       R('onSelectDate / onSelectTime', '(v) => void', 'Selection callbacks.'),
       R('onMonthChange', '(year, month) => void', 'Fires on ‹ / › or the month/year popover, recompute `unavailable` / `renderDay` for the new month here. Also once at mount, and only then, when `min` / `max` moved the starting month.'),
-      R('renderDay', '(day) => ReactNode', 'Content under each day number (a count, a dot). Return `null` for nothing. Every cell grows to stay even: scope it yourself (e.g. future days only).'),
+      R('renderDay', '(day, { selected, today, unavailable }) => ReactNode', 'Content under each day number (a count, a note). Return `null` for nothing. Every cell grows to stay even: scope it yourself (e.g. future days only). The second argument is what the calendar already knows about the day, so you do not redo its logic: `selected` is true on the picked day (painted with the primary color, so content there needs `--interactive-primary-fg`), `today` on today, `unavailable` on a day that cannot be picked (listed in `unavailable`, or outside `min` / `max`). A `(day) =>` that ignores it keeps working.'),
+      R('dayDots', 'number[] | Record<number, { tone?, label? }>', 'The days that get a dot under their number, for "something happens this day": `[3, 17]`, or an object keyed by day number when a dot needs its own `tone` (`brand`, `success`, `warning`, `error`, `info`) or `label`. The calendar places the dot and turns it to `--interactive-primary-fg` on the selected day, so it never vanishes into the fill. It fades on a day that cannot be picked. Day numbers of the month on screen, like `unavailable`: refresh them in `onMonthChange`. Shares the slot under the number with `renderDay`, and grows the cells the same way.'),
+      R('dayDotLabel', 'string', 'What a screen reader says for a dot with no `label` of its own, after the day number ("3, com agendamento"). A dot is only a shape, so name what it means here.', "'com marcador' / 'marked'"),
       R('timeLabel', 'string', 'Overrides the section heading above the slots.', 'locale-dependent'),
       R(
         'locale',
@@ -1284,7 +1375,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'calendar',
         title: 'Calendar only',
         description:
-          'Without `times`, it’s just the calendar. `month` (0-indexed) is only the *starting* view, the header navigates from there, and the grid stays 6 rows so nothing below it shifts. `onMonthChange` keeps `unavailable` in sync: here, the weekends of whatever month you land on. Shown here with `locale="en"`: the real product always renders pt-BR.',
+          'Without `times`, it’s just the calendar. `month` (0-indexed) is only the *starting* view, the header navigates from there, and the grid stays 6 rows so nothing below it shifts. `onMonthChange` keeps `unavailable` in sync: here, the weekends of whatever month you land on. Today carries a thin ring (and `aria-current="date"`) in the month it belongs to, and none when it is the selected day. Shown here with `locale="en"`: the real product always renders pt-BR.',
         code: `const [off, setOff] = useState(() => weekendsOf(2026, 7));
 
 <DateTimePicker
@@ -1301,7 +1392,7 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         id: 'render-day',
         title: 'Content under each day',
         description:
-          '`renderDay` drops a node under the day number, a booking count, a dot. Return `null` for days with nothing. Scope it in the consumer (this one shows counts for **future** days only). Every cell grows so the grid stays even. Shown here with `locale="en"`: the real product always renders pt-BR.',
+          '`renderDay` drops a node under the day number, a booking count, a note. Return `null` for days with nothing. Scope it in the consumer (this one shows counts for **future** days only). Every cell grows so the grid stays even. Its second argument, `{ selected, today, unavailable }`, tells you what the calendar knows about the day. For a plain dot, use `dayDots` (next example) instead. Shown here with `locale="en"`: the real product always renders pt-BR.',
         code: `<DateTimePicker
   year={2026}
   month={7}
@@ -1312,6 +1403,31 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
   selectedDate={day}
   onSelectDate={setDay}
   locale="en"
+/>`,
+      },
+      {
+        id: 'day-dots',
+        title: 'Dots, and a legend',
+        description:
+          '`dayDots` marks the days where something happens: a list of day numbers, or an object keyed by day when a dot needs its own `tone` or `label`. The calendar places the dot and turns it to the primary foreground on the selected day (here, the first marked day), so it stays visible on the fill. Refresh the days in `onMonthChange`, like `unavailable`. `CalendarLegend` under it says what the marks mean, and draws the same dot and the same ring the calendar does. This one starts on the current month, so today carries its ring. Shown here with `locale="en"`: the real product always renders pt-BR.',
+        code: `const [dots, setDots] = useState(() => bookedDaysOf(year, month));
+
+<DateTimePicker
+  year={year}
+  month={month}
+  dayDots={dots}
+  dayDotLabel="has bookings"
+  onMonthChange={(y, m) => setDots(bookedDaysOf(y, m))}
+  selectedDate={day}
+  onSelectDate={setDay}
+  locale="en"
+/>
+<CalendarLegend
+  items={[
+    { label: 'Has bookings', dot: true },
+    { label: 'Pending', dot: 'warning' },
+    { label: 'Today', outline: true },
+  ]}
 />`,
       },
       {
@@ -1372,14 +1488,18 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       do: [
         '`month` is 0-indexed and is only the *starting* view.',
         '`min` (today) on a public booking page instead of striking the past days by hand through `unavailable`: it also stops the navigation.',
-        'Recompute `unavailable` / `renderDay` inside `onMonthChange` so they track the visible month.',
+        'Recompute `unavailable` / `dayDots` / `renderDay` inside `onMonthChange` so they track the visible month.',
+        '`dayDots` for "something happens this day": the calendar keeps the dot visible on the selected day, so you do not.',
+        'In `renderDay`, read the second argument (`selected`, `today`, `unavailable`) instead of working out the calendar\'s state yourself. On the `selected` day the fill is the primary color, so the content needs `--interactive-primary-fg`.',
+        'A `CalendarLegend` under a calendar that marks anything, so the dot and the ring are explained the same way on every screen.',
         'Unavailable slots as `{ value, disabled: true }`; they keep their place in the grid.',
         'Let the accent time marker be the only one on the screen.',
         'A full (`booked >= capacity`) slot stays pickable unless you also set `disabled`; that is the real "no".',
       ],
       dont: [
         'Removing unavailable slots from the list: the grid "jumps".',
-        'Putting `renderDay` counts in the public booking flow; that’s the pro’s private data.',
+        'Putting `renderDay` counts or `dayDots` that mean "someone booked" in the public booking flow; that’s the pro’s private data.',
+        'A dot hand-drawn in `renderDay` whose color you swap by guessing which day is selected: that is what `dayDots` does for you.',
         'Treating "full" as "disabled"; they mean different things; disable it explicitly when it truly can\'t be booked.',
         'Setting `locale="en"` in the real product. Sereno is pt-BR only; the prop exists for this docs site.',
       ],
@@ -1397,6 +1517,10 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
       R('value / defaultValue', 'string', 'ISO `"YYYY-MM-DD"`: controlled / uncontrolled, same contract as every other field.'),
       R('onChange', '(value: string) => void', 'Fires with the new ISO date on pick.'),
       R('min / max', 'string', 'ISO date bounds. Every day outside the range is struck through and unclickable, and the calendar cannot be navigated outside it: the previous-month (next-month) arrow disables in the first (last) month, PageUp / PageDown and the arrow keys stop at the edge, and the month / year popover disables every month and year out of range. A value or a starting month outside the range opens on the nearest month inside it.'),
+      R('onMonthChange', '(year, month) => void', 'Fires when the month on screen changes (the arrows, or the month / year popover), with the 0-indexed month. Not when the popover opens: it opens on the month of the value, or on the current one. Refresh `dayDots` / `renderDay` here.'),
+      R('dayDots', 'number[] | Record<number, { tone?, label? }>', 'Dots under the days, the same as `DateTimePicker`\'s: day numbers of the month on screen (`[3, 17]`), or an object keyed by day for a per-dot `tone` or `label`. The dot turns to the primary foreground on the selected day.'),
+      R('renderDay', '(day, { selected, today, unavailable }) => ReactNode', 'Content under each day number, the same as `DateTimePicker`\'s. When this or `dayDots` is set, the day cells grow taller to hold it.'),
+      R('dayDotLabel', 'string', 'What a screen reader says for a dot with no `label` of its own.', "'com marcador' / 'marked'"),
       R('disabled', 'boolean', '', 'false'),
       R('clearLabel', 'string', 'aria-label for the clear (×) button that appears once a value is set.', 'locale-dependent'),
       R(
@@ -1435,6 +1559,21 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
   locale="en"
 />`,
       },
+      {
+        id: 'markers',
+        title: 'Marking days',
+        description:
+          'The same `dayDots` as `DateTimePicker`: a dot under the days where something happens, kept visible on the selected day. The popover opens on the month of the value (or the current month), and `onMonthChange` tells you when it moves, to refresh the days.',
+        code: `<DatePicker
+  label="Reschedule to"
+  value={date}
+  onChange={setDate}
+  dayDots={dots}
+  dayDotLabel="has bookings"
+  onMonthChange={(y, m) => setDots(bookedDaysOf(y, m))}
+  locale="en"
+/>`,
+      },
     ],
     guidelines: {
       do: [
@@ -1445,6 +1584,59 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
         'A date **and** a time in the same control; that’s `DateTimePicker`.',
         'Multiple dates or a range picker: not this component\'s job.',
         'Setting `locale="en"` in the real product. Sereno is pt-BR only; the prop exists for this docs site.',
+      ],
+    },
+  },
+  {
+    slug: 'calendar-legend',
+    name: 'CalendarLegend',
+    category: 'forms',
+    summary: 'The footer that explains what a calendar marks: the dots under the days and the ring around today. Draws the same dot and the same ring the calendar does.',
+    props: [
+      R('items', '{ label: string; dot?: boolean | tone; outline?: boolean }[]', 'One entry per thing the calendar marks. `dot` draws the filled dot of `dayDots` (`true` is the primary color; a tone picks `success`, `warning`, `error` or `info`). `outline` draws the thin ring around today; with `dot` as well, the dot sits inside the ring. An item with neither is just its label.'),
+      R('className / style / …', '-', 'Passed to the list (a `ul`). Your `style` comes last. It centers and wraps, so it fits a narrow screen.'),
+    ],
+    code: `<CalendarLegend
+  items={[
+    { label: 'Has bookings', dot: true },
+    { label: 'Today', outline: true },
+  ]}
+/>`,
+    examples: [
+      {
+        id: 'basic',
+        title: 'Basic',
+        description: 'A dot for each tone of `dayDots` you use, and the ring for today. The swatches are hidden from a screen reader, which gets the labels as a list.',
+        code: `<CalendarLegend
+  items={[
+    { label: 'Has bookings', dot: true },
+    { label: 'Pending', dot: 'warning' },
+    { label: 'Today', outline: true },
+  ]}
+/>`,
+      },
+      {
+        id: 'with-calendar',
+        title: 'Under a calendar',
+        description: 'Put it right under the `DateTimePicker`, with one item per thing the calendar marks, so the same marks are explained the same way on every screen.',
+        code: `<DateTimePicker dayDots={dots} onMonthChange={refresh} selectedDate={day} onSelectDate={setDay} />
+<CalendarLegend
+  items={[
+    { label: 'Has bookings', dot: true },
+    { label: 'Pending', dot: 'warning' },
+    { label: 'Today', outline: true },
+  ]}
+/>`,
+      },
+    ],
+    guidelines: {
+      do: [
+        'A legend for every calendar that marks anything, with one item per mark.',
+        'The same tones in the legend as in `dayDots`, so a dot means the same thing in both.',
+      ],
+      dont: [
+        'Explaining a mark the calendar does not draw: an item for a ring or a color that is not on screen.',
+        'A legend with more than three or four items: too many marks is the calendar\'s problem, not the legend\'s.',
       ],
     },
   },

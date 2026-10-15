@@ -3,8 +3,10 @@
 import * as React from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { sx } from '../../_internal/style';
+import { srOnlyStyle } from '../../_internal/srOnly';
 import { IconButton } from '../../core/IconButton';
 import { calendarRange, clampIndex, isDayOutside, yearWindowStart } from './calendarRange';
+import { dotFor, dotStyle, TODAY_RING, type CalendarDayContext, type CalendarDayDots } from './calendarDots';
 
 /**
  * The month calendar body - header (‹ / › month nav + a month/year jump
@@ -33,13 +35,21 @@ export interface CalendarGridProps {
   max?: string;
   onSelectDate?: (day: number) => void;
   onMonthChange?: (year: number, month: number) => void;
-  renderDay?: (day: number) => React.ReactNode;
+  /**
+   * Content under each day number. The second argument says what the calendar knows about the
+   * day (selected, today, unavailable), so the content can follow it without redoing the logic.
+   */
+  renderDay?: (day: number, context: CalendarDayContext) => React.ReactNode;
+  /** The days that get a dot under their number (see `CalendarDayDots`). Shares the slot under the number with `renderDay`. */
+  dayDots?: CalendarDayDots;
+  /** What a screen reader says for a dot that has no `label` of its own. Defaults to the `locale`-appropriate text. */
+  dayDotLabel?: string;
   /**
    * Day cells are perfect squares (`aspect-ratio`) instead of a fixed pixel
    * height - `DatePicker` (SS-243) opts into this since its popover can be
    * narrower than `DateTimePicker`'s own card, where a fixed height was
-   * already tuned and shipped. Ignored when `renderDay` is set - that case
-   * always needs the extra fixed height for its own content.
+   * already tuned and shipped. Ignored when `renderDay` or `dayDots` is set -
+   * that case always needs the extra fixed height for its own content.
    */
   squareCells?: boolean;
   /**
@@ -70,6 +80,7 @@ const I18N = {
     nextYear: 'Próximo ano',
     nextYears: 'Próximos anos',
     pickerLabel: 'Escolher mês e ano',
+    marked: 'com marcador',
   },
   en: {
     dow: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
@@ -82,6 +93,7 @@ const I18N = {
     nextYear: 'Next year',
     nextYears: 'Next years',
     pickerLabel: 'Choose month and year',
+    marked: 'marked',
   },
 } as const;
 
@@ -99,6 +111,8 @@ export function CalendarGrid({
   onSelectDate,
   onMonthChange,
   renderDay,
+  dayDots,
+  dayDotLabel,
   squareCells = false,
   trimEmptyRows = false,
   locale = 'pt-BR',
@@ -221,7 +235,9 @@ export function CalendarGrid({
   // instead of a fixed guess that only looks square at one particular width.
   // `renderDay` needs literal extra height for its own content underneath
   // the day number regardless, so that case always keeps a fixed height.
-  const cellSizing: React.CSSProperties = renderDay ? { height: 48 } : squareCells ? { aspectRatio: '1' } : { height: 38 };
+  const hasSlot = !!renderDay || dayDots !== undefined;
+  const cellSizing: React.CSSProperties = hasSlot ? { height: 48 } : squareCells ? { aspectRatio: '1' } : { height: 38 };
+  const todayIndex = now.getFullYear() * 12 + now.getMonth();
   const years = Array.from({ length: 12 }, (_, i) => yearBase + i);
   const rovingDay = Math.min(Math.max(1, activeDay), total);
 
@@ -525,7 +541,9 @@ export function CalendarGrid({
           if (d === null) return <span key={i} aria-hidden style={cellSizing} />;
           const off = unavailable.includes(d) || isDayOutside(range, viewIndex, d);
           const sel = selectedDate === d && viewIndex === selectionIndex;
-          const extra = renderDay?.(d);
+          const today = viewIndex === todayIndex && d === now.getDate();
+          const extra = renderDay?.(d, { selected: sel, today, unavailable: off });
+          const dot = dotFor(dayDots, d);
           return (
             <button
               key={i}
@@ -538,6 +556,7 @@ export function CalendarGrid({
               // truly `disabled` button can't receive focus at all, which
               // would make the roving tabindex below silently break.
               aria-disabled={off || undefined}
+              aria-current={today ? 'date' : undefined}
               tabIndex={d === rovingDay ? 0 : -1}
               aria-pressed={sel}
               onClick={() => {
@@ -568,6 +587,9 @@ export function CalendarGrid({
                 fontSize: 'var(--text-sm)',
                 fontWeight: sel ? 'var(--weight-bold)' : 'var(--weight-medium)',
                 textDecoration: off ? 'line-through' : 'none',
+                // Today is told apart by a thin inset ring (also `aria-current` above). Not when it
+                // is the selected day: the primary fill already says which day it is.
+                boxShadow: today && !sel ? TODAY_RING : undefined,
                 transition: 'var(--transition-control)',
                 // Not inline outline:none - that would always beat the
                 // .sereno-dtp-days:focus-visible rule below no matter what
@@ -577,7 +599,13 @@ export function CalendarGrid({
               })}
             >
               <span>{d}</span>
-              {renderDay ? <span style={sx({ display: 'flex', minHeight: 12, lineHeight: 1 })}>{extra}</span> : null}
+              {hasSlot ? (
+                <span style={sx({ display: 'flex', gap: 4, minHeight: 12, lineHeight: 1 })}>
+                  {extra}
+                  {dot ? <span aria-hidden style={sx({ ...dotStyle(dot.tone, { selected: sel, unavailable: off }), alignSelf: 'center' })} /> : null}
+                </span>
+              ) : null}
+              {dot ? <span style={srOnlyStyle}>{dot.label ?? dayDotLabel ?? t.marked}</span> : null}
             </button>
           );
         })}
