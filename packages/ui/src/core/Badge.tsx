@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { sx } from '../_internal/style';
+import { StatusDot, statusDotStyle } from './StatusDot';
 
 /**
  * Status pill for the booking lifecycle and other short labels.
@@ -12,21 +13,28 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   size?: 'sm' | 'md';
   /** Leading status dot. Keep it on for lifecycle states. */
   dot?: boolean;
+  /**
+   * A soft ring pulses out of the dot, for a state that is live ("Open now", "Online"). Only
+   * with `dot`. Off by default: use it on one or two badges, never on a list. It does not show
+   * when the user asks for reduced motion.
+   */
+  pulse?: boolean;
   children?: React.ReactNode;
 }
 
-const TONES: Record<NonNullable<BadgeProps['tone']>, [string, string, string]> = {
-  success: ['--status-success-bg', '--status-success-fg', '--status-success-dot'],
-  warning: ['--status-warning-bg', '--status-warning-fg', '--status-warning-dot'],
-  error: ['--status-error-bg', '--status-error-fg', '--status-error-dot'],
-  info: ['--status-info-bg', '--status-info-fg', '--status-info-dot'],
+// The dot's own color comes from `StatusDot`, so the two cannot drift apart.
+const TONES: Record<NonNullable<BadgeProps['tone']>, [string, string]> = {
+  success: ['--status-success-bg', '--status-success-fg'],
+  warning: ['--status-warning-bg', '--status-warning-fg'],
+  error: ['--status-error-bg', '--status-error-fg'],
+  info: ['--status-info-bg', '--status-info-fg'],
   // Neutral = an outlined chip (surface fill + hairline border, added below) so it
   // reads on any background, including a tinted one.
-  neutral: ['--bg-surface', '--text-secondary', '--text-muted'],
+  neutral: ['--bg-surface', '--text-secondary'],
 };
 
-export function Badge({ tone = 'neutral', size = 'md', dot = true, children, style, ...rest }: BadgeProps) {
-  const [bg, fg, dt] = TONES[tone] || TONES.neutral;
+export function Badge({ tone = 'neutral', size = 'md', dot = true, pulse = false, children, style, ...rest }: BadgeProps) {
+  const [bg, fg] = TONES[tone] || TONES.neutral;
   const sm = size === 'sm';
   return (
     <span
@@ -51,7 +59,12 @@ export function Badge({ tone = 'neutral', size = 'md', dot = true, children, sty
         ...style,
       })}
     >
-      {dot && <span style={sx({ width: sm ? 5 : 6, height: sm ? 5 : 6, borderRadius: '999px', background: 'var(' + dt + ')', flex: '0 0 auto' })} />}
+      {dot &&
+        (pulse ? (
+          <StatusDot tone={tone} size={sm ? 'sm' : 'md'} pulse />
+        ) : (
+          <span style={statusDotStyle(tone, sm ? 'sm' : 'md')} />
+        ))}
       {children}
     </span>
   );

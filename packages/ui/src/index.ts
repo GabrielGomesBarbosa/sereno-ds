@@ -8,7 +8,10 @@ export { Typography, type TypographyProps, type TypographyVariant, type Typograp
 export { Button, type ButtonProps } from './core/Button';
 export { IconButton, type IconButtonProps } from './core/IconButton';
 export { Badge, type BadgeProps } from './core/Badge';
+export { StatusDot, type StatusDotProps, type StatusDotTone, type StatusDotSize } from './core/StatusDot';
+export { Divider, type DividerProps } from './core/Divider';
 export { Card, type CardProps } from './core/Card';
+export { ActionCard, type ActionCardProps, type ActionCardVariant } from './core/ActionCard';
 export { StatCard, type StatCardProps, type StatCardTone } from './core/StatCard';
 export { Avatar, type AvatarProps } from './core/Avatar';
 export { Brand, type BrandProps } from './core/Brand';

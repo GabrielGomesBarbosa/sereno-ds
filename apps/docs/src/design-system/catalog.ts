@@ -319,6 +319,7 @@ export const COMPONENTS: ComponentMeta[] = [
       R('tone', "'success' | 'warning' | 'error' | 'info' | 'neutral'", 'Semantic tone. `neutral` renders as an outlined chip.', "'neutral'"),
       R('size', "'sm' | 'md'", 'Pill size.', "'md'"),
       R('dot', 'boolean', 'Leading status dot. Keep it on for lifecycle states.', 'true'),
+      R('pulse', 'boolean', 'A soft ring pulses out of the dot, for a state that is live ("Open now", "Online"). Only with `dot`. It does not show when the user asks for reduced motion. The dot is drawn by `StatusDot`, which you can also use on its own.', 'false'),
     ],
     code: `<Badge tone="success">Confirmed</Badge>`,
     examples: [
@@ -346,16 +347,83 @@ export const COMPONENTS: ComponentMeta[] = [
         code: `<Badge tone="success" size="sm">Confirmed</Badge>
 <Badge tone="success" size="md">Confirmed</Badge>`,
       },
+      {
+        id: 'pulse',
+        title: 'Live state',
+        description:
+          '`pulse` makes a soft ring grow and fade out of the dot, for a state that is happening right now: "Open now", "Closing soon", "Online". The text still carries the meaning, the ring is only attention. It is off by default, keep it for one or two badges on a screen (never a list), and it is gone for anyone who asks for reduced motion.',
+        code: `<Badge tone="success" pulse>Open now</Badge>
+<Badge tone="warning" pulse>Closing soon</Badge>
+<Badge tone="info" size="sm" pulse>Online</Badge>`,
+      },
     ],
     guidelines: {
       do: [
         'Use only the five semantic tones: never invent a sixth.',
         'Always with a word: a `Badge` never signals status by colour alone.',
         'Keep `dot` on for lifecycle states.',
+        '`pulse` only for a state that is live right now, on one or two badges.',
       ],
       dont: [
+        '`pulse` on every badge of a list: when everything moves, nothing is live.',
         'A `Badge` as a button; it is not clickable.',
         'The old lifecycle names (`confirmed`, `pending`…) as `tone`; those are gone; use the semantic tones.',
+      ],
+    },
+  },
+  {
+    slug: 'status-dot',
+    name: 'StatusDot',
+    category: 'core',
+    summary: 'A small colored dot for a state, with an optional pulsing ring for one that is live. The same dot `Badge` draws before its label, for the places that have no pill around it.',
+    props: [
+      R('tone', "'success' | 'warning' | 'error' | 'info' | 'neutral'", 'The same words `Badge`, `Alert` and `Toast` use. `neutral` is the muted grey.', "'neutral'"),
+      R('size', "'sm' | 'md'", '`sm` is 5px and `md` is 6px: the two dot sizes of `Badge`.', "'md'"),
+      R('pulse', 'boolean', 'A translucent ring grows and fades around the dot, over and over. For a live state (open now, online), on one or two dots and never on a list. It does not show when the user asks for reduced motion.', 'false'),
+      R('label', 'string', 'What a screen reader says for the dot (it becomes an image with that name). Without it the dot is decorative: put the meaning in the text next to it.'),
+      R('className / style / …', '-', 'Passed to the dot (a `span`). Your `style` comes last.'),
+    ],
+    code: `<span>
+  <StatusDot tone="success" pulse /> Open now
+</span>`,
+    examples: [
+      {
+        id: 'tones',
+        title: 'Tones',
+        description: 'The five tones, each next to the word that says what it means. A dot alone never carries the status: the text does.',
+        code: `<StatusDot tone="success" /> Open
+<StatusDot tone="warning" /> Closing soon
+<StatusDot tone="error" /> Closed
+<StatusDot tone="info" /> On a call
+<StatusDot tone="neutral" /> Unknown`,
+      },
+      {
+        id: 'pulse',
+        title: 'Pulsing',
+        description:
+          '`pulse` adds a ring that grows and fades behind the dot, for a state that is live right now. Keep it to one or two on a screen. When the dot stands alone after a name, give it a `label` and a screen reader says "Ana Ramos, Online"; when a word beside it already says the status, leave the `label` out so it is not read twice.',
+        code: `Ana Ramos <StatusDot tone="success" pulse label="Online" />
+<StatusDot tone="warning" pulse /> Closing soon
+<StatusDot tone="error" pulse /> Needs attention`,
+      },
+      {
+        id: 'sizes',
+        title: 'Sizes',
+        description: '`sm` (5px) and `md` (6px), the sizes `Badge` uses. Next to body text, `md`.',
+        code: `<StatusDot tone="success" size="sm" />
+<StatusDot tone="success" size="md" />`,
+      },
+    ],
+    guidelines: {
+      do: [
+        'A word next to the dot (or a `label`): the color alone is not the status.',
+        '`pulse` only for a state that is live, on one or two dots.',
+        'A `Badge` when the state is a label in its own right; a `StatusDot` when it sits beside a name or a title.',
+      ],
+      dont: [
+        'A dot as the only sign of a state: a screen reader and a color-blind user get nothing.',
+        '`pulse` on every row of a list: when everything moves, nothing is live.',
+        'A dot as a button: it is not clickable.',
       ],
     },
   },
@@ -413,6 +481,81 @@ export const COMPONENTS: ComponentMeta[] = [
         'Selection = `selected` (border on all 4 sides + ring).',
       ],
       dont: ['Stacking two shadows.', 'A coloured left border to indicate selection.'],
+    },
+  },
+  {
+    slug: 'action-card',
+    name: 'ActionCard',
+    category: 'core',
+    summary: 'A whole card you press: an icon, a title, a line of explanation and an arrow, in a real button. For the options of a decision and the entries of a settings flow.',
+    props: [
+      R('title', 'ReactNode', 'What the card does. Short: with the description it is the name a screen reader says.'),
+      R('description', 'ReactNode', 'One line that says what happens.'),
+      R('icon', 'ReactNode', 'An icon (a `lucide-react` element), drawn in a tile on the left. Hidden from a screen reader: the title says it.'),
+      R('trailing', 'ReactNode', 'What sits on the right. An arrow by default; any node (a `Badge`, a value), or `null` for nothing.'),
+      R('selected', 'boolean', 'Passing it (true or false) makes the card a toggle: it reports `aria-pressed` and, when true, wears the brand ring. Leave it out for a plain action. It is not a radio: for "choose exactly one" the semantics are a radio group\'s.'),
+      R('variant', "'default' | 'primary' | 'error'", '`primary` is the option to steer toward (the tile takes the primary color); `error` is a destructive one (error tile, error title and ring).', "'default'"),
+      R('disabled', 'boolean', 'Native `disabled`: not clickable, not focusable. The text and the tile go to the disabled colors.', 'false'),
+      R('onClick / type / …', '-', 'Everything a `button` takes. `type` defaults to `button`, so it never submits a form by accident.'),
+    ],
+    code: `<ActionCard
+  icon={<CalendarClock size={20} />}
+  title="Reschedule"
+  description="Pick another day and time"
+  onClick={reschedule}
+/>`,
+    examples: [
+      {
+        id: 'basic',
+        title: 'Basic',
+        description: 'Stack them for the options of a decision. The whole card is the button: hover rings it in the brand color, the keyboard focus ring is the DS one, and Enter and Space press it.',
+        code: `<ActionCard icon={<CalendarClock size={20} />} title="Reschedule" description="Pick another day and time" onClick={reschedule} />
+<ActionCard icon={<Pencil size={20} />} title="Edit the booking" description="Change the service or the notes" onClick={edit} />
+<ActionCard icon={<Share2 size={20} />} title="Share the link" description="Send it to the client" onClick={share} />`,
+      },
+      {
+        id: 'selected',
+        title: 'Selected',
+        description:
+          'With `selected`, the card is a toggle: `aria-pressed` tells a screen reader which is on, and the brand ring tells everyone else. This is a toggle, not a radio: the arrow keys do not move between the cards, and nothing stops two being on. For "exactly one of these", a radio group is the right semantics.',
+        code: `<ActionCard selected={on === 'email'} onClick={() => setOn('email')} icon={<Mail size={20} />} title="E-mail" description="A message with the details" trailing={null} />
+<ActionCard selected={on === 'sms'} onClick={() => setOn('sms')} icon={<Phone size={20} />} title="SMS" description="A short text message" trailing={null} />`,
+      },
+      {
+        id: 'variants',
+        title: 'Variants',
+        description: '`primary` is the one to steer toward: its tile takes the primary color. `error` is for a destructive option: an error tile, an error title and an error ring.',
+        code: `<ActionCard icon={<Plus size={20} />} title="New booking" description="Add a client to the agenda" />
+<ActionCard variant="primary" icon={<Sparkles size={20} />} title="Open the agenda" description="See today at a glance" />
+<ActionCard variant="error" icon={<Trash2 size={20} />} title="Cancel the booking" description="This cannot be undone" />`,
+      },
+      {
+        id: 'disabled',
+        title: 'Disabled',
+        description: '`disabled` is the native attribute: the card cannot be clicked or focused, and its text and tile go to the disabled colors. Say why in the description.',
+        code: `<ActionCard disabled icon={<Lock size={20} />} title="Export the report" description="Available on the yearly plan" />`,
+      },
+      {
+        id: 'trailing',
+        title: 'Trailing',
+        description: 'The arrow is the default. Swap it for any node (a `Badge`, a value), or pass `null` when the card is a toggle and an arrow would say "go".',
+        code: `<ActionCard icon={<Wallet size={20} />} title="Payments" description="Cards and Pix" trailing={<Badge tone="warning" size="sm">Set up</Badge>} />
+<ActionCard icon={<Bell size={20} />} title="Reminders" description="Sent the day before" trailing={null} />`,
+      },
+    ],
+    guidelines: {
+      do: [
+        'One card per option of a decision, with a title that says what it does.',
+        'A description that says what happens next, in a line.',
+        '`variant="error"` for a destructive option, and say what is lost.',
+        '`selected` for a toggle; `trailing={null}` so the arrow does not say "go".',
+      ],
+      dont: [
+        'A card with no `onClick`: it looks pressable and does nothing. A plain panel is a `Card`.',
+        '`selected` to mean "the one chosen of several": that is a radio group, and these are not radios.',
+        'A long paragraph in `description`: it is one line.',
+        'A card inside a card: the inner one is a `Card` with `elevation="none"`.',
+      ],
     },
   },
   {
@@ -501,6 +644,60 @@ export const COMPONENTS: ComponentMeta[] = [
         'A sentence in `value`: it is the big number, not the copy.',
         'A progress bar for something that is not a share of a whole.',
         'Colouring the card yourself: a status tone is the tone, and `style` is for layout.',
+      ],
+    },
+  },
+  {
+    slug: 'divider',
+    name: 'Divider',
+    category: 'core',
+    summary: 'A horizontal line between two stretches of content. `default` is the subtle hairline; `strong` is a firmer one for a page background.',
+    props: [
+      R('variant', "'default' | 'strong'", '`default` is `--border-subtle`, the hairline of a list or a card. `strong` is `--border-strong`: firmer, for the page background where the subtle one nearly disappears. Firmer, not high contrast: `strong` is 1.63:1 against a card and 1.38:1 against the page in the light theme (1.83:1 and 2.03:1 in the dark one), which is right for a separator and short of what the edge of a control would need.', "'default'"),
+      R('decorative', 'boolean', 'Hides the line from a screen reader (`role="none"`). For the lines between rows that repeat, so the reader does not announce a separator after every one. Without it the line is a separator, which is right between two sections.', 'false'),
+      R('className / style / …', '-', 'Passed to the `hr`. Your `style` comes last. It has no margin of its own: the space around it is yours (a `gap` on the parent, or a `style`).'),
+    ],
+    code: `<Divider />
+<Divider variant="strong" />`,
+    examples: [
+      {
+        id: 'basic',
+        title: 'Default and strong',
+        description: 'Inside a card the subtle hairline is enough. `strong` is the same line, firmer. Spacing is yours: here a `gap` on the parent.',
+        code: `<Card>
+  <p>Weekly summary</p>
+  <Divider />
+  <p>Upcoming bookings</p>
+  <Divider variant="strong" />
+  <p>Open slots</p>
+</Card>`,
+      },
+      {
+        id: 'on-page',
+        title: 'On the page background',
+        description: 'Outside a card, on the page itself, the subtle hairline is about the color of the background: in the light theme it is even a shade lighter than the page, so the first line below does not show at all. The `strong` one does show, as a quiet line. That is the case `strong` is for.',
+        code: `<div style={{ background: 'var(--bg-canvas)', padding: 'var(--space-5)' }}>
+  <Divider />
+  <Divider variant="strong" />
+</div>`,
+      },
+      {
+        id: 'decorative',
+        title: 'Between repeated rows',
+        description: 'Rows of a list repeat, and a screen reader would announce a separator after every one. `decorative` takes the line out of what it reads; the rows are the content.',
+        code: `<Divider decorative />`,
+      },
+    ],
+    guidelines: {
+      do: [
+        '`default` inside cards and lists; `strong` on the page background.',
+        '`decorative` between rows that repeat.',
+        'Space around it with a `gap` on the parent or a `style`: it has no margin of its own.',
+      ],
+      dont: [
+        'Expecting `strong` to be high contrast: it is firmer, not 3:1.',
+        'A divider between every field of a form: let the spacing separate them.',
+        'A divider as the edge of a control: that is a border, with the contrast a control needs.',
       ],
     },
   },
