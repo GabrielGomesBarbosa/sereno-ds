@@ -35,7 +35,7 @@ npm workspaces + Turborepo. Four workspaces:
 | Path | Name | What |
 |---|---|---|
 | `packages/tokens` | `@sereno-ds/tokens` | the token CSS (`*.css` + a `tokens.css` barrel) |
-| `packages/ui` | `@sereno-ds/ui` | the 33 primitives + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) |
+| `packages/ui` | `@sereno-ds/ui` | the 36 primitives + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) |
 | `apps/docs` | `docs` | the `/design-system` showcase (Next 16, `output: 'export'`) |
 | `apps/demo` | `demo` | landing at `/` + `/agendar/[slug]` + `/dashboard/[[...slug]]` + `/onboarding` + `src/screens/` + `src/domain/` (product cards on `@sereno-ds/ui`) + `src/lib/mock.ts` |
 
@@ -226,7 +226,7 @@ previews (test locally + on the branch).
   wrong order leaves the page stuck on `hidden` for good (and a client-side navigation does not
   reload it). The lock counts holders, records the page's own value on the first one and gives
   it back when the last lets go. A component drawn inside a `Dialog` needs no lock of its own.
-- **No UI base library.** The 33 primitives in `packages/ui/src/` are token-driven
+- **No UI base library.** The 36 primitives in `packages/ui/src/` are token-driven
   inline styles reading CSS custom properties. When editing them, preserve
   behaviour; do not introduce Radix / MUI / Tailwind.
 - **Field adornments must share the control's text metrics.** An `Input` /

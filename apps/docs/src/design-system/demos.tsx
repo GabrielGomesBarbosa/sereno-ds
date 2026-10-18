@@ -30,6 +30,7 @@ import {
   X,
 } from 'lucide-react';
 import {
+  ActionCard,
   Alert,
   Avatar,
   AvatarUpload,
@@ -44,6 +45,7 @@ import {
   DatePicker,
   DateTimePicker,
   Dialog,
+  Divider,
   EmptyState,
   FileUpload,
   IconButton,
@@ -57,6 +59,7 @@ import {
   SidebarNav,
   Skeleton,
   StatCard,
+  StatusDot,
   Stepper,
   Switch,
   Table,
@@ -321,6 +324,151 @@ function BadgeTamanhos() {
         Confirmed
       </Badge>
     </div>
+  );
+}
+
+function BadgePulso() {
+  return (
+    <div style={row}>
+      <Badge tone="success" pulse>
+        Open now
+      </Badge>
+      <Badge tone="warning" pulse>
+        Closing soon
+      </Badge>
+      <Badge tone="info" size="sm" pulse>
+        Online
+      </Badge>
+    </div>
+  );
+}
+
+const dotRow: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-primary)' };
+
+function StatusDotTons() {
+  return (
+    <div style={{ ...row, gap: 20 }}>
+      <span style={dotRow}>
+        <StatusDot tone="success" /> Open
+      </span>
+      <span style={dotRow}>
+        <StatusDot tone="warning" /> Closing soon
+      </span>
+      <span style={dotRow}>
+        <StatusDot tone="error" /> Closed
+      </span>
+      <span style={dotRow}>
+        <StatusDot tone="info" /> On a call
+      </span>
+      <span style={dotRow}>
+        <StatusDot tone="neutral" /> Unknown
+      </span>
+    </div>
+  );
+}
+function StatusDotPulso() {
+  return (
+    <div style={{ ...row, gap: 20 }}>
+      <span style={dotRow}>
+        Ana Ramos <StatusDot tone="success" pulse label="Online" />
+      </span>
+      <span style={dotRow}>
+        <StatusDot tone="warning" pulse /> Closing soon
+      </span>
+      <span style={dotRow}>
+        <StatusDot tone="error" pulse /> Needs attention
+      </span>
+    </div>
+  );
+}
+function StatusDotTamanhos() {
+  return (
+    <div style={{ ...row, gap: 20 }}>
+      <span style={dotRow}>
+        <StatusDot tone="success" size="sm" /> sm (5px)
+      </span>
+      <span style={dotRow}>
+        <StatusDot tone="success" size="md" /> md (6px)
+      </span>
+    </div>
+  );
+}
+
+function ActionCardBasico() {
+  return (
+    <div style={{ ...col, maxWidth: 420 }}>
+      <ActionCard icon={<CalendarClock size={20} />} title="Reschedule" description="Pick another day and time" onClick={() => {}} />
+      <ActionCard icon={<Pencil size={20} />} title="Edit the booking" description="Change the service or the notes" onClick={() => {}} />
+      <ActionCard icon={<Share2 size={20} />} title="Share the link" description="Send it to the client" onClick={() => {}} />
+    </div>
+  );
+}
+function ActionCardSelecionado() {
+  const [on, setOn] = React.useState<'email' | 'sms'>('email');
+  return (
+    <div style={{ ...col, maxWidth: 420 }}>
+      <ActionCard selected={on === 'email'} onClick={() => setOn('email')} icon={<Mail size={20} />} title="E-mail" description="A message with the details" trailing={null} />
+      <ActionCard selected={on === 'sms'} onClick={() => setOn('sms')} icon={<Phone size={20} />} title="SMS" description="A short text message" trailing={null} />
+    </div>
+  );
+}
+function ActionCardVariantes() {
+  return (
+    <div style={{ ...col, maxWidth: 420 }}>
+      <ActionCard icon={<Plus size={20} />} title="New booking" description="Add a client to the agenda" onClick={() => {}} />
+      <ActionCard variant="primary" icon={<Sparkles size={20} />} title="Open the agenda" description="See today at a glance" onClick={() => {}} />
+      <ActionCard variant="error" icon={<Trash2 size={20} />} title="Cancel the booking" description="This cannot be undone" onClick={() => {}} />
+    </div>
+  );
+}
+function ActionCardDesabilitado() {
+  return (
+    <div style={{ ...col, maxWidth: 420 }}>
+      <ActionCard disabled icon={<Lock size={20} />} title="Export the report" description="Available on the yearly plan" />
+    </div>
+  );
+}
+function ActionCardFinal() {
+  return (
+    <div style={{ ...col, maxWidth: 420 }}>
+      <ActionCard icon={<Wallet size={20} />} title="Payments" description="Cards and Pix" trailing={<Badge tone="warning" size="sm">Set up</Badge>} onClick={() => {}} />
+      <ActionCard icon={<Bell size={20} />} title="Reminders" description="Sent the day before" trailing={null} onClick={() => {}} />
+    </div>
+  );
+}
+
+function DividerBasico() {
+  return (
+    <Card style={{ maxWidth: 380, ...col, gap: 'var(--space-3)' }}>
+      <span style={dotRow}>Weekly summary</span>
+      <Divider />
+      <span style={dotRow}>Upcoming bookings</span>
+      <Divider variant="strong" />
+      <span style={dotRow}>Open slots</span>
+    </Card>
+  );
+}
+function DividerNaPagina() {
+  return (
+    <div style={{ background: 'var(--bg-canvas)', padding: 'var(--space-5)', borderRadius: 'var(--radius-md)', maxWidth: 380, ...col, gap: 'var(--space-3)' }}>
+      <span style={dotRow}>default (subtle)</span>
+      <Divider />
+      <span style={dotRow}>strong</span>
+      <Divider variant="strong" />
+    </div>
+  );
+}
+function DividerDecorativo() {
+  const rows = ['Monday 09:00 · Ana Ramos', 'Monday 10:30 · Bruno Lima', 'Monday 14:00 · Carla Dias'];
+  return (
+    <Card padding="none" style={{ maxWidth: 380 }}>
+      {rows.map((r, i) => (
+        <React.Fragment key={r}>
+          {i > 0 && <Divider decorative />}
+          <div style={{ padding: 'var(--space-3) var(--space-4)', ...dotRow }}>{r}</div>
+        </React.Fragment>
+      ))}
+    </Card>
   );
 }
 
@@ -2537,8 +2685,11 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     sizes: IconButtonTamanhos,
     disabled: IconButtonDesabilitado,
   },
-  badge: { tones: BadgeCiclo, labels: BadgeGenericos, sizes: BadgeTamanhos },
+  badge: { tones: BadgeCiclo, labels: BadgeGenericos, sizes: BadgeTamanhos, pulse: BadgePulso },
+  'status-dot': { tones: StatusDotTons, pulse: StatusDotPulso, sizes: StatusDotTamanhos },
   card: { padding: CardPadding, elevation: CardElevacao, interactive: CardInterativo },
+  'action-card': { basic: ActionCardBasico, selected: ActionCardSelecionado, variants: ActionCardVariantes, disabled: ActionCardDesabilitado, trailing: ActionCardFinal },
+  divider: { basic: DividerBasico, 'on-page': DividerNaPagina, decorative: DividerDecorativo },
   'stat-card': { basic: StatCardBasico, tones: StatCardTons, progress: StatCardProgresso, loading: StatCardCarregando },
   avatar: { sizes: AvatarTamanhos, 'initials-photo': AvatarIniciais, status: AvatarStatus },
   brand: { variants: BrandVariantes, mono: BrandMono, sizes: BrandTamanhos },
