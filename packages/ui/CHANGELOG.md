@@ -1,5 +1,42 @@
 # @sereno-ds/ui
 
+## 0.40.0
+
+### Minor Changes
+
+- 1091ec4: New component: `ActionCard`, a whole card you press (SS-515).
+
+  Decision modals and settings flows show their options as cards. The DS had `Card interactive`, the bare surface, and every screen put the icon, the title, the line of explanation and the arrow together by hand. `ActionCard` is the finished control, in a real `<button>`.
+
+  - **`title`**, **`description`**, **`icon`** (any node, a `lucide-react` element in a tile on the left, hidden from a screen reader) and **`trailing`** (an arrow by default; any node, or `null` for nothing).
+  - **`variant`**: `default`, `primary` (the tile takes the primary color) and `error` (an error tile, title and ring; the same word `Button`, `Badge` and `Alert` use).
+  - **`disabled`**: the native attribute, so it cannot be clicked or focused; the text and the tile go to the disabled colors.
+  - **`selected`**: passing it (true or false) makes the card a toggle: it reports `aria-pressed` and, when true, wears the brand ring. Leave it out for a plain action. It is a toggle, not a radio: the arrow keys do not move between cards. "Choose exactly one" has a radio group's semantics, and is not part of this.
+  - Hover rings it in the variant's color (brand, or error) and tints it with 6% of that color over the surface, so the icon tile keeps showing (a grey fill the same as the tile's would swallow it); the keyboard focus ring is the DS `--focus-ring`; Enter and Space press it. `type` defaults to `button`.
+  - Everything a `button` takes (`onClick`, `className`, `style`, `aria-*`) goes to it, and your `style` comes last.
+
+  Only added to: `Card` is untouched.
+
+- 1091ec4: New component: `Divider`, a horizontal line with two strengths (SS-517).
+
+  The DS had no divider: apps drew their own with `border-(--border-subtle)`. `Divider` is a real `<hr>`.
+
+  - **`variant`**: `default` is `--border-subtle`, the hairline of a list or a card; `strong` is `--border-strong`, firmer, for the page background where the subtle one nearly disappears.
+  - **`decorative`**: hides the line from a screen reader (`role="none"`), for the lines between rows that repeat. Without it the line is a separator.
+  - No margin of its own (the space around it is the caller's), and `className`, `style` and the rest go to the `hr`.
+
+  Contrast, so nobody expects more than it gives: `strong` is firmer, not high contrast. It is 1.63:1 against a card and 1.38:1 against the page background in the light theme (1.83:1 and 2.03:1 in the dark one), against 1.15:1 and 1.03:1 for the subtle one in the light theme. That is right for a separator and short of the 3:1 the edge of a control would need. On the page background in the light theme the subtle one is a shade lighter than the page itself and does not show at all; `strong` shows, as a quiet line.
+
+- 1091ec4: New component `StatusDot`, and `Badge` gets `pulse` (SS-516).
+
+  A live state ("Open now", "Online") is usually a colored dot with a soft ring that pulses out of it. `Badge` already had the dot; there was no pulse, and no dot without the pill.
+
+  - **`StatusDot`**: `tone` (`success`, `warning`, `error`, `info`, `neutral`: the same words `Badge`, `Alert` and `Toast` use), `size` (`sm` 5px and `md` 6px, the two dot sizes of `Badge`), `pulse` and `label`. Without a `label` the dot is decorative and the text next to it says the status; with one it is an image with that name.
+  - **`pulse`**: a translucent ring in the tone's color grows and fades behind the dot. It is off by default, an opt-in for a state that is live, and not for a list. The ring is invisible at rest and is hidden outright when the user asks for reduced motion (`prefers-reduced-motion`). It adds a `sereno-ping` animation to `styles.css`.
+  - **`Badge pulse`**: the dot of a `Badge` pulses (only with `dot`). Exported types: `StatusDotProps`, `StatusDotTone`, `StatusDotSize`.
+
+  Only added to: a `Badge` without `pulse` renders exactly what it did, down to the markup of its dot (a test per tone and size says so). `Badge` now takes the color of its dot from `StatusDot`, which has the same tokens.
+
 ## 0.39.0
 
 ### Minor Changes
