@@ -2,10 +2,13 @@
 
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { Check, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { acquireScrollLock } from '../_internal/scrollLock';
-import { useIsoLayoutEffect } from '../_internal/useIsoLayoutEffect';
+import { useCoarsePointer } from '../_internal/useCoarsePointer';
+import { useMenuPlacement } from '../_internal/useMenuPlacement';
+import { useRevealActive } from '../_internal/useRevealActive';
+import { MenuOption, menuListStyle, menuRowPadY, menuSurfaceStyle } from '../_internal/MenuOption';
 import { Field } from '../_internal/Field';
 import { fieldA11y } from '../_internal/fieldA11y';
 import { fieldBoxStyle } from './_internal/fieldBoxStyle';
@@ -59,21 +62,6 @@ export interface SelectProps {
   preserveHelperSpace?: boolean;
 }
 
-const OPTION_PAD_Y = { sm: 6, md: 8, lg: 10 } as const;
-
-/** True on touch / pen devices, where the native picker wins. SSR-safe. */
-function useCoarsePointer(): boolean {
-  return React.useSyncExternalStore(
-    (onChange) => {
-      const mq = window.matchMedia('(pointer: coarse)');
-      mq.addEventListener('change', onChange);
-      return () => mq.removeEventListener('change', onChange);
-    },
-    () => window.matchMedia('(pointer: coarse)').matches,
-    () => false,
-  );
-}
-
 // ── Custom listbox ──────────────────────────────────────────────────────────
 function CustomSelect({
   rid,
@@ -120,21 +108,16 @@ function CustomSelect({
   const [mounted, setMounted] = React.useState(false);
   // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target is client-only
   React.useEffect(() => setMounted(true), []);
-  // Two placement strategies, picked once per open:
-  //  • 'inline' - the common case. A plain `position: absolute` child of the
-  //    field wrapper. The browser glues it to the field through *any* scroll
-  //    (page or an inner overflow container) for free - zero JS, zero jitter,
-  //    never closes on scroll. Only re-flips the side if room runs out.
-  //  • 'fixed' - used when the field is inside a `position: fixed` container
-  //    (a Dialog), where an inline child would be clipped by the dialog's
-  //    overflow. Portalled to <body>, `position: fixed` at the trigger's
-  //    viewport rect. The dialog itself doesn't scroll, so it stays glued;
-  //    scrolling the dialog *body* detaches it, and we dismiss then.
-  const [place, setPlace] = React.useState<
-    | { strategy: 'inline'; above: boolean; maxH: number }
-    | { strategy: 'fixed'; above: boolean; maxH: number; top: number; left: number; width: number }
-    | null
-  >(null);
+  // Where the dropdown sits (inline under the field, or portalled to the body inside a Dialog): see
+  // `useMenuPlacement`. The touch sheet needs no anchoring.
+  const place = useMenuPlacement({
+    open,
+    disabled: coarse,
+    anchorRef: triggerRef,
+    panelRef,
+    itemCount: options.length,
+    onDismiss: () => setOpen(false),
+  });
 
   const selectedIndex = options.findIndex((o) => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
@@ -153,73 +136,6 @@ function CustomSelect({
     }
     return from;
   };
-
-  useIsoLayoutEffect(() => {
-    if (!open || coarse) return; // the touch sheet needs no anchoring
-    const t = triggerRef.current;
-    if (!t) return;
-
-    const GAP = 6;
-    // Non-zero fallback: if the viewport height is unreadable, assume room below
-    // rather than flipping the menu up on a bad reading.
-    const vh = window.innerHeight || document.documentElement.clientHeight || 900;
-    const estH = Math.min(288, options.length * 36 + 8); // rough list height, no DOM
-    const evalRoom = () => {
-      const r = t.getBoundingClientRect();
-      const roomBelow = vh - r.bottom - 8;
-      const roomAbove = r.top - 8;
-      const above = roomBelow < Math.min(estH, 200) && roomAbove > roomBelow;
-      const maxH = Math.max(120, Math.min(288, Math.round((above ? roomAbove : roomBelow) - GAP)));
-      return { r, above, maxH };
-    };
-
-    let fixed = false;
-    for (let el: HTMLElement | null = t.parentElement; el && el !== document.body; el = el.parentElement) {
-      if (getComputedStyle(el).position === 'fixed') {
-        fixed = true;
-        break;
-      }
-    }
-
-    if (fixed) {
-      const { r, above, maxH } = evalRoom();
-      setPlace({ strategy: 'fixed', above, maxH, left: r.left, width: r.width, top: above ? r.top - GAP : r.bottom + GAP });
-      const anchorTop = r.top;
-      const onScroll = (e: Event) => {
-        if (e.target instanceof Node && panelRef.current?.contains(e.target)) return;
-        if (Math.abs(t.getBoundingClientRect().top - anchorTop) > 1) setOpen(false);
-      };
-      const onResize = () => setOpen(false);
-      window.addEventListener('scroll', onScroll, true);
-      window.addEventListener('resize', onResize);
-      return () => {
-        window.removeEventListener('scroll', onScroll, true);
-        window.removeEventListener('resize', onResize);
-      };
-    }
-
-    // Inline: the menu is a plain absolute child, glued for free. Never reposition
-    // or close on scroll - only re-flip the side (rare) and re-cap height on
-    // resize.
-    const applyFull = () => {
-      const { above, maxH } = evalRoom();
-      setPlace((prev) =>
-        prev?.strategy === 'inline' && prev.above === above && prev.maxH === maxH ? prev : { strategy: 'inline', above, maxH },
-      );
-    };
-    applyFull();
-    const onScroll = (e: Event) => {
-      if (e.target instanceof Node && panelRef.current?.contains(e.target)) return;
-      const { above } = evalRoom();
-      setPlace((prev) => (prev?.strategy === 'inline' && prev.above !== above ? { ...prev, above } : prev));
-    };
-    window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', applyFull);
-    return () => {
-      window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', applyFull);
-    };
-  }, [open, coarse, options.length]);
 
   // Close on outside pointerdown (the touch sheet uses its own scrim instead).
   React.useEffect(() => {
@@ -240,26 +156,8 @@ function CustomSelect({
     return acquireScrollLock();
   }, [open, coarse]);
 
-  // Keep the active option in view: once the list exists, and again whenever the active option itself
-  // changes (the keyboard, the pointer). On the desktop the list is only rendered after `place` is known
-  // (one render after the open), so on the first open there is nothing to scroll in the commit where
-  // `open` turns true; `place` is in the deps so this runs again the moment the list is there (SS-568).
-  // It is a layout effect so the list is already on the option when it is first painted, not at the top
-  // for a frame. `revealedIndex` makes it once per option: a list the app pages from the server grows
-  // while it is open (`options.length`, and so `place` in the portalled case, change with every page),
-  // and a user who scrolled down to ask for the next page must not be pulled back to the active option.
-  const revealedIndex = React.useRef<number | null>(null);
-  useIsoLayoutEffect(() => {
-    if (!open) {
-      revealedIndex.current = null;
-      return;
-    }
-    if (activeIndex < 0 || activeIndex === revealedIndex.current) return;
-    const el = document.getElementById(`${rid}-opt-${activeIndex}`);
-    if (!el) return; // the list is not rendered yet; `place` arriving runs this again
-    revealedIndex.current = activeIndex;
-    el.scrollIntoView({ block: 'nearest' });
-  }, [open, activeIndex, rid, place]);
+  // Keep the active option in view, the first time the list opens too (SS-568): see `useRevealActive`.
+  useRevealActive(open, activeIndex >= 0 ? `${rid}-opt-${activeIndex}` : null, place);
 
   const openMenu = () => {
     if (disabled) return;
@@ -333,57 +231,23 @@ function CustomSelect({
   };
 
   const hasValue = !!selected;
-  const rowPadY = coarse ? 12 : OPTION_PAD_Y[size];
+  const rowPadY = menuRowPadY(coarse, size);
 
-  const listStyleBase: React.CSSProperties = {
-    minWidth: 160,
-    overflowY: 'auto',
-    margin: 0,
-    padding: 'var(--space-1)',
-    listStyle: 'none',
-    background: 'var(--bg-surface)',
-    border: 'var(--border-width-hairline) solid var(--border-default)',
-    borderRadius: 'var(--radius-md)',
-    boxShadow: 'var(--shadow-lg)',
-    fontFamily: 'var(--font-body)',
-    fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)',
-  };
-  const optionRows = options.map((o, i) => {
-    const isSelected = o.value === value;
-    const isActive = i === activeIndex;
-    return (
-      <li
-        key={o.value}
-        id={`${rid}-opt-${i}`}
-        role="option"
-        aria-selected={isSelected}
-        aria-disabled={o.disabled || undefined}
-        onPointerEnter={() => !o.disabled && setActiveIndex(i)}
-        onClick={() => choose(i)}
-        style={sx({
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 'var(--space-2)',
-          minHeight: coarse ? 44 : undefined,
-          padding: `${rowPadY}px var(--space-3)`,
-          borderRadius: 'var(--radius-sm)',
-          cursor: o.disabled ? 'not-allowed' : 'pointer',
-          color: o.disabled ? 'var(--text-disabled)' : 'var(--text-primary)',
-          background: isActive && !o.disabled ? 'var(--bg-subtle)' : 'transparent',
-          fontWeight: isSelected ? 'var(--weight-semibold)' : 'var(--weight-regular)',
-          fontSize: coarse ? 'var(--text-base)' : undefined,
-        })}
-      >
-        <span style={sx({ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{o.label}</span>
-        {isSelected && (
-          <span style={sx({ display: 'flex', flex: '0 0 auto', color: 'var(--text-brand)' })}>
-            <Check size={coarse ? 18 : 16} strokeWidth={2} />
-          </span>
-        )}
-      </li>
-    );
-  });
+  const listStyleBase: React.CSSProperties = { ...menuSurfaceStyle(size), ...menuListStyle };
+  const optionRows = options.map((o, i) => (
+    <MenuOption
+      key={o.value}
+      id={`${rid}-opt-${i}`}
+      label={o.label}
+      selected={o.value === value}
+      active={i === activeIndex}
+      disabled={o.disabled}
+      coarse={coarse}
+      padY={rowPadY}
+      onPointerEnter={() => !o.disabled && setActiveIndex(i)}
+      onClick={() => choose(i)}
+    />
+  ));
 
   return (
     <div style={sx({ position: 'relative', width: '100%' })}>
