@@ -240,11 +240,26 @@ function CustomSelect({
     return acquireScrollLock();
   }, [open, coarse]);
 
-  // Keep the active option in view.
-  React.useEffect(() => {
-    if (!open || activeIndex < 0) return;
-    document.getElementById(`${rid}-opt-${activeIndex}`)?.scrollIntoView({ block: 'nearest' });
-  }, [open, activeIndex, rid]);
+  // Keep the active option in view: once the list exists, and again whenever the active option itself
+  // changes (the keyboard, the pointer). On the desktop the list is only rendered after `place` is known
+  // (one render after the open), so on the first open there is nothing to scroll in the commit where
+  // `open` turns true; `place` is in the deps so this runs again the moment the list is there (SS-568).
+  // It is a layout effect so the list is already on the option when it is first painted, not at the top
+  // for a frame. `revealedIndex` makes it once per option: a list the app pages from the server grows
+  // while it is open (`options.length`, and so `place` in the portalled case, change with every page),
+  // and a user who scrolled down to ask for the next page must not be pulled back to the active option.
+  const revealedIndex = React.useRef<number | null>(null);
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      revealedIndex.current = null;
+      return;
+    }
+    if (activeIndex < 0 || activeIndex === revealedIndex.current) return;
+    const el = document.getElementById(`${rid}-opt-${activeIndex}`);
+    if (!el) return; // the list is not rendered yet; `place` arriving runs this again
+    revealedIndex.current = activeIndex;
+    el.scrollIntoView({ block: 'nearest' });
+  }, [open, activeIndex, rid, place]);
 
   const openMenu = () => {
     if (disabled) return;

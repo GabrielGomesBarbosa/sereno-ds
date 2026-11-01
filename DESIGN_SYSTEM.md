@@ -1072,7 +1072,7 @@ Single choice from ≤12 flat options. A hand-rolled listbox: the same in every 
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `options` | `SelectOption[]` | `[]` | List of `{ value, label, disabled? }`. |
+| `options` | `SelectOption[]` | `[]` | List of `{ value, label, disabled? }`. A list the server pages can grow while the panel is open: the panel keeps its scroll when it does. Keep the selected option in the list: the trigger takes its label from it, and with no match it shows the placeholder. |
 | `value / defaultValue` | `string` | - | Controlled / uncontrolled selection. |
 | `onValueChange` | `(value: string) => void` | - | Fires with the chosen value: a string, not a DOM event. |
 | `placeholder` | `string` | - | Shown when nothing is selected. |
@@ -1147,7 +1147,7 @@ Single choice from ≤12 flat options. A hand-rolled listbox: the same in every 
 <Select label="Field" size="lg" options={opts} />
 ```
 
-**Long list**: The panel caps its height and scrolls the rest, a dropdown to the room around the field, the touch sheet to 60% of the screen. It still *works*, but past ~12 options a search field beats scrolling; treat this as the ceiling, not the target.
+**Long list**: The panel caps its height and scrolls the rest, a dropdown to the room around the field, the touch sheet to 60% of the screen. With a value selected (Lisbon here) the panel opens already scrolled to it, the first time and every time. It still *works*, but past ~12 options a search field beats scrolling; treat this as the ceiling, not the target.
 
 ```tsx
 <Select label="Home city" placeholder="Search the list" options={cities} />
@@ -1159,6 +1159,7 @@ Do:
 - Use for up to ~12 flat options (duration, time zone, professional).
 - Keep labels short: the chevron takes space on the right.
 - Give a `placeholder` when there is no sensible default.
+- When a server pages the list, keep the selected option in `options` even if its page is not the one on screen: the trigger takes its label from there.
 
 Don't:
 - Many options or grouped options as the norm, past ~12, that is a combobox/search, a different pattern.
