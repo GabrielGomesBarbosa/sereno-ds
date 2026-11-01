@@ -311,3 +311,33 @@ describe('Select: the page scroll lock on a coarse pointer', () => {
     expect([html(), body()]).toEqual(['auto', 'scroll']);
   });
 });
+
+describe('Select: Esc inside a Dialog (SS-571)', () => {
+  const inDialog = (onClose: () => void) => (
+    <Dialog open onClose={onClose}>
+      <Dialog.Body>
+        <Select label="Fruit" options={OPTS} />
+      </Dialog.Body>
+    </Dialog>
+  );
+
+  it('Esc with the list open closes only the list; the next Esc closes the Dialog', () => {
+    const onClose = vi.fn();
+    render(inDialog(onClose));
+    const trigger = screen.getByRole('combobox');
+    boxClick(trigger);
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    fireEvent.keyDown(trigger, { key: 'Escape' });
+    expect(screen.queryByRole('listbox')).toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.keyDown(trigger, { key: 'Escape' }); // nothing open now: the Dialog gets its Esc
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('Esc with the list closed still reaches the Dialog', () => {
+    const onClose = vi.fn();
+    render(inDialog(onClose));
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});

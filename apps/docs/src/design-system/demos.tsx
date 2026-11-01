@@ -1242,6 +1242,34 @@ function AutocompleteNoDialog() {
 }
 
 
+function SelectNoDialog() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <Button onClick={() => setOpen(true)}>Open dialog</Button>
+      <Dialog open={open} size="md" onClose={() => setOpen(false)}>
+        <Dialog.Header title="Pick a service" description="The list opens over the dialog. Esc closes the list first, and the dialog on the next press.">
+          <Dialog.Close />
+        </Dialog.Header>
+        <Dialog.Body>
+          <Select
+            label="Service"
+            placeholder="Pick one"
+            options={[
+              { value: 'assessment', label: 'First assessment (60 min)' },
+              { value: 'session', label: 'Therapy session (50 min)' },
+              { value: 'followup', label: 'Follow-up (30 min)' },
+            ]}
+          />
+        </Dialog.Body>
+        <Dialog.Footer>
+          <Button onClick={() => setOpen(false)}>Done</Button>
+        </Dialog.Footer>
+      </Dialog>
+    </div>
+  );
+}
+
 function CheckboxBasico() {
   const [a, setA] = React.useState(false);
   const [b, setB] = React.useState(true);
@@ -2902,7 +2930,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     'no-layout-shift': InputSemLayoutShift,
   },
   textarea: { basic: TextareaBasico, count: TextareaContador, error: TextareaErro },
-  select: { basic: SelectBasico, placeholder: SelectHint, error: SelectErro, disabled: SelectDesabilitado, sizes: SelectTamanhos, long: SelectLista },
+  select: { basic: SelectBasico, placeholder: SelectHint, error: SelectErro, disabled: SelectDesabilitado, sizes: SelectTamanhos, long: SelectLista, 'in-dialog': SelectNoDialog },
   autocomplete: { basic: AutocompleteBasico, server: AutocompleteServidor, paged: AutocompletePaginado, states: AutocompleteEstados, sizes: AutocompleteTamanhos, 'in-dialog': AutocompleteNoDialog },
   checkbox: {
     basic: CheckboxBasico,

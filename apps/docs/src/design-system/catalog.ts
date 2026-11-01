@@ -1251,6 +1251,17 @@ reset({ headline: saved }); // the counter shows the saved length right away`,
           'The panel caps its height and scrolls the rest, a dropdown to the room around the field, the touch sheet to 60% of the screen. With a value selected (Lisbon here) the panel opens already scrolled to it, the first time and every time. It still *works*, but past ~12 options a search field beats scrolling; treat this as the ceiling, not the target.',
         code: `<Select label="Home city" placeholder="Search the list" options={cities} />`,
       },
+      {
+        id: 'in-dialog',
+        title: 'Inside a Dialog',
+        description:
+          'The list is drawn over the dialog, not clipped by it. `Esc` closes the list first, and the dialog on the next press.',
+        code: `<Dialog open={open} onClose={() => setOpen(false)}>
+  <Dialog.Body>
+    <Select label="Service" placeholder="Pick one" options={services} />
+  </Dialog.Body>
+</Dialog>`,
+      },
     ],
     guidelines: {
       do: [

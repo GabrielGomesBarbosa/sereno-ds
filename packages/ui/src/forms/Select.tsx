@@ -209,6 +209,10 @@ function CustomSelect({
       case 'Escape':
         if (open) {
           e.preventDefault();
+          // Only the list closes: a Dialog around the field keeps its own Esc for the next press.
+          // (`stopImmediate...` too: React may listen on `document`, where the Dialog listens as well.)
+          e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
           closeMenu();
         }
         return;
