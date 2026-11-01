@@ -35,7 +35,7 @@ npm workspaces + Turborepo. Four workspaces:
 | Path | Name | What |
 |---|---|---|
 | `packages/tokens` | `@sereno-ds/tokens` | the token CSS (`*.css` + a `tokens.css` barrel) |
-| `packages/ui` | `@sereno-ds/ui` | the 36 primitives + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) |
+| `packages/ui` | `@sereno-ds/ui` | the 37 primitives + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`) |
 | `apps/docs` | `docs` | the `/design-system` showcase (Next 16, `output: 'export'`) |
 | `apps/demo` | `demo` | landing at `/` + `/agendar/[slug]` + `/dashboard/[[...slug]]` + `/onboarding` + `src/screens/` + `src/domain/` (product cards on `@sereno-ds/ui`) + `src/lib/mock.ts` |
 
@@ -226,7 +226,7 @@ previews (test locally + on the branch).
   wrong order leaves the page stuck on `hidden` for good (and a client-side navigation does not
   reload it). The lock counts holders, records the page's own value on the first one and gives
   it back when the last lets go. A component drawn inside a `Dialog` needs no lock of its own.
-- **No UI base library.** The 36 primitives in `packages/ui/src/` are token-driven
+- **No UI base library.** The 37 primitives in `packages/ui/src/` are token-driven
   inline styles reading CSS custom properties. When editing them, preserve
   behaviour; do not introduce Radix / MUI / Tailwind.
 - **Field adornments must share the control's text metrics.** An `Input` /
@@ -388,8 +388,8 @@ npm run lint && npm run build   # = turbo run lint / turbo run build, all worksp
 npm run check:dashes            # no em dash in any tracked file (SS-330)
 ```
 
-`turbo run build` must be green: **docs = 36 routes** (28 component pages + tokens
-+ overview + robots + a few static assets) and **demo = 48 routes** (hub + 3
+`turbo run build` must be green: **docs = 46 routes** (37 component pages + tokens
++ overview + robots + a few static assets) and **demo = 49 routes** (hub + 3
 `/agendar` slugs + all 36 `/dashboard` nav destinations, generated from
 `SIDEBAR_SECTIONS` + `/dashboard` itself + onboarding + robots + sitemap + a few
 static assets) - both counts move as components / nav items are added; treat

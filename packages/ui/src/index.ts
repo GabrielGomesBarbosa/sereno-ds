@@ -30,6 +30,7 @@ export {
 export { Input, type InputProps } from './forms/Input';
 export { Textarea, type TextareaProps } from './forms/Textarea';
 export { Select, type SelectProps, type SelectOption } from './forms/Select';
+export { Autocomplete, type AutocompleteProps, type AutocompleteOption, type AutocompleteLabels } from './forms/Autocomplete';
 export { Checkbox, type CheckboxProps } from './forms/Checkbox';
 export { Radio, type RadioProps } from './forms/Radio';
 export { Switch, type SwitchProps } from './forms/Switch';

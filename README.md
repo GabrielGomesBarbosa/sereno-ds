@@ -89,8 +89,8 @@ npm run lint         # turbo run lint
 npm run typecheck    # turbo run typecheck
 ```
 
-`npm run build` must be green: **docs = 36 routes** (28 component pages + tokens +
-overview + robots) and **demo = 48 routes** (hub + 3 `/agendar` slugs + all 36
+`npm run build` must be green: **docs = 46 routes** (37 component pages + tokens +
+overview + robots + a few static assets) and **demo = 49 routes** (hub + 3 `/agendar` slugs + all 36
 `/dashboard` nav destinations + onboarding + robots + sitemap), both counts move
 as components / nav items are added, treat them as a sanity check, not a fixed
 target.
@@ -99,9 +99,9 @@ target.
 
 | Category | Components |
 |---|---|
-| **core** (9) | `Avatar` · `Badge` · `Brand` · `Button` · `Card` · `IconButton` · `Menu` · `Table` · `Typography` |
-| **forms** (11) | `AvatarUpload` · `Checkbox` · `DatePicker` · `DateTimePicker` · `FileUpload` · `Input` · `Radio` · `SearchInput` · `Select` · `Switch` · `Textarea` |
-| **navigation** (5) | `BottomNav` · `SidebarNav` · `Stepper` · `Tabs` · `TopBar` |
+| **core** (13) | `ActionCard` · `Avatar` · `Badge` · `Brand` · `Button` · `Card` · `Divider` · `IconButton` · `Menu` · `StatCard` · `StatusDot` · `Table` · `Typography` |
+| **forms** (13) | `Autocomplete` · `AvatarUpload` · `CalendarLegend` · `Checkbox` · `DatePicker` · `DateTimePicker` · `FileUpload` · `Input` · `Radio` · `SearchInput` · `Select` · `Switch` · `Textarea` |
+| **navigation** (6) | `BottomNav` · `Pagination` · `SidebarNav` · `Stepper` · `Tabs` · `TopBar` |
 | **feedback** (5) | `Alert` · `Dialog` · `EmptyState` · `Skeleton` · `Toast` |
 | **theme** (2) | `ThemeProvider` · `ThemeToggle` |
 
@@ -128,7 +128,7 @@ packages/
   ui/
     src/
       index.ts            the barrel
-      core/ forms/ navigation/ feedback/   the 36 primitives
+      core/ forms/ navigation/ feedback/   the 37 primitives
       _internal/           Field, CharCount, mask, style helpers
       theme/               ThemeProvider + ThemeToggle
       styles.css           keyframes + :checked / scrollbar / reflow rules

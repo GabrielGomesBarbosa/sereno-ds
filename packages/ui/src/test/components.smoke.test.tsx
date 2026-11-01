@@ -9,7 +9,7 @@ afterEach(cleanup);
 /** Every component the barrel is meant to export. */
 const EXPECTED = [
   'Typography', 'Button', 'IconButton', 'Badge', 'StatusDot', 'Divider', 'Card', 'ActionCard', 'StatCard', 'Avatar', 'Brand', 'Menu', 'Table',
-  'Input', 'Textarea', 'Select', 'Checkbox', 'Radio', 'Switch', 'DateTimePicker', 'DatePicker', 'CalendarLegend',
+  'Input', 'Textarea', 'Select', 'Autocomplete', 'Checkbox', 'Radio', 'Switch', 'DateTimePicker', 'DatePicker', 'CalendarLegend',
   'FileUpload', 'AvatarUpload', 'SearchInput',
   'TopBar', 'Tabs', 'BottomNav', 'SidebarNav', 'Stepper', 'Pagination',
   'Alert', 'Toast', 'Dialog', 'Skeleton', 'EmptyState',
@@ -51,6 +51,7 @@ const CASES: Record<string, React.ReactElement> = {
   Input: <UI.Input label="Name" hint="Helper" />,
   Textarea: <UI.Textarea label="Bio" />,
   Select: <UI.Select label="Plan" options={[{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }]} />,
+  Autocomplete: <UI.Autocomplete label="Client" options={[{ value: 'a', label: 'Ana' }, { value: 'b', label: 'Bruno' }]} defaultValue={{ value: 'a', label: 'Ana' }} />,
   Checkbox: <UI.Checkbox label="I accept" />,
   Radio: <UI.Radio name="g" label="One" />,
   Switch: <UI.Switch label="Notificações" />,
