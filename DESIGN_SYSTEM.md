@@ -1153,6 +1153,16 @@ Single choice from ≤12 flat options. A hand-rolled listbox: the same in every 
 <Select label="Home city" placeholder="Search the list" options={cities} />
 ```
 
+**Inside a Dialog**: The list is drawn over the dialog, not clipped by it. `Esc` closes the list first, and the dialog on the next press.
+
+```tsx
+<Dialog open={open} onClose={() => setOpen(false)}>
+  <Dialog.Body>
+    <Select label="Service" placeholder="Pick one" options={services} />
+  </Dialog.Body>
+</Dialog>
+```
+
 #### Guidelines
 
 Do:
