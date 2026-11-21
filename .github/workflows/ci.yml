@@ -66,6 +66,12 @@ jobs:
       options: --ipc=host
     steps:
       - uses: actions/checkout@v4
+      # The image ships a newer Node and npm than the repo uses (the lockfile is npm 10's): install Node 20, like
+      # every other job, so `npm ci` and the docs build are the same as everywhere else. Playwright and its
+      # Chromium come from the image either way.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - run: npm ci
       - run: npm run build:docs
       - name: Compare with the references
