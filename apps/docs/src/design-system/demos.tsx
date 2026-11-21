@@ -2664,6 +2664,62 @@ function DialogForm() {
   );
 }
 
+function DialogPopups() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <Button onClick={() => setOpen(true)}>Open dialog</Button>
+      <Dialog open={open} size="md" onClose={() => setOpen(false)}>
+        <Dialog.Header title="Popups inside a dialog" description="Open any of them and press Esc: the first Esc closes only the popup, the next one closes the dialog.">
+          <Dialog.Close />
+        </Dialog.Header>
+        <Dialog.Body>
+          <div style={col}>
+            <Select
+              label="Select"
+              placeholder="Pick one"
+              options={[
+                { value: 'assessment', label: 'First assessment (60 min)' },
+                { value: 'session', label: 'Therapy session (50 min)' },
+                { value: 'followup', label: 'Follow-up (30 min)' },
+              ]}
+            />
+            <Autocomplete
+              label="Autocomplete"
+              placeholder="Search a city"
+              options={[
+                { value: 'sp', label: 'São Paulo' },
+                { value: 'rj', label: 'Rio de Janeiro' },
+                { value: 'bh', label: 'Belo Horizonte' },
+                { value: 'cwb', label: 'Curitiba' },
+              ]}
+            />
+            <DatePicker label="DatePicker" locale="en" />
+            <SearchInput aria-label="SearchInput" placeholder="Type, then Esc clears it" defaultValue="Maria" />
+            <div>
+              <Menu
+                trigger={
+                  <Button variant="secondary" iconRight={<ChevronDown size={16} strokeWidth={1.75} />}>
+                    Menu
+                  </Button>
+                }
+                label="Appointment"
+                items={[
+                  { label: 'Reschedule', icon: <CalendarClock size={16} strokeWidth={1.75} />, onClick: () => {} },
+                  { label: 'Duplicate', icon: <Copy size={16} strokeWidth={1.75} />, onClick: () => {} },
+                ]}
+              />
+            </div>
+          </div>
+        </Dialog.Body>
+        <Dialog.Footer>
+          <Button onClick={() => setOpen(false)}>Done</Button>
+        </Dialog.Footer>
+      </Dialog>
+    </div>
+  );
+}
+
 function DialogFullscreen() {
   const [open, setOpen] = React.useState(false);
   return (
@@ -2993,6 +3049,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
     sizes: DialogSizes,
     dividers: DialogDividers,
     form: DialogForm,
+    popups: DialogPopups,
     fullscreen: DialogFullscreen,
     dismissible: DialogRequired,
   },

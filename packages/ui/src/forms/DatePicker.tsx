@@ -171,6 +171,7 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.preventDefault(); // handled: a Dialog around the field keeps its own Esc for the next press
         setOpen(false);
         triggerRef.current?.focus();
       }
