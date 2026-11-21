@@ -165,7 +165,7 @@ demo-only PRs add nothing and bump nothing. `npm run version-packages` cuts the
 bump + `packages/ui/CHANGELOG.md`; `npm run release` publishes. Tags:
 `@sereno-ds/ui@X.Y.Z`: see
 [Releases](https://github.com/GabrielGomesBarbosa/sereno-ds/releases).
-`apps/docs/src/design-system/CHANGELOG.md` is the hand-written narrative.
+The changelog is `packages/ui/CHANGELOG.md`, built from the changeset files (written as prose); `apps/docs/src/design-system/CHANGELOG.md` is the older hand-written narrative, up to 0.25.0.
 
 ## Deploy
 

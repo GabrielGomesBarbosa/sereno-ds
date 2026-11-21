@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { ThemeProvider } from '@sereno-ds/ui';
+import { COMPONENTS } from '@/design-system/catalog';
 import './globals.css';
 
 // Self-hosted: the font files live in /fonts (SIL OFL, see fonts/README.md) and next/font/local reads
@@ -12,6 +13,9 @@ import './globals.css';
 const inter = localFont({ src: '../../../fonts/Inter-latin.woff2', weight: '400 700', style: 'normal', variable: '--font-inter', display: 'swap' });
 const manrope = localFont({ src: '../../../fonts/Manrope-latin.woff2', weight: '500 800', style: 'normal', variable: '--font-manrope', display: 'swap' });
 const jetbrainsMono = localFont({ src: '../../../fonts/JetBrainsMono-latin.woff2', weight: '400 500', style: 'normal', variable: '--font-jetbrains-mono', display: 'swap' });
+
+// The number of primitives is the catalogue's, not typed by hand (it was 30 here long after it was 37).
+const COUNT = COMPONENTS.length;
 
 // Canonical origin for metadata / OG - set per Railway service (SS-158).
 const SITE = process.env.NEXT_PUBLIC_DS_URL ?? 'http://localhost:3001';
@@ -26,12 +30,12 @@ export const metadata: Metadata = {
     siteName: 'Sereno Design System',
     url: SITE,
     title: 'Sereno Design System',
-    description: '30 token-driven React primitives: native dark mode, no UI base library, built for React and Next.js.',
+    description: `${COUNT} token-driven React primitives: native dark mode, no UI base library, built for React and Next.js.`,
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Sereno Design System',
-    description: '30 token-driven React primitives: native dark mode, no UI base library, built for React and Next.js.',
+    description: `${COUNT} token-driven React primitives: native dark mode, no UI base library, built for React and Next.js.`,
   },
 };
 
