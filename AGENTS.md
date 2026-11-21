@@ -321,8 +321,11 @@ previews (test locally + on the branch).
     status hues + dark mode untouched.
 - **Icons:** always `lucide-react` passed as a prop. `@sereno-ds/ui` lists it as a
   `peerDependency` (only `ThemeToggle` imports it directly). Never a CDN.
-- **Fonts:** `next/font/google` only, per app. The `--font-inter` /
-  `--font-manrope` / `--font-jetbrains-mono` vars are the `@sereno-ds/ui` contract.
+- **Fonts:** `next/font/local` only, per app, reading the files in `fonts/` (SIL OFL,
+  `fonts/README.md`): the build must never download a font, a failed download once
+  failed a Railway deploy (SS-570). Never `next/font/google`, never a CDN. The
+  `--font-inter` / `--font-manrope` / `--font-jetbrains-mono` vars are the
+  `@sereno-ds/ui` contract.
 - **Theming:** always through `next-themes`, via `@sereno-ds/ui`'s own
   `ThemeProvider` (`packages/ui/src/theme/ThemeProvider.tsx`) - it writes
   `data-theme="light|dark"` on `<html>`, the exact hook every token file
