@@ -4,6 +4,7 @@ import * as React from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { sx } from '../../_internal/style';
 import { srOnlyStyle } from '../../_internal/srOnly';
+import { useOutsidePress } from '../../_internal/useOutsidePress';
 import { IconButton } from '../../core/IconButton';
 import { calendarRange, clampIndex, isDayOutside, yearWindowStart } from './calendarRange';
 import { dotFor, dotStyle, TODAY_RING, type CalendarDayContext, type CalendarDayDots } from './calendarDots';
@@ -192,20 +193,14 @@ export function CalendarGrid({
   }, [viewIndex]);
 
   // close on outside pointer; move focus into the popover on open
+  useOutsidePress(open, [rootRef], () => {
+    setOpen(false);
+    setPicker('month');
+  });
   React.useEffect(() => {
     if (!open) return;
-    const onDown = (e: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setPicker('month');
-      }
-    };
-    document.addEventListener('pointerdown', onDown, true);
     const id = requestAnimationFrame(() => popRef.current?.focus());
-    return () => {
-      document.removeEventListener('pointerdown', onDown, true);
-      cancelAnimationFrame(id);
-    };
+    return () => cancelAnimationFrame(id);
   }, [open]);
 
   const closePopover = React.useCallback(() => {

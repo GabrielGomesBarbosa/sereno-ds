@@ -5,6 +5,7 @@ import { Calendar as CalendarIcon, X } from 'lucide-react';
 import { sx } from '../_internal/style';
 import { Field } from '../_internal/Field';
 import { fieldA11y } from '../_internal/fieldA11y';
+import { useOutsidePress } from '../_internal/useOutsidePress';
 import { CalendarGrid } from './_internal/CalendarGrid';
 import type { CalendarDayContext, CalendarDayDots } from './_internal/calendarDots';
 import { parseISODate as parseISO, toISODate as toISO } from './_internal/calendarRange';
@@ -162,25 +163,17 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
   // position, no listening for scroll/resize, and critically, it never has
   // to close on scroll the way a `position: fixed` popover computed once
   // would (that was tried first here and didn't hold up - see PR history).
+  useOutsidePress(open, [rootRef], () => setOpen(false));
   React.useEffect(() => {
     if (!open) return;
-    const onDown = (e: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setOpen(false);
         triggerRef.current?.focus();
       }
     };
-    document.addEventListener('pointerdown', onDown, true);
     document.addEventListener('keydown', onKey, true);
-    return () => {
-      document.removeEventListener('pointerdown', onDown, true);
-      document.removeEventListener('keydown', onKey, true);
-    };
+    return () => document.removeEventListener('keydown', onKey, true);
   }, [open]);
 
   const openPopover = () => {
