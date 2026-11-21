@@ -24,6 +24,16 @@ reference - every prop, every example, every do/don't - see
 `apps/docs/src/design-system/catalog.ts` via `npm run gen:component-docs` -
 edit the catalog, not the generated file, and re-run after.
 
+**Where a component's documentation lives (SS-574): one file per component.** Its
+props, guidelines and example snippets are `apps/docs/src/design-system/catalog/<slug>.ts`
+(an object of type `ComponentMeta`), and its live demos are
+`apps/docs/src/design-system/demos/<slug>.tsx` (the functions plus a `Record` keyed by
+the example `id`). `catalog.ts` and `demos.tsx` are only the indexes: a new component
+adds its two files and one line in each index (the order of `COMPONENTS` is the order
+of the sidebar). A demo helper used by more than one component goes in
+`demos/_shared.tsx`; the `R` row helper and `SEMANTIC_TONES` for the catalogue are in
+`catalog/_shared.ts`.
+
 Full context and scope: Jira card **SS-39** (project SS). The DS is being turned
 into a publishable package - Epic **SS-153** (now Done). Read the relevant
 card before any large change.
