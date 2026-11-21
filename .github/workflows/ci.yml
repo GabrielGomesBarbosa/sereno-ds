@@ -50,3 +50,36 @@ jobs:
         run: npm publish --dry-run --workspace=@sereno-ds/tokens
       - name: "@sereno-ds/ui: tarball contents"
         run: npm publish --dry-run --workspace=@sereno-ds/ui
+
+  # Pixel-by-pixel regression tests (SS-579): the docs build is screenshotted (every example of every
+  # component, light / dark / 375 px, plus hover, focus and what opens) and compared with the references in
+  # apps/docs/e2e/__screenshots__ with zero tolerance. See docs/testing.md.
+  #
+  # Same image as `scripts/visual.sh`, and the same CPU architecture (arm64, like the Docker of an Apple
+  # Silicon Mac): the same pixels need the same fonts, the same Chromium and the same CPU.
+  # Keep the image tag in step with `@playwright/test` in apps/docs/package.json.
+  visual:
+    name: visual regression (pixel by pixel)
+    runs-on: ubuntu-24.04-arm
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm run build:docs
+      - name: Compare with the references
+        working-directory: apps/docs
+        env:
+          CI: "1"
+        run: npx playwright test
+      # What changed, as images: expected / actual / diff for every failing picture, plus the HTML report.
+      - name: Upload the differences
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-differences
+          path: |
+            apps/docs/test-results
+            apps/docs/e2e-report
+          retention-days: 14
