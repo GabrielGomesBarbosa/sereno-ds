@@ -51,7 +51,7 @@ npm workspaces + Turborepo.
   `globals.css` does `@import "@sereno-ds/tokens/tokens.css"` then
   `@import "@sereno-ds/ui/styles.css"`, then only its own shell rules.
 - Icons: `lucide-react` passed to components as props (a `peerDependency`).
-- Fonts: `next/font/google` per app; the `--font-*` CSS vars are the `@sereno-ds/ui`
+- Fonts: `next/font/local` per app, reading the files in `fonts/` (no download at build time); the `--font-*` CSS vars are the `@sereno-ds/ui`
   contract.
 
 ## Getting started
