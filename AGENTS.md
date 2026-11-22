@@ -34,9 +34,14 @@ of the sidebar). A demo helper used by more than one component goes in
 `demos/_shared.tsx`; the `R` row helper and `SEMANTIC_TONES` for the catalogue are in
 `catalog/_shared.ts`.
 
-Full context and scope: Jira card **SS-39** (project SS). The DS is being turned
-into a publishable package - Epic **SS-153** (now Done). Read the relevant
-card before any large change.
+**Where the work is tracked.** On GitHub: issues in this repository plus the
+[Sereno DS project](https://github.com/users/GabrielGomesBarbosa/projects/5) (see
+[Board flow](#board-flow-required)). Everything before that lived in Jira (project
+SS) and stays there as the archive: **`SS-<n>` in a comment, a doc or an old commit is
+a Jira card, `#<n>` is a GitHub issue or PR.** The early scope is in the cards **SS-39**
+(the DS and the demo) and Epic **SS-153** (the publishable package); read the relevant
+issue, or the old card, before any large change. Nothing was migrated, and nothing new
+is created in Jira for the DS.
 
 ## Monorepo layout
 
@@ -86,9 +91,28 @@ npm workspaces + Turborepo. Four workspaces:
 
 ## Board flow (required)
 
-One human, one AI agent - so **the `In Progress` column holds exactly one card
-at a time**. Columns: `To Do` → `In Progress` → `In Review` → `To Test` →
-`Testing` → `Done`.
+Work lives in GitHub **issues** of this repository, shown on the **Sereno DS** project
+board (https://github.com/users/GabrielGomesBarbosa/projects/5; every new issue of the
+repo is added to it automatically, in `To Do`). The issue is the work; the board is the
+view of it. Sub-issues are GitHub's own (an issue's *Sub-issues* section); a parent and
+its sub-issues are each a card.
+
+**One thing at a time (for the AI agent).** Work on one issue, finish your part of it (it
+reaches `To Test`), and only then start the next. Do not juggle several: interleaved work
+is how two changes end up tangled in the same files, the same branch and the same review,
+and how the human loses track of what is going on. So **the `In Progress` column holds
+exactly one parent issue at a time**, and you do not start a second line of work in your
+head while the first is open. Waiting for the human on `To Test` does not count: that
+issue has left `In Progress`, so you may pick the next one.
+
+The single exception is two things that are **totally distinct**: a different area, no
+shared files, no dependency between them, nothing that would confuse a review. Then you
+may start the second one, but say so to the human first, and move it with `--force`
+(below). When in doubt, they are not distinct: finish one, then the other. The rule is per
+person or agent, so if more developers join, each one has their own.
+
+The board's `Status` field has six values, in this order: `To Do` → `In Progress` →
+`In Review` → `To Test` → `Testing` → `Done`.
 
 **Who moves what** - the human touches exactly one transition, `To Test →
 Testing`. Every other move on the board is the AI's:
@@ -104,20 +128,21 @@ Testing`. Every other move on the board is the AI's:
 
 `In Review` is **not** a hand-off - the human does nothing there. The AI owns
 the code review of its own PR: read the whole diff, run the checks, post real
-findings as PR comments, fix or clear each one. The card only leaves `In
+findings as PR comments, fix or clear each one. The issue only leaves `In
 Review` when the AI is satisfied. The human's turn starts at `To Test`.
 
-1. **AI picks a card from `To Do`.** First check the card is fully clear
+1. **AI picks an issue from `To Do`.** First check it is fully clear
    (scope, acceptance criteria, decisions). If anything is ambiguous, ask the
    human before moving it. Then move it to **`In Progress`** (only if that
-   column is empty).
+   column is empty; `npm run board` refuses otherwise).
 2. **AI does the work** - one branch off `main`
-   (`feat|fix|chore|docs|refactor/SS-<id>-<slug>`), one or more PRs. Only the
-   **parent** competes for the single `In Progress` slot; its **subtasks are
-   the checklist**. As the AI starts a subtask's chunk it moves **that
-   subtask** to `In Progress` (several subtasks of the one active parent may
+   (`feat|fix|chore|docs|refactor/<issue>-<slug>`, where `<issue>` is the GitHub issue
+   number: `feat/135-forced-colors-focus`), one or more PRs. Only the
+   **parent** competes for the single `In Progress` slot; its **sub-issues are
+   the checklist**. As the AI starts a sub-issue's chunk it moves **that
+   sub-issue** to `In Progress` (several sub-issues of the one active parent may
    sit in `In Progress` together - that's fine), and to **`Done`** when the
-   chunk lands. So at any moment the board shows which subtasks are finished,
+   chunk lands. So at any moment the board shows which sub-issues are finished,
    which is being worked, and which remain. `npm run lint && npm run test &&
    npm run build` (all proxy `turbo run …`) green first. Never push or merge
    straight to `main`.
@@ -126,27 +151,53 @@ Review` when the AI is satisfied. The human's turn starts at `To Test`.
    code-review of every open PR for it: read the entire diff, confirm the
    checks are green, post findings as PR comments, don't rubber-stamp.
    - Found something worth fixing → move the parent back to **`In Progress`**
-     (and re-open whatever subtask the fix belongs to), fix, repeat.
-   - Clean → move the parent to **`To Test`** - **only once every subtask is
+     (and re-open whatever sub-issue the fix belongs to), fix, repeat.
+   - Clean → move the parent to **`To Test`** - **only once every sub-issue is
      already `Done`.** The human must never be handed a parent whose sub-work
      isn't finished, or whose PR hasn't been self-reviewed.
 4. **The human drags `To Test` → `Testing`** (their only move on the board) and
    tests locally.
-   - Pass → the human tells the AI, naming the parent (e.g. "SS-156 está
+   - Pass → the human tells the AI, naming the parent (e.g. "#135 está
      certo"). The AI **squash-merges** the PR(s) and moves the **parent** to
-     **`Done`** (the subtasks are already there).
+     **`Done`** (the sub-issues are already there).
    - Fail → the AI moves the parent back to **`In Progress`** (re-opening the
-     affected subtask); same loop.
-5. **A parent reaches `Done` only when every subtask is `Done`** - which, by
+     affected sub-issue); same loop.
+5. **A parent reaches `Done` only when every sub-issue is `Done`** - which, by
    step 3, is already true before it ever enters `To Test`. The AI never drags
    a parent to `Done` on its own initiative - only after the human's pass on
    `Testing`.
 
-Also: every change starts from a Jira task (project SS) - no task, no work. An
-ad-hoc tweak asked for in chat → ask whether to create a task before touching
-code. Branch names carry the ID: `feat|fix|chore|docs|refactor/SS-<id>-<slug>`.
-The PR body says what it contains and how to test, and notes which workspace(s)
-it touches.
+Also: every change starts from a GitHub issue - no issue, no work. An ad-hoc tweak
+asked for in chat → ask whether to create an issue before touching code. Issues are
+written in English (the repository is public).
+
+**PRs.** The title is a conventional commit with its scope and **no issue id**
+(`refactor(ui): …`): GitHub appends the PR number when it squash-merges. The body says
+what it contains and how to test, notes which workspace(s) it touches, and links the
+work with **`Refs #<issue>`** - never `Closes`, because a merge is not the human's pass
+and the issue must not close on its own. The same goes for a commit body, and a
+changeset names the issue as `(#<issue>)`.
+
+**The project's own workflows** (the board's *Workflows* menu): `Auto-add to project`
+and `Item added to project` (sets `To Do`) stay on, and so does `Auto-close issue` (an
+issue that reaches `Done` is closed). **`Pull request merged` stays off**, so that a
+merge does not move a card to `Done` by itself. The GitHub API cannot change these, only
+the web UI can.
+
+**Moving a card from the terminal** (`gh` logged in, with the `project` scope). The script
+`scripts/board.mjs` keeps the one-at-a-time rule, with its own tests (`npm run test:scripts`,
+also run in CI):
+
+```bash
+npm run board -- status                            # the board, by Status
+npm run board -- move 135 "In Progress"            # refuses a second parent issue there
+npm run board -- move 135 "To Test"                # any other column moves freely
+npm run board -- move 136 "In Progress" --force    # only for totally distinct work, after telling the human
+npm run board -- move 135 "To Test" --dry-run      # says what it would do, changes nothing
+```
+
+A sub-issue may enter `In Progress` only while its parent is there; the parent itself
+follows the rule above.
 
 ## Versioning & releases
 

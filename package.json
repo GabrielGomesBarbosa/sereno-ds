@@ -26,7 +26,9 @@
     "build:docs": "turbo run build --filter=docs",
     "build:demo": "turbo run build --filter=demo",
     "serve:docs": "serve apps/docs/out -l ${PORT:-3000} --no-clipboard --no-port-switching",
-    "serve:demo": "serve apps/demo/out -l ${PORT:-3000} --no-clipboard --no-port-switching"
+    "serve:demo": "serve apps/demo/out -l ${PORT:-3000} --no-clipboard --no-port-switching",
+    "board": "node scripts/board.mjs",
+    "test:scripts": "node --test scripts/"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",

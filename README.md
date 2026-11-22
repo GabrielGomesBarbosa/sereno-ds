@@ -223,7 +223,7 @@ tsconfig.base.json         shared compiler options (each workspace extends it)
 
 ## Contributing
 
-The full workflow (Jira task per change, branch naming, PR + squash merge,
+The full workflow (a GitHub issue per change, branch naming, PR + squash merge,
 version bump rules, tag + release) is in [`AGENTS.md`](./AGENTS.md), the
 project's agent-instructions file (`CLAUDE.md` just points to it). In short: no
 direct push to `main`: every change goes through a PR, and before it:

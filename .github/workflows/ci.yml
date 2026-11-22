@@ -25,6 +25,8 @@ jobs:
       # No em dash anywhere in the repo (SS-330): cheap, so it runs before the install.
       - run: npm run check:dashes
       - run: npm run check:banner
+      # The board's one-at-a-time rule (scripts/board.mjs, #138): plain Node, no install needed.
+      - run: npm run test:scripts
 
       - run: npm ci
 
