@@ -201,7 +201,7 @@ apps/
     app/                   layout.tsx (fonts + ThemeProvider), globals.css, design-system/**, page.tsx (landing), robots.ts
     e2e/                   the pixel tests: visual.spec.ts + __screenshots__/ (the reference images)
     playwright.config.ts   projects light / dark / mobile, no visible pixel difference allowed
-    src/design-system/     catalog.ts + catalog/<slug>.ts, demos.tsx + demos/<slug>.tsx (one file per component), ComponentView, DocPage, Sidebar, Shell, version.ts + CHANGELOG.md
+    src/design-system/     catalog.ts + catalog/<slug>.ts, demos.tsx + demos/<slug>.tsx (one file per component), ComponentView, DocPage, Sidebar (+ its search: sidebarSearch.ts), Shell, version.ts + CHANGELOG.md
   demo/
     app/                   layout.tsx, globals.css, agendar/[slug]/, dashboard/, onboarding/, robots.ts, sitemap.ts
     src/screens/           BookingFlow, Onboarding, Dashboard/ (one file per view)
