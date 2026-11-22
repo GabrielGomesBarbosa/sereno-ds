@@ -341,6 +341,20 @@ previews (test locally + on the branch).
   `packages/ui/src/test/components.smoke.test.tsx`'s `CASES` map (see the
   next bullet) - everything there renders, gets a basic interaction check,
   and an automatic `jest-axe` pass, so one line of setup buys three checks.
+- **Esc and nested popups (SS-571, SS-573).** A popup that closes on `Escape` (a list, a
+  calendar, a menu, a field that clears) must call `preventDefault()` on that key, and it
+  uses the press: inside a `Dialog` the first Esc closes only the popup and the next one
+  closes the Dialog. The `Dialog` already ignores an Esc that is `defaultPrevented`, so
+  nothing else is needed. `Dialog.escape.test.tsx` has one case per component that handles
+  Esc: a new one adds its case there.
+- **A popup that can open inside a `Dialog` must not be clipped by it.** The `Dialog` body
+  scrolls and clips an absolute child, so inside a `position: fixed` container the popup is
+  portalled to `<body>` (`_internal/useMenuPlacement` answers `'fixed'` there; `Select`,
+  `Autocomplete` and `DatePicker` use it). A popup with nothing to focus (a list) needs no
+  more. One with focusable content (the `DatePicker` calendar) is no longer next to its field
+  in the DOM, so it must hand the `Tab` over by hand (field -> popup -> what follows the
+  field), keep the outside-press check aware of the portalled node, and measure itself to
+  stay inside the window. `DatePicker.placement.test.tsx` is the reference.
 - **A form control that shows an `error` / `hint` must tie it to the field (SS-328).**
   Render it through `_internal/Field` and spread `fieldA11y(id, { hint, error, describedBy,
   invalid })` (`_internal/fieldA11y.ts`) on the element that takes focus: `Field` gives the
