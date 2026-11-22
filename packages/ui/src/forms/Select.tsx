@@ -7,6 +7,7 @@ import { sx } from '../_internal/style';
 import { acquireScrollLock } from '../_internal/scrollLock';
 import { useCoarsePointer } from '../_internal/useCoarsePointer';
 import { useMenuPlacement } from '../_internal/useMenuPlacement';
+import { useOutsidePress } from '../_internal/useOutsidePress';
 import { useRevealActive } from '../_internal/useRevealActive';
 import { MenuOption, menuListStyle, menuRowPadY, menuSurfaceStyle } from '../_internal/MenuOption';
 import { Field } from '../_internal/Field';
@@ -138,16 +139,7 @@ function CustomSelect({
   };
 
   // Close on outside pointerdown (the touch sheet uses its own scrim instead).
-  React.useEffect(() => {
-    if (!open || coarse) return;
-    const onDown = (e: PointerEvent) => {
-      const target = e.target as Node;
-      if (triggerRef.current?.contains(target) || panelRef.current?.contains(target)) return;
-      setOpen(false);
-    };
-    document.addEventListener('pointerdown', onDown, true);
-    return () => document.removeEventListener('pointerdown', onDown, true);
-  }, [open, coarse]);
+  useOutsidePress(open && !coarse, [triggerRef, panelRef], () => setOpen(false));
 
   // The touch sheet is a modal surface - lock the page scroll behind it. Through the shared lock,
   // so a Select inside a Dialog (two held at once) frees the page whichever lets go first.
