@@ -135,7 +135,7 @@ packages/
 apps/
   docs/
     app/                   layout.tsx (fonts + ThemeProvider), globals.css, design-system/**, page.tsx (landing), robots.ts
-    src/design-system/     catalog, demos, ComponentView, DocPage, Sidebar, Shell, version.ts + CHANGELOG.md
+    src/design-system/     catalog.ts + catalog/<slug>.ts, demos.tsx + demos/<slug>.tsx (one file per component), ComponentView, DocPage, Sidebar, Shell, version.ts + CHANGELOG.md
   demo/
     app/                   layout.tsx, globals.css, agendar/[slug]/, dashboard/, onboarding/, robots.ts, sitemap.ts
     src/screens/           BookingFlow, Onboarding, Dashboard/ (one file per view)
