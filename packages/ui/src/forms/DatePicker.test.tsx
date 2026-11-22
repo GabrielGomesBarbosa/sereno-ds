@@ -248,3 +248,20 @@ describe('DatePicker: min and max limit the navigation (SS-331)', () => {
     });
   });
 });
+
+describe('DatePicker: a press outside closes the calendar (SS-575)', () => {
+  it('closes on a press outside and stays open on a press inside', () => {
+    render(
+      <div>
+        <DatePicker label="Data" defaultValue="2026-10-12" />
+        <button type="button">fora</button>
+      </div>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Data' }));
+    fireEvent.pointerDown(screen.getByRole('dialog', { name: 'Data' }));
+    expect(screen.getByRole('dialog', { name: 'Data' })).toBeInTheDocument();
+    fireEvent.pointerDown(screen.getByText('fora'));
+    expect(screen.queryByRole('dialog', { name: 'Data' })).toBeNull();
+  });
+});
+

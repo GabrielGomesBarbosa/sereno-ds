@@ -24,6 +24,16 @@ reference - every prop, every example, every do/don't - see
 `apps/docs/src/design-system/catalog.ts` via `npm run gen:component-docs` -
 edit the catalog, not the generated file, and re-run after.
 
+**Where a component's documentation lives (SS-574): one file per component.** Its
+props, guidelines and example snippets are `apps/docs/src/design-system/catalog/<slug>.ts`
+(an object of type `ComponentMeta`), and its live demos are
+`apps/docs/src/design-system/demos/<slug>.tsx` (the functions plus a `Record` keyed by
+the example `id`). `catalog.ts` and `demos.tsx` are only the indexes: a new component
+adds its two files and one line in each index (the order of `COMPONENTS` is the order
+of the sidebar). A demo helper used by more than one component goes in
+`demos/_shared.tsx`; the `R` row helper and `SEMANTIC_TONES` for the catalogue are in
+`catalog/_shared.ts`.
+
 Full context and scope: Jira card **SS-39** (project SS). The DS is being turned
 into a publishable package - Epic **SS-153** (now Done). Read the relevant
 card before any large change.
@@ -184,9 +194,11 @@ package version.
 - **`ci.yml` runs `npm publish --dry-run`** for both packages on every PR
   touching `packages/**` - the job log is the tarball contents; a stray file
   shows up there before it can ship.
-- `apps/docs/src/design-system/CHANGELOG.md` stays as the hand-written narrative
-  ("what shipped, in prose"); `packages/ui/CHANGELOG.md` is the Changesets
-  machine log. Keep the narrative one in sync when you add a changeset.
+- **The changelog is `packages/ui/CHANGELOG.md`, built by Changesets from the changeset
+  files, so write each changeset as prose** (what changed, why, what an app has to do):
+  that text is the changelog and the GitHub Release notes. `apps/docs/src/design-system/CHANGELOG.md`
+  is the older hand-written narrative, kept as history up to 0.25.0; an entry there is
+  optional and, when it exists for a version, `build-release-notes.mjs` prefers it.
 
 **Tags:** one stream - `@sereno-ds/ui@X.Y.Z` (`@sereno-ds/tokens@X.Y.Z` in lockstep),
 created by Changesets, plus a `vX.Y.Z` tag on the same commit for the GitHub
@@ -341,6 +353,20 @@ previews (test locally + on the branch).
   `packages/ui/src/test/components.smoke.test.tsx`'s `CASES` map (see the
   next bullet) - everything there renders, gets a basic interaction check,
   and an automatic `jest-axe` pass, so one line of setup buys three checks.
+- **Esc and nested popups (SS-571, SS-573).** A popup that closes on `Escape` (a list, a
+  calendar, a menu, a field that clears) must call `preventDefault()` on that key, and it
+  uses the press: inside a `Dialog` the first Esc closes only the popup and the next one
+  closes the Dialog. The `Dialog` already ignores an Esc that is `defaultPrevented`, so
+  nothing else is needed. `Dialog.escape.test.tsx` has one case per component that handles
+  Esc: a new one adds its case there.
+- **A popup that can open inside a `Dialog` must not be clipped by it.** The `Dialog` body
+  scrolls and clips an absolute child, so inside a `position: fixed` container the popup is
+  portalled to `<body>` (`_internal/useMenuPlacement` answers `'fixed'` there; `Select`,
+  `Autocomplete` and `DatePicker` use it). A popup with nothing to focus (a list) needs no
+  more. One with focusable content (the `DatePicker` calendar) is no longer next to its field
+  in the DOM, so it must hand the `Tab` over by hand (field -> popup -> what follows the
+  field), keep the outside-press check aware of the portalled node, and measure itself to
+  stay inside the window. `DatePicker.placement.test.tsx` is the reference.
 - **A form control that shows an `error` / `hint` must tie it to the field (SS-328).**
   Render it through `_internal/Field` and spread `fieldA11y(id, { hint, error, describedBy,
   invalid })` (`_internal/fieldA11y.ts`) on the element that takes focus: `Field` gives the
@@ -384,11 +410,35 @@ previews (test locally + on the branch).
 - Showcase pages are in English; the product screens (`/agendar`, `/dashboard`,
   `/onboarding`) keep their pt-BR copy.
 
+## Testing (SS-579)
+
+Two layers, in full in [`docs/testing.md`](docs/testing.md): **behavior tests** (Vitest, Testing Library,
+jest-axe, jsdom: `npm test`) and **pixel tests** (Playwright in a pinned Docker image: `npm run test:visual`).
+
+- **A new component** adds its case to `packages/ui/src/test/components.smoke.test.tsx` (`CASES`), a dedicated
+  `<Component>.test.tsx` for its behavior, and its examples to the docs catalog and demos: the pixel tests read the
+  catalog, so every example gets its reference images with no test code.
+- **Pixel tests have no visible tolerance** (`maxDiffPixels: 0`; only a rounding difference of 1 to 2 levels of
+  255 in a colour channel is ignored, see `docs/testing.md`). If one fails, it is a regression until proven
+  otherwise: fix the code.
+  **Never refresh the reference images to turn a build green.** When the change is on purpose, a person looks at it
+  on screen and approves it first; only then `npm run test:visual:update`, and the changed images are committed in
+  the same PR as the change. In chat: show what changed (the CI `visual-differences` artifact or
+  `apps/docs/e2e-report`), wait for the OK, then update.
+- **The environment is part of the test.** References are made in `mcr.microsoft.com/playwright:v1.65.1-noble` on
+  **linux/arm64** (`scripts/visual.sh`, and the `visual` job of `ci.yml`, which runs on an arm64 runner). The image
+  tag, `@playwright/test` (`apps/docs/package.json`) and the CI image move together; a Playwright upgrade means
+  regenerating and reviewing every reference in that PR.
+- **Pages must stay deterministic**: nothing in a demo may depend on the current date, a random value or a timer
+  (the clock is frozen, animations are off, but an unseeded random number is not fixed). Never make a test pass
+  with a retry or a tolerance.
+
 ## Check before commit
 
 ```bash
-npm run lint && npm run build   # = turbo run lint / turbo run build, all workspaces
+npm run lint && npm run typecheck && npm test && npm run build   # turbo, all workspaces
 npm run check:dashes            # no em dash in any tracked file (SS-330)
+npm run test:visual             # pixel tests, when the change touches how something looks (needs Docker)
 ```
 
 `turbo run build` must be green: **docs = 46 routes** (37 component pages + tokens

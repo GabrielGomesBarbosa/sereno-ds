@@ -1,8 +1,14 @@
 # Sereno DS - changelog
 
-Hand-written narrative of what shipped, per version. The version is the one in
-`packages/ui/package.json` (Changesets); `packages/ui/CHANGELOG.md` is the
-machine log. Add an entry here whenever you add a changeset.
+Hand-written narrative of what shipped, per version, **up to 0.25.0**: this file
+stopped there and is kept as history.
+
+**From 0.26.0 on, the changelog is `packages/ui/CHANGELOG.md`.** Changesets builds
+it from the files in `.changeset/`, and those are written as prose (what changed, why,
+what an app has to do), so the text is already the narrative: nothing is written twice.
+The GitHub Release notes come from the same place. `.github/scripts/build-release-notes.mjs`
+still prefers a section in this file when there is one for the version, and falls back
+to the machine log when there is not, so a new entry here is optional.
 
 ## 0.25.0 - Compound API migration (SS-213)
 

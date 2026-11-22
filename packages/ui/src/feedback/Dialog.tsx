@@ -143,6 +143,10 @@ function DialogRoot({
     const unlock = acquireScrollLock();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        // A popup inside the Dialog (a list, a calendar, a menu) that already used this Esc to close itself
+        // said so with `preventDefault()`: the Dialog stays, and the next Esc closes it. A component that
+        // handles Esc must call `preventDefault()` (AGENTS.md, "Esc and nested popups").
+        if (e.defaultPrevented) return;
         if (dismissibleRef.current) onCloseRef.current?.();
         return;
       }
