@@ -5,42 +5,48 @@
       "schemes": ["light", "dark"],
       "rule": "color-contrast",
       "target": "#basic > div > div[data-example-preview=\"true\"] > div > .sereno-sidenav-root > .sereno-sidenav > .sereno-sidenav-section:nth-child(1) > span",
-      "reason": "The group label (11 px, bold) measures 2.53:1 in light (#9ba3b3 on white) and 2.66:1 in dark, and 4.5:1 is needed. It uses --text-muted; the fix is a stronger colour for the label, or for the token."
+      "reason": "The group label (11 px, bold) measures 2.53:1 in light (#9ba3b3 on white) and 2.66:1 in dark, and 4.5:1 is needed. It is drawn with --text-disabled, the colour of a disabled control, which a group label is not; the fix is --text-muted.",
+      "issue": 155
     },
     {
       "page": "navigation/sidebar-nav",
       "schemes": ["light", "dark"],
       "rule": "color-contrast",
       "target": "#basic > div > div[data-example-preview=\"true\"] > div > .sereno-sidenav-root > .sereno-sidenav > .sereno-sidenav-section:nth-child(2) > span",
-      "reason": "The group label (11 px, bold) measures 2.53:1 in light (#9ba3b3 on white) and 2.66:1 in dark, and 4.5:1 is needed. It uses --text-muted; the fix is a stronger colour for the label, or for the token."
+      "reason": "The group label (11 px, bold) measures 2.53:1 in light (#9ba3b3 on white) and 2.66:1 in dark, and 4.5:1 is needed. It is drawn with --text-disabled, the colour of a disabled control, which a group label is not; the fix is --text-muted.",
+      "issue": 155
     },
     {
       "page": "feedback/alert",
       "schemes": ["light"],
       "rule": "color-contrast",
       "target": "div[role=\"status\"]:nth-child(2) > div > span:nth-child(2)",
-      "reason": "The description is drawn with opacity 0.9 over the tone's own colour: 4.13:1 (success) against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text."
+      "reason": "The description is drawn with opacity 0.9 over the tone's own colour: 4.13:1 (success) against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text.",
+      "issue": 156
     },
     {
       "page": "feedback/alert",
       "schemes": ["light"],
       "rule": "color-contrast",
       "target": "div[role=\"status\"]:nth-child(3) > div > span:nth-child(2)",
-      "reason": "The description is drawn with opacity 0.9 over the tone's own colour: 4.44:1 (warning) against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text."
+      "reason": "The description is drawn with opacity 0.9 over the tone's own colour: 4.44:1 (warning) against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text.",
+      "issue": 156
     },
     {
       "page": "feedback/alert",
       "schemes": ["light"],
       "rule": "color-contrast",
       "target": "div[role=\"alert\"] > div > span:nth-child(2)",
-      "reason": "The description is drawn with opacity 0.9 over the tone's own colour: 4.21:1 (error) against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text."
+      "reason": "The description is drawn with opacity 0.9 over the tone's own colour: 4.21:1 (error) against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text.",
+      "issue": 156
     },
     {
       "page": "feedback/toast",
       "schemes": ["light"],
       "rule": "color-contrast",
       "target": "div[role=\"status\"]:nth-child(1) > div > span:nth-child(2)",
-      "reason": "The description is drawn with opacity 0.85 over the success tone: 3.78:1 against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text."
+      "reason": "The description is drawn with opacity 0.85 over the success tone: 3.78:1 against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text.",
+      "issue": 156
     }
   ]
 }
