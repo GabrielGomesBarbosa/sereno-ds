@@ -554,3 +554,24 @@ describe('DateTimePicker: min and max limit the navigation (SS-331)', () => {
     });
   });
 });
+
+describe('DateTimePicker: a press outside closes the month and year popover (SS-575)', () => {
+  const title = (container: HTMLElement) => container.querySelector<HTMLButtonElement>('.sereno-dtp-title[aria-haspopup]')!;
+  const pop = (container: HTMLElement) => container.querySelector('.sereno-dtp-pop');
+
+  it('closes on a press outside and stays open on a press inside', () => {
+    const { container } = render(
+      <div>
+        <DateTimePicker {...OCT} />
+        <button type="button">fora</button>
+      </div>,
+    );
+    fireEvent.click(title(container));
+    expect(pop(container)).not.toBeNull();
+    fireEvent.pointerDown(pop(container)!);
+    expect(pop(container)).not.toBeNull();
+    fireEvent.pointerDown(screen.getByText('fora'));
+    expect(pop(container)).toBeNull();
+  });
+});
+

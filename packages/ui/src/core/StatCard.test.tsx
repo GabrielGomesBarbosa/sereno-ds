@@ -48,7 +48,9 @@ describe('StatCard: content', () => {
 describe('StatCard: tone', () => {
   it('default is the plain card: the Card ring, no tone colors', () => {
     const { container } = render(<StatCard label="A" value={1} hint="h" />);
-    expect(style(card(container))).toContain('var(--border-default)');
+    // the default tone leaves the ring to Card (its `--sd-ring` custom property, drawn by the stylesheet): no override
+    expect(card(container).style.boxShadow).toBe('');
+    expect(style(card(container))).toContain('--sd-ring: 0 0 0 1px var(--border-default)');
     expect(style(card(container))).not.toContain('--status-');
     expect(style(screen.getByText('A'))).toContain('color: var(--text-muted)');
     expect(style(screen.getByText('1'))).toContain('color: var(--text-primary)');
@@ -56,8 +58,9 @@ describe('StatCard: tone', () => {
 
   it.each(['success', 'warning', 'error', 'info'] as const)('%s: a ring in the tone, label and number in its text color', (tone) => {
     const { container } = render(<StatCard tone={tone} label="A" value={1} hint="h" />);
-    expect(style(card(container))).toContain('0 0 0 1px var(--status-' + tone + '-dot)');
-    expect(style(card(container))).not.toContain('var(--border-default)');
+    // a tone overrides Card's shadow with its own: the inline box-shadow wins over the stylesheet's
+    expect(card(container).style.boxShadow).toContain('0 0 0 1px var(--status-' + tone + '-dot)');
+    expect(card(container).style.boxShadow).not.toContain('var(--border-default)');
     expect(style(screen.getByText('A'))).toContain('color: var(--status-' + tone + '-fg)');
     expect(style(screen.getByText('1'))).toContain('color: var(--status-' + tone + '-fg)');
   });
@@ -70,8 +73,8 @@ describe('StatCard: tone', () => {
   it('neutral: a tinted fill, no shadow, a secondary label (muted would be under AA on that fill)', () => {
     const { container } = render(<StatCard tone="neutral" label="A" value={1} />);
     expect(style(card(container))).toContain('background: var(--bg-subtle)');
-    expect(style(card(container))).toContain('0 0 0 1px var(--border-default)');
-    expect(style(card(container))).not.toContain('--shadow-');
+    expect(card(container).style.boxShadow).toBe('0 0 0 1px var(--border-default)');
+    expect(card(container).style.boxShadow).not.toContain('--shadow-');
     expect(style(screen.getByText('A'))).toContain('color: var(--text-secondary)');
     expect(style(screen.getByText('1'))).toContain('color: var(--text-primary)');
   });

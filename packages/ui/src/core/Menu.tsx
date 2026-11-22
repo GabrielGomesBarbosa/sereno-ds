@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { sx } from '../_internal/style';
+import { useOutsidePress } from '../_internal/useOutsidePress';
 
 /**
  * Action menu / dropdown - a `trigger` you supply plus a portalled panel of
@@ -195,16 +196,7 @@ export function Menu({ trigger, adornment, items, children, header, label, align
   }, [open, mounted, align, width, close]);
 
   // Outside pointerdown closes.
-  React.useEffect(() => {
-    if (!open) return;
-    const onDown = (e: PointerEvent) => {
-      const t = e.target as Node;
-      if (anchorRef.current?.contains(t) || panelRef.current?.contains(t)) return;
-      close(false);
-    };
-    document.addEventListener('pointerdown', onDown, true);
-    return () => document.removeEventListener('pointerdown', onDown, true);
-  }, [open, close]);
+  useOutsidePress(open, [anchorRef, panelRef], () => close(false));
 
   // Move focus into the panel on open. Which row starts active depends on how it
   // was opened (see `effectiveActive`). The panel only mounts once `place` is measured,

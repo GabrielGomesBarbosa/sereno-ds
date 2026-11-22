@@ -12,6 +12,8 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:visual": "npm run build:docs && bash scripts/visual.sh",
+    "test:visual:update": "npm run build:docs && bash scripts/visual.sh --update-snapshots",
     "dev": "turbo run dev",
     "changeset": "changeset",
     "version-packages": "changeset version",
