@@ -64,7 +64,8 @@ Pixel-exact only works if the references and the comparison are made in **the sa
 smoothing, the Chromium build and even the CPU architecture change the anti-aliasing by a colour level. So both
 happen in the **pinned Playwright image** (`mcr.microsoft.com/playwright:v1.65.1-noble`):
 
-- locally, `scripts/visual.sh` runs it with `docker run`;
+- locally, `scripts/visual.sh` runs it with `docker run`, in a container named `sereno-ds-visual-tests` (so you find it in
+  Docker Desktop; it is removed when the run ends, and a second run at the same time is refused);
 - in CI, the `visual` job of `.github/workflows/ci.yml` runs the same image as a job container, on an **arm64**
   runner (`ubuntu-24.04-arm`) so the architecture is the same as the Docker of an Apple Silicon Mac.
 
@@ -126,19 +127,29 @@ rules was needed:
   element by a fraction of a pixel, which changed the anti-aliasing of rounded corners by one colour level between
   two runs of the same code. The window is made as tall as the page, so every element keeps the position the
   layout gave it.
-- **The window height is even.** A dialog is centred in the window, at (window height - dialog height) / 2. The
-  window is as tall as the page, so adding an example to a page changes it by any number of pixels, and with an odd
-  height the dialog lands on a half pixel: its text and borders are snapped to whole pixels, but its icons are not,
-  and they changed by a few pixels in the open-dialog pictures of the same page. With an even height the position
-  depends on the dialog only. (Found by running the suite on the PR that adds an example to the Dialog page.)
+- **What opens is photographed at a fixed place of a fixed window.** A popup (a list, a menu, a calendar, a dialog) is
+  drawn by the browser in its own layer, and the pixels of a thin icon in it (the check of a list, the arrow of a
+  calendar, the X of a dialog) depend, by a colour level or two, on the absolute position where it is drawn. In a
+  window as tall as the page that position is "everything above the demo", so adding an example anywhere above
+  changed pictures of other examples by a few pixels. Measured on the menu, select, date-picker and autocomplete
+  pages by pushing the demo down by 1 to 777 px: up to a thousand pixels over the limit; found first by running the
+  suite on a PR that adds an example to the Dialog page (the X of two older dialogs). So for these pictures the window
+  is always 1000 px tall (`OPEN_WINDOW_HEIGHT`) and the demo is scrolled to 100 px from its top (`placeInWindow()`), and
+  the pictures became identical to the bit whatever the page has above or below. A side effect: a dialog taller than the
+  window is photographed as a person would see it, limited to the window, with its body scrolling inside.
+- **Only that example is in the picture.** A popup covers what is next to its demo: the docs' sidebar (it lists every
+  component), the header (it says the version) and the examples before and after (they change when one is added or
+  edited). `placeInWindow()` hides all of the docs but the example's own section, so a picture changes when the
+  component or its demo changes, and not when something else of the docs does.
 - **Each example is pinned to a whole pixel.** An example sits at a fractional position that is the sum of the
   heights of everything above it on the page, so adding an example above it (or changing one by half a pixel)
   would move every picture below by half a pixel and fail them, though their components did not change. Before
   each picture the section is nudged by that fraction (`pin()` in the spec), so a picture depends on its example
   and on nothing else. (Found by running the suite on a PR that adds an example to the Dialog page.)
-- **A dialog or a toast is photographed on a plain background.** They open far from the demo, over whatever the
-  page has at that spot, which changes with every edit of the page; the rest of the page is hidden (`hidePageBehind()`)
-  so the overlay is the only thing in the picture.
+- **A dialog is photographed on a plain background.** It opens over whatever the page has at that spot, which changes
+  with every edit of the page; the rest of the page is hidden (`hidePageBehind()`) so the dialog is the only thing in
+  the picture. (A full-screen dialog is the whole window.) The toast of the docs lives inside its demo, so it is
+  photographed with it.
 - **Hover, pressed and focus pictures wait 250 ms**, for what is driven by a timer and not by a transition: a
   tooltip that appears after a delay (the sidebar's labels) or a flyout that closes after one.
 - **The clock is frozen** (`2026-06-15`), because the calendars mark "today".
@@ -182,8 +193,9 @@ right images fail.
 ### What it does not cover
 
 - **How a page behaves in a short window.** Pages are shot in a window as tall as the page (that is what makes them
-  stable), so a dialog's `max-height` against a short screen, or a list that has to scroll because there is no room,
-  are checked by hand or by behavior tests, not by these pictures.
+  stable), so a list that has to scroll because there is no room, or a popup that flips upward near the bottom edge,
+  are checked by hand or by behavior tests, not by these pictures. (What opens is shot in a 1000 px window, which
+  does cover a dialog that is taller than the window.)
 - **Animations in motion.** Hover, pressed, focus and open are covered, each as a settled state; the frames of
   an animation or a transition are not (they are turned off on purpose).
 - **Browsers other than Chromium.** Safari and Firefox rendering is checked by hand (the iPhone, on the docs).

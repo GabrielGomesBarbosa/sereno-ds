@@ -56,13 +56,7 @@ async function fitViewportToPage(page: Page) {
     return best;
   });
   const width = page.viewportSize()!.width;
-  // An EVEN height: a dialog is centred in the window, at (height - its own height) / 2, so an odd height puts it
-  // on a half pixel and an even one on a whole pixel (or always the same half). Adding an example to a page
-  // changes the page height by any number of pixels, which would flip that parity and move the open dialogs of
-  // the page by half a pixel: only their icons change, by a few pixels (found by running this suite on a PR that
-  // adds an example to the Dialog page).
-  const height = Math.min(16000, Math.ceil((needed + 200) / 2) * 2);
-  await page.setViewportSize({ width, height });
+  await page.setViewportSize({ width, height: Math.min(16000, needed + 200) });
   await page.waitForTimeout(200);
 }
 
@@ -85,6 +79,49 @@ async function pin(preview: Locator) {
   });
 }
 
+/** What opens (a list, a menu, a dialog, a toast) is photographed in a window of this height... */
+const OPEN_WINDOW_HEIGHT = 1000;
+/** ...with the demo this many pixels below the top of it. */
+const OPEN_DEMO_TOP = 100;
+
+/**
+ * Puts the demo at the same place of a window of the same size, whatever the page has above or below it.
+ *
+ * Why: a popup is `position: fixed`, and the pixels of a thin icon in it (the check of a list, the arrow of a
+ * calendar, the X of a dialog) depend, by a colour level or two and not always the same way, on the ABSOLUTE
+ * position where it is drawn. In a window as tall as the page that position is "everything above the demo", so
+ * adding an example anywhere above changed pictures of other examples by a few pixels (found by running this suite
+ * on a PR that adds an example to the Dialog page: the X of two older dialogs; then measured on the menu, select,
+ * date-picker and autocomplete pages by pushing the demo down by 1 to 777 px: up to a thousand pixels over the
+ * limit). With the window and the place fixed the pictures are identical to the bit whatever is above.
+ *
+ * The docs scroll inside `main.ds-main`; room is added below so even the last example can be brought to the
+ * same place, and the scroll is a whole number of pixels because the demo was pinned to one (`pin()`).
+ */
+async function placeInWindow(page: Page, preview: Locator) {
+  const width = page.viewportSize()!.width;
+  await page.setViewportSize({ width, height: OPEN_WINDOW_HEIGHT });
+  await page.waitForTimeout(200);
+  const top = await preview.evaluate((el, wanted) => {
+    const main = document.querySelector('main.ds-main') as HTMLElement | null;
+    if (main) {
+      const room = document.createElement('div');
+      room.style.height = '2000px';
+      main.appendChild(room);
+      main.scrollTop += Math.round(el.getBoundingClientRect().top) - wanted;
+    }
+    // Only this example is in the picture. A popup covers what is next to its demo: the docs' sidebar (it lists every
+    // component, so it changes when one is added), the header (it says the version, so it changes at every release)
+    // and the examples before and after this one (they change when one is added or edited). Everything of the docs
+    // is hidden but this example's own section; what a popup or a dialog opens is outside it (a portal) and stays.
+    document.querySelectorAll<HTMLElement>('.ds-aside, .ds-header, main.ds-main').forEach((e) => (e.style.visibility = 'hidden'));
+    (el.closest('section') as HTMLElement).style.visibility = 'visible';
+    return el.getBoundingClientRect().top;
+  }, OPEN_DEMO_TOP);
+  if (Math.abs(top - OPEN_DEMO_TOP) > 0.01) throw new Error(`placeInWindow: the demo is at ${top}px, not at ${OPEN_DEMO_TOP}px (a picture taken from here would depend on the page)`);
+  await page.waitForTimeout(200);
+}
+
 /**
  * For something that opens far from the demo (a dialog, a toast): hides the rest of the page, so the picture
  * has the overlay on a plain background instead of on whatever happens to be behind it, which changes every
@@ -99,6 +136,9 @@ async function hidePageBehind(page: Page) {
       el.style.visibility = 'hidden';
     });
   }, '[role=menu], [role=listbox], [role=dialog], [role=tooltip]');
+  // `placeInWindow` left the example's own section visible (to show a popup with its demo): not for a picture of
+  // something that stands alone.
+  await page.evaluate(() => document.querySelectorAll<HTMLElement>('main.ds-main section').forEach((e) => (e.style.visibility = 'hidden')));
 }
 
 /**
@@ -267,6 +307,7 @@ for (const meta of COMPONENTS) {
         // Every opening starts on a freshly loaded page: nothing focused, hovered or scrolled by what came before.
         if (j === 0) await openComponentPage(page, meta.category, meta.slug);
         await pin(preview);
+        await placeInWindow(page, preview);
         const before = await fixedPaths(page);
         const trigger = preview.locator(triggerSel).nth(j);
         if (!(await trigger.isVisible())) continue;
@@ -278,8 +319,19 @@ for (const meta of COMPONENTS) {
         const previewBox = (await preview.boundingBox())!;
         const overlays = await newOverlayBoxes(page, before);
         const shown = frame(previewBox, overlays);
-        if (shown.far) await hidePageBehind(page);
-        await shotAround(page, shown.box, `${meta.slug}--${ex.id}--open-${j}.png`, 8);
+        // A dialog is alone on a plain background, near the demo or not: what is behind it is the rest of the page,
+        // which changes with every example added. (Only the Dialog page: the calendar popup of a date picker has
+        // role=dialog too, and a toast of the docs lives inside its demo; both are photographed with it.)
+        const dialogPage = meta.slug === 'dialog';
+        const alone = shown.far || dialogPage;
+        if (alone) await hidePageBehind(page);
+        let box = shown.box;
+        if (alone) {
+          // a full-screen dialog is not in `overlays` (it is the window): then the picture is the whole window
+          const vp = page.viewportSize()!;
+          box = overlays.length ? union(overlays) : dialogPage ? { x: 0, y: 0, width: vp.width, height: vp.height } : shown.box;
+        }
+        await shotAround(page, box, `${meta.slug}--${ex.id}--open-${j}.png`, 8);
         // a clean page for the next one: nothing left open, nothing scrolled
         await openComponentPage(page, meta.category, meta.slug);
       }
