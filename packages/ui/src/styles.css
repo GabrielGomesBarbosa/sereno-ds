@@ -97,6 +97,7 @@
    whichever ring the card is showing, hovered or not. */
 .sereno-action {
   outline: none;
+  border: none;
   background: var(--sd-bg);
   box-shadow: var(--sd-ring);
 }
@@ -271,6 +272,11 @@ textarea.sereno-field {
   background: var(--sd-bg-hover, var(--sd-bg));
   color: var(--sd-fg-hover, var(--sd-fg));
   border-color: var(--sd-bd-hover, var(--sd-bd));
+}
+
+/* Stepper segment: its fill is a --sd-bg value so the forced-colors rules can restyle it by `data-state`. */
+.sereno-step {
+  background: var(--sd-bg);
 }
 
 /* ── In-field affix button ───────────────────────────────────────────────────
@@ -523,7 +529,102 @@ textarea.sereno-field {
   .sereno-switch[aria-checked='true'] .sereno-switch-thumb {
     background: HighlightText;
   }
+  .sereno-switch[aria-disabled='true'][aria-checked='true'] {
+    background: GrayText;
+  }
   .sereno-switch[aria-disabled='true'] .sereno-switch-thumb {
     background: GrayText;
+  }
+  .sereno-switch[aria-disabled='true'][aria-checked='true'] .sereno-switch-thumb {
+    background: Canvas;
+  }
+
+  /* ── Current, selected and checked states (#141) ────────────────────────────────────
+     A state told only by a fill or a shadow is lost in this mode, so each one gets a cue that survives. For anything
+     that carries TEXT the cue is a border, an underline or both, never a fill: Chromium draws a Canvas-coloured backplate
+     behind text on any non-Canvas fill in forced colors (white text on a white box), so `Highlight` behind a label
+     makes the label unreadable. A fill is used only where there is no text: the Stepper segments, a Checkbox, a Radio. */
+
+  /* The edge of a card is a shadow ring in the normal mode, which is dropped: give both cards a border, and the selected
+     one a heavier one in the selection colour. */
+  .sereno-card,
+  .sereno-action {
+    border: 1px solid CanvasText;
+  }
+  .sereno-card[data-selected],
+  .sereno-action[aria-pressed='true'] {
+    border: 3px solid Highlight;
+  }
+
+  /* The current page of a Pagination (a Button with aria-current). */
+  .sereno-btn[aria-current='page'] {
+    border: 3px solid Highlight;
+    text-decoration: underline;
+  }
+
+  /* The current item of a SidebarNav or a BottomNav, and the selected Tab. */
+  .sereno-sidenav-row[aria-current='page'],
+  .sereno-bottom-nav-item[aria-current='page'],
+  .sereno-tab[aria-selected='true'] {
+    text-decoration: underline Highlight 2px;
+    text-underline-offset: 4px;
+  }
+
+  /* A selected Table row: a rule above and below it in the selection colour. */
+  .sereno-table tbody tr[data-selected] td {
+    border-top: 2px solid Highlight;
+    border-bottom: 2px solid Highlight;
+  }
+
+  /* Stepper: done and current segments in the selection colour, the ones to come in the disabled one. */
+  .sereno-step[data-state='done'],
+  .sereno-step[data-state='active'] {
+    background: Highlight;
+  }
+  .sereno-step[data-state='todo'] {
+    background: GrayText;
+  }
+
+  /* Checkbox and Radio: the check, the dash and the dot are images or inset shadows in the normal mode, and both are lost.
+     Here the box is filled with the selection colour and the mark is drawn with borders, in the matching text colour, so it
+     reads on any palette. `!important` only here: the normal-mode rules for a checked box are `!important` themselves. */
+  .sereno-check,
+  .sereno-radio {
+    position: relative;
+  }
+  .sereno-check:checked,
+  .sereno-check:indeterminate,
+  .sereno-radio:checked {
+    background-color: Highlight !important;
+    background-image: none !important;
+    border-color: Highlight !important;
+    box-shadow: none !important;
+  }
+  .sereno-check:checked::after {
+    content: '';
+    position: absolute;
+    left: 32%;
+    top: 12%;
+    width: 30%;
+    height: 55%;
+    border: solid HighlightText;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .sereno-check:indeterminate::after {
+    content: '';
+    position: absolute;
+    left: 22%;
+    right: 22%;
+    top: calc(50% - 1px);
+    height: 2px;
+    background: HighlightText;
+  }
+  .sereno-radio:checked::after {
+    content: '';
+    position: absolute;
+    inset: 30%;
+    border-radius: 50%;
+    background: HighlightText;
   }
 }

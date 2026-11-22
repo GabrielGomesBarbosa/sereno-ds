@@ -59,6 +59,7 @@ export function Card({ padding = 'md', elevation = 'sm', interactive = false, se
       className={['sereno-card', className].filter(Boolean).join(' ')}
       data-interactive={interactive || undefined}
       data-clickable={clickable || undefined}
+      data-selected={selected || undefined}
       style={sx({
         '--sd-ring': ring,
         '--sd-ring-h': ringHover,

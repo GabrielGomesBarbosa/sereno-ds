@@ -16,6 +16,7 @@ import { Select } from '../forms/Select';
 import { Autocomplete } from '../forms/Autocomplete';
 import { DatePicker } from '../forms/DatePicker';
 import { Switch } from '../forms/Switch';
+import { Stepper } from '../navigation/Stepper';
 import { SidebarNav } from '../navigation/SidebarNav';
 
 afterEach(cleanup);
@@ -509,6 +510,48 @@ describe('forced colors (#135): nothing inline gets in the way of the stylesheet
   });
 });
 
+describe('forced colors (#141): what the states key on', () => {
+  it('a selected Card says so with data-selected, and an unselected one does not', () => {
+    render(
+      <>
+        <Card selected data-testid="on">
+          A
+        </Card>
+        <Card data-testid="off">B</Card>
+      </>,
+    );
+    expect(screen.getByTestId('on')).toHaveAttribute('data-selected', 'true');
+    expect(screen.getByTestId('off')).not.toHaveAttribute('data-selected');
+  });
+
+  it('ActionCard sets no border inline (the stylesheet owns it, so the forced-colors frame can win) and a selected one is aria-pressed', () => {
+    render(<ActionCard title="A" selected />);
+    const el = screen.getByRole('button', { name: /^A/ });
+    expect(el.style.border).toBe('');
+    expect(el).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('Stepper: each segment has the class and a data-state of done, active or todo, and its fill is a --sd-bg value', () => {
+    render(
+      <Stepper current={1} onStepClick={() => {}}>
+        <Stepper.Step label="One" index={0} />
+        <Stepper.Step label="Two" index={1} />
+        <Stepper.Step label="Three" index={2} />
+      </Stepper>,
+    );
+    const seg = (name: string) => screen.getByRole('button', { name });
+    expect(seg('One')).toHaveAttribute('data-state', 'done');
+    expect(seg('Two')).toHaveAttribute('data-state', 'active');
+    expect(seg('Three')).toHaveAttribute('data-state', 'todo');
+    for (const n of ['One', 'Two', 'Three']) {
+      expect(seg(n)).toHaveClass('sereno-step');
+      expect(seg(n).style.background).toBe('');
+    }
+    expect(v(seg('Two'), '--sd-bg')).toBe('var(--interactive-primary)');
+    expect(v(seg('Three'), '--sd-bg')).toBe('var(--border-default)');
+  });
+});
+
 describe('the stylesheet has the rules the components rely on', () => {
   const css = readFileSync(resolve(__dirname, '../styles.css'), 'utf8');
 
@@ -578,7 +621,7 @@ describe('the stylesheet has the rules the components rely on', () => {
     );
   });
 
-  it('forced colors: a focus outline where the ring is a shadow, a visible Switch, after the rules it overrides and with no !important', () => {
+  it('forced colors: a focus outline where the ring is a shadow, a visible Switch, after the rules it overrides, !important only on the checked box', () => {
     const at = css.indexOf('@media (forced-colors: active) {');
     expect(at).toBeGreaterThan(-1);
     const block = css.slice(at);
@@ -588,11 +631,38 @@ describe('the stylesheet has the rules the components rely on', () => {
     expect(block).toMatch(/outline: 2px solid Highlight;/);
     expect(block).toContain('.sereno-field:where(:has(> input:focus), [data-active]),\n  textarea.sereno-field:focus');
     expect(block).toMatch(/\.sereno-switch \{\s*box-sizing: content-box;\s*border: 2px solid ButtonText;/);
-    expect(block).not.toContain('!important');
+    // `!important` only in the Checkbox / Radio rule, whose normal-mode counterparts are `!important` themselves.
+    const code = block.replace(/\/\*[\s\S]*?\*\//g, ''); // the comments talk about !important too
+    const withoutCheckRule = code.replace(/\.sereno-check:checked,\s*\.sereno-check:indeterminate,\s*\.sereno-radio:checked \{[^}]*\}/, '');
+    expect(withoutCheckRule).not.toContain('!important');
+    expect(code).toMatch(/\.sereno-check:checked,\s*\.sereno-check:indeterminate,\s*\.sereno-radio:checked \{[^}]*!important/);
     // The overrides come after the bases they beat (same source, a pseudo-class more specific).
     for (const base of ['.sereno-btn {', '.sereno-action {', '.sereno-switch {', 'textarea.sereno-field {']) {
       expect(css.indexOf(base)).toBeGreaterThan(-1);
       expect(css.indexOf(base)).toBeLessThan(at);
+    }
+  });
+
+  it('forced colors: a cue that survives for each current, selected and checked state, with no fill behind text', () => {
+    const block = css.slice(css.indexOf('@media (forced-colors: active) {'));
+    for (const sel of [
+      ".sereno-card[data-selected],\n  .sereno-action[aria-pressed='true']",
+      ".sereno-btn[aria-current='page']",
+      ".sereno-sidenav-row[aria-current='page'],\n  .sereno-bottom-nav-item[aria-current='page'],\n  .sereno-tab[aria-selected='true']",
+      '.sereno-table tbody tr[data-selected] td',
+      ".sereno-step[data-state='done'],\n  .sereno-step[data-state='active']",
+      '.sereno-check:checked::after',
+      '.sereno-check:indeterminate::after',
+      '.sereno-radio:checked::after',
+    ]) {
+      expect(block).toContain(sel);
+    }
+    // Chromium puts a backplate behind text on a non-Canvas fill in forced colors, so no rule that targets text
+    // (a button, a row, a tab, a table cell) may paint a `Highlight` background.
+    for (const textual of ['.sereno-btn[aria-current', '.sereno-sidenav-row[aria-current', '.sereno-tab[aria-selected', '.sereno-table tbody tr[data-selected]']) {
+      const at = block.indexOf(textual);
+      const rule = block.slice(at, block.indexOf('}', at));
+      expect(rule).not.toMatch(/background(-color)?:\s*Highlight/);
     }
   });
 

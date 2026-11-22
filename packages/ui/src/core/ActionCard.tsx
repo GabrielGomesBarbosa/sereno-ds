@@ -96,7 +96,6 @@ export function ActionCard({
         textAlign: 'left',
         fontFamily: 'var(--font-body)',
         color: 'inherit',
-        border: 'none',
         borderRadius: 'var(--radius-card)',
         cursor: disabled ? 'not-allowed' : 'pointer',
         transition: 'var(--transition-control)',

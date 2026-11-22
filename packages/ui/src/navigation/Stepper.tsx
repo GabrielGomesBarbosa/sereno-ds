@@ -135,18 +135,23 @@ function Step({ label, index }: StepperStepProps) {
   const done = i < current;
   const active = i === current;
   const reachable = typeof onStepClick === 'function' && i <= current;
+  // The fill is `background: var(--sd-bg)` in styles.css, and `data-state` is what the forced-colors rules key on
+  // (an inline colour would beat them, and the browser forces every authored colour in that mode).
+  const state = done ? 'done' : active ? 'active' : 'todo';
   const common = {
     flex: dots ? '0 0 auto' : 1,
     border: 'none',
     padding: 0,
     cursor: reachable ? 'pointer' : 'default',
-    background: done || active ? 'var(--interactive-primary)' : 'var(--border-default)',
+    '--sd-bg': done || active ? 'var(--interactive-primary)' : 'var(--border-default)',
     transition: 'background-color var(--duration-normal) var(--ease-standard)',
   };
   return dots ? (
     <button
       aria-label={label}
       aria-current={active ? 'step' : undefined}
+      className="sereno-step"
+      data-state={state}
       disabled={!reachable}
       onClick={() => reachable && onStepClick!(i)}
       style={sx({
@@ -161,6 +166,8 @@ function Step({ label, index }: StepperStepProps) {
     <button
       aria-label={label}
       aria-current={active ? 'step' : undefined}
+      className="sereno-step"
+      data-state={state}
       disabled={!reachable}
       onClick={() => reachable && onStepClick!(i)}
       style={sx({ ...common, height: 3, borderRadius: 'var(--radius-pill)' })}
