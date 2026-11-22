@@ -35,7 +35,13 @@ html, body { padding: 0; margin: 0; }
   white-space: nowrap;
   transition: background-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
-.demo-pill-link:hover { background: var(--bg-brand-soft); box-shadow: inset 0 0 0 1px var(--border-brand), var(--shadow-xs); }
+.demo-pill-link:hover {
+  background: var(--bg-brand-soft);
+  box-shadow: inset 0 0 0 1px var(--border-brand), var(--shadow-xs);
+  /* tokens/base.css underlines every `a:hover` (more specific than the class above): a button-like pill already shows
+     the hover in its fill and border, so the underline is only noise. */
+  text-decoration: none;
+}
 .demo-pill-link:focus-visible { outline: none; box-shadow: inset 0 0 0 1px var(--border-focus), var(--focus-ring); }
 
 /* Dashboard TopBar user-menu trigger (the avatar + name + chevron pill that opens a Menu). */
