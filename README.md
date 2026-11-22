@@ -50,8 +50,9 @@ npm workspaces + Turborepo.
   outside consumer would; Turborepo builds the packages before the apps. `@sereno-ds/tokens` is
   plain CSS.
 - The component stylesheet (`@keyframes`, `:checked` / `:focus-visible`,
-  `::-webkit-scrollbar`, one responsive reflow) is
-  **`packages/ui/src/styles.css`**, load it once at the app root. Each app's
+  `::-webkit-scrollbar`, one responsive reflow, and the hover / press / focus states of
+  `Button`, `IconButton` and `Card`) is
+  **`packages/ui/src/styles.css`**: required, load it once at the app root (those three render unstyled without it). Each app's
   `globals.css` does `@import "@sereno-ds/tokens/tokens.css"` then
   `@import "@sereno-ds/ui/styles.css"`, then only its own shell rules.
 - Icons: `lucide-react` passed to components as props (a `peerDependency`).
