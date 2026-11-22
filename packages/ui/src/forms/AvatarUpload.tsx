@@ -420,14 +420,12 @@ export const AvatarUpload = React.forwardRef<HTMLInputElement, AvatarUploadProps
 AvatarUpload.displayName = 'AvatarUpload';
 
 function MenuItem({ icon, label, onClick, danger }: { icon: React.ReactNode; label: string; onClick: () => void; danger?: boolean }) {
-  const [hover, setHover] = React.useState(false);
   return (
     <button
       type="button"
       role="menuitem"
+      className="sereno-menuitem"
       onClick={onClick}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
       style={sx({
         display: 'flex',
         alignItems: 'center',
@@ -437,7 +435,6 @@ function MenuItem({ icon, label, onClick, danger }: { icon: React.ReactNode; lab
         padding: '0 var(--space-3)',
         border: 'none',
         borderRadius: 'var(--radius-sm)',
-        background: hover ? 'var(--bg-subtle)' : 'transparent',
         cursor: 'pointer',
         fontFamily: 'var(--font-body)',
         fontSize: 'var(--text-sm)',

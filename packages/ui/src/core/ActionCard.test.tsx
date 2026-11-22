@@ -97,82 +97,92 @@ describe('ActionCard: selected is a toggle, not a radio', () => {
   });
 });
 
-describe('ActionCard: keyboard focus', () => {
-  it('a keyboard focus (:focus-visible) puts the DS focus ring on top of the ring, and blur takes it off', () => {
-    // jsdom has no real focus-visible heuristic, so say that this focus is one.
-    const matches = Element.prototype.matches;
-    const spy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function (this: Element, sel: string) {
-      return sel === ':focus-visible' ? true : matches.call(this, sel);
-    });
-    render(<ActionCard title="A" />);
-    const btn = screen.getByRole('button');
-    expect(style(btn)).not.toContain('--focus-ring');
-    act(() => btn.focus());
-    expect(style(btn)).toContain('var(--focus-ring)');
-    expect(style(btn)).toContain('0 0 0 1px var(--border-default)');
-    act(() => btn.blur());
-    expect(style(btn)).not.toContain('--focus-ring');
-    spy.mockRestore();
-  });
+/**
+ * Hover, press and keyboard focus are CSS (SS-577): the card declares the ring and the fill it wears at rest and
+ * under the pointer as `--sd-*` custom properties, and `.sereno-action` in styles.css switches between them. jsdom has no
+ * `:hover`, so these tests pin the values the component sets (the stylesheet half is in `interaction.test.tsx`);
+ * the pixels of every state are the visual tests'.
+ */
+const v = (el: Element, name: string) => (el as HTMLElement).style.getPropertyValue(name);
 
-  it('a pointer focus (not :focus-visible) does not draw the ring', () => {
+describe('ActionCard: keyboard focus', () => {
+  it('declares the ring it wears and leaves the focus ring to the stylesheet: focus changes nothing on the element', () => {
     render(<ActionCard title="A" />);
     const btn = screen.getByRole('button');
-    const matches = Element.prototype.matches;
-    const spy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function (this: Element, sel: string) {
-      return sel === ':focus-visible' ? false : matches.call(this, sel);
-    });
+    expect(btn).toHaveClass('sereno-action');
+    expect(v(btn, '--sd-ring')).toBe('0 0 0 1px var(--border-default)');
+    expect(btn.style.boxShadow).toBe(''); // the stylesheet draws it, so a caller can restyle the focus with `:focus-visible`
+    const before = btn.outerHTML;
     act(() => btn.focus());
-    expect(style(btn)).not.toContain('--focus-ring');
-    spy.mockRestore();
+    expect(btn.outerHTML).toBe(before);
+    act(() => btn.blur());
+    expect(btn.outerHTML).toBe(before);
   });
 });
 
 describe('ActionCard: hover', () => {
-  it('the ring goes to the brand color and the fill to a faint brand tint, and comes back', () => {
+  it('declares a brand ring and a faint brand tint for the hover, next to the idle surface and hairline', () => {
     render(<ActionCard title="A" />);
     const btn = screen.getByRole('button');
-    expect(style(btn)).toContain('background: var(--bg-surface)');
+    expect(v(btn, '--sd-bg')).toBe('var(--bg-surface)');
+    expect(v(btn, '--sd-ring')).toBe('0 0 0 1px var(--border-default)');
+    expect(v(btn, '--sd-ring-hover')).toBe('0 0 0 1px var(--border-brand)');
+    expect(v(btn, '--sd-bg-hover')).toBe('color-mix(in srgb, var(--border-brand) 6%, var(--bg-surface))');
+  });
+
+  it('the pointer changes nothing on the element: there is no hover state to re-render', () => {
+    render(<ActionCard title="A" />);
+    const btn = screen.getByRole('button');
+    const before = btn.outerHTML;
     fireEvent.mouseEnter(btn);
-    expect(style(btn)).toContain('0 0 0 1px var(--border-brand)');
-    expect(style(btn)).toContain('background: color-mix(in srgb, var(--border-brand) 6%, var(--bg-surface))');
+    fireEvent.mouseOver(btn);
+    fireEvent.mouseDown(btn);
+    expect(btn.outerHTML).toBe(before);
+    fireEvent.mouseUp(btn);
     fireEvent.mouseLeave(btn);
-    expect(style(btn)).toContain('0 0 0 1px var(--border-default)');
-    expect(style(btn)).toContain('background: var(--bg-surface)');
+    expect(btn.outerHTML).toBe(before);
   });
 
   it('the hover fill is never the color of the icon tile, or the tile vanishes into the card (--bg-subtle and --interactive-ghost-hover are the same grey)', () => {
     render(<ActionCard title="A" icon={icon} />);
     const btn = screen.getByRole('button');
     const tile = screen.getByTestId('icon').parentElement as HTMLElement;
-    fireEvent.mouseEnter(btn);
-    expect(style(btn)).not.toContain('--interactive-ghost-hover');
-    expect(style(btn)).not.toContain('background: var(--bg-subtle)');
+    expect(v(btn, '--sd-bg-hover')).not.toContain('--interactive-ghost-hover');
+    expect(v(btn, '--sd-bg-hover')).not.toBe('var(--bg-subtle)');
     expect(style(tile)).toContain('background: var(--bg-subtle)');
   });
 
   it('the hover tint follows the variant: error tints toward the error color', () => {
     render(<ActionCard variant="error" title="A" />);
-    fireEvent.mouseEnter(screen.getByRole('button'));
-    expect(style(screen.getByRole('button'))).toContain('background: color-mix(in srgb, var(--status-error-dot) 6%, var(--bg-surface))');
+    const btn = screen.getByRole('button');
+    expect(v(btn, '--sd-bg-hover')).toBe('color-mix(in srgb, var(--status-error-dot) 6%, var(--bg-surface))');
+    expect(v(btn, '--sd-ring-hover')).toBe('0 0 0 1px var(--status-error-dot)');
   });
 
-  it('a disabled card does not react to the pointer', () => {
+  it('selected: the brand ring is the same under the pointer, and the fill still tints', () => {
+    render(<ActionCard title="A" selected />);
+    const btn = screen.getByRole('button');
+    expect(v(btn, '--sd-ring')).toBe('0 0 0 1.5px var(--border-brand)');
+    expect(v(btn, '--sd-ring-hover')).toBe(v(btn, '--sd-ring'));
+    expect(v(btn, '--sd-bg-hover')).toBe('color-mix(in srgb, var(--border-brand) 6%, var(--bg-surface))');
+  });
+
+  it('a disabled card has no hover values: it does not react to the pointer', () => {
     render(<ActionCard title="A" disabled />);
     const btn = screen.getByRole('button');
-    fireEvent.mouseEnter(btn);
-    expect(style(btn)).not.toContain('--border-brand');
-    expect(style(btn)).toContain('background: var(--bg-surface)');
+    expect(v(btn, '--sd-bg')).toBe('var(--bg-surface)');
+    expect(v(btn, '--sd-ring')).toBe('0 0 0 1px var(--border-subtle)');
+    expect(v(btn, '--sd-ring-hover')).toBe('');
+    expect(v(btn, '--sd-bg-hover')).toBe('');
     expect(style(btn)).toContain('cursor: not-allowed');
   });
 
-  it('pressing scales it down a little, and letting go puts it back', () => {
+  it('draws no fill, shadow or transform of its own on the element: the stylesheet does, for hover, press and focus', () => {
     render(<ActionCard title="A" />);
     const btn = screen.getByRole('button');
-    fireEvent.mouseDown(btn);
-    expect(style(btn)).toContain('transform: scale(var(--press-scale))');
-    fireEvent.mouseUp(btn);
-    expect(style(btn)).toContain('transform: none');
+    expect(btn.style.background).toBe('');
+    expect(btn.style.boxShadow).toBe('');
+    expect(btn.style.transform).toBe('');
   });
 });
 

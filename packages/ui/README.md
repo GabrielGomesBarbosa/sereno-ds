@@ -23,11 +23,22 @@ import '@sereno-ds/ui/styles.css';     // keyframes, structural rules, and the h
 
 `tokens.css` **must** come first. Both are side-effect CSS: import them once (a root layout, `_app`, or `main.tsx`), not per-component.
 
-**`styles.css` is required**, not decorative: `Button`, `IconButton` and `Card` take their colours, border and hover / press / focus states from it (their values are on the element, the rules that switch between them are in the stylesheet), so without it those three render unstyled.
+**`styles.css` is required**, not decorative: `Button`, `IconButton`, `Card`, `ActionCard`, the rows of `SidebarNav`, `Checkbox`, `Radio` and the actions of `AvatarUpload` take their hover / press / focus states (and, for the first four, their colours and border) from it. Their values are on the element, the rules that switch between them are in the stylesheet, so without it they render unstyled or with no hover.
 
 #### Restyling a state with plain CSS
 
-`Button`, `IconButton` and `Card` carry the class `sereno-btn` (the first two) or `sereno-card` and, on a `Card`, `data-interactive` and `data-clickable`. The state rules have the specificity of `.sereno-btn:hover` (one class and one pseudo-class), so a rule of yours with the same specificity **that comes later** wins, with no `!important`:
+These components carry a class the stylesheet's state rules hang on:
+
+| Component | Class | Also |
+|---|---|---|
+| `Button`, `IconButton` | `sereno-btn` | |
+| `Card` | `sereno-card` | `data-interactive`, `data-clickable` |
+| `ActionCard` | `sereno-action` | |
+| `SidebarNav` items and sub items | `sereno-sidenav-row` | |
+| `Checkbox`, `Radio` | `sereno-choice` on the row (the `<label>`), `sereno-check` / `sereno-radio` on the box | |
+| the actions of `AvatarUpload` | `sereno-menuitem` | |
+
+The state rules have the specificity of `.sereno-btn:hover` (one class and one pseudo-class), so a rule of yours with the same specificity **that comes later** wins, with no `!important`:
 
 ```css
 /* a ghost button on a brand-coloured band: its hover fill vanishes on that colour */

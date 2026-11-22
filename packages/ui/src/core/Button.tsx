@@ -22,36 +22,6 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   children?: React.ReactNode;
 }
 
-export interface InteractState {
-  hover: boolean;
-  press: boolean;
-  focus: boolean;
-  handlers: React.HTMLAttributes<HTMLElement>;
-}
-
-/** Shared hover / press / focus-visible tracking used by Button, IconButton and Card. */
-export function useInteract(disabled: boolean): InteractState {
-  const [hover, setHover] = React.useState(false);
-  const [press, setPress] = React.useState(false);
-  const [focus, setFocus] = React.useState(false);
-  const handlers: React.HTMLAttributes<HTMLElement> = disabled
-    ? {}
-    : {
-        onMouseEnter: () => setHover(true),
-        onMouseLeave: () => {
-          setHover(false);
-          setPress(false);
-        },
-        onMouseDown: () => setPress(true),
-        onMouseUp: () => setPress(false),
-        onFocus: (e) => {
-          if ((e.target as HTMLElement).matches(':focus-visible')) setFocus(true);
-        },
-        onBlur: () => setFocus(false),
-      };
-  return { hover, press, focus, handlers };
-}
-
 const SIZES = {
   sm: { h: 'var(--control-height-sm)', px: 'var(--space-3)', fs: 'var(--text-sm)', gap: '6px' },
   md: { h: 'var(--control-height-md)', px: 'var(--space-4)', fs: 'var(--text-base)', gap: '8px' },

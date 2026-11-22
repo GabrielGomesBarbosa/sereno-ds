@@ -86,6 +86,47 @@
   box-shadow: var(--sd-ring-h), var(--sd-drop-h), var(--focus-ring);
 }
 
+/* ActionCard: the ring and the fill, each with its hover value (`--sd-ring`, `--sd-ring-hover`, `--sd-bg`,
+   `--sd-bg-hover`). A disabled card has no hover value and the rules leave it out; the focus ring goes on top of
+   whichever ring the card is showing, hovered or not. */
+.sereno-action {
+  background: var(--sd-bg);
+  box-shadow: var(--sd-ring);
+}
+.sereno-action:hover:where(:not(:disabled)) {
+  background: var(--sd-bg-hover, var(--sd-bg));
+  box-shadow: var(--sd-ring-hover, var(--sd-ring));
+}
+.sereno-action:active:where(:not(:disabled)) {
+  transform: scale(var(--press-scale));
+}
+.sereno-action:focus-visible {
+  box-shadow: var(--sd-ring), var(--focus-ring);
+}
+.sereno-action:hover:focus-visible:where(:not(:disabled)) {
+  box-shadow: var(--sd-ring-hover, var(--sd-ring)), var(--focus-ring);
+}
+
+/* Checkbox / Radio: the border goes brand-coloured while the pointer is on the row (the whole label, text
+   included), unless the box is disabled or in error. The row declares the two colours as `--sd-bd` and
+   `--sd-bd-hover` (an error sets both to the error colour); `:checked` keeps its own `!important` fill below. */
+.sereno-check,
+.sereno-radio {
+  border-color: var(--sd-bd, var(--border-strong));
+}
+.sereno-choice:hover .sereno-check:where(:not(:disabled)),
+.sereno-choice:hover .sereno-radio:where(:not(:disabled)) {
+  border-color: var(--sd-bd-hover, var(--border-brand));
+}
+
+/* A row of a small menu with only a hover fill (the AvatarUpload actions). */
+.sereno-menuitem {
+  background: transparent;
+}
+.sereno-menuitem:hover:where(:not(:disabled)) {
+  background: var(--bg-subtle);
+}
+
 /* ── Checkbox / Radio / Switch ───────────────────────────────────────────────
    Checkbox and Radio render bare <input>s; Switch is a role="switch" <span>.
    All three need these host rules for their checked / focus states. */
@@ -178,6 +219,12 @@
 .sereno-sidenav-btn:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: -2px;
+}
+.sereno-sidenav-row {
+  background: var(--sd-bg, transparent);
+}
+.sereno-sidenav-row:hover {
+  background: var(--sd-bg-hover, var(--sd-bg, transparent));
 }
 .sereno-sidenav-toggle:hover {
   background: var(--interactive-secondary-hover);
