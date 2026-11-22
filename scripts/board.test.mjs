@@ -2,7 +2,7 @@
 // column holds exactly one parent issue at a time"; a sub-issue may start only under an active parent.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { inProgressViolation } from './board.mjs';
+import { inProgressViolation, repoIssues } from './board.mjs';
 
 const board = (...rows) => rows.map(([number, status]) => ({ number, status }));
 const parentsOf = (map = {}) => new Map(Object.entries(map).map(([k, v]) => [Number(k), v]));
@@ -47,4 +47,16 @@ test('sub-issues In Progress do not count as a second parent', () => {
   // and once #1 is back in To Do, its sub-issue left over in In Progress does not block #3.
   const after = board([1, 'To Do'], [2, 'In Progress'], [3, 'To Do']);
   assert.equal(inProgressViolation(after, { number: 3, parent: null }, parentsOf({ 2: 1 })), null);
+});
+
+test('only issues of this repository count as cards: not pull requests, drafts or other repositories', () => {
+  const item = (id, type, repository, number) => ({ id, status: 'To Do', title: `t${id}`, content: { type, repository, number } });
+  const raw = [
+    item('a', 'Issue', 'GabrielGomesBarbosa/sereno-ds', 135),
+    item('b', 'PullRequest', 'GabrielGomesBarbosa/sereno-ds', 139),
+    item('c', 'Issue', 'GabrielGomesBarbosa/schedule-system', 135),
+    { id: 'd', title: 'a draft', content: { type: 'DraftIssue' } },
+    { id: 'e', title: 'no content' },
+  ];
+  assert.deepEqual(repoIssues(raw), [{ id: 'a', number: 135, status: 'To Do', title: 'ta' }]);
 });

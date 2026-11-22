@@ -48,9 +48,18 @@ const list = (items) => items.map((i) => `#${i.number}`).join(', ');
 const gh = (args) => JSON.parse(execFileSync('gh', args, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }));
 const project = (...rest) => ['project', ...rest, '--owner', OWNER];
 
+/**
+ * The cards of this repository's issues. A board can also hold pull requests, drafts and issues of other
+ * repositories; their numbers mean something else here, so they are left out (and never looked up as issues).
+ */
+export function repoIssues(items) {
+  return items
+    .filter((i) => i.content?.type === 'Issue' && i.content.repository === `${OWNER}/${REPO}`)
+    .map((i) => ({ id: i.id, number: i.content.number, status: i.status ?? null, title: i.title }));
+}
+
 function readBoard() {
-  const items = gh([...project('item-list', String(PROJECT)), '--format', 'json', '--limit', '200']).items.filter((i) => i.content?.number);
-  const board = items.map((i) => ({ id: i.id, number: i.content.number, status: i.status ?? null, title: i.title }));
+  const board = repoIssues(gh([...project('item-list', String(PROJECT)), '--format', 'json', '--limit', '200']).items);
   // The parent of every issue, in one GraphQL call (an item's JSON does not carry it).
   const fields = board.map((i) => `i${i.number}: issue(number: ${i.number}) { parent { number } }`).join(' ');
   const res = gh(['api', 'graphql', '-f', `query=query { repository(owner: "${OWNER}", name: "${REPO}") { ${fields} } }`]);
