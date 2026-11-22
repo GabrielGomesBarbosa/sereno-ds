@@ -5,7 +5,7 @@ Two layers, for two different kinds of mistake:
 | Layer | Catches | Tool | Runs where |
 |---|---|---|---|
 | **Behavior tests** | a component that does the wrong thing: a click that does nothing, a key that does not move the focus, a state that does not change, a missing label | Vitest, Testing Library, user-event, jest-axe (in jsdom) | `npm test`, in CI |
-| **Visual regression tests** | a component that **looks** different: one pixel of colour, spacing, border, font, shadow, in any theme, at phone width, on hover, on focus, when it opens | Playwright, in a pinned Docker image | `npm run test:visual`, in CI |
+| **Visual regression tests** | a component that **looks** different: one pixel of colour, spacing, border, font, shadow, in any theme, at phone width, on hover, pressed, on focus, when it opens | Playwright, in a pinned Docker image | `npm run test:visual`, in CI |
 
 They do not replace each other. jsdom has no layout, no `:hover`, no `:focus-visible` and no real theme, so a
 behavior test passes while a padding changes by 2 px; and a screenshot cannot tell that a click handler is wired
@@ -47,7 +47,7 @@ example is picked up with no test code):
 
 | Project | Viewport | What |
 |---|---|---|
-| `light` | 1280 px wide, light theme | the default state of every example, **plus** a hover image and a keyboard-focus image of each interactive element (up to 6 per example), **plus** what each trigger opens (a list, a menu, a calendar, a dialog, a toast; up to 3 per example) |
+| `light` | 1280 px wide, light theme | the default state of every example, **plus** a hover image and a keyboard-focus image of each interactive element (up to 6 per example), a **pressed** image of the first 3 buttons (mouse button held down), **plus** what each trigger opens (a list, a menu, a calendar, a dialog, a toast; up to 3 per example) |
 | `dark` | 1280 px wide, dark theme | the default state of every example |
 | `mobile` | 375 px wide, light theme | the default state of every example |
 
@@ -108,6 +108,10 @@ bash scripts/visual.sh --project=light --update-snapshots -g "core/button"
 
 Never update the references just to make a red build green.
 
+A consequence worth knowing: **adding an example to a page adds its own pictures and changes none of the
+others.** If a PR that only adds an example makes older pictures fail, something is leaking between examples and
+that is a bug in the test, not a reason to refresh them.
+
 ### Adding a component or an example
 
 Add it to the docs catalog and write its demo as you always do (see `AGENTS.md`). The tests find it, and `npm run test:visual:update` creates its images. Review them: a demo that
@@ -122,9 +126,23 @@ rules was needed:
   element by a fraction of a pixel, which changed the anti-aliasing of rounded corners by one colour level between
   two runs of the same code. The window is made as tall as the page, so every element keeps the position the
   layout gave it.
+- **Each example is pinned to a whole pixel.** An example sits at a fractional position that is the sum of the
+  heights of everything above it on the page, so adding an example above it (or changing one by half a pixel)
+  would move every picture below by half a pixel and fail them, though their components did not change. Before
+  each picture the section is nudged by that fraction (`pin()` in the spec), so a picture depends on its example
+  and on nothing else. (Found by running the suite on a PR that adds an example to the Dialog page.)
+- **A dialog or a toast is photographed on a plain background.** They open far from the demo, over whatever the
+  page has at that spot, which changes with every edit of the page; the rest of the page is hidden (`hidePageBehind()`)
+  so the overlay is the only thing in the picture.
+- **Hover, pressed and focus pictures wait 250 ms**, for what is driven by a timer and not by a transition: a
+  tooltip that appears after a delay (the sidebar's labels) or a flyout that closes after one.
 - **The clock is frozen** (`2026-06-15`), because the calendars mark "today".
-- **Animations and transitions are off** while a picture is taken (Playwright's `animations: 'disabled'`) and the
-  text caret is hidden.
+- **Transitions and animations are off in the page** (an injected stylesheet, `SETTLED` in the spec), not only at
+  the moment of the picture. Playwright's `animations: 'disabled'` finishes animations when the picture is taken,
+  but a CSS transition still running at that moment (the longest in the system is 340 to 420 ms, and every hover
+  starts one) was caught part of the way on some runs: a thin icon one or two colour levels off, never the same
+  one twice. With no transitions there is no "part of the way". Text selection and the caret are off too (pressing
+  a card and letting go elsewhere would otherwise select its text).
 - **The fonts are loaded** before the first picture (`document.fonts.ready`; the fonts are local files, see
   `fonts/README.md`) and the page is hydrated.
 - **One image, one fresh page** for what opens something: after each opening the page is reloaded, so nothing is
@@ -161,8 +179,8 @@ right images fail.
 - **How a page behaves in a short window.** Pages are shot in a window as tall as the page (that is what makes them
   stable), so a dialog's `max-height` against a short screen, or a list that has to scroll because there is no room,
   are checked by hand or by behavior tests, not by these pictures.
-- **Active (pressed) states and animations in motion.** Hover, focus and open are covered; the frames of an
-  animation are not (animations are turned off on purpose).
+- **Animations in motion.** Hover, pressed, focus and open are covered, each as a settled state; the frames of
+  an animation or a transition are not (they are turned off on purpose).
 - **Browsers other than Chromium.** Safari and Firefox rendering is checked by hand (the iPhone, on the docs).
 - **Real content of an app.** These are the DS demos; a product screen built on the DS is the app's to test.
 

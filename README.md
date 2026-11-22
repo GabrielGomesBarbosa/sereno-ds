@@ -137,7 +137,7 @@ component, drives it and runs an accessibility check (axe) on it: a new componen
 `packages/ui/src/test/components.smoke.test.tsx`.
 
 **Pixel tests** photograph the live demo of **every example of every component** in the docs, in the light theme,
-the dark theme and at phone width (375 px), plus the hover, the keyboard focus and what each trigger opens (a list,
+the dark theme and at phone width (375 px), plus the hover, the pressed state, the keyboard focus and what each trigger opens (a list,
 a menu, a dialog, a toast), and compare it with the reference image in the repository. **Any pixel that changes
 visibly fails the test** (only a rounding difference of a level or two of 255 in a colour is ignored, see the
 guide). If the change is on purpose, a person looks at it on screen, approves it, and the references are
