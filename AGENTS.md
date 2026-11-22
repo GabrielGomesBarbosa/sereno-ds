@@ -24,6 +24,16 @@ reference - every prop, every example, every do/don't - see
 `apps/docs/src/design-system/catalog.ts` via `npm run gen:component-docs` -
 edit the catalog, not the generated file, and re-run after.
 
+**Where a component's documentation lives (SS-574): one file per component.** Its
+props, guidelines and example snippets are `apps/docs/src/design-system/catalog/<slug>.ts`
+(an object of type `ComponentMeta`), and its live demos are
+`apps/docs/src/design-system/demos/<slug>.tsx` (the functions plus a `Record` keyed by
+the example `id`). `catalog.ts` and `demos.tsx` are only the indexes: a new component
+adds its two files and one line in each index (the order of `COMPONENTS` is the order
+of the sidebar). A demo helper used by more than one component goes in
+`demos/_shared.tsx`; the `R` row helper and `SEMANTIC_TONES` for the catalogue are in
+`catalog/_shared.ts`.
+
 Full context and scope: Jira card **SS-39** (project SS). The DS is being turned
 into a publishable package - Epic **SS-153** (now Done). Read the relevant
 card before any large change.
@@ -184,9 +194,11 @@ package version.
 - **`ci.yml` runs `npm publish --dry-run`** for both packages on every PR
   touching `packages/**` - the job log is the tarball contents; a stray file
   shows up there before it can ship.
-- `apps/docs/src/design-system/CHANGELOG.md` stays as the hand-written narrative
-  ("what shipped, in prose"); `packages/ui/CHANGELOG.md` is the Changesets
-  machine log. Keep the narrative one in sync when you add a changeset.
+- **The changelog is `packages/ui/CHANGELOG.md`, built by Changesets from the changeset
+  files, so write each changeset as prose** (what changed, why, what an app has to do):
+  that text is the changelog and the GitHub Release notes. `apps/docs/src/design-system/CHANGELOG.md`
+  is the older hand-written narrative, kept as history up to 0.25.0; an entry there is
+  optional and, when it exists for a version, `build-release-notes.mjs` prefers it.
 
 **Tags:** one stream - `@sereno-ds/ui@X.Y.Z` (`@sereno-ds/tokens@X.Y.Z` in lockstep),
 created by Changesets, plus a `vX.Y.Z` tag on the same commit for the GitHub
@@ -331,6 +343,15 @@ previews (test locally + on the branch).
   `data-theme="light|dark"` on `<html>`, the exact hook every token file
   switches on. Never a custom theme context, a `dark` prop, or a second
   theme mechanism living in an app's own code.
+- **Hover, press and keyboard focus are CSS, not React state (SS-577).** `Button`, `IconButton` and `Card` declare
+  what each state looks like as `--sd-*` custom properties on the element and `styles.css` (`.sereno-btn`,
+  `.sereno-card`) switches between them on `:hover` / `:active` / `:focus-visible`: no `useState`, no handlers, no
+  re-render when the pointer crosses them, and an app can restyle a state with plain CSS (see
+  `packages/ui/README.md`). The state rules use `:where(:not(:disabled))` to keep a low specificity, and the base
+  `.sereno-btn` stays `(0,1,0)` so it still beats a global `button {}` reset. **A component that is still on the
+  JS hook (`useInteract`: `ActionCard`, the `SidebarNav` items; and the hover handlers of `Menu`, `Select`,
+  `Checkbox`, `Radio`, `AvatarUpload`, `ToastProvider`) moves over one at a time, and each move is proven by the
+  pixel tests: the pictures (default, hover, pressed, focus, open) must come out unchanged.**
 - **A new component must be accessible the day it's created - not fixed in a
   later audit.** Keyboard-operable (logical tab order, a visible focus
   indicator, Enter/Space/Escape/arrows per the WAI-ARIA APG pattern for that
@@ -398,11 +419,35 @@ previews (test locally + on the branch).
 - Showcase pages are in English; the product screens (`/agendar`, `/dashboard`,
   `/onboarding`) keep their pt-BR copy.
 
+## Testing (SS-579)
+
+Two layers, in full in [`docs/testing.md`](docs/testing.md): **behavior tests** (Vitest, Testing Library,
+jest-axe, jsdom: `npm test`) and **pixel tests** (Playwright in a pinned Docker image: `npm run test:visual`).
+
+- **A new component** adds its case to `packages/ui/src/test/components.smoke.test.tsx` (`CASES`), a dedicated
+  `<Component>.test.tsx` for its behavior, and its examples to the docs catalog and demos: the pixel tests read the
+  catalog, so every example gets its reference images with no test code.
+- **Pixel tests have no visible tolerance** (`maxDiffPixels: 0`; only a rounding difference of 1 to 2 levels of
+  255 in a colour channel is ignored, see `docs/testing.md`). If one fails, it is a regression until proven
+  otherwise: fix the code.
+  **Never refresh the reference images to turn a build green.** When the change is on purpose, a person looks at it
+  on screen and approves it first; only then `npm run test:visual:update`, and the changed images are committed in
+  the same PR as the change. In chat: show what changed (the CI `visual-differences` artifact or
+  `apps/docs/e2e-report`), wait for the OK, then update.
+- **The environment is part of the test.** References are made in `mcr.microsoft.com/playwright:v1.65.1-noble` on
+  **linux/arm64** (`scripts/visual.sh`, and the `visual` job of `ci.yml`, which runs on an arm64 runner). The image
+  tag, `@playwright/test` (`apps/docs/package.json`) and the CI image move together; a Playwright upgrade means
+  regenerating and reviewing every reference in that PR.
+- **Pages must stay deterministic**: nothing in a demo may depend on the current date, a random value or a timer
+  (the clock is frozen, animations are off, but an unseeded random number is not fixed). Never make a test pass
+  with a retry or a tolerance.
+
 ## Check before commit
 
 ```bash
-npm run lint && npm run build   # = turbo run lint / turbo run build, all workspaces
+npm run lint && npm run typecheck && npm test && npm run build   # turbo, all workspaces
 npm run check:dashes            # no em dash in any tracked file (SS-330)
+npm run test:visual             # pixel tests, when the change touches how something looks (needs Docker)
 ```
 
 `turbo run build` must be green: **docs = 46 routes** (37 component pages + tokens

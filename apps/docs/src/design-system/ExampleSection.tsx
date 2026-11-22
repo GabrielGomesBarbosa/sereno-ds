@@ -50,7 +50,7 @@ export function ExampleSection({ slug, example }: { slug: string; example: Examp
       {/* No clip on the card: a live example may pop out a Select / DateTimePicker
           panel. Only the code/toolbar chrome below is clipped, for tidy corners. */}
       <div style={{ border: '1px solid var(--border-default)', borderRadius: 'var(--radius-lg)', background: 'var(--bg-surface)' }}>
-        <div style={{ padding: 'var(--space-7)' }}>{Demo ? <Demo /> : <em style={{ color: 'var(--text-muted)' }}>No preview.</em>}</div>
+        <div data-example-preview style={{ padding: 'var(--space-7)' }}>{Demo ? <Demo /> : <em style={{ color: 'var(--text-muted)' }}>No preview.</em>}</div>
 
         <div style={{ overflow: 'hidden', borderRadius: '0 0 var(--radius-lg) var(--radius-lg)' }}>
         <div

@@ -59,39 +59,47 @@ const SIZES = {
   xl: { h: 'var(--control-height-xl)', px: 'var(--space-6)', fs: 'var(--text-lg)', gap: '10px' },
 } as const;
 
-function palette(variant: NonNullable<ButtonProps['variant']>, s: InteractState) {
+/**
+ * What a variant looks like in each state, as the custom properties `.sereno-btn` (styles.css) reads:
+ * the base, then only what differs on `:hover`, `:active` (pressed) and `:focus-visible` (SS-577). The
+ * browser switches between them, so a button holds no hover / press / focus state and does not re-render when
+ * the pointer crosses it. A property left out falls back to the one before it in the CSS.
+ */
+function stateVars(variant: NonNullable<ButtonProps['variant']>): Record<string, string> {
   switch (variant) {
     case 'accent':
-      return { bg: s.press ? 'var(--interactive-accent-active)' : s.hover ? 'var(--interactive-accent-hover)' : 'var(--interactive-accent)', fg: 'var(--interactive-accent-fg)', bd: 'transparent', sh: s.hover && !s.press ? 'var(--shadow-accent)' : 'var(--shadow-xs)', ring: 'var(--focus-ring-accent)' };
+      return { '--sd-bg': 'var(--interactive-accent)', '--sd-bg-hover': 'var(--interactive-accent-hover)', '--sd-bg-active': 'var(--interactive-accent-active)', '--sd-fg': 'var(--interactive-accent-fg)', '--sd-bd': 'transparent', '--sd-sh': 'var(--shadow-xs)', '--sd-sh-hover': 'var(--shadow-accent)', '--sd-ring': 'var(--focus-ring-accent)' };
     case 'secondary':
-      return { bg: s.press ? 'var(--interactive-secondary-active)' : s.hover ? 'var(--interactive-secondary-hover)' : 'var(--interactive-secondary)', fg: 'var(--interactive-secondary-fg)', bd: 'var(--border-default)', sh: 'var(--shadow-xs)', ring: 'var(--focus-ring)' };
+      return { '--sd-bg': 'var(--interactive-secondary)', '--sd-bg-hover': 'var(--interactive-secondary-hover)', '--sd-bg-active': 'var(--interactive-secondary-active)', '--sd-fg': 'var(--interactive-secondary-fg)', '--sd-bd': 'var(--border-default)', '--sd-sh': 'var(--shadow-xs)' };
     case 'ghost':
-      return { bg: s.hover ? 'var(--interactive-ghost-hover)' : 'transparent', fg: 'var(--text-secondary)', bd: 'transparent', sh: 'none', ring: 'var(--focus-ring)' };
+      return { '--sd-bg': 'transparent', '--sd-bg-hover': 'var(--interactive-ghost-hover)', '--sd-fg': 'var(--text-secondary)', '--sd-bd': 'transparent', '--sd-sh': 'none' };
     case 'success':
-      return { bg: s.hover ? 'var(--interactive-success-hover)' : 'var(--interactive-success)', fg: 'var(--interactive-success-fg)', bd: 'transparent', sh: 'var(--shadow-xs)', ring: 'var(--focus-ring)' };
+      return { '--sd-bg': 'var(--interactive-success)', '--sd-bg-hover': 'var(--interactive-success-hover)', '--sd-fg': 'var(--interactive-success-fg)', '--sd-bd': 'transparent', '--sd-sh': 'var(--shadow-xs)' };
     case 'warning':
-      return { bg: s.hover ? 'var(--interactive-warning-hover)' : 'var(--interactive-warning)', fg: 'var(--interactive-warning-fg)', bd: 'transparent', sh: 'var(--shadow-xs)', ring: 'var(--focus-ring)' };
+      return { '--sd-bg': 'var(--interactive-warning)', '--sd-bg-hover': 'var(--interactive-warning-hover)', '--sd-fg': 'var(--interactive-warning-fg)', '--sd-bd': 'transparent', '--sd-sh': 'var(--shadow-xs)' };
     case 'error':
-      return { bg: s.hover ? 'var(--interactive-error-hover)' : 'var(--interactive-error)', fg: 'var(--interactive-error-fg)', bd: 'transparent', sh: 'var(--shadow-xs)', ring: 'var(--focus-ring)' };
+      return { '--sd-bg': 'var(--interactive-error)', '--sd-bg-hover': 'var(--interactive-error-hover)', '--sd-fg': 'var(--interactive-error-fg)', '--sd-bd': 'transparent', '--sd-sh': 'var(--shadow-xs)' };
     case 'link':
-      return { bg: 'transparent', fg: s.hover ? 'var(--text-link-hover)' : 'var(--text-link)', bd: 'transparent', sh: 'none', ring: 'var(--focus-ring)' };
+      return { '--sd-bg': 'transparent', '--sd-fg': 'var(--text-link)', '--sd-fg-hover': 'var(--text-link-hover)', '--sd-bd': 'transparent', '--sd-sh': 'none', '--sd-deco-hover': 'underline' };
     default:
-      return { bg: s.press ? 'var(--interactive-primary-active)' : s.hover ? 'var(--interactive-primary-hover)' : 'var(--interactive-primary)', fg: 'var(--interactive-primary-fg)', bd: 'transparent', sh: s.hover && !s.press ? 'var(--shadow-brand)' : 'var(--shadow-xs)', ring: 'var(--focus-ring)' };
+      return { '--sd-bg': 'var(--interactive-primary)', '--sd-bg-hover': 'var(--interactive-primary-hover)', '--sd-bg-active': 'var(--interactive-primary-active)', '--sd-fg': 'var(--interactive-primary-fg)', '--sd-bd': 'transparent', '--sd-sh': 'var(--shadow-xs)', '--sd-sh-hover': 'var(--shadow-brand)' };
   }
 }
 
-export function Button({ variant = 'primary', size = 'md', fullWidth = false, disabled = false, loading = false, iconLeft, iconRight, children, style, ...rest }: ButtonProps) {
-  const st = useInteract(disabled || loading);
+/** A disabled control: one look, no hover, no press, no ring (the CSS rules exclude `:disabled`). */
+const DISABLED_VARS = { '--sd-bg': 'var(--interactive-disabled-bg)', '--sd-fg': 'var(--interactive-disabled-fg)', '--sd-bd': 'transparent', '--sd-sh': 'none' };
+
+export function Button({ variant = 'primary', size = 'md', fullWidth = false, disabled = false, loading = false, iconLeft, iconRight, children, className, style, ...rest }: ButtonProps) {
   const sz = SIZES[size] || SIZES.md;
-  const p = palette(variant, st);
   const isLink = variant === 'link';
   return (
     <button
       type="button"
       disabled={disabled || loading}
-      {...st.handlers}
       {...rest}
+      className={['sereno-btn', className].filter(Boolean).join(' ')}
       style={sx({
+        ...(disabled ? DISABLED_VARS : stateVars(variant)),
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -104,16 +112,12 @@ export function Button({ variant = 'primary', size = 'md', fullWidth = false, di
         fontWeight: 'var(--weight-semibold)',
         letterSpacing: 'var(--tracking-snug)',
         borderRadius: isLink ? 'var(--radius-xs)' : 'var(--radius-control)',
-        border: 'var(--border-width-hairline) solid ' + (disabled ? 'transparent' : p.bd),
-        background: disabled ? 'var(--interactive-disabled-bg)' : p.bg,
-        color: disabled ? 'var(--interactive-disabled-fg)' : p.fg,
-        boxShadow: disabled ? 'none' : st.focus ? p.ring : p.sh,
-        transform: st.press && !disabled ? 'scale(var(--press-scale))' : 'none',
+        borderWidth: 'var(--border-width-hairline)',
+        borderStyle: 'solid',
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: loading ? 0.75 : 1,
         transition: 'var(--transition-control)',
         outline: 'none',
-        textDecoration: isLink && st.hover ? 'underline' : 'none',
         textUnderlineOffset: '2px',
         ...style,
       })}

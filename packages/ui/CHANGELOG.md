@@ -1,5 +1,39 @@
 # @sereno-ds/ui
 
+## 0.42.0
+
+### Minor Changes
+
+- 8daab3b: `Button`, `IconButton` and `Card`: hover, press and keyboard focus are CSS now, not React state (SS-577).
+
+  Each component used to keep three `useState` and five mouse and focus handlers, and re-rendered on every hover. It now declares what each state looks like as custom properties on the element, and `styles.css` switches between them with `:hover`, `:active` and `:focus-visible`. The pictures are **identical** to before (all 1282 reference images of the visual tests, default, hover, pressed, focus and open, in light, dark and at phone width, show no pixel over the tests' rounding tolerance, see `docs/testing.md`).
+
+  What changes for an app:
+
+  - **You can restyle a state with plain CSS**, with no `!important`: the state rules have the specificity of `.sereno-btn:hover`, so a rule of yours with the same specificity that comes later wins. The hooks are the class `sereno-btn` (`Button`, `IconButton`) and `sereno-card` with `data-interactive` / `data-clickable` (`Card`). Documented in the package README. Overriding the token on the element (`.x { --interactive-ghost-hover: ... }`) keeps working.
+  - **`@sereno-ds/ui/styles.css` is now required for these three.** It always had to be imported, but a missing import used to leave their colours working (they were inline) and now leaves them unstyled. If an app imports it (as the README says), nothing to do.
+  - The focus ring is the browser's own `:focus-visible`, which also covers a press by keyboard (Space on a button), where the JS version only saw the mouse.
+  - `ActionCard`, the `SidebarNav` items and the hover handlers of `Menu`, `Select`, `Checkbox`, `Radio`, `AvatarUpload` and `ToastProvider` are not touched: they move over one at a time, each proven by the pixel tests.
+
+## 0.41.4
+
+### Patch Changes
+
+- b7dbc1f: `AvatarUpload` and `SidebarNav` are split into smaller files (SS-576). No visible change and no change to the API.
+
+  They were the two largest components of the package (849 and 806 lines), hard to review and to touch without breaking another part. The code was moved, not rewritten (every line is still there, checked by comparing the lines before and after):
+
+  - `AvatarUpload`: the camera (`useCamera`), the crop math (`useCropper`) and the capture dialog (`AvatarCaptureDialog`, with the crop stage) are now files of their own in `forms/_internal/`.
+  - `SidebarNav`: the context (`sidebarNavContext`), the section, item and sub-item (`SidebarNavItems`, with their prop types) and the submenu popover (`SidebarSubmenuPopover`) are now files of their own in `navigation/_internal/`. `SidebarNav.tsx` keeps the root and re-exports the prop types, so every import keeps working.
+
+## 0.41.3
+
+### Patch Changes
+
+- b9cd5df: One shared way to close a popup on a press outside it (SS-575). No visible change.
+
+  `Select`, `Menu`, `Autocomplete`, `DatePicker` and the month / year popover of the calendar each had their own copy of the same listener ("close when the pointer goes down outside these elements"). They now share `_internal/useOutsidePress`, which listens on `document` in the capture phase and reads its refs and callback when the event arrives. The placement of the `Menu` is not touched: it is not a copy of the one `Select` and `Autocomplete` share (it always sits fixed, aligns to either side of its button, spans the width on a phone), so it stays its own.
+
 ## 0.41.2
 
 ### Patch Changes
