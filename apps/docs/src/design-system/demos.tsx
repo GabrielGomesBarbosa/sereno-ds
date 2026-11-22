@@ -2682,6 +2682,15 @@ function DialogPopups() {
                 { value: 'assessment', label: 'First assessment (60 min)' },
                 { value: 'session', label: 'Therapy session (50 min)' },
                 { value: 'followup', label: 'Follow-up (30 min)' },
+                { value: 'couples', label: 'Couples session (80 min)' },
+                { value: 'family', label: 'Family session (90 min)' },
+                { value: 'group', label: 'Group session (90 min)' },
+                { value: 'evaluation', label: 'Psychological evaluation (120 min)' },
+                { value: 'feedback', label: 'Evaluation feedback (50 min)' },
+                { value: 'online', label: 'Online session (50 min)' },
+                { value: 'intake', label: 'Intake call (15 min)' },
+                { value: 'supervision', label: 'Supervision (60 min)' },
+                { value: 'workshop', label: 'Workshop (180 min)' },
               ]}
             />
             <Autocomplete
@@ -2692,6 +2701,16 @@ function DialogPopups() {
                 { value: 'rj', label: 'Rio de Janeiro' },
                 { value: 'bh', label: 'Belo Horizonte' },
                 { value: 'cwb', label: 'Curitiba' },
+                { value: 'poa', label: 'Porto Alegre' },
+                { value: 'ssa', label: 'Salvador' },
+                { value: 'for', label: 'Fortaleza' },
+                { value: 'rec', label: 'Recife' },
+                { value: 'bsb', label: 'Brasília' },
+                { value: 'gyn', label: 'Goiânia' },
+                { value: 'bel', label: 'Belém' },
+                { value: 'mao', label: 'Manaus' },
+                { value: 'flo', label: 'Florianópolis' },
+                { value: 'vit', label: 'Vitória' },
               ]}
             />
             <DatePicker label="DatePicker" locale="en" />

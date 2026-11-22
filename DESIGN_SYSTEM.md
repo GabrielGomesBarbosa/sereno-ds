@@ -2647,7 +2647,7 @@ Modal (desktop), bottom sheet (mobile) or full-screen, a **compound component**.
 </Dialog>
 ```
 
-**Popups inside**: A `Select`, `Autocomplete`, `DatePicker`, `Menu` or a `SearchInput` with text, opened inside a Dialog: `Esc` closes only the popup first, and the Dialog on the next press. A popup that handles `Esc` calls `preventDefault()` and the Dialog respects it.
+**Popups inside**: A `Select`, `Autocomplete`, `DatePicker`, `Menu` or a `SearchInput` with text, opened inside a Dialog: each popup is drawn over the dialog, not clipped by it, and `Esc` closes only the popup first, and the Dialog on the next press. A popup that handles `Esc` calls `preventDefault()` and the Dialog respects it.
 
 ```tsx
 <Dialog open={open} onClose={close}>
