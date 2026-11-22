@@ -8,6 +8,7 @@ import { Field } from '../_internal/Field';
 import { fieldA11y } from '../_internal/fieldA11y';
 import { useIsoLayoutEffect } from '../_internal/useIsoLayoutEffect';
 import { useMenuPlacement } from '../_internal/useMenuPlacement';
+import { useOutsidePress } from '../_internal/useOutsidePress';
 import { CalendarGrid } from './_internal/CalendarGrid';
 import type { CalendarDayContext, CalendarDayDots } from './_internal/calendarDots';
 import { parseISODate as parseISO, toISODate as toISO } from './_internal/calendarRange';
@@ -217,15 +218,11 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
     setFitTop(below + height <= viewport - EDGE ? below : above >= EDGE ? above : Math.max(EDGE, viewport - EDGE - height));
   }, [portalled, place, viewYear, viewMonth]);
 
+  // A press outside the field closes the calendar. The portalled calendar is outside `rootRef` in the DOM but
+  // still part of the field, so both count as inside.
+  useOutsidePress(open, [rootRef, popoverRef], () => setOpen(false));
   React.useEffect(() => {
     if (!open) return;
-    const onDown = (e: PointerEvent) => {
-      // The portalled calendar is outside `rootRef` in the DOM but still part of the field.
-      const target = e.target as Node;
-      if (rootRef.current && !rootRef.current.contains(target) && !popoverRef.current?.contains(target)) {
-        setOpen(false);
-      }
-    };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault(); // handled: a Dialog around the field keeps its own Esc for the next press
@@ -233,12 +230,8 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
         triggerRef.current?.focus();
       }
     };
-    document.addEventListener('pointerdown', onDown, true);
     document.addEventListener('keydown', onKey, true);
-    return () => {
-      document.removeEventListener('pointerdown', onDown, true);
-      document.removeEventListener('keydown', onKey, true);
-    };
+    return () => document.removeEventListener('keydown', onKey, true);
   }, [open]);
 
   const openPopover = () => {

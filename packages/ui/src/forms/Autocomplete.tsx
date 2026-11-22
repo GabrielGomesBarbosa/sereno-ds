@@ -11,6 +11,7 @@ import { useIsoLayoutEffect } from '../_internal/useIsoLayoutEffect';
 import { useLatest } from '../_internal/useLatest';
 import { useCoarsePointer } from '../_internal/useCoarsePointer';
 import { useMenuPlacement } from '../_internal/useMenuPlacement';
+import { useOutsidePress } from '../_internal/useOutsidePress';
 import { revealInList, useRevealActive } from '../_internal/useRevealActive';
 import { MenuOption, menuListStyle, menuRowPadY, menuSurfaceStyle } from '../_internal/MenuOption';
 import { fieldBoxStyle } from './_internal/fieldBoxStyle';
@@ -309,17 +310,7 @@ export const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps
   }, [draft, firstValue]);
 
   // iOS keeps the keyboard (and the field) up when you tap on plain page: close on any press outside.
-  const settleRef = useLatest(settle);
-  React.useEffect(() => {
-    if (!open) return;
-    const onDown = (e: PointerEvent) => {
-      const target = e.target as Node;
-      if (boxRef.current?.contains(target) || panelRef.current?.contains(target)) return;
-      settleRef.current();
-    };
-    document.addEventListener('pointerdown', onDown, true);
-    return () => document.removeEventListener('pointerdown', onDown, true);
-  }, [open, settleRef]);
+  useOutsidePress(open, [boxRef, panelRef], () => settle());
 
   // ── choosing ──
   const firstEnabledKey = () => visible.find((o) => !o.disabled)?.value ?? null;

@@ -24,6 +24,16 @@ reference - every prop, every example, every do/don't - see
 `apps/docs/src/design-system/catalog.ts` via `npm run gen:component-docs` -
 edit the catalog, not the generated file, and re-run after.
 
+**Where a component's documentation lives (SS-574): one file per component.** Its
+props, guidelines and example snippets are `apps/docs/src/design-system/catalog/<slug>.ts`
+(an object of type `ComponentMeta`), and its live demos are
+`apps/docs/src/design-system/demos/<slug>.tsx` (the functions plus a `Record` keyed by
+the example `id`). `catalog.ts` and `demos.tsx` are only the indexes: a new component
+adds its two files and one line in each index (the order of `COMPONENTS` is the order
+of the sidebar). A demo helper used by more than one component goes in
+`demos/_shared.tsx`; the `R` row helper and `SEMANTIC_TONES` for the catalogue are in
+`catalog/_shared.ts`.
+
 Full context and scope: Jira card **SS-39** (project SS). The DS is being turned
 into a publishable package - Epic **SS-153** (now Done). Read the relevant
 card before any large change.
@@ -184,9 +194,11 @@ package version.
 - **`ci.yml` runs `npm publish --dry-run`** for both packages on every PR
   touching `packages/**` - the job log is the tarball contents; a stray file
   shows up there before it can ship.
-- `apps/docs/src/design-system/CHANGELOG.md` stays as the hand-written narrative
-  ("what shipped, in prose"); `packages/ui/CHANGELOG.md` is the Changesets
-  machine log. Keep the narrative one in sync when you add a changeset.
+- **The changelog is `packages/ui/CHANGELOG.md`, built by Changesets from the changeset
+  files, so write each changeset as prose** (what changed, why, what an app has to do):
+  that text is the changelog and the GitHub Release notes. `apps/docs/src/design-system/CHANGELOG.md`
+  is the older hand-written narrative, kept as history up to 0.25.0; an entry there is
+  optional and, when it exists for a version, `build-release-notes.mjs` prefers it.
 
 **Tags:** one stream - `@sereno-ds/ui@X.Y.Z` (`@sereno-ds/tokens@X.Y.Z` in lockstep),
 created by Changesets, plus a `vX.Y.Z` tag on the same commit for the GitHub
