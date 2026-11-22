@@ -89,32 +89,15 @@ export default function DemoHome() {
             <Brand variant="lockup" size={26} />
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <a
-              href={DS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                height: 'var(--control-height-sm)',
-                padding: '0 var(--space-4)',
-                borderRadius: 'var(--radius-control)',
-                background: 'var(--bg-brand-soft)',
-                color: 'var(--text-brand)',
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-sm)',
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}
-            >
+            <a href={DS_URL} target="_blank" rel="noopener noreferrer" className="demo-pill-link">
               Design System <ExternalLink size={14} strokeWidth={2} />
             </a>
             <ThemeToggle variant="ghost" />
           </div>
         </header>
 
-        <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', paddingTop: 'var(--space-6)', maxWidth: 720 }}>
+        {/* space-10 (the container gap) + space-4 = 80px, the same header-to-hero distance as the Design System home (space-11). */}
+        <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', paddingTop: 'var(--space-4)', maxWidth: 720 }}>
           <Typography as="span" variant="eyebrow" style={EYEBROW_OVERRIDE}>
             Sereno · Demo
           </Typography>
