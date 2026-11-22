@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { ChevronDown } from 'lucide-react';
 import { sx } from '../../_internal/style';
-import { useInteract } from '../../core/Button';
 import { ParentDisabledContext, type SidebarNavContextValue, useSidebarNavContext } from './sidebarNavContext';
 import { SubmenuPopover } from './SidebarSubmenuPopover';
 
@@ -129,7 +128,6 @@ export function Item({ value, label, icon, count, href, disabled: disabledProp, 
   } = useSidebarNavContext('Item');
   // Its own `disabled` wins - including an explicit `false` under a disabled root.
   const disabled = disabledProp ?? rootDisabled;
-  const st = useInteract(disabled);
   const btnRef = React.useRef<HTMLButtonElement>(null);
   const labelRef = React.useRef<HTMLSpanElement>(null);
   const hasChildren = React.Children.count(children) > 0;
@@ -179,7 +177,10 @@ export function Item({ value, label, icon, count, href, disabled: disabledProp, 
     fontFamily: 'var(--font-body)',
     fontSize: 'var(--text-base)',
     fontWeight: highlight || childActive ? 'var(--weight-semibold)' : 'var(--weight-medium)',
-    background: highlight ? 'var(--bg-brand-soft)' : open || st.hover ? 'var(--interactive-ghost-hover)' : 'transparent',
+    // The fill and its hover value, as custom properties `.sereno-sidenav-btn` (styles.css) switches between on `:hover`
+    // (SS-577). The current page keeps its own fill under the pointer, and a disabled row has no hover value.
+    '--sd-bg': highlight ? 'var(--bg-brand-soft)' : open ? 'var(--interactive-ghost-hover)' : 'transparent',
+    '--sd-bg-hover': highlight || disabled ? undefined : 'var(--interactive-ghost-hover)',
     color: disabled ? 'var(--text-disabled)' : highlight || childActive ? 'var(--text-brand)' : 'var(--text-secondary)',
     transition: 'var(--transition-control)',
   });
@@ -222,26 +223,19 @@ export function Item({ value, label, icon, count, href, disabled: disabledProp, 
   );
 
   const hoverHandlers = {
-    ...st.handlers,
     onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
-      st.handlers.onMouseEnter?.(e);
       if (railFlyout) openFlyout(value);
       else showLabelTip(e.currentTarget, labelRef.current, label, showTip);
     },
-    onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
-      st.handlers.onMouseLeave?.(e);
+    onMouseLeave: () => {
       if (railFlyout) closeFlyoutSoon();
       else hideTip();
     },
     // Keyboard parity with hover - on the rail a Tab stop is otherwise just an unlabelled icon.
     onFocus: (e: React.FocusEvent<HTMLElement>) => {
-      st.handlers.onFocus?.(e);
       if (isKeyboardFocus(e.currentTarget)) showLabelTip(e.currentTarget, labelRef.current, label, showTip);
     },
-    onBlur: (e: React.FocusEvent<HTMLElement>) => {
-      st.handlers.onBlur?.(e);
-      hideTip();
-    },
+    onBlur: () => hideTip(),
     // Dismissible without moving the pointer or focus (WCAG 1.4.13).
     onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
       if (e.key === 'Escape') hideTip();
@@ -259,7 +253,7 @@ export function Item({ value, label, icon, count, href, disabled: disabledProp, 
       {asLink ? (
         <Link
           href={href}
-          className="sereno-sidenav-btn"
+          className="sereno-sidenav-btn sereno-sidenav-row"
           aria-label={collapsed ? label : undefined}
           aria-current={selfActive ? 'page' : undefined}
           onClick={() => {
@@ -275,7 +269,7 @@ export function Item({ value, label, icon, count, href, disabled: disabledProp, 
         <button
           ref={btnRef}
           type="button"
-          className="sereno-sidenav-btn"
+          className="sereno-sidenav-btn sereno-sidenav-row"
           aria-label={collapsed ? label : undefined}
           aria-current={selfActive ? 'page' : undefined}
           aria-disabled={disabled || undefined}
@@ -328,11 +322,10 @@ export function SubItem({ value, label, count, disabled: disabledProp, compact =
   // Its own `disabled` wins, then its parent Item's (already resolved against the root), then the root's.
   const disabled = disabledProp ?? parentDisabled ?? rootDisabled;
   const active = activeValue === value;
-  const st = useInteract(disabled);
   return (
     <button
       type="button"
-      className="sereno-sidenav-btn"
+      className="sereno-sidenav-btn sereno-sidenav-row"
       aria-current={active ? 'page' : undefined}
       aria-disabled={disabled || undefined}
       tabIndex={disabled ? -1 : undefined}
@@ -340,23 +333,12 @@ export function SubItem({ value, label, count, disabled: disabledProp, compact =
         hideTip();
         if (!disabled) select(value);
       }}
-      {...st.handlers}
-      onMouseEnter={(e) => {
-        st.handlers.onMouseEnter?.(e);
-        showLabelTip(e.currentTarget, labelRef.current, label, showTip);
-      }}
-      onMouseLeave={(e) => {
-        st.handlers.onMouseLeave?.(e);
-        hideTip();
-      }}
+      onMouseEnter={(e) => showLabelTip(e.currentTarget, labelRef.current, label, showTip)}
+      onMouseLeave={() => hideTip()}
       onFocus={(e) => {
-        st.handlers.onFocus?.(e);
         if (isKeyboardFocus(e.currentTarget)) showLabelTip(e.currentTarget, labelRef.current, label, showTip);
       }}
-      onBlur={(e) => {
-        st.handlers.onBlur?.(e);
-        hideTip();
-      }}
+      onBlur={() => hideTip()}
       onKeyDown={(e) => {
         if (e.key === 'Escape') hideTip();
       }}
@@ -374,7 +356,8 @@ export function SubItem({ value, label, count, disabled: disabledProp, compact =
         fontFamily: 'var(--font-body)',
         fontSize: 'var(--text-sm)',
         fontWeight: active ? 'var(--weight-semibold)' : 'var(--weight-medium)',
-        background: active ? 'var(--bg-brand-soft)' : st.hover ? 'var(--interactive-ghost-hover)' : 'transparent',
+        '--sd-bg': active ? 'var(--bg-brand-soft)' : 'transparent',
+        '--sd-bg-hover': active || disabled ? undefined : 'var(--interactive-ghost-hover)',
         color: disabled ? 'var(--text-disabled)' : active ? 'var(--text-brand)' : 'var(--text-secondary)',
         transition: 'var(--transition-control)',
       })}

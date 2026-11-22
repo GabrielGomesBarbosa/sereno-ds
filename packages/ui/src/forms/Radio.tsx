@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { sx } from '../_internal/style';
+import { choiceVars } from './_internal/choiceVars';
 
 /**
  * Single-choice control for mutually exclusive options (payment method, appointment format).
@@ -34,13 +35,12 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(function Rad
   { label, description, error, checked, defaultChecked, disabled, size = 'md', preserveHelperSpace = false, onChange, style, ...rest },
   ref,
 ) {
-  const [hover, setHover] = React.useState(false);
   const box = size === 'sm' ? 16 : 20;
   return (
     <label
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={sx({ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1, ...style })}
+      className="sereno-choice"
+      // The border colours `.sereno-radio` (styles.css) paints, idle and while the pointer is on the row (SS-577).
+      style={sx({ ...choiceVars(error), display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1, ...style })}
     >
       <span style={sx({ position: 'relative', display: 'inline-flex', flex: '0 0 auto', marginTop: size === 'sm' ? 3 : 1 })}>
         <input
@@ -59,7 +59,9 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(function Rad
             height: box,
             margin: 0,
             borderRadius: 'var(--radius-pill)',
-            border: 'var(--border-width-emphasis) solid ' + (error ? 'var(--interactive-error)' : hover && !disabled ? 'var(--border-brand)' : 'var(--border-strong)'),
+            // The colour is the stylesheet's (`border-color` of `.sereno-radio`), so the hover can change it.
+            borderWidth: 'var(--border-width-emphasis)',
+            borderStyle: 'solid',
             backgroundColor: 'var(--bg-surface)',
             cursor: 'inherit',
             transition: 'var(--transition-control)',

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { sx } from '../_internal/style';
 import { mergeRefs } from '../_internal/mergeRefs';
+import { choiceVars } from './_internal/choiceVars';
 
 /** Opt-in control for consents and multi-select filters. Host must include the `.sereno-check:checked` and `.sereno-check:indeterminate` rules (see globals.css). */
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
@@ -27,7 +28,6 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
   { label, description, error, checked, defaultChecked, disabled, indeterminate, size = 'md', preserveHelperSpace = false, onChange, style, ...rest },
   forwardedRef,
 ) {
-  const [hover, setHover] = React.useState(false);
   const box = size === 'sm' ? 16 : 20;
   const innerRef = React.useRef<HTMLInputElement>(null);
   // `indeterminate` is a DOM property, not an attribute - set it imperatively, and
@@ -37,9 +37,9 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
   });
   return (
     <label
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={sx({ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1, ...style })}
+      className="sereno-choice"
+      // The border colours `.sereno-check` (styles.css) paints, idle and while the pointer is on the row (SS-577).
+      style={sx({ ...choiceVars(error), display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1, ...style })}
     >
       <span style={sx({ position: 'relative', display: 'inline-flex', flex: '0 0 auto', marginTop: size === 'sm' ? 3 : 1 })}>
         <input
@@ -61,7 +61,9 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
             height: box,
             margin: 0,
             borderRadius: 'var(--radius-sm)',
-            border: 'var(--border-width-emphasis) solid ' + (error ? 'var(--interactive-error)' : hover && !disabled ? 'var(--border-brand)' : 'var(--border-strong)'),
+            // The colour is the stylesheet's (`border-color` of `.sereno-check`), so the hover can change it.
+            borderWidth: 'var(--border-width-emphasis)',
+            borderStyle: 'solid',
             // `backgroundColor`, not `background` - the shorthand would set an inline
             // `background-size: auto` that overrides the `:checked` glyph scaling.
             backgroundColor: 'var(--bg-surface)',

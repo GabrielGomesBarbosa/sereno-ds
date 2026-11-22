@@ -6,11 +6,17 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { Button } from './Button';
 import { IconButton } from './IconButton';
 import { Card } from './Card';
+import { ActionCard } from './ActionCard';
+import { Checkbox } from '../forms/Checkbox';
+import { Radio } from '../forms/Radio';
+import { AvatarUpload } from '../forms/AvatarUpload';
+import { SidebarNav } from '../navigation/SidebarNav';
 
 afterEach(cleanup);
 
 /**
- * Hover, press and keyboard focus of Button, IconButton and Card are CSS (SS-577): the component declares what each
+ * Hover, press and keyboard focus of Button, IconButton, Card, ActionCard, the rows of SidebarNav, Checkbox, Radio and the
+ * actions of AvatarUpload are CSS (SS-577): the component declares what each
  * state looks like as `--sd-*` custom properties and `styles.css` switches between them. jsdom has no :hover, so what
  * is tested here is the contract between the two halves (the values the component sets, the rules the stylesheet has);
  * the pixels of every state are the visual tests' (`apps/docs/e2e`).
@@ -67,6 +73,16 @@ describe('no state to re-render', () => {
         C
       </Card>,
       () => screen.getByRole('button'),
+    ],
+    ['ActionCard', <ActionCard key="a" title="A" />, () => screen.getByRole('button')],
+    ['Checkbox row', <Checkbox key="k" label="K" />, () => screen.getByText('K').closest('label') as HTMLElement],
+    ['Radio row', <Radio key="r" label="R" />, () => screen.getByText('R').closest('label') as HTMLElement],
+    [
+      'SidebarNav item',
+      <SidebarNav key="s" value="a" collapsible={false}>
+        <SidebarNav.Item value="b" label="B" />
+      </SidebarNav>,
+      () => screen.getByRole('button', { name: 'B' }),
     ],
   ])('%s: the pointer and the focus change nothing on the element', (_name, element, get) => {
     render(element);
@@ -281,6 +297,96 @@ describe('Card: the ring and the drop shadow, each with its hover value', () => 
   });
 });
 
+describe('SidebarNav rows: the fill and its hover value', () => {
+  const nav = (props: { value?: string; disabled?: boolean; itemDisabled?: boolean } = {}) =>
+    render(
+      <SidebarNav value={props.value ?? 'a'} disabled={props.disabled} collapsible={false}>
+        <SidebarNav.Item value="a" label="A" />
+        <SidebarNav.Item value="b" label="B" disabled={props.itemDisabled} />
+        <SidebarNav.Item value="c" label="C">
+          <SidebarNav.SubItem value="c1" label="C1" />
+        </SidebarNav.Item>
+      </SidebarNav>,
+    );
+  const row = (name: string) => screen.getByRole('button', { name });
+
+  it('an ordinary row is transparent, with the ghost fill as its hover value', () => {
+    nav();
+    expect(row('B')).toHaveClass('sereno-sidenav-btn', 'sereno-sidenav-row');
+    expect(v(row('B'), '--sd-bg')).toBe('transparent');
+    expect(v(row('B'), '--sd-bg-hover')).toBe('var(--interactive-ghost-hover)');
+    expect(row('B').style.background).toBe(''); // the stylesheet paints it, so a caller can restyle the hover
+  });
+
+  it('the current page keeps its brand fill under the pointer: no hover value', () => {
+    nav({ value: 'a' });
+    expect(v(row('A'), '--sd-bg')).toBe('var(--bg-brand-soft)');
+    expect(v(row('A'), '--sd-bg-hover')).toBe('');
+  });
+
+  it('a disabled row (its own, or the whole nav) has no hover value', () => {
+    const { unmount } = nav({ itemDisabled: true });
+    expect(v(row('B'), '--sd-bg-hover')).toBe('');
+    unmount();
+    nav({ disabled: true });
+    expect(v(row('B'), '--sd-bg-hover')).toBe('');
+  });
+
+  it('an open parent keeps the ghost fill at rest, and a sub item has the same pair of values', () => {
+    nav();
+    fireEvent.click(row('C'));
+    expect(v(row('C'), '--sd-bg')).toBe('var(--interactive-ghost-hover)');
+    expect(row('C1')).toHaveClass('sereno-sidenav-row');
+    expect(v(row('C1'), '--sd-bg')).toBe('transparent');
+    expect(v(row('C1'), '--sd-bg-hover')).toBe('var(--interactive-ghost-hover)');
+  });
+
+  it('a sub item that is the current page keeps its brand fill', () => {
+    nav({ value: 'c1' }); // the branch holding the current page starts open
+    expect(v(row('C1'), '--sd-bg')).toBe('var(--bg-brand-soft)');
+    expect(v(row('C1'), '--sd-bg-hover')).toBe('');
+  });
+});
+
+describe('Checkbox and Radio: the row carries the border colours', () => {
+  it.each([
+    ['Checkbox', () => render(<Checkbox label="K" />), 'K', 'sereno-check'],
+    ['Radio', () => render(<Radio label="R" />), 'R', 'sereno-radio'],
+  ])('%s: no error sets nothing, so the stylesheet fallbacks (strong at rest, brand on hover) apply', (_n, draw, text, cls) => {
+    draw();
+    const row = screen.getByText(text).closest('label') as HTMLElement;
+    expect(row).toHaveClass('sereno-choice');
+    expect(row.style.getPropertyValue('--sd-bd')).toBe('');
+    expect(row.style.getPropertyValue('--sd-bd-hover')).toBe('');
+    const box = row.querySelector('input') as HTMLInputElement;
+    expect(box).toHaveClass(cls);
+    expect(box.style.borderColor).toBe(''); // the colour is the stylesheet's, so the hover can change it
+    expect(box.style.borderStyle).toBe('solid');
+    expect(box.style.borderWidth).toBe('var(--border-width-emphasis)');
+  });
+
+  it('an error keeps the error colour under the pointer too, and a style prop still reaches the row', () => {
+    render(<Checkbox label="K" error="No" style={{ marginTop: 3 }} />);
+    const row = screen.getByText('K').closest('label') as HTMLElement;
+    expect(row.style.getPropertyValue('--sd-bd')).toBe('var(--interactive-error)');
+    expect(row.style.getPropertyValue('--sd-bd-hover')).toBe('var(--interactive-error)');
+    expect(row.style.marginTop).toBe('3px');
+  });
+});
+
+describe('AvatarUpload: the actions of its menu', () => {
+  it('are menu items with the stylesheet class and no fill of their own', () => {
+    render(<AvatarUpload label="Photo" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Change photo' }));
+    const items = screen.getAllByRole('menuitem');
+    expect(items.length).toBeGreaterThan(1);
+    for (const item of items) {
+      expect(item).toHaveClass('sereno-menuitem');
+      expect(item.style.background).toBe('');
+    }
+  });
+});
+
 describe('the stylesheet has the rules the components rely on', () => {
   const css = readFileSync(resolve(__dirname, '../styles.css'), 'utf8');
 
@@ -305,5 +411,37 @@ describe('the stylesheet has the rules the components rely on', () => {
     ]) {
       expect(css).toContain(rule);
     }
+  });
+
+  it('ActionCard: hover, press and focus, with and without hover, none of them on a disabled card but the focus ring', () => {
+    for (const rule of [
+      '.sereno-action {',
+      '.sereno-action:hover:where(:not(:disabled)) {',
+      '.sereno-action:active:where(:not(:disabled)) {',
+      '.sereno-action:focus-visible {',
+      '.sereno-action:hover:focus-visible:where(:not(:disabled)) {',
+    ]) {
+      expect(css).toContain(rule);
+    }
+    // The focus ring is drawn on top of the ring in use: a hover ring when hovered, the rest ring otherwise.
+    expect(css).toMatch(/\.sereno-action:focus-visible \{\s*box-shadow: var\(--sd-ring\), var\(--focus-ring\);/);
+    expect(css).toMatch(/\.sereno-action:hover:focus-visible:where\(:not\(:disabled\)\) \{\s*box-shadow: var\(--sd-ring-hover, var\(--sd-ring\)\), var\(--focus-ring\);/);
+  });
+
+  it('SidebarNav rows: a base fill and a hover fill that falls back to it', () => {
+    expect(css).toMatch(/\.sereno-sidenav-row \{\s*background: var\(--sd-bg, transparent\);/);
+    expect(css).toMatch(/\.sereno-sidenav-row:hover \{\s*background: var\(--sd-bg-hover, var\(--sd-bg, transparent\)\);/);
+  });
+
+  it('Checkbox and Radio: the border colour at rest, and the hover one only on an enabled box inside the hovered row', () => {
+    expect(css).toMatch(/\.sereno-check,\s*\.sereno-radio \{\s*border-color: var\(--sd-bd, var\(--border-strong\)\);/);
+    expect(css).toContain('.sereno-choice:hover .sereno-check:where(:not(:disabled))');
+    expect(css).toContain('.sereno-choice:hover .sereno-radio:where(:not(:disabled))');
+    expect(css).toMatch(/border-color: var\(--sd-bd-hover, var\(--border-brand\)\);/);
+  });
+
+  it('menu items: transparent, and a subtle fill on hover unless disabled', () => {
+    expect(css).toMatch(/\.sereno-menuitem \{\s*background: transparent;/);
+    expect(css).toMatch(/\.sereno-menuitem:hover:where\(:not\(:disabled\)\) \{\s*background: var\(--bg-subtle\);/);
   });
 });

@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { sx } from '../_internal/style';
-import { useInteract } from './Button';
 import { Typography } from './Typography';
 
 export type ActionCardVariant = 'default' | 'primary' | 'error';
@@ -59,15 +58,19 @@ export function ActionCard({
   selected,
   variant = 'default',
   disabled = false,
+  className,
   style,
   ...rest
 }: ActionCardProps) {
-  const st = useInteract(disabled);
   const v = VARIANTS[variant] || VARIANTS.default;
   const on = selected === true;
   const arrow = trailing === undefined ? <ChevronRight size={18} strokeWidth={1.75} aria-hidden /> : trailing;
 
-  const ring = on ? '0 0 0 1.5px ' + v.edge : '0 0 0 1px ' + (!disabled && st.hover ? v.edge : disabled ? 'var(--border-subtle)' : 'var(--border-default)');
+  // The ring and the fill, each with its hover value, as custom properties `.sereno-action` (styles.css) switches
+  // between on `:hover`, `:active` and `:focus-visible` (SS-577): the card holds no hover / press / focus state.
+  // A selected card wears the same ring hovered or not; a disabled one has no hover value at all.
+  const ring = on ? '0 0 0 1.5px ' + v.edge : '0 0 0 1px ' + (disabled ? 'var(--border-subtle)' : 'var(--border-default)');
+  const ringHover = on ? ring : '0 0 0 1px ' + v.edge;
   // Only set when disabled: a `color: undefined` in a style would wipe the Typography's own.
   const muted = disabled ? { color: 'var(--text-disabled)' } : undefined;
   const titleStyle = disabled ? muted : v.title ? { color: v.title } : undefined;
@@ -77,9 +80,13 @@ export function ActionCard({
       type="button"
       disabled={disabled}
       aria-pressed={selected}
-      {...st.handlers}
       {...rest}
+      className={['sereno-action', className].filter(Boolean).join(' ')}
       style={sx({
+        '--sd-bg': 'var(--bg-surface)',
+        '--sd-bg-hover': disabled ? undefined : hoverFill(v.edge),
+        '--sd-ring': ring,
+        '--sd-ring-hover': disabled ? undefined : ringHover,
         display: 'flex',
         alignItems: 'center',
         gap: 'var(--space-3)',
@@ -91,12 +98,9 @@ export function ActionCard({
         color: 'inherit',
         border: 'none',
         borderRadius: 'var(--radius-card)',
-        background: !disabled && st.hover ? hoverFill(v.edge) : 'var(--bg-surface)',
-        boxShadow: [ring, st.focus ? 'var(--focus-ring)' : null].filter(Boolean).join(', '),
-        transform: st.press && !disabled ? 'scale(var(--press-scale))' : 'none',
         cursor: disabled ? 'not-allowed' : 'pointer',
         transition: 'var(--transition-control)',
-        // The focus ring above is the box-shadow, the same substitute `Button` and `Card` use.
+        // The focus ring is the box-shadow of `.sereno-action:focus-visible`, the same substitute `Button` and `Card` use.
         outline: 'none',
         ...style,
       })}

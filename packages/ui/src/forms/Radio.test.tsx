@@ -19,9 +19,11 @@ describe('Radio', () => {
   });
 
   it('error tints the radio circle border red', () => {
+    // The colour comes from the row's custom properties, read by the stylesheet: the error one at rest and under the pointer.
     const { container } = render(<Radio label="Pix" error="Obrigatório." />);
-    const input = container.querySelector('input[type="radio"]') as HTMLInputElement;
-    expect(input.getAttribute('style')).toContain('var(--interactive-error)');
+    const row = container.querySelector('label') as HTMLElement;
+    expect(row.style.getPropertyValue('--sd-bd')).toBe('var(--interactive-error)');
+    expect(row.style.getPropertyValue('--sd-bd-hover')).toBe('var(--interactive-error)');
   });
 
   it('without preserveHelperSpace, no secondary row renders when there is nothing to show', () => {
