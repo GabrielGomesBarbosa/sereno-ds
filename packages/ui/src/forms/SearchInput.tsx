@@ -52,7 +52,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   const clear = () => update('', true);
 
   // Composed, not replaced: a plain `{...rest}` spread followed by our own `onKeyDown` used to drop the caller's
-  // silently (the same class of bug `Input` and `Textarea` already guard against for onFocus / onBlur / onChange).
+  // silently (the same class of bug `Input` guards against for `onChange`).
   // The caller's runs first and can opt out of the built-in keys with `preventDefault()`.
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     onKeyDown?.(e);

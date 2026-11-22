@@ -15,25 +15,52 @@ describe('Input: ref', () => {
   });
 });
 
+/**
+ * The border colour and the focus ring are CSS (SS-582): the row carries `--sd-*` values and the stylesheet lights it
+ * up while its text box has the focus. The field keeps no focus state, so a caller's own `onFocus` / `onBlur` (the exact
+ * shape react-hook-form's `register()` injects) is never wrapped or replaced. The pixels of the ring are the visual
+ * tests'; what is tested here is the contract between the component and the stylesheet.
+ */
 describe('Input: focus ring', () => {
-  it('a caller onBlur does not stop the focus ring from resetting (regression: a plain {...rest} spread used to let it silently replace the internal handler, the exact shape react-hook-form\'s register() injects)', () => {
-    const onBlur = vi.fn();
-    const { container } = render(<Input label="Nome" onBlur={onBlur} />);
-    const input = container.querySelector('input')!;
-    const box = input.parentElement as HTMLElement;
-    fireEvent.focus(input);
-    expect(box.getAttribute('style')).toContain('var(--border-focus)');
-    fireEvent.blur(input);
-    expect(box.getAttribute('style')).not.toContain('var(--border-focus)');
-    expect(box.getAttribute('style')).toContain('var(--border-default)');
-    expect(onBlur).toHaveBeenCalledTimes(1);
+  const row = (c: HTMLElement) => c.querySelector('input')!.parentElement as HTMLElement;
+  const v = (el: HTMLElement, name: string) => el.style.getPropertyValue(name);
+
+  it('the row is a field frame, with the colours of rest, active and the ring as values, and no colour set inline', () => {
+    const { container } = render(<Input label="Nome" />);
+    expect(row(container)).toHaveClass('sereno-field');
+    expect(v(row(container), '--sd-bd')).toBe('var(--border-default)');
+    expect(v(row(container), '--sd-bd-active')).toBe('var(--border-focus)');
+    expect(v(row(container), '--sd-ring-active')).toBe('var(--focus-ring)');
+    expect(row(container).style.borderColor).toBe(''); // the stylesheet paints it, so a state can change it
+    expect(row(container).style.boxShadow).toBe('');
   });
 
-  it('a caller onFocus is still called alongside the internal handler', () => {
+  it('an error keeps its border while active and has no ring', () => {
+    const { container } = render(<Input label="Nome" error="Obrigatório" />);
+    expect(v(row(container), '--sd-bd')).toBe('var(--interactive-error)');
+    expect(v(row(container), '--sd-bd-active')).toBe('var(--interactive-error)');
+    expect(v(row(container), '--sd-ring-active')).toBe('none');
+  });
+
+  it('focus and blur change nothing on the row or the input: there is no focus state to render', () => {
+    const { container } = render(<Input label="Nome" />);
+    const input = container.querySelector('input')!;
+    const before = container.innerHTML;
+    fireEvent.focus(input);
+    expect(container.innerHTML).toBe(before);
+    fireEvent.blur(input);
+    expect(container.innerHTML).toBe(before);
+  });
+
+  it('a caller onFocus and onBlur each run once, straight from the input (register() of react-hook-form injects them)', () => {
     const onFocus = vi.fn();
-    const { container } = render(<Input label="Nome" onFocus={onFocus} />);
-    fireEvent.focus(container.querySelector('input')!);
+    const onBlur = vi.fn();
+    const { container } = render(<Input label="Nome" onFocus={onFocus} onBlur={onBlur} />);
+    const input = container.querySelector('input')!;
+    fireEvent.focus(input);
     expect(onFocus).toHaveBeenCalledTimes(1);
+    fireEvent.blur(input);
+    expect(onBlur).toHaveBeenCalledTimes(1);
   });
 });
 

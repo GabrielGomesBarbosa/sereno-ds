@@ -7,6 +7,7 @@ import { fieldA11y } from '../_internal/fieldA11y';
 import { CharCount } from '../_internal/CharCount';
 import { mergeRefs } from '../_internal/mergeRefs';
 import { useValueLength } from '../_internal/useValueLength';
+import { fieldFrameVars } from './_internal/fieldFrame';
 
 /** Multi-line field for booking notes and service descriptions. */
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -39,9 +40,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
     id,
     style,
     containerStyle,
-    onChange,
-    onFocus,
-    onBlur,
+    className,
     'aria-describedby': describedBy,
     'aria-invalid': invalid,
     'aria-required': ariaRequired,
@@ -49,7 +48,6 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
   },
   ref,
 ) {
-  const [focus, setFocus] = React.useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   // Stable across renders, so a form library's ref callback isn't detached and re-attached each time.
   const setRefs = React.useMemo(() => mergeRefs(textareaRef, ref), [ref]);
@@ -70,20 +68,6 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
   );
   const count = rest.value !== undefined ? String(rest.value ?? '').length : uncount;
 
-  // Destructured (not left in `...rest`) and always re-composed - same
-  // reason as `handleChange` above: a caller's own onFocus/onBlur (or
-  // react-hook-form's `register()`, which always injects its own onBlur)
-  // must never silently replace the focus ring's, the way a plain
-  // `{...rest}` spread after them used to.
-  const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-    setFocus(true);
-    onFocus?.(e);
-  };
-  const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-    setFocus(false);
-    onBlur?.(e);
-  };
-
   return (
     <Field
       label={label}
@@ -103,17 +87,19 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
         disabled={disabled}
         {...rest}
         {...a11y}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onChange={onChange}
+        // The border colour and the focus ring are CSS (`.sereno-field:focus` in styles.css, SS-582): the field
+        // keeps no focus state, and a caller's `onFocus` / `onBlur` (react-hook-form's `register()` injects
+        // one) stays in `...rest`, untouched.
+        className={['sereno-field', className].filter(Boolean).join(' ')}
         style={sx({
+          ...fieldFrameVars(!!error),
           width: '100%',
           padding: 'var(--space-3)',
           resize: 'vertical',
           borderRadius: 'var(--radius-control)',
           background: disabled ? 'var(--interactive-disabled-bg)' : 'var(--bg-surface)',
-          border: 'var(--border-width-hairline) solid ' + (error ? 'var(--interactive-error)' : focus ? 'var(--border-focus)' : 'var(--border-default)'),
-          boxShadow: focus && !error ? 'var(--focus-ring)' : 'none',
+          borderWidth: 'var(--border-width-hairline)',
+          borderStyle: 'solid',
           outline: 'none',
           fontFamily: 'var(--font-body)',
           fontSize: 'var(--text-base)',

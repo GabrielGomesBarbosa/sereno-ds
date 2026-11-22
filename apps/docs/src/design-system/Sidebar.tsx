@@ -108,14 +108,7 @@ export function Sidebar() {
       }
       style={{ width: '100%', height: '100%' }}
     >
-      {/* SearchInput owns its onKeyDown (Enter / Esc), so Enter is caught on the wrapper as it bubbles up. */}
       <div
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.nativeEvent.isComposing && query) {
-            e.preventDefault();
-            openBestMatch();
-          }
-        }}
         style={{
           position: 'sticky',
           top: 0,
@@ -134,6 +127,13 @@ export function Sidebar() {
           title="Press / to search"
           placeholder="Search components"
           clearLabel="Clear search"
+          // Runs before the field's own Enter / Esc handling; `preventDefault()` keeps Enter for the best match.
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.nativeEvent.isComposing && query) {
+              e.preventDefault();
+              openBestMatch();
+            }
+          }}
           value={typed.path === pathname ? typed.text : ''}
           onValueChange={(text) => setTyped({ text, path: pathname })}
         />

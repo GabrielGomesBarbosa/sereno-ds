@@ -365,6 +365,13 @@ previews (test locally + on the branch).
   Enter acts on it) and the pause of a `ToastProvider` toast's timer on hover and focus. CSS cannot carry those,
   so they are not migrated. Every change here is proven by the pixel tests: the pictures (default, hover, pressed,
   focus, open) must come out unchanged.
+  **The same goes for the focus of a text field (SS-582).** `Input` (its row), `Textarea` and the boxes of `Select`,
+  `DatePicker` and `Autocomplete` carry the class `sereno-field` and three values (`--sd-bd`, `--sd-bd-active`,
+  `--sd-ring-active`, from `forms/_internal/fieldFrame.ts`); `styles.css` lights the frame while a text box inside it
+  has the focus (`:has(> input:focus)`, the direct child, so the password eye does not count), while a `Textarea` has it,
+  or while `data-active` is set (the popup of `Select`, `DatePicker` and `Autocomplete` is open, which *is* state). A field
+  holds no `focus` state and wraps no `onFocus` / `onBlur`, so a caller's (or react-hook-form's `register()`) is never
+  replaced. The border *colour* is never inline here either: `borderWidth` and `borderStyle` are, the colour is `--sd-bd`.
 - **A new component must be accessible the day it's created - not fixed in a
   later audit.** Keyboard-operable (logical tab order, a visible focus
   indicator, Enter/Space/Escape/arrows per the WAI-ARIA APG pattern for that

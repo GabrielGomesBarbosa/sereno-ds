@@ -9,6 +9,7 @@ import { CharCount } from '../_internal/CharCount';
 import { formatMask, MASK_INPUTMODE, MASK_MAXLENGTH, type MaskName } from '../_internal/mask';
 import { mergeRefs } from '../_internal/mergeRefs';
 import { useValueLength } from '../_internal/useValueLength';
+import { fieldFrameVars } from './_internal/fieldFrame';
 
 /**
  * Single-line text field with label, hint and error states.
@@ -64,8 +65,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     preserveHelperSpace,
     type,
     onChange,
-    onFocus,
-    onBlur,
     inputMode,
     maxLength,
     defaultValue,
@@ -76,7 +75,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   },
   ref,
 ) {
-  const [focus, setFocus] = React.useState(false);
   const [reveal, setReveal] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   // SSR-stable id (the DS source used Math.random(), which breaks hydration).
@@ -115,19 +113,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
       }
     : onChange;
 
-  // Composed the same way as `handleChange` above - the focus ring's own
-  // onFocus/onBlur must never be silently replaced by a caller's handler
-  // (or by react-hook-form's `register()`, which always injects its own
-  // onBlur), the way a plain `{...rest}` spread after them would do.
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    setFocus(true);
-    onFocus?.(e);
-  };
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    setFocus(false);
-    onBlur?.(e);
-  };
-
   return (
     <Field
       label={label}
@@ -141,7 +126,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
       preserveHelperSpace={preserveHelperSpace}
     >
       <div
+        // The border colour and the focus ring are CSS: the row lights up while its text box has the focus
+        // (`.sereno-field` in styles.css, SS-582), so the field keeps no focus state and a caller's
+        // `onFocus` / `onBlur` (react-hook-form's `register()` injects one) reaches the `<input>` untouched.
+        className="sereno-field"
         style={sx({
+          ...fieldFrameVars(!!error),
           display: 'flex',
           alignItems: 'center',
           gap: 'var(--space-2)',
@@ -149,8 +139,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
           padding: '0 var(--space-3)',
           borderRadius: 'var(--radius-control)',
           background: disabled ? 'var(--interactive-disabled-bg)' : 'var(--bg-surface)',
-          border: 'var(--border-width-hairline) solid ' + (error ? 'var(--interactive-error)' : focus ? 'var(--border-focus)' : 'var(--border-default)'),
-          boxShadow: focus ? (error ? 'none' : 'var(--focus-ring)') : 'none',
+          borderWidth: 'var(--border-width-hairline)',
+          borderStyle: 'solid',
           transition: 'var(--transition-control)',
         })}
       >
@@ -165,8 +155,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
           {...a11y}
           ref={mergeRefs(inputRef, ref)}
           type={isPassword && reveal ? 'text' : type}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
           onChange={handleChange}
           inputMode={mask ? inputMode ?? MASK_INPUTMODE[mask] ?? 'numeric' : inputMode}
           maxLength={mask ? maxLength ?? MASK_MAXLENGTH[mask] : maxLength}

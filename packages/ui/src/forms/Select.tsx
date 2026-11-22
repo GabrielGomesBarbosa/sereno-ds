@@ -13,6 +13,7 @@ import { MenuOption, menuListStyle, menuRowPadY, menuSurfaceStyle } from '../_in
 import { Field } from '../_internal/Field';
 import { fieldA11y } from '../_internal/fieldA11y';
 import { fieldBoxStyle } from './_internal/fieldBoxStyle';
+import { fieldBoxProps } from './_internal/fieldFrame';
 
 export interface SelectOption {
   value: string;
@@ -278,7 +279,8 @@ function CustomSelect({
           else openMenu();
         }}
         onKeyDown={onKeyDown}
-        style={fieldBoxStyle(size, error, open, !!disabled)}
+        {...fieldBoxProps(open)}
+        style={fieldBoxStyle(size, error, !!disabled)}
       >
         <span
           style={sx({

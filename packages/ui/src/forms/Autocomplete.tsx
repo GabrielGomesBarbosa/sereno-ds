@@ -15,6 +15,7 @@ import { useOutsidePress } from '../_internal/useOutsidePress';
 import { revealInList, useRevealActive } from '../_internal/useRevealActive';
 import { MenuOption, menuListStyle, menuRowPadY, menuSurfaceStyle } from '../_internal/MenuOption';
 import { fieldBoxStyle } from './_internal/fieldBoxStyle';
+import { fieldBoxProps } from './_internal/fieldFrame';
 
 export interface AutocompleteOption {
   value: string;
@@ -218,7 +219,6 @@ export const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps
   const query = draft ?? '';
 
   const [open, setOpen] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
   const [activeKey, setActiveKey] = React.useState<string | null>(null);
   // The active row is the chosen one only because the list opened on it, not because the user went
   // there: set by opening, cleared by the first thing the user does to the highlight.
@@ -540,7 +540,9 @@ export const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps
             e.preventDefault();
             inputRef.current?.focus();
           }}
-          style={sx({ ...fieldBoxStyle(size, !!error, focused || open, !!disabled), cursor: disabled ? 'not-allowed' : 'text' })}
+          // The focus ring comes from the `:focus` of the text box (styles.css); only the open list is state here.
+          {...fieldBoxProps(open)}
+          style={sx({ ...fieldBoxStyle(size, !!error, !!disabled), cursor: disabled ? 'not-allowed' : 'text' })}
         >
           <input
             ref={inputRef}
@@ -572,12 +574,10 @@ export const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps
             onChange={onChange}
             onKeyDown={onKeyDown}
             onFocus={(e) => {
-              setFocused(true);
               selectOnClick.current = true;
               e.currentTarget.select();
             }}
             onBlur={(e) => {
-              setFocused(false);
               if (boxRef.current?.contains(e.relatedTarget as Node | null)) return;
               settle();
             }}

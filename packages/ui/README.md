@@ -18,12 +18,12 @@ npm i @sereno-ds/ui @sereno-ds/tokens lucide-react
 
 ```ts
 import '@sereno-ds/tokens/tokens.css'; // the token layer (colors, spacing, dark overrides…)
-import '@sereno-ds/ui/styles.css';     // keyframes, structural rules, and the hover / press / focus of Button, IconButton and Card
+import '@sereno-ds/ui/styles.css';     // keyframes, structural rules, and the hover / press / focus of the interactive components
 ```
 
 `tokens.css` **must** come first. Both are side-effect CSS: import them once (a root layout, `_app`, or `main.tsx`), not per-component.
 
-**`styles.css` is required**, not decorative: `Button`, `IconButton`, `Card`, `ActionCard`, the rows of `SidebarNav`, `Checkbox`, `Radio` and the actions of `AvatarUpload` take their hover / press / focus states (and, for the first four, their colours and border) from it. Their values are on the element, the rules that switch between them are in the stylesheet, so without it they render unstyled or with no hover.
+**`styles.css` is required**, not decorative: `Button`, `IconButton`, `Card`, `ActionCard`, the rows and the collapse control of `SidebarNav`, `Checkbox`, `Radio`, the actions of `AvatarUpload` and the text fields (`Input`, `Textarea`, `Select`, `DatePicker`, `Autocomplete`) take their hover / press / focus states (and, for several of them, their colours and border) from it. Their values are on the element, the rules that switch between them are in the stylesheet, so without it they render unstyled, with no hover and no focus ring.
 
 #### Restyling a state with plain CSS
 
@@ -37,6 +37,8 @@ These components carry a class the stylesheet's state rules hang on:
 | `SidebarNav` items and sub items | `sereno-sidenav-row` | |
 | `Checkbox`, `Radio` | `sereno-choice` on the row (the `<label>`), `sereno-check` / `sereno-radio` on the box | |
 | the actions of `AvatarUpload` | `sereno-menuitem` | |
+| the collapse control of `SidebarNav` | `sereno-sidenav-toggle` | |
+| `Input` (its row), `Textarea`, the boxes of `Select`, `DatePicker` and `Autocomplete` | `sereno-field` | `data-active` while a popup is open |
 
 The state rules have the specificity of `.sereno-btn:hover` (one class and one pseudo-class), so a rule of yours with the same specificity **that comes later** wins, with no `!important`:
 
