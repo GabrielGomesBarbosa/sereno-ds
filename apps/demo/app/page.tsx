@@ -105,7 +105,7 @@ export default function DemoHome() {
             The Sereno app, built on the Design System.
           </Typography>
           <Typography variant="body" color="secondary" style={{ fontSize: 'var(--text-lg)', lineHeight: 1.6, maxWidth: 520 }}>
-            Four real product screens (a public booking flow, the professional dashboard, onboarding and a reception kiosk) assembled from{' '}
+            Four real product screens (a public booking flow, the professional dashboard, onboarding and a waiting-room call panel) assembled from{' '}
             <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85em', padding: '0.12em 0.4em', borderRadius: 'var(--radius-sm)', background: 'var(--bg-subtle)' }}>@sereno-ds/ui</code>{' '}
             primitives and navigable end to end on mocked data.
           </Typography>

@@ -19,7 +19,7 @@ const SITE = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3002';
 // the screens render pt-BR mock content, but the app identity is the DS.
 const TITLE = 'Sereno Design System: demo';
 const DESCRIPTION =
-  'Demo screens of the Sereno Design System: the booking flow, professional dashboard, onboarding and reception kiosk, built with @sereno-ds/ui and navigable on mocked data.';
+  'Demo screens of the Sereno Design System: the booking flow, professional dashboard, onboarding and waiting-room call panel, built with @sereno-ds/ui and navigable on mocked data.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),

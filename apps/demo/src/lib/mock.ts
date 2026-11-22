@@ -1,4 +1,4 @@
-// Mock data for the three product screens. No backend in this phase (SS-39 §8) -
+// Mock data for the four product screens. No backend in this phase (SS-39 §8) -
 // every screen reads from here. Copy tuned to the DS content rules: sentence case,
 // 24h times, "R$ 180" with a non-breaking space, closed status vocabulary.
 

@@ -248,7 +248,7 @@ export default function Home() {
                 See the app <ExternalLink size={15} strokeWidth={2} style={{ color: 'var(--text-muted)' }} />
               </Typography>
               <Typography variant="bodySm" style={{ lineHeight: 1.55 }}>
-                The three real screens (public booking flow, professional dashboard and onboarding) built from these primitives, on mocked data.
+                The four real screens (public booking flow, professional dashboard, onboarding and a waiting-room call panel) built from these primitives, on mocked data.
               </Typography>
             </Card>
           </a>
