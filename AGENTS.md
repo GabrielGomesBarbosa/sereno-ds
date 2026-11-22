@@ -410,11 +410,35 @@ previews (test locally + on the branch).
 - Showcase pages are in English; the product screens (`/agendar`, `/dashboard`,
   `/onboarding`) keep their pt-BR copy.
 
+## Testing (SS-579)
+
+Two layers, in full in [`docs/testing.md`](docs/testing.md): **behavior tests** (Vitest, Testing Library,
+jest-axe, jsdom: `npm test`) and **pixel tests** (Playwright in a pinned Docker image: `npm run test:visual`).
+
+- **A new component** adds its case to `packages/ui/src/test/components.smoke.test.tsx` (`CASES`), a dedicated
+  `<Component>.test.tsx` for its behavior, and its examples to the docs catalog and demos: the pixel tests read the
+  catalog, so every example gets its reference images with no test code.
+- **Pixel tests have no visible tolerance** (`maxDiffPixels: 0`; only a rounding difference of 1 to 2 levels of
+  255 in a colour channel is ignored, see `docs/testing.md`). If one fails, it is a regression until proven
+  otherwise: fix the code.
+  **Never refresh the reference images to turn a build green.** When the change is on purpose, a person looks at it
+  on screen and approves it first; only then `npm run test:visual:update`, and the changed images are committed in
+  the same PR as the change. In chat: show what changed (the CI `visual-differences` artifact or
+  `apps/docs/e2e-report`), wait for the OK, then update.
+- **The environment is part of the test.** References are made in `mcr.microsoft.com/playwright:v1.65.1-noble` on
+  **linux/arm64** (`scripts/visual.sh`, and the `visual` job of `ci.yml`, which runs on an arm64 runner). The image
+  tag, `@playwright/test` (`apps/docs/package.json`) and the CI image move together; a Playwright upgrade means
+  regenerating and reviewing every reference in that PR.
+- **Pages must stay deterministic**: nothing in a demo may depend on the current date, a random value or a timer
+  (the clock is frozen, animations are off, but an unseeded random number is not fixed). Never make a test pass
+  with a retry or a tolerance.
+
 ## Check before commit
 
 ```bash
-npm run lint && npm run build   # = turbo run lint / turbo run build, all workspaces
+npm run lint && npm run typecheck && npm test && npm run build   # turbo, all workspaces
 npm run check:dashes            # no em dash in any tracked file (SS-330)
+npm run test:visual             # pixel tests, when the change touches how something looks (needs Docker)
 ```
 
 `turbo run build` must be green: **docs = 46 routes** (37 component pages + tokens
