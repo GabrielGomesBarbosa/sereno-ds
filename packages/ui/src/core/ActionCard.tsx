@@ -100,8 +100,6 @@ export function ActionCard({
         borderRadius: 'var(--radius-card)',
         cursor: disabled ? 'not-allowed' : 'pointer',
         transition: 'var(--transition-control)',
-        // The focus ring is the box-shadow of `.sereno-action:focus-visible`, the same substitute `Button` and `Card` use.
-        outline: 'none',
         ...style,
       })}
     >

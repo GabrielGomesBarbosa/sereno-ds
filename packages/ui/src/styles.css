@@ -47,6 +47,9 @@
    specificity of `.sereno-btn:hover` (0,2,0), so an app's own `.my-button:hover` overrides it by being
    later in the cascade; the base `.sereno-btn` stays (0,1,0) so it still beats a global `button {}` reset. */
 .sereno-btn {
+  /* The focus ring is a box-shadow; the browser's own outline would double it. In forced colors the shadow is
+     dropped and the block at the end of this file turns an outline on again. */
+  outline: none;
   background: var(--sd-bg);
   color: var(--sd-fg);
   border-color: var(--sd-bd);
@@ -79,6 +82,9 @@
 .sereno-card[data-interactive]:active {
   transform: scale(var(--press-scale));
 }
+.sereno-card[data-clickable] {
+  outline: none;
+}
 .sereno-card[data-clickable]:focus-visible {
   box-shadow: var(--sd-ring), var(--sd-drop), var(--focus-ring);
 }
@@ -90,6 +96,7 @@
    `--sd-bg-hover`). A disabled card has no hover value and the rules leave it out; the focus ring goes on top of
    whichever ring the card is showing, hovered or not. */
 .sereno-action {
+  outline: none;
   background: var(--sd-bg);
   box-shadow: var(--sd-ring);
 }
@@ -134,6 +141,9 @@
   border-color: var(--sd-bd, var(--border-default));
   box-shadow: none;
 }
+textarea.sereno-field {
+  outline: none;
+}
 .sereno-field:where(textarea:focus, :has(> input:focus), [data-active]) {
   border-color: var(--sd-bd-active, var(--border-focus));
   box-shadow: var(--sd-ring-active, var(--focus-ring));
@@ -175,6 +185,10 @@
 /* Switch is a role=switch <span>, not an input - give it a keyboard focus ring. */
 .sereno-switch {
   outline: none;
+  background: var(--sd-bg);
+}
+.sereno-switch-thumb {
+  background: #fff;
 }
 .sereno-switch:focus-visible {
   box-shadow: var(--focus-ring);
@@ -460,4 +474,56 @@
    library honours the preference on its own. */
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+}
+
+/* ── Forced colors / Windows High Contrast (#135) ────────────────────────────────────
+   In this mode the browser swaps every authored colour for a system one and drops every `box-shadow`. A focus
+   ring drawn as a shadow therefore disappears, and so does a state told only by a fill (the Switch's track and
+   thumb). A system colour keyword (`Highlight`, `ButtonText`, `Canvas`, `GrayText`...) is the one value the
+   browser keeps, so this block redraws those cues with them: an `outline` where the ring was a shadow, and a
+   border and system fills for the Switch. Nothing here applies outside forced colors.
+
+   The `outline: none` of `.sereno-btn`, `.sereno-action`, `.sereno-card[data-clickable]` and `textarea.sereno-field`
+   lives in the rules above and not inline, exactly so these rules (one pseudo-class more specific) can win it back.
+   The specificity stays low and there is no `!important`: an app can still restyle any of it. */
+@media (forced-colors: active) {
+  .sereno-btn:focus-visible:where(:not(:disabled)),
+  .sereno-action:focus-visible,
+  .sereno-card[data-clickable]:focus-visible,
+  .sereno-switch:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+  /* A text field's frame is active while a text box inside it has the focus, or a popup is open. */
+  .sereno-field:where(:has(> input:focus), [data-active]),
+  textarea.sereno-field:focus {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+    border-color: Highlight;
+  }
+  /* Switch: a framed track (content-box, so the thumb keeps the coordinates it has in the normal mode), a thumb in
+     the text colour, and the on state filled with the selection colour. */
+  .sereno-switch {
+    box-sizing: content-box;
+    border: 2px solid ButtonText;
+    background: Canvas;
+  }
+  .sereno-switch[aria-checked='true'] {
+    border-color: Highlight;
+    background: Highlight;
+  }
+  .sereno-switch[aria-disabled='true'] {
+    border-color: GrayText;
+    background: Canvas;
+  }
+  .sereno-switch-thumb {
+    background: ButtonText;
+    box-shadow: none;
+  }
+  .sereno-switch[aria-checked='true'] .sereno-switch-thumb {
+    background: HighlightText;
+  }
+  .sereno-switch[aria-disabled='true'] .sereno-switch-thumb {
+    background: GrayText;
+  }
 }

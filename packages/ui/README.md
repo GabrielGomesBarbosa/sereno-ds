@@ -39,6 +39,7 @@ These components carry a class the stylesheet's state rules hang on:
 | the actions of `AvatarUpload` | `sereno-menuitem` | |
 | the collapse control of `SidebarNav` | `sereno-sidenav-toggle` | |
 | `Input` (its row), `Textarea`, the boxes of `Select`, `DatePicker` and `Autocomplete` | `sereno-field` | `data-active` while a popup is open |
+| `Switch` | `sereno-switch` on the track, `sereno-switch-thumb` on the thumb | |
 
 The state rules have the specificity of `.sereno-btn:hover` (one class and one pseudo-class), so a rule of yours with the same specificity **that comes later** wins, with no `!important`:
 
@@ -54,6 +55,10 @@ Or change what the DS reads, on the element itself (the component reads `--inter
 ```
 
 The class names and the `data-` attributes are the styling hooks. The `--sd-*` custom properties are how the component hands its values to the stylesheet and are **not** a public API: restyle with the rules above, not by setting them.
+
+#### High contrast (forced colors)
+
+In Windows High Contrast (`forced-colors: active`) the browser replaces every colour with a system one and drops every `box-shadow`. `styles.css` has a block for that mode: the keyboard focus of `Button`, `IconButton`, `Card`, `ActionCard`, `Switch` and the text fields is drawn as a `Highlight` outline, and the `Switch` is drawn with a border and system fills (it has no other way to show up). Nothing there applies outside forced colors, and an `outline` rule of your own on those classes still wins by coming later. If you restyle a focus ring as a shadow, do the same for forced colors.
 
 ### 2. Provide the fonts
 

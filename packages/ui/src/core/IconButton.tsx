@@ -68,7 +68,6 @@ export function IconButton({ variant = 'ghost', size = 'md', label, disabled = f
         borderStyle: 'solid',
         cursor: disabled ? 'not-allowed' : 'pointer',
         transition: 'var(--transition-control)',
-        outline: 'none',
         ...style,
       })}
     >

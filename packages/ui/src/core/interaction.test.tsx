@@ -15,6 +15,7 @@ import { Textarea } from '../forms/Textarea';
 import { Select } from '../forms/Select';
 import { Autocomplete } from '../forms/Autocomplete';
 import { DatePicker } from '../forms/DatePicker';
+import { Switch } from '../forms/Switch';
 import { SidebarNav } from '../navigation/SidebarNav';
 
 afterEach(cleanup);
@@ -263,7 +264,7 @@ describe('Card: the ring and the drop shadow, each with its hover value', () => 
     expect(card()).toHaveAttribute('data-clickable', 'true');
     expect(card()).toHaveAttribute('role', 'button');
     expect(card()).toHaveAttribute('tabindex', '0');
-    expect(card().style.outline).toBe('none');
+    expect(card().style.outline).toBe(''); // `.sereno-card[data-clickable] { outline: none }` is in styles.css
   });
 
   it('selected: a brand ring that does not change on hover, and a medium shadow in both states', () => {
@@ -477,6 +478,37 @@ describe('text fields: the frame carries the border colours', () => {
   });
 });
 
+describe('forced colors (#135): nothing inline gets in the way of the stylesheet', () => {
+  it('Button, IconButton, a clickable Card, ActionCard and Textarea set no outline inline: the stylesheet owns it, so the forced-colors rule can win it', () => {
+    render(
+      <>
+        <Button>B</Button>
+        <IconButton label="I">{icon}</IconButton>
+        <Card interactive onClick={() => {}} data-testid="card">
+          C
+        </Card>
+        <ActionCard title="A" />
+        <Textarea label="T" />
+      </>,
+    );
+    for (const el of [screen.getByRole('button', { name: 'B' }), screen.getByRole('button', { name: 'I' }), screen.getByTestId('card'), screen.getByRole('button', { name: /^A/ }), screen.getByLabelText('T')]) {
+      expect(el.style.outline).toBe('');
+    }
+  });
+
+  it('Switch: the track fill is a --sd-bg value and the thumb a class, neither an inline background', () => {
+    const { rerender } = render(<Switch label="S" checked={false} />);
+    const track = () => screen.getByRole('switch');
+    const thumb = () => track().firstElementChild as HTMLElement;
+    expect(v(track(), '--sd-bg')).toBe('var(--border-strong)');
+    expect(track().style.background).toBe('');
+    expect(thumb()).toHaveClass('sereno-switch-thumb');
+    expect(thumb().style.background).toBe('');
+    rerender(<Switch label="S" checked />);
+    expect(v(track(), '--sd-bg')).toBe('var(--interactive-primary)');
+  });
+});
+
 describe('the stylesheet has the rules the components rely on', () => {
   const css = readFileSync(resolve(__dirname, '../styles.css'), 'utf8');
 
@@ -544,6 +576,31 @@ describe('the stylesheet has the rules the components rely on', () => {
     expect(css).toMatch(
       /\.sereno-sidenav-toggle:hover \{\s*background: var\(--sd-bg-hover, var\(--sd-bg\)\);\s*color: var\(--sd-fg-hover, var\(--sd-fg\)\);\s*border-color: var\(--sd-bd-hover, var\(--sd-bd\)\);/,
     );
+  });
+
+  it('forced colors: a focus outline where the ring is a shadow, a visible Switch, after the rules it overrides and with no !important', () => {
+    const at = css.indexOf('@media (forced-colors: active) {');
+    expect(at).toBeGreaterThan(-1);
+    const block = css.slice(at);
+    for (const sel of ['.sereno-btn:focus-visible:where(:not(:disabled))', '.sereno-action:focus-visible', '.sereno-card[data-clickable]:focus-visible', '.sereno-switch:focus-visible']) {
+      expect(block).toContain(sel);
+    }
+    expect(block).toMatch(/outline: 2px solid Highlight;/);
+    expect(block).toContain('.sereno-field:where(:has(> input:focus), [data-active]),\n  textarea.sereno-field:focus');
+    expect(block).toMatch(/\.sereno-switch \{\s*box-sizing: content-box;\s*border: 2px solid ButtonText;/);
+    expect(block).not.toContain('!important');
+    // The overrides come after the bases they beat (same source, a pseudo-class more specific).
+    for (const base of ['.sereno-btn {', '.sereno-action {', '.sereno-switch {', 'textarea.sereno-field {']) {
+      expect(css.indexOf(base)).toBeGreaterThan(-1);
+      expect(css.indexOf(base)).toBeLessThan(at);
+    }
+  });
+
+  it('the bases that drop the browser outline are in the stylesheet', () => {
+    expect(css).toMatch(/\.sereno-btn \{[^}]*\boutline: none;/);
+    expect(css).toMatch(/\.sereno-action \{\s*outline: none;/);
+    expect(css).toMatch(/\.sereno-card\[data-clickable\] \{\s*outline: none;/);
+    expect(css).toMatch(/textarea\.sereno-field \{\s*outline: none;/);
   });
 
   it('menu items: transparent, and a subtle fill on hover unless disabled', () => {
