@@ -510,6 +510,10 @@ jest-axe, jsdom: `npm test`) and **pixel tests** (Playwright in a pinned Docker 
 - **A new component** adds its case to `packages/ui/src/test/components.smoke.test.tsx` (`CASES`), a dedicated
   `<Component>.test.tsx` for its behavior, and its examples to the docs catalog and demos: the pixel tests read the
   catalog, so every example gets its reference images with no test code.
+- **axe runs on every docs page in CI** (`apps/docs/e2e/a11y.spec.ts`, the `axe-light` and `axe-dark` Playwright projects, #142), in the real
+  browser, on the demos and on what they open. A new WCAG 2.x A or AA violation fails the job: fix it. Only when it cannot be fixed in the same
+  PR, add it to `apps/docs/e2e/a11y-baseline.json` with a `reason` (what is wrong, what the fix is) or an `issue`; and when you fix an
+  entry of that file, delete it (a stale entry fails too). Never add one just to get a green run.
 - **Pixel tests have no visible tolerance** (`maxDiffPixels: 0`; only a rounding difference of 1 to 2 levels of
   255 in a colour channel is ignored, see `docs/testing.md`). If one fails, it is a regression until proven
   otherwise: fix the code.

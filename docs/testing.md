@@ -7,6 +7,9 @@ Two layers, for two different kinds of mistake:
 | **Behavior tests** | a component that does the wrong thing: a click that does nothing, a key that does not move the focus, a state that does not change, a missing label | Vitest, Testing Library, user-event, jest-axe (in jsdom) | `npm test`, in CI |
 | **Visual regression tests** | a component that **looks** different: one pixel of colour, spacing, border, font, shadow, in any theme, at phone width, on hover, pressed, on focus, when it opens | Playwright, in a pinned Docker image | `npm run test:visual`, in CI |
 
+Two more checks run in the same Playwright command and keep **no reference images**: the `forced` project (Windows High Contrast,
+#135) and the `axe-light` / `axe-dark` projects (accessibility in the real browser, #142), described below.
+
 They do not replace each other. jsdom has no layout, no `:hover`, no `:focus-visible` and no real theme, so a
 behavior test passes while a padding changes by 2 px; and a screenshot cannot tell that a click handler is wired
 to the wrong thing.
@@ -67,6 +70,23 @@ fill or a shadow fails. A third test per page does the same inside what a trigge
 clicks each trigger, moves the cursor with the arrow key, and checks the active option or menu item (named by
 `aria-activedescendant`, or `data-active`), the selected one and the picked or current day. Run it with
 `bash scripts/visual.sh --project=forced`.
+
+**The `axe-light` and `axe-dark` projects are accessibility tests in the real browser** (#142, `e2e/a11y.spec.ts`). `jest-axe` runs
+in jsdom, which has no colours and no layout, so it cannot see a contrast problem; these projects run
+[axe](https://github.com/dequelabs/axe-core) on every docs page in the light and the dark theme and fail on any violation of
+WCAG 2.x A and AA (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`). They scan the demos (`[data-example-preview]`, never the
+docs shell) and what each demo's triggers open (a list, a menu, a calendar, a dialog), about a minute for the whole site. They
+keep no reference images; what they keep is a **baseline**, `apps/docs/e2e/a11y-baseline.json`, the violations that already
+exist, so the job was green on day one:
+
+- a violation that is **not** in the baseline fails the test. The message names the rule, the element and the link to the
+  rule, and prints the entry to paste if you decide to accept it for now (fixing it is the better answer);
+- an entry that axe **no longer finds** fails it too: it was fixed, so delete the entry (or take the theme out of its `schemes`);
+- every entry has a `reason` (what is wrong and what the fix is) or an `issue` number, and the last test of the file checks it.
+
+An entry is a page (`<category>/<slug>`), the themes, the rule id and the CSS selector axe reports. The selectors of the docs
+examples are positional (`:nth-child`), so adding an example above an entry can rename it: update the baseline in the same PR.
+Run it with `bash scripts/visual.sh --project=axe-light --project=axe-dark` (add `-g core/button` for one page).
 
 The tests live in `apps/docs/e2e/visual.spec.ts` and the settings in `apps/docs/playwright.config.ts`. The demos
 are marked with `data-example-preview` (`apps/docs/src/design-system/ExampleSection.tsx`), which is what the tests

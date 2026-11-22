@@ -58,6 +58,10 @@ jobs:
   # component, light / dark / 375 px, plus hover, focus and what opens) and compared with the references in
   # apps/docs/e2e/__screenshots__ with zero tolerance. See docs/testing.md.
   #
+  # The same `npx playwright test` also runs the `forced` project (Windows High Contrast, #135) and the `axe-light` /
+  # `axe-dark` projects (accessibility on every docs page, with a baseline of known violations, #142): none of the
+  # three keeps reference images, and a failure of any of them fails this job.
+  #
   # Same image as `scripts/visual.sh`, and the same CPU architecture (arm64, like the Docker of an Apple
   # Silicon Mac): the same pixels need the same fonts, the same Chromium and the same CPU.
   # Keep the image tag in step with `@playwright/test` in apps/docs/package.json.
