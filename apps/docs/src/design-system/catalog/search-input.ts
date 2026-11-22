@@ -11,6 +11,7 @@ export const searchInputMeta: ComponentMeta = {
     R('onValueChange', '(value: string) => void', 'Every keystroke and on clear: the plain string.'),
     R('onSearch', '(value: string) => void', 'Debounced; also fires on `Enter` and on clear. Run the query here.'),
     R('debounce', 'number', 'Debounce for `onSearch`, ms.', '250'),
+    R('onKeyDown', '(e: KeyboardEvent<HTMLInputElement>) => void', 'Runs first, on every key. Calling `preventDefault()` there says the key was handled and skips the built-in `Enter` (search now) and `Esc` (clear).'),
     R('clearLabel', 'string', 'aria-label for the × button.', "'Clear search'"),
     R('placeholder', 'string', '', "'Search…'"),
     R('label / hint / error / size / disabled / preserveHelperSpace', '-', 'Passed through to `Input`.'),
