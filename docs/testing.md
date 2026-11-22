@@ -203,7 +203,7 @@ right images fail.
 
 ### Size and time
 
-**1282 reference images, 9.0 MB** in the repository (light 966, dark 158, mobile 158), all PNGs; `.gitattributes` marks
+**1289 reference images, 9.0 MB** in the repository (light 971, dark 159, mobile 159), all PNGs; `.gitattributes` marks
 them as generated so GitHub collapses them in a PR's diff. A full run is about 5 minutes with 4 browsers in
 parallel (111 tests: one per component page, in each of the 3 projects); a single component page takes a few
 seconds. Each reference is small (a demo, or a button with a margin around it), so a change to one component
