@@ -24,6 +24,7 @@ jobs:
 
       # No em dash anywhere in the repo (SS-330): cheap, so it runs before the install.
       - run: npm run check:dashes
+      - run: npm run check:banner
 
       - run: npm ci
 

@@ -1,0 +1,1 @@
+Sereno Design System: 37 token-driven React primitives. Native dark mode. No UI base library. One live preview per component. A booking card built with the library is shown next to the text.

@@ -1,8 +1,12 @@
 /**
  * Regenerates the raster brand assets that Next.js picks up as metadata files:
  *
- *   apps/{docs,demo}/app/opengraph-image.png   1200x630  (link share card)
+ *   apps/demo/app/opengraph-image.png          1200x630  (link share card)
  *   apps/{docs,demo}/app/apple-icon.png         180x180  (iOS home screen)
+ *
+ * The link share card of the Design System site (apps/docs/app/opengraph-image.png), which is also the banner of
+ * the README, is NOT made here any more: it carries the number of components, which this script used to type by
+ * hand ("30" long after it was 37). `npm run gen:banner` makes it from the catalogue and the real components.
  *
  * They are committed PNGs (not `opengraph-image.tsx` routes) on purpose: with
  * `output: 'export'` the dynamic routes emit extensionless files that a static
@@ -99,15 +103,6 @@ async function render(element, size, outPath) {
 const OG = { width: 1200, height: 630 };
 const ICON = { width: 180, height: 180 };
 
-await render(
-  OpenGraph({
-    kicker: 'Design System',
-    tagline: '30 token-driven React primitives · native dark mode · no UI base library',
-    footer: 'github.com/GabrielGomesBarbosa/sereno-ds',
-  }),
-  OG,
-  join(ROOT, 'apps/docs/app/opengraph-image.png'),
-);
 await render(AppleIcon(), ICON, join(ROOT, 'apps/docs/app/apple-icon.png'));
 
 await render(

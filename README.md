@@ -23,7 +23,7 @@ no UI base library, one live preview per component.
 [Testing](#testing) &nbsp;·&nbsp;
 [Contributing](#contributing)
 
-[![Sereno Design System](https://docs-production-2f40.up.railway.app/opengraph-image.png)](https://docs-production-2f40.up.railway.app)
+[![Sereno Design System: token-driven React primitives, native dark mode, no UI base library](./apps/docs/app/opengraph-image.png)](https://docs-production-2f40.up.railway.app)
 
 </div>
 
@@ -114,7 +114,8 @@ npm run dev          # docs on :3001, demo on :3002, and @sereno-ds/ui rebuilt o
 | `npm run test:visual:update` | rewrites the reference images; only after a person approved the new pixels |
 | `npm run check:dashes` | fails if any tracked file has an em dash (SS-330) |
 | `npm run gen:component-docs` | regenerates [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) from the docs catalog (never edit that file by hand) |
-| `npm run gen:brand-images` | regenerates the committed Open Graph and Apple touch images of both apps |
+| `npm run gen:brand-images` | regenerates the committed Open Graph image of the demo and the Apple touch images of both apps |
+| `npm run gen:banner` | regenerates the banner of this README and the link-share card of the Design System (`apps/docs/app/opengraph-image.png`) from the catalogue and the real components (Docker; run it when a component is added, `npm run check:banner` fails in CI otherwise) |
 | `npm run changeset` | records a version note for a change in `packages/` (see [Versioning](#versioning--releases)) |
 | `npm run version-packages` / `release` | cut the version bump and changelog / build and publish to npm (CI does both) |
 
