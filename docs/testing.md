@@ -126,6 +126,11 @@ rules was needed:
   element by a fraction of a pixel, which changed the anti-aliasing of rounded corners by one colour level between
   two runs of the same code. The window is made as tall as the page, so every element keeps the position the
   layout gave it.
+- **The window height is even.** A dialog is centred in the window, at (window height - dialog height) / 2. The
+  window is as tall as the page, so adding an example to a page changes it by any number of pixels, and with an odd
+  height the dialog lands on a half pixel: its text and borders are snapped to whole pixels, but its icons are not,
+  and they changed by a few pixels in the open-dialog pictures of the same page. With an even height the position
+  depends on the dialog only. (Found by running the suite on the PR that adds an example to the Dialog page.)
 - **Each example is pinned to a whole pixel.** An example sits at a fractional position that is the sum of the
   heights of everything above it on the page, so adding an example above it (or changing one by half a pixel)
   would move every picture below by half a pixel and fail them, though their components did not change. Before

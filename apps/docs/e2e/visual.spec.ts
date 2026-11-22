@@ -56,7 +56,13 @@ async function fitViewportToPage(page: Page) {
     return best;
   });
   const width = page.viewportSize()!.width;
-  await page.setViewportSize({ width, height: Math.min(16000, needed + 200) });
+  // An EVEN height: a dialog is centred in the window, at (height - its own height) / 2, so an odd height puts it
+  // on a half pixel and an even one on a whole pixel (or always the same half). Adding an example to a page
+  // changes the page height by any number of pixels, which would flip that parity and move the open dialogs of
+  // the page by half a pixel: only their icons change, by a few pixels (found by running this suite on a PR that
+  // adds an example to the Dialog page).
+  const height = Math.min(16000, Math.ceil((needed + 200) / 2) * 2);
+  await page.setViewportSize({ width, height });
   await page.waitForTimeout(200);
 }
 
