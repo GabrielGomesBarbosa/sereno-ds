@@ -31,7 +31,7 @@ no UI base library, one live preview per component.
 
 The visual / front-end layer of **Sereno**, a scheduling platform for independent
 health & beauty professionals in Brazil: the Design System, a navigable showcase,
-and three real product screens on mocked data, no backend, everything static.
+and four real product screens on mocked data, no backend, everything static.
 
 ## Workspaces
 
@@ -42,7 +42,7 @@ npm workspaces + Turborepo.
 | `packages/tokens` | [`@sereno-ds/tokens`](https://www.npmjs.com/package/@sereno-ds/tokens) | the token layer: `*.css` (light × dark) + a `tokens.css` barrel |
 | `packages/ui` | [`@sereno-ds/ui`](https://www.npmjs.com/package/@sereno-ds/ui) | **37 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`), token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
 | `apps/docs` | [`docs`](https://docs-production-2f40.up.railway.app) | the `/design-system` showcase (Next 16, `output: 'export'`). MUI-doc-style page per component: live preview, "show code", Do / Don't, "on this page" rail, prev/next, versioned header |
-| `apps/demo` | [`demo`](https://demo-production-bfd0.up.railway.app) | `/demo` hub + `/agendar/[slug]` (public booking) + `/dashboard/[[...slug]]` + `/onboarding` + `src/screens/` + `src/lib/mock.ts`, fully responsive, components reflow |
+| `apps/demo` | [`demo`](https://demo-production-bfd0.up.railway.app) | `/` hub + `/agendar/[slug]` (public booking) + `/dashboard/[[...slug]]` + `/onboarding` + `/kiosk` (waiting-room call panel) + `src/screens/` + `src/lib/mock.ts`, fully responsive, components reflow |
 
 - **`@sereno-ds/ui` and `@sereno-ds/tokens` are real packages.** `@sereno-ds/ui` is compiled
   with `tsup` into `packages/ui/dist` (one file per module, each keeps its own `'use client'`,
@@ -204,10 +204,10 @@ apps/
     playwright.config.ts   projects light / dark / mobile, no visible pixel difference allowed
     src/design-system/     catalog.ts + catalog/<slug>.ts, demos.tsx + demos/<slug>.tsx (one file per component), ComponentView, DocPage, Sidebar (+ its search: sidebarSearch.ts), Shell, version.ts + CHANGELOG.md
   demo/
-    app/                   layout.tsx, globals.css, agendar/[slug]/, dashboard/, onboarding/, robots.ts, sitemap.ts
-    src/screens/           BookingFlow, Onboarding, Dashboard/ (one file per view)
+    app/                   layout.tsx, globals.css, agendar/[slug]/, dashboard/, onboarding/, kiosk/, robots.ts, sitemap.ts
+    src/screens/           BookingFlow, Onboarding, CheckInKiosk (the waiting-room call panel), Dashboard/ (one file per view)
     src/domain/            ServiceCard, ProfessionalCard, AppointmentCard, WeeklyScheduleEditor - product cards built on @sereno-ds/ui
-    src/lib/mock.ts        mocked data for the 3 screens
+    src/lib/mock.ts        mocked data for the 4 screens
 fonts/                     Inter, Manrope, JetBrains Mono (latin, variable woff2) + their OFL licenses; the apps load them with next/font/local
 docs/                      deploy.md (Railway), testing.md (the testing guide), SS-157-demo-to-ds-audit.md
 scripts/                   check-no-em-dash, generate-design-system-docs, generate-brand-images, visual.sh (the Docker runner of the pixel tests)
