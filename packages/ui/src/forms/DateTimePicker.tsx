@@ -224,6 +224,7 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
                   key={val}
                   type="button"
                   disabled={dis}
+                  aria-pressed={sel}
                   aria-label={hasOwnCapacity ? `${val}, ${full ? copy.fullInline + ', ' : ''}${copy.vagas(booked, capacity)}` : undefined}
                   onClick={() => onSelectTime && onSelectTime(val)}
                   className="sereno-dtp-time"
@@ -237,9 +238,9 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
                     padding: showSecondLine ? 'var(--space-2) 0' : 0,
                     borderRadius: 'var(--radius-control)',
                     cursor: dis ? 'not-allowed' : 'pointer',
-                    border:
-                      'var(--border-width-hairline) solid ' +
-                      (sel ? 'transparent' : full && !dis ? 'var(--interactive-warning)' : 'var(--border-default)'),
+                    // The border is `.sereno-dtp-time` in styles.css, and only its colour is set here: an inline `border`
+                    // would beat the rule that draws the picked time in forced colors.
+                    '--sd-border': sel ? 'transparent' : full && !dis ? 'var(--interactive-warning)' : 'var(--border-default)',
                     background: sel
                       ? 'var(--interactive-accent)'
                       : dis
