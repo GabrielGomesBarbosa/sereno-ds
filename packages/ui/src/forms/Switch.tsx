@@ -88,11 +88,14 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>(function Sw
           height: t.h,
           flex: '0 0 auto',
           borderRadius: 'var(--radius-pill)',
-          background: checked ? 'var(--interactive-primary)' : 'var(--border-strong)',
+          // The fill is `background: var(--sd-bg)` in styles.css (an inline colour would beat the rules that
+          // restyle it in forced colors).
+          '--sd-bg': checked ? 'var(--interactive-primary)' : 'var(--border-strong)',
           transition: 'background-color var(--duration-normal) var(--ease-standard)',
         })}
       >
         <span
+          className="sereno-switch-thumb"
           style={sx({
             position: 'absolute',
             top: 3,
@@ -100,7 +103,6 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>(function Sw
             width: t.thumb,
             height: t.thumb,
             borderRadius: '999px',
-            background: '#fff',
             boxShadow: 'var(--shadow-sm)',
             transition: 'left var(--duration-normal) var(--ease-gentle)',
           })}

@@ -69,9 +69,6 @@ export function Card({ padding = 'md', elevation = 'sm', interactive = false, se
         padding: PADS[padding],
         transition: 'var(--transition-control)',
         cursor: interactive ? 'pointer' : 'default',
-        // outline:none is safe here (unlike the CSS-class pattern elsewhere in
-        // this package): the focus ring is the box-shadow `.sereno-card[data-clickable]:focus-visible` draws.
-        outline: clickable ? 'none' : undefined,
         ...style,
       })}
     >

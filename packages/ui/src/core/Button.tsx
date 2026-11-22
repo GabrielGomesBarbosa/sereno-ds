@@ -87,7 +87,6 @@ export function Button({ variant = 'primary', size = 'md', fullWidth = false, di
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: loading ? 0.75 : 1,
         transition: 'var(--transition-control)',
-        outline: 'none',
         textUnderlineOffset: '2px',
         ...style,
       })}

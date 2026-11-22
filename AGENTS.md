@@ -426,7 +426,11 @@ previews (test locally + on the branch).
 - **A new component must be accessible the day it's created - not fixed in a
   later audit.** Keyboard-operable (logical tab order, a visible focus
   indicator, Enter/Space/Escape/arrows per the WAI-ARIA APG pattern for that
-  widget), correct ARIA roles/labels, WCAG AA contrast. SS-227 exists only
+  widget) that **also shows in forced colors / Windows High Contrast** (a ring that is
+  only a `box-shadow` vanishes there: give it an outline rule in the
+  `@media (forced-colors: active)` block of `styles.css`; `bash scripts/visual.sh
+  --project=forced` fails when you forget), correct ARIA roles/labels, WCAG AA
+  contrast. SS-227 exists only
   because earlier components shipped without this and had to be retrofitted
   one by one - don't add to that backlog. It also needs a Vitest +
   `@testing-library/react` smoke test: add its case to

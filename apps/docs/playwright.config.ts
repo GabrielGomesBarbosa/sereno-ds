@@ -45,8 +45,12 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
   },
   projects: [
-    { name: 'light', use: { viewport: { width: 1280, height: 900 }, colorScheme: 'light' } },
-    { name: 'dark', use: { viewport: { width: 1280, height: 900 }, colorScheme: 'dark' } },
-    { name: 'mobile', use: { viewport: { width: 375, height: 812 }, colorScheme: 'light' } },
+    // The pixel tests: three looks of the same pages.
+    { name: 'light', testIgnore: /forced-colors/, use: { viewport: { width: 1280, height: 900 }, colorScheme: 'light' } },
+    { name: 'dark', testIgnore: /forced-colors/, use: { viewport: { width: 1280, height: 900 }, colorScheme: 'dark' } },
+    { name: 'mobile', testIgnore: /forced-colors/, use: { viewport: { width: 375, height: 812 }, colorScheme: 'light' } },
+    // Windows High Contrast (#135): not a pixel test, it checks that every focusable element still shows a focus
+    // indicator when the browser forces system colours and drops box-shadows (e2e/forced-colors.spec.ts).
+    { name: 'forced', testMatch: /forced-colors\.spec\.ts/, use: { viewport: { width: 1280, height: 900 }, colorScheme: 'light', forcedColors: 'active' } },
   ],
 });

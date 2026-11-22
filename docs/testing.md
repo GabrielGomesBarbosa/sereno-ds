@@ -54,6 +54,14 @@ example is picked up with no test code):
 The images are in `apps/docs/e2e/__screenshots__/<project>/<component>--<example>[--hover-N|--focus-N|--open-N].png`.
 Open any of them to see exactly what is guarded.
 
+**The `forced` project is not a pixel test** (#135, `e2e/forced-colors.spec.ts`). It runs the same component pages with
+`forcedColors: 'active'`, which is what Windows High Contrast does: the browser swaps every authored colour for a system
+one and drops every `box-shadow`. For each example it focuses the first interactive elements from the keyboard and
+fails if one has no visible focus indicator (an `outline` on the element, or on the field frame around a text box). It
+keeps no reference images, so there is nothing to update; a new component whose focus ring is only a shadow fails it at
+once, and the fix is a rule in the `@media (forced-colors: active)` block of `packages/ui/src/styles.css`. Run it with
+`bash scripts/visual.sh --project=forced`.
+
 The tests live in `apps/docs/e2e/visual.spec.ts` and the settings in `apps/docs/playwright.config.ts`. The demos
 are marked with `data-example-preview` (`apps/docs/src/design-system/ExampleSection.tsx`), which is what the tests
 photograph.

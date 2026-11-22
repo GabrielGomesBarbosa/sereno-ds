@@ -100,7 +100,6 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
           background: disabled ? 'var(--interactive-disabled-bg)' : 'var(--bg-surface)',
           borderWidth: 'var(--border-width-hairline)',
           borderStyle: 'solid',
-          outline: 'none',
           fontFamily: 'var(--font-body)',
           fontSize: 'var(--text-base)',
           lineHeight: 'var(--leading-normal)',
