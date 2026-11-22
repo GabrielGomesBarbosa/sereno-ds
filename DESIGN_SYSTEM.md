@@ -2647,6 +2647,18 @@ Modal (desktop), bottom sheet (mobile) or full-screen, a **compound component**.
 </Dialog>
 ```
 
+**Popups inside**: A `Select`, `Autocomplete`, `DatePicker`, `Menu` or a `SearchInput` with text, opened inside a Dialog: each popup is drawn over the dialog, not clipped by it, and `Esc` closes only the popup first, and the Dialog on the next press. A popup that handles `Esc` calls `preventDefault()` and the Dialog respects it.
+
+```tsx
+<Dialog open={open} onClose={close}>
+  <Dialog.Body>
+    <Select label="Service" options={services} />
+    <DatePicker label="Date" />
+    <SearchInput aria-label="Search" defaultValue="Maria" />
+  </Dialog.Body>
+</Dialog>
+```
+
 **Full screen**: `variant="fullscreen"` fills the viewport (no radius, no scrim gap), for immersive multi-section flows. Add a `Dialog.Close` yourself; nothing shows one automatically.
 
 ```tsx

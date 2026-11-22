@@ -1,5 +1,19 @@
 # @sereno-ds/ui
 
+## 0.41.2
+
+### Patch Changes
+
+- 2eea068: `DatePicker`: inside a `Dialog` the calendar is no longer cut off by the dialog's scrolling body.
+
+  The calendar was a plain absolute child of the field, so the dialog's `overflow` clipped it (only the first rows were visible, and the body grew a scrollbar). Inside a `position: fixed` container it is now drawn over the dialog like the lists of `Select` and `Autocomplete`: portalled to `<body>` through the same `useMenuPlacement`, kept inside the window (under the field if it fits, else above it, else as far up as it needs) and at most 320px wide, because its cells are square and a wide dialog field would otherwise make a slab that covers the field. Closing on scroll, `Esc` and the outside press behave as before. Since the calendar leaves the field's place in the DOM, `Tab` is handed over by hand: from the field into the calendar, and from the last element back out to whatever follows the field.
+
+  Nothing changes outside a dialog: the calendar is still an absolute child below the field, at the field's width, and no prop or export changed.
+
+- 2eea068: Inside a `Dialog`, `Esc` with a popup open now closes only the popup (SS-573).
+
+  SS-571 fixed this for `Select` (and `Autocomplete` was born right), but `DatePicker`, `Menu` and the clear-on-Esc of `SearchInput` still closed the whole Dialog on the first press, taking what the user had filled in with it. The root was in the `Dialog`, which closed on any `Esc` without looking at whether something had already used it. It now ignores an `Esc` that is `defaultPrevented`, so the first press closes the popup and the next one closes the Dialog. `DatePicker` now says it handled the key (the others already did). New components follow the same rule, written in `AGENTS.md`.
+
 ## 0.41.1
 
 ### Patch Changes
