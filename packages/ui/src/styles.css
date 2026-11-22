@@ -449,11 +449,14 @@ textarea.sereno-field {
    :hover / [data-current] rules don't belong on a day cell (it already has
    its own selected/today styling driven from React state, not CSS
    attribute selectors). */
-.sereno-dtp-days button { outline: none; }
+.sereno-dtp-days button { outline: none; border: none; }
 .sereno-dtp-days button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
 /* Time-slot grid (SS-228 sweep) - same bug, same fix: an inline outline:none
    with nothing to replace it, found auditing every remaining inline
    outline:none in the package after the day-grid and Tabs fixes above. */
+/* A time slot is itself `.sereno-dtp-time`: its border is here, with the colour from the `--sd-border` it sets inline
+   (the picked one, a full one and a disabled one differ), so the forced-colors rule below can change the whole border. */
+.sereno-dtp-time { border: var(--border-width-hairline) solid var(--sd-border, var(--border-default)); }
 .sereno-dtp-time button { outline: none; }
 .sereno-dtp-time button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
 /* BottomNav.Item (SS-228 sweep) - identical bug: outline suppressed inline
@@ -583,6 +586,25 @@ textarea.sereno-field {
   }
   .sereno-step[data-state='todo'] {
     background: GrayText;
+  }
+
+  /* The row a list's cursor is on (the option of a Select or an Autocomplete, the item of a Menu). In the normal mode it
+     is a fill, and it is not the DOM focus, so there is no focus ring to fall back on: it gets the outline a focus would.
+     The selected option needs nothing here: it carries a check mark, which is drawn in the text colour. */
+  :is([role='option'], [role='menuitem'])[data-active] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  /* Calendar: the picked day, the picked time and the current month or year get a heavy border in the selection colour,
+     and today (when it is not the picked day) a thin one. Borders and not fills: they hold text. */
+  .sereno-dtp-days button[aria-pressed='true'],
+  .sereno-dtp-time[aria-pressed='true'],
+  .sereno-dtp-grid button[data-current] {
+    border: 3px solid Highlight;
+  }
+  .sereno-dtp-days button[aria-current='date']:not([aria-pressed='true']) {
+    border: 1px solid CanvasText;
   }
 
   /* Checkbox and Radio: the check, the dash and the dot are images or inset shadows in the normal mode, and both are lost.

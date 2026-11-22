@@ -573,7 +573,8 @@ export function CalendarGrid({
                 justifyContent: 'center',
                 gap: 1,
                 borderRadius: 'var(--radius-sm)',
-                border: 'none',
+                // No inline `border`: `.sereno-dtp-days button` sets `border: none` in styles.css, so the forced-colors
+                // frame of the picked day and of today can win it back (an inline value always beats a rule).
                 padding: 0,
                 cursor: off ? 'not-allowed' : 'pointer',
                 background: sel ? 'var(--interactive-primary)' : 'transparent',

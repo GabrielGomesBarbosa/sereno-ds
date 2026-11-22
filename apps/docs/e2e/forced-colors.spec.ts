@@ -1,4 +1,4 @@
-import { test, expect, type Locator } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import { COMPONENTS, examplesFor } from '../src/design-system/catalog';
 
 /**
@@ -13,6 +13,9 @@ import { COMPONENTS, examplesFor } from '../src/design-system/catalog';
  * A second test per page covers the STATES (#141): a current page, a selected tab, a checked box... that is told only by a
  * fill or a shadow is lost in this mode. Each element that says it is current, selected, checked or pressed must look
  * different from an unmarked sibling of the same kind (the text colour and a heavier font do not count, see `look`).
+ *
+ * A third test per page does the same INSIDE what a trigger opens (a list, a menu, a calendar): the option the keyboard is on
+ * (`aria-activedescendant`, or `data-active` in a menu), the selected one, the day that is today.
  */
 
 /** Elements a person can tab to, inside a demo (the same list as the pixel suite). */
@@ -98,16 +101,72 @@ const STATE = [
 /**
  * What a person can see of an element apart from its words: the fill, the edges, an underline, a mark drawn after it. The
  * text colour and the weight are left out on purpose: forced colors rewrites the first, and the second is too faint to be
- * the only cue. A table row is seen through its first cell (the row itself paints nothing).
+ * the only cue. A table row is seen through its first cell (the row itself paints nothing). An icon inside counts (it is
+ * drawn in the text colour, which forced colors keeps readable).
  */
 function look(el: Element) {
   const target = el.tagName === 'TR' ? (el.querySelector('td') ?? el) : el;
   const c = getComputedStyle(target);
   const after = getComputedStyle(target, '::after');
+  // A fill of the surface colour (Canvas, ButtonFace) is the page showing through: forced colors turns a `--bg-subtle` or a
+  // primary fill into one of them, and an element that was transparent stays transparent, so the two have different
+  // computed values and look the same. Only a fill in another system colour (Highlight, GrayText...) is a cue.
+  const probe = (name: string) => {
+    const p = document.createElement('i');
+    p.style.backgroundColor = name;
+    document.body.appendChild(p);
+    const v = getComputedStyle(p).backgroundColor;
+    p.remove();
+    return v;
+  };
+  const surface = new Set([probe('Canvas'), probe('ButtonFace')]);
+  const clear = /, 0\)$/.test(c.backgroundColor); // any colour with no opacity (forced colors keeps its RGB: rgba(255, 255, 255, 0))
+  const fill = clear || surface.has(c.backgroundColor) ? 'surface' : c.backgroundColor;
   return [
-    c.backgroundColor, c.borderTopColor, c.borderTopWidth, c.borderBottomColor, c.borderBottomWidth, c.borderLeftWidth,
+    fill, c.borderTopColor, c.borderTopWidth, c.borderBottomColor, c.borderBottomWidth, c.borderLeftWidth,
     c.outlineStyle, c.textDecorationLine, after.content, after.borderRightWidth,
+    target.querySelectorAll('svg').length, // a drawn mark inside (the check of a selected option) is a cue too
   ].join('|');
+}
+
+/**
+ * In the page: every element of `roots` that is in a state (`state`, or the active option of a combobox, or the active item of
+ * a menu) and looks like its unmarked siblings. Siblings first (the days of one grid, the options of one list); when there
+ * are none of the same tag, every unmarked element of the same kind in the root (a nav item nested in a list).
+ */
+async function lostIn(page: Page, roots: string, state: string, what: string): Promise<string[]> {
+  return page.evaluate(
+    ({ roots, state, what, lookSrc }) => {
+      const look = new Function(`return (${lookSrc})`)() as (e: Element) => string;
+      // the option a combobox is "on" is not DOM-focused: it is named by `aria-activedescendant`
+      const active = new Set<Element>();
+      document.querySelectorAll('[aria-activedescendant]').forEach((c) => {
+        const t = document.getElementById(c.getAttribute('aria-activedescendant') ?? '');
+        if (t) active.add(t);
+      });
+      document.querySelectorAll('[role=menuitem][data-active]').forEach((e) => active.add(e));
+      const marked = (o: Element) => o.matches(state) || active.has(o);
+      const out: string[] = [];
+      document.querySelectorAll(roots).forEach((root, n) => {
+        const targets = new Set<Element>(root.querySelectorAll(state));
+        active.forEach((a) => root.contains(a) && targets.add(a));
+        targets.forEach((el) => {
+          const kind = (o: Element) => o.tagName + ((o as HTMLInputElement).type ?? '') + (o.getAttribute('role') ?? '');
+          const siblings = [...(el.parentElement?.children ?? [])].filter((o) => o !== el && o.tagName === el.tagName && !marked(o));
+          const wider = [...root.querySelectorAll(el.tagName.toLowerCase())].filter((o) => o !== el && !marked(o) && kind(o) === kind(el));
+          const others = siblings.length ? siblings : wider;
+          if (!others.length) return; // nothing unmarked to compare with
+          if (others.every((o) => look(o) === look(el))) {
+            const name = el.getAttribute('aria-label') || (el.textContent ?? '').trim().slice(0, 24);
+            const why = active.has(el) && !el.matches(state) ? ' (the active one)' : '';
+            out.push(`${what} ${n}: ${el.tagName.toLowerCase()}${el.getAttribute('role') ? `[role=${el.getAttribute('role')}]` : ''} "${name}"${why}`);
+          }
+        });
+      });
+      return out;
+    },
+    { roots, state, what, lookSrc: look.toString() },
+  );
 }
 
 for (const meta of COMPONENTS) {
@@ -115,26 +174,43 @@ for (const meta of COMPONENTS) {
     await page.goto(`/design-system/${meta.category}/${meta.slug}/`);
     await page.locator('[data-example-preview]').first().waitFor();
     await page.waitForTimeout(300);
-
-    const lost: string[] = await page.evaluate(
-      ({ STATE, lookSrc }) => {
-        const look = new Function(`return (${lookSrc})`)() as (e: Element) => string;
-        const out: string[] = [];
-        document.querySelectorAll('[data-example-preview]').forEach((pv, n) => {
-          pv.querySelectorAll(STATE).forEach((el) => {
-            const kind = (o: Element) => o.tagName + ((o as HTMLInputElement).type ?? '') + (o.getAttribute('role') ?? '');
-            const others = [...pv.querySelectorAll(el.tagName.toLowerCase())].filter((o) => o !== el && !o.matches(STATE) && kind(o) === kind(el));
-            if (!others.length) return; // nothing unmarked to compare with
-            if (others.every((o) => look(o) === look(el))) {
-              const name = el.getAttribute('aria-label') || (el.textContent ?? '').trim().slice(0, 24);
-              out.push(`example ${n}: ${el.tagName.toLowerCase()}${el.getAttribute('role') ? `[role=${el.getAttribute('role')}]` : ''} "${name}"`);
-            }
-          });
-        });
-        return out;
-      },
-      { STATE, lookSrc: look.toString() },
-    );
+    const lost = await lostIn(page, '[data-example-preview]', STATE, 'example');
     expect(lost, 'elements in a state that looks like their unmarked siblings in forced colors').toEqual([]);
+  });
+}
+
+/** What a trigger opens: a list, a menu, a dialog (the calendar of a date picker), the month and year picker. */
+const POPUPS = '[role=listbox], [role=menu], [role=dialog], .sereno-dtp-pop';
+const ENABLED = ':not([disabled]):not([aria-disabled=true])';
+/** At most this many triggers per example, like the pixel suite. */
+const MAX_OPEN_PER_EXAMPLE = 3;
+
+for (const meta of COMPONENTS) {
+  test(`${meta.category}/${meta.slug}: states inside what opens are visible`, async ({ page }) => {
+    const lost: string[] = [];
+    for (const ex of examplesFor(meta)) {
+      const triggerSel = `section#${ex.id} [data-example-preview] :is([aria-haspopup], [aria-expanded])${ENABLED}`;
+      const count = await (async () => {
+        await page.goto(`/design-system/${meta.category}/${meta.slug}/`);
+        await page.locator('[data-example-preview]').first().waitFor();
+        await page.waitForTimeout(300);
+        return Math.min(await page.locator(triggerSel).count(), MAX_OPEN_PER_EXAMPLE);
+      })();
+      for (let j = 0; j < count; j++) {
+        // each opening on a freshly loaded page: nothing focused or left open by what came before
+        await page.goto(`/design-system/${meta.category}/${meta.slug}/`);
+        await page.locator('[data-example-preview]').first().waitFor();
+        await page.waitForTimeout(300);
+        const trigger = page.locator(triggerSel).nth(j);
+        if (!(await trigger.isVisible())) continue;
+        await trigger.click();
+        await page.waitForTimeout(300);
+        await page.keyboard.press('ArrowDown'); // the keyboard puts the cursor on an option or a menu item
+        await page.waitForTimeout(150);
+        const found = await lostIn(page, POPUPS, STATE, 'popup');
+        lost.push(...found.map((f) => `${ex.id} #${j}: ${f}`));
+      }
+    }
+    expect(lost, 'elements in a state, inside what a trigger opens, that look like their unmarked siblings in forced colors').toEqual([]);
   });
 }

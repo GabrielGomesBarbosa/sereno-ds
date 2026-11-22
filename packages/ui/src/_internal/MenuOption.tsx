@@ -50,6 +50,8 @@ export function MenuOption({ label, selected, active, disabled, coarse, padY, st
       role="option"
       aria-selected={selected}
       aria-disabled={disabled || undefined}
+      // The row the cursor is on. The fill below is dropped in forced colors, so the stylesheet draws an outline from this.
+      data-active={(active && !disabled) || undefined}
       {...rest}
       style={sx({
         display: 'flex',

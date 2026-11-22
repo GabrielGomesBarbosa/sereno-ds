@@ -16,6 +16,8 @@ import { Select } from '../forms/Select';
 import { Autocomplete } from '../forms/Autocomplete';
 import { DatePicker } from '../forms/DatePicker';
 import { Switch } from '../forms/Switch';
+import { DateTimePicker } from '../forms/DateTimePicker';
+import { MenuOption } from '../_internal/MenuOption';
 import { Stepper } from '../navigation/Stepper';
 import { SidebarNav } from '../navigation/SidebarNav';
 
@@ -550,6 +552,37 @@ describe('forced colors (#141): what the states key on', () => {
     expect(v(seg('Two'), '--sd-bg')).toBe('var(--interactive-primary)');
     expect(v(seg('Three'), '--sd-bg')).toBe('var(--border-default)');
   });
+
+  it('a list option says it is the cursor with data-active, unless it is disabled or not the cursor', () => {
+    render(
+      <ul>
+        <MenuOption label="On" selected={false} active coarse={false} padY={8} />
+        <MenuOption label="Off" selected={false} active={false} coarse={false} padY={8} />
+        <MenuOption label="Disabled" selected={false} active disabled coarse={false} padY={8} />
+      </ul>,
+    );
+    expect(screen.getByRole('option', { name: 'On' })).toHaveAttribute('data-active', 'true');
+    expect(screen.getByRole('option', { name: 'Off' })).not.toHaveAttribute('data-active');
+    expect(screen.getByRole('option', { name: 'Disabled' })).not.toHaveAttribute('data-active');
+  });
+
+  it('calendar: a day and a time slot set no border inline (the stylesheet owns it) and say which one is picked with aria-pressed', () => {
+    const { container } = render(<DateTimePicker year={2026} month={9} selectedDate={15} times={['09:00', { value: '10:00', capacity: 2, booked: 2 }]} selectedTime="09:00" />);
+    const day = (n: number) => container.querySelector<HTMLButtonElement>(`[data-day="${n}"]`)!;
+    expect(day(15)).toHaveAttribute('aria-pressed', 'true');
+    expect(day(16)).toHaveAttribute('aria-pressed', 'false');
+    for (const n of [15, 16]) expect(day(n).style.border).toBe('');
+    const slot = (name: RegExp) => screen.getByRole('button', { name });
+    expect(slot(/^09:00/)).toHaveAttribute('aria-pressed', 'true');
+    expect(slot(/^10:00/)).toHaveAttribute('aria-pressed', 'false');
+    for (const el of [slot(/^09:00/), slot(/^10:00/)]) {
+      expect(el).toHaveClass('sereno-dtp-time');
+      expect(el.style.border).toBe('');
+    }
+    // the colour of the border is a value of its own: transparent when picked, the warning one for a full slot
+    expect(v(slot(/^09:00/), '--sd-border')).toBe('transparent');
+    expect(v(slot(/^10:00/), '--sd-border')).toBe('var(--interactive-warning)');
+  });
 });
 
 describe('the stylesheet has the rules the components rely on', () => {
@@ -663,6 +696,22 @@ describe('the stylesheet has the rules the components rely on', () => {
       const at = block.indexOf(textual);
       const rule = block.slice(at, block.indexOf('}', at));
       expect(rule).not.toMatch(/background(-color)?:\s*Highlight/);
+    }
+  });
+
+  it('forced colors: the list cursor is an outline, and the calendar day, time and month get a border (no fill behind their text)', () => {
+    const block = css.slice(css.indexOf('@media (forced-colors: active) {'));
+    expect(block).toMatch(/:is\(\[role='option'\], \[role='menuitem'\]\)\[data-active\] \{\s*outline: 2px solid Highlight;/);
+    expect(block).toMatch(/\.sereno-dtp-days button\[aria-pressed='true'\],\s*\.sereno-dtp-time\[aria-pressed='true'\],\s*\.sereno-dtp-grid button\[data-current\] \{\s*border: 3px solid Highlight;/);
+    expect(block).toMatch(/\.sereno-dtp-days button\[aria-current='date'\]:not\(\[aria-pressed='true'\]\) \{\s*border: 1px solid CanvasText;/);
+    // the borders the forced rules replace live in the stylesheet, before the media block
+    const at = css.indexOf('@media (forced-colors: active) {');
+    expect(css).toMatch(/\.sereno-dtp-days button \{ outline: none; border: none; \}/);
+    expect(css).toMatch(/\.sereno-dtp-time \{ border: var\(--border-width-hairline\) solid var\(--sd-border, var\(--border-default\)\); \}/);
+    expect(css.indexOf('.sereno-dtp-time {')).toBeLessThan(at);
+    for (const textual of ['.sereno-dtp-days button[aria-pressed', '.sereno-dtp-days button[aria-current']) {
+      const i = block.indexOf(textual);
+      expect(block.slice(i, block.indexOf('}', i))).not.toMatch(/background(-color)?:\s*Highlight/);
     }
   });
 
