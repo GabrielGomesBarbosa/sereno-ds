@@ -108,7 +108,7 @@ await render(AppleIcon(), ICON, join(ROOT, 'apps/docs/app/apple-icon.png'));
 await render(
   OpenGraph({
     kicker: 'Design System · Demo',
-    tagline: 'Booking flow, dashboard and onboarding · product screens built with @sereno-ds/ui',
+    tagline: 'Booking flow, dashboard, onboarding and kiosk · product screens built with @sereno-ds/ui',
     footer: 'github.com/GabrielGomesBarbosa/sereno-ds',
   }),
   OG,

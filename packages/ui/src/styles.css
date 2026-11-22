@@ -120,6 +120,24 @@
 }
 
 /* A row of a small menu with only a hover fill (the AvatarUpload actions). */
+/* ── Text fields: border colour and focus ring (SS-582) ─────────────────────────────────
+   The frame of `Input` (its row), `Textarea` and the boxes of `Select`, `DatePicker` and `Autocomplete`. The component
+   sets three values (`--sd-bd`, `--sd-bd-active`, `--sd-ring-active`, see `forms/_internal/fieldFrame.ts`); the
+   frame is "active" while:
+   - an `Input` or `Autocomplete` text box inside it has the focus (`:has(> input:focus)`, the direct child, so a
+     button in the row, the password eye for one, does not count: the same as when this was `onFocus` / `onBlur`),
+   - a `Textarea` has the focus,
+   - `data-active` is set, which `Select`, `DatePicker` and `Autocomplete` do while their popup is open.
+   Pointer and keyboard focus look the same, as they always did. The `:where()` keeps the active rule at the
+   specificity of `.sereno-field` (0,1,0), so an app's own class rule overrides either by coming later. */
+.sereno-field {
+  border-color: var(--sd-bd, var(--border-default));
+  box-shadow: none;
+}
+.sereno-field:where(textarea:focus, :has(> input:focus), [data-active]) {
+  border-color: var(--sd-bd-active, var(--border-focus));
+  box-shadow: var(--sd-ring-active, var(--focus-ring));
+}
 .sereno-menuitem {
   background: transparent;
 }
@@ -226,10 +244,19 @@
 .sereno-sidenav-row:hover {
   background: var(--sd-bg-hover, var(--sd-bg, transparent));
 }
+/* The collapse control that straddles the rail's edge: SidebarNav declares its fill, ink and border and their
+   hover values (`--sd-bg`, `--sd-fg`, `--sd-bd`, each with `-hover`), as it does for the rows. The hover used to be
+   written here on its own, but the same three properties were also set inline on the button, and an inline
+   value beats any stylesheet rule, so the hover never showed. */
+.sereno-sidenav-toggle {
+  background: var(--sd-bg);
+  color: var(--sd-fg);
+  border-color: var(--sd-bd);
+}
 .sereno-sidenav-toggle:hover {
-  background: var(--interactive-secondary-hover);
-  color: var(--text-primary);
-  border-color: var(--border-strong);
+  background: var(--sd-bg-hover, var(--sd-bg));
+  color: var(--sd-fg-hover, var(--sd-fg));
+  border-color: var(--sd-bd-hover, var(--sd-bd));
 }
 
 /* ── In-field affix button ───────────────────────────────────────────────────

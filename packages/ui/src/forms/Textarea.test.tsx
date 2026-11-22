@@ -13,24 +13,52 @@ describe('Textarea: ref', () => {
   });
 });
 
+/**
+ * Same contract as `Input` (SS-582): the textarea carries `--sd-*` values and the stylesheet draws its border and
+ * ring from `.sereno-field:focus`; the component keeps no focus state and wraps no `onFocus` / `onBlur`.
+ */
 describe('Textarea: focus ring', () => {
-  it('a caller onBlur does not stop the focus ring from resetting (regression: a plain {...rest} spread used to let it silently replace the internal handler, the exact shape react-hook-form\'s register() injects)', () => {
-    const onBlur = vi.fn();
-    const { container } = render(<Textarea label="Bio" onBlur={onBlur} />);
+  const v = (el: HTMLElement, name: string) => el.style.getPropertyValue(name);
+
+  it('is a field frame, with the colours of rest, active and the ring as values, and no colour set inline', () => {
+    const { container } = render(<Textarea label="Bio" />);
     const textarea = container.querySelector('textarea')!;
-    fireEvent.focus(textarea);
-    expect(textarea.getAttribute('style')).toContain('var(--border-focus)');
-    fireEvent.blur(textarea);
-    expect(textarea.getAttribute('style')).not.toContain('var(--border-focus)');
-    expect(textarea.getAttribute('style')).toContain('var(--border-default)');
-    expect(onBlur).toHaveBeenCalledTimes(1);
+    expect(textarea).toHaveClass('sereno-field');
+    expect(v(textarea, '--sd-bd')).toBe('var(--border-default)');
+    expect(v(textarea, '--sd-bd-active')).toBe('var(--border-focus)');
+    expect(v(textarea, '--sd-ring-active')).toBe('var(--focus-ring)');
+    expect(textarea.style.borderColor).toBe('');
+    expect(textarea.style.boxShadow).toBe('');
   });
 
-  it('a caller onFocus is still called alongside the internal handler', () => {
+  it('keeps the caller class next to its own, and an error has its border while active and no ring', () => {
+    const { container } = render(<Textarea label="Bio" className="mine" error="Obrigatório" />);
+    const textarea = container.querySelector('textarea')!;
+    expect(textarea).toHaveClass('sereno-field', 'mine');
+    expect(v(textarea, '--sd-bd')).toBe('var(--interactive-error)');
+    expect(v(textarea, '--sd-bd-active')).toBe('var(--interactive-error)');
+    expect(v(textarea, '--sd-ring-active')).toBe('none');
+  });
+
+  it('focus and blur change nothing on the textarea: there is no focus state to render', () => {
+    const { container } = render(<Textarea label="Bio" />);
+    const textarea = container.querySelector('textarea')!;
+    const before = container.innerHTML;
+    fireEvent.focus(textarea);
+    expect(container.innerHTML).toBe(before);
+    fireEvent.blur(textarea);
+    expect(container.innerHTML).toBe(before);
+  });
+
+  it('a caller onFocus and onBlur each run once, straight from the textarea (register() of react-hook-form injects them)', () => {
     const onFocus = vi.fn();
-    const { container } = render(<Textarea label="Bio" onFocus={onFocus} />);
-    fireEvent.focus(container.querySelector('textarea')!);
+    const onBlur = vi.fn();
+    const { container } = render(<Textarea label="Bio" onFocus={onFocus} onBlur={onBlur} />);
+    const textarea = container.querySelector('textarea')!;
+    fireEvent.focus(textarea);
     expect(onFocus).toHaveBeenCalledTimes(1);
+    fireEvent.blur(textarea);
+    expect(onBlur).toHaveBeenCalledTimes(1);
   });
 
   it('a caller onChange still fires alongside the character counter (regression guard for the same {...rest}-ordering class of bug)', () => {

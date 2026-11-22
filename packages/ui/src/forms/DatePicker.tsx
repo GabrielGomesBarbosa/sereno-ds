@@ -13,6 +13,7 @@ import { CalendarGrid } from './_internal/CalendarGrid';
 import type { CalendarDayContext, CalendarDayDots } from './_internal/calendarDots';
 import { parseISODate as parseISO, toISODate as toISO } from './_internal/calendarRange';
 import { fieldBoxStyle } from './_internal/fieldBoxStyle';
+import { fieldBoxProps } from './_internal/fieldFrame';
 
 const TEXT = {
   'pt-BR': { placeholder: 'Selecionar data', dialogLabel: 'Escolher data', clearLabel: 'Limpar data' },
@@ -333,7 +334,7 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
         {/* The bordered box lives on this wrapper `div`, not on a `<button>`
  - the open-trigger and the clear (×) button are real, independent
             sibling buttons inside it, since a button can't nest another. */}
-        <div ref={boxRef} onKeyDown={onBoxKeyDown} style={fieldBoxStyle(size, !!error, open, disabled)}>
+        <div ref={boxRef} onKeyDown={onBoxKeyDown} {...fieldBoxProps(open)} style={fieldBoxStyle(size, !!error, disabled)}>
           <button
             ref={triggerRef}
             id={rid}
