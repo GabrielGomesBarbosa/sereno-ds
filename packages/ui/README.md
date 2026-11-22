@@ -18,10 +18,29 @@ npm i @sereno-ds/ui @sereno-ds/tokens lucide-react
 
 ```ts
 import '@sereno-ds/tokens/tokens.css'; // the token layer (colors, spacing, dark overrides…)
-import '@sereno-ds/ui/styles.css';     // component keyframes + a few structural rules
+import '@sereno-ds/ui/styles.css';     // keyframes, structural rules, and the hover / press / focus of Button, IconButton and Card
 ```
 
 `tokens.css` **must** come first. Both are side-effect CSS: import them once (a root layout, `_app`, or `main.tsx`), not per-component.
+
+**`styles.css` is required**, not decorative: `Button`, `IconButton` and `Card` take their colours, border and hover / press / focus states from it (their values are on the element, the rules that switch between them are in the stylesheet), so without it those three render unstyled.
+
+#### Restyling a state with plain CSS
+
+`Button`, `IconButton` and `Card` carry the class `sereno-btn` (the first two) or `sereno-card` and, on a `Card`, `data-interactive` and `data-clickable`. The state rules have the specificity of `.sereno-btn:hover` (one class and one pseudo-class), so a rule of yours with the same specificity **that comes later** wins, with no `!important`:
+
+```css
+/* a ghost button on a brand-coloured band: its hover fill vanishes on that colour */
+.on-band:hover { background: rgb(255 255 255 / 0.2); }
+```
+
+Or change what the DS reads, on the element itself (the component reads `--interactive-ghost-hover` from its own style, so only that element changes):
+
+```css
+.on-band { --interactive-ghost-hover: rgb(255 255 255 / 0.2); }
+```
+
+The class names and the `data-` attributes are the styling hooks. The `--sd-*` custom properties are how the component hands its values to the stylesheet and are **not** a public API: restyle with the rules above, not by setting them.
 
 ### 2. Provide the fonts
 

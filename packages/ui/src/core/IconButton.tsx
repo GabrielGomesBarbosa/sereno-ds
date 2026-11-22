@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { sx } from '../_internal/style';
-import { useInteract } from './Button';
 
 /**
  * Square icon-only control for toolbars, card corners and top bars. Always pass `label`.
@@ -28,25 +27,25 @@ const SOLID: Partial<Record<NonNullable<IconButtonProps['variant']>, [string, st
   error: ['--interactive-error', '--interactive-error-hover', '--interactive-error-fg'],
 };
 
-export function IconButton({ variant = 'ghost', size = 'md', label, disabled = false, children, style, ...rest }: IconButtonProps) {
-  const st = useInteract(disabled);
+export function IconButton({ variant = 'ghost', size = 'md', label, disabled = false, children, className, style, ...rest }: IconButtonProps) {
   const d = S[size] || S.md;
   const solid = SOLID[variant];
   const outline = variant === 'secondary';
 
-  let background = 'transparent';
-  let color = 'var(--text-secondary)';
+  // The values of each state, for `.sereno-btn` (styles.css) to switch between on :hover / :active / :focus-visible
+  // (SS-577). Only a press scale and a focus ring are common to all; the rest is per variant.
+  let vars: Record<string, string>;
   if (disabled) {
-    background = 'var(--interactive-disabled-bg)';
-    color = 'var(--interactive-disabled-fg)';
+    vars = { '--sd-bg': 'var(--interactive-disabled-bg)', '--sd-fg': 'var(--interactive-disabled-fg)' };
   } else if (solid) {
-    background = `var(${st.hover ? solid[1] : solid[0]})`;
-    color = `var(${solid[2]})`;
+    vars = { '--sd-bg': `var(${solid[0]})`, '--sd-bg-hover': `var(${solid[1]})`, '--sd-fg': `var(${solid[2]})` };
   } else if (outline) {
-    background = st.hover ? 'var(--interactive-secondary-hover)' : 'var(--interactive-secondary)';
-  } else if (st.hover) {
-    background = 'var(--interactive-ghost-hover)';
+    vars = { '--sd-bg': 'var(--interactive-secondary)', '--sd-bg-hover': 'var(--interactive-secondary-hover)', '--sd-fg': 'var(--text-secondary)' };
+  } else {
+    vars = { '--sd-bg': 'transparent', '--sd-bg-hover': 'var(--interactive-ghost-hover)', '--sd-fg': 'var(--text-secondary)' };
   }
+  vars['--sd-bd'] = outline ? 'var(--border-default)' : 'transparent';
+  vars['--sd-sh'] = 'none';
 
   return (
     <button
@@ -54,9 +53,10 @@ export function IconButton({ variant = 'ghost', size = 'md', label, disabled = f
       aria-label={label}
       title={label}
       disabled={disabled}
-      {...st.handlers}
       {...rest}
+      className={['sereno-btn', className].filter(Boolean).join(' ')}
       style={sx({
+        ...vars,
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -64,11 +64,8 @@ export function IconButton({ variant = 'ghost', size = 'md', label, disabled = f
         height: d,
         flex: '0 0 auto',
         borderRadius: 'var(--radius-control)',
-        border: 'var(--border-width-hairline) solid ' + (outline ? 'var(--border-default)' : 'transparent'),
-        background,
-        color,
-        boxShadow: st.focus ? 'var(--focus-ring)' : 'none',
-        transform: st.press && !disabled ? 'scale(var(--press-scale))' : 'none',
+        borderWidth: 'var(--border-width-hairline)',
+        borderStyle: 'solid',
         cursor: disabled ? 'not-allowed' : 'pointer',
         transition: 'var(--transition-control)',
         outline: 'none',

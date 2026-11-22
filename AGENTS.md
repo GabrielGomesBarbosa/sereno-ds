@@ -343,6 +343,15 @@ previews (test locally + on the branch).
   `data-theme="light|dark"` on `<html>`, the exact hook every token file
   switches on. Never a custom theme context, a `dark` prop, or a second
   theme mechanism living in an app's own code.
+- **Hover, press and keyboard focus are CSS, not React state (SS-577).** `Button`, `IconButton` and `Card` declare
+  what each state looks like as `--sd-*` custom properties on the element and `styles.css` (`.sereno-btn`,
+  `.sereno-card`) switches between them on `:hover` / `:active` / `:focus-visible`: no `useState`, no handlers, no
+  re-render when the pointer crosses them, and an app can restyle a state with plain CSS (see
+  `packages/ui/README.md`). The state rules use `:where(:not(:disabled))` to keep a low specificity, and the base
+  `.sereno-btn` stays `(0,1,0)` so it still beats a global `button {}` reset. **A component that is still on the
+  JS hook (`useInteract`: `ActionCard`, the `SidebarNav` items; and the hover handlers of `Menu`, `Select`,
+  `Checkbox`, `Radio`, `AvatarUpload`, `ToastProvider`) moves over one at a time, and each move is proven by the
+  pixel tests: the pictures (default, hover, pressed, focus, open) must come out unchanged.**
 - **A new component must be accessible the day it's created - not fixed in a
   later audit.** Keyboard-operable (logical tab order, a visible focus
   indicator, Enter/Space/Escape/arrows per the WAI-ARIA APG pattern for that
