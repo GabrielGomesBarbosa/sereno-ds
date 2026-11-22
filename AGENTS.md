@@ -355,6 +355,12 @@ previews (test locally + on the branch).
   in the DOM, so it must hand the `Tab` over by hand (field -> popup -> what follows the
   field), keep the outside-press check aware of the portalled node, and measure itself to
   stay inside the window. `DatePicker.placement.test.tsx` is the reference.
+- **A handler the component wires itself must not replace the caller's.** An element that
+  gets `{...rest}` and then its own `onKeyDown` / `onFocus` / `onBlur` / `onChange` silently
+  drops the one the caller passed. Destructure the caller's handler and call it from yours
+  (`Input`, `Textarea` and `SearchInput` do). For a key, call the caller's first and honour
+  `event.defaultPrevented` as "handled", the same rule as a popup's Esc. Each of them has a
+  regression test: a new component that wires a handler adds one.
 - **A form control that shows an `error` / `hint` must tie it to the field (SS-328).**
   Render it through `_internal/Field` and spread `fieldA11y(id, { hint, error, describedBy,
   invalid })` (`_internal/fieldA11y.ts`) on the element that takes focus: `Field` gives the

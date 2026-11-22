@@ -1956,6 +1956,7 @@ Don't:
 | `onValueChange` | `(value: string) => void` | - | Every keystroke and on clear: the plain string. |
 | `onSearch` | `(value: string) => void` | - | Debounced; also fires on `Enter` and on clear. Run the query here. |
 | `debounce` | `number` | `250` | Debounce for `onSearch`, ms. |
+| `onKeyDown` | `(e: KeyboardEvent<HTMLInputElement>) => void` | - | Runs first, on every key. Calling `preventDefault()` there says the key was handled and skips the built-in `Enter` (search now) and `Esc` (clear). |
 | `clearLabel` | `string` | `'Clear search'` | aria-label for the × button. |
 | `placeholder` | `string` | `'Search…'` |  |
 | `label / hint / error / size / disabled / preserveHelperSpace` | `-` | - | Passed through to `Input`. |

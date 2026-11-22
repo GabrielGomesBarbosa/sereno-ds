@@ -8,6 +8,10 @@ import { Input, type InputProps } from './Input';
 /**
  * A search field: `Input` with a leading magnifier, a clear (×) button, and a
  * **debounced** `onSearch`. `Enter` searches immediately; `Esc` clears.
+ *
+ * A caller's `onKeyDown` runs first, on every key. Calling `preventDefault()` on
+ * the event there says it was handled, and the built-in `Enter` / `Esc` are skipped
+ * (the same "handled" rule a popup's `Esc` follows inside a `Dialog`).
  */
 export interface SearchInputProps
   extends Omit<InputProps, 'iconLeft' | 'suffix' | 'prefix' | 'type' | 'mask' | 'showCount' | 'value' | 'defaultValue' | 'onChange'> {
@@ -24,7 +28,7 @@ export interface SearchInputProps
 }
 
 export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(function SearchInput(
-  { value, defaultValue, onValueChange, onSearch, debounce = 250, clearLabel = 'Clear search', placeholder = 'Search…', disabled, ...rest },
+  { value, defaultValue, onValueChange, onSearch, onKeyDown, debounce = 250, clearLabel = 'Clear search', placeholder = 'Search…', disabled, ...rest },
   ref,
 ) {
   const [internal, setInternal] = React.useState(defaultValue ?? '');
@@ -47,6 +51,19 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
 
   const clear = () => update('', true);
 
+  // Composed, not replaced: a plain `{...rest}` spread followed by our own `onKeyDown` used to drop the caller's
+  // silently (the same class of bug `Input` and `Textarea` already guard against for onFocus / onBlur / onChange).
+  // The caller's runs first and can opt out of the built-in keys with `preventDefault()`.
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    onKeyDown?.(e);
+    if (e.defaultPrevented) return;
+    if (e.key === 'Enter') runSearch(e.currentTarget.value, true);
+    else if (e.key === 'Escape' && text) {
+      e.preventDefault();
+      clear();
+    }
+  };
+
   return (
     <Input
       ref={ref}
@@ -59,13 +76,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
       disabled={disabled}
       value={text}
       onChange={(e) => update(e.currentTarget.value)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') runSearch(e.currentTarget.value, true);
-        else if (e.key === 'Escape' && text) {
-          e.preventDefault();
-          clear();
-        }
-      }}
+      onKeyDown={handleKeyDown}
       iconLeft={<Search size={16} strokeWidth={1.75} />}
       suffix={
         text && !disabled ? (
