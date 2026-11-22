@@ -4,6 +4,13 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { IconButton } from './IconButton';
 
+/**
+ * The colour of the frame, however the component writes it: the `--sd-bd` custom property its CSS rule reads
+ * (hover, press and focus are CSS since SS-577), or an inline `border` shorthand (how it was written before).
+ * The test is about the outcome, a framed button or a borderless one, not about which of the two is used.
+ */
+const frame = (el: HTMLElement) => el.style.getPropertyValue('--sd-bd') || el.style.border;
+
 afterEach(cleanup);
 
 const icon = <svg data-testid="icon" aria-hidden width={16} height={16} />;
@@ -78,13 +85,13 @@ describe('IconButton', () => {
         {icon}
       </IconButton>,
     );
-    expect(screen.getByRole('button').style.border).toContain('var(--border-default)');
+    expect(frame(screen.getByRole('button'))).toContain('var(--border-default)');
     rerender(
       <IconButton label="Back" variant="ghost">
         {icon}
       </IconButton>,
     );
-    expect(screen.getByRole('button').style.border).toContain('transparent');
+    expect(frame(screen.getByRole('button'))).toContain('transparent');
   });
 
   it('passes the standard attributes through and lets the caller style it', () => {

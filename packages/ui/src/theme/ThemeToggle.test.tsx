@@ -5,6 +5,13 @@ import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from './ThemeProvider';
 import { ThemeToggle } from './ThemeToggle';
 
+/**
+ * The colour of the frame, however the component writes it: the `--sd-bd` custom property its CSS rule reads
+ * (hover, press and focus are CSS since SS-577), or an inline `border` shorthand (how it was written before).
+ * The test is about the outcome, a framed button or a borderless one, not about which of the two is used.
+ */
+const frame = (el: HTMLElement) => el.style.getPropertyValue('--sd-bd') || el.style.border;
+
 const html = document.documentElement;
 
 beforeEach(() => {
@@ -58,12 +65,12 @@ describe('ThemeToggle', () => {
 
   it('is a framed (secondary) button by default, and borderless with variant="ghost"', async () => {
     const { rerender } = renderToggle();
-    expect((await screen.findByRole('button')).style.border).toContain('var(--border-default)');
+    expect(frame(await screen.findByRole('button'))).toContain('var(--border-default)');
     rerender(
       <ThemeProvider>
         <ThemeToggle variant="ghost" />
       </ThemeProvider>,
     );
-    expect(screen.getByRole('button').style.border).toContain('transparent');
+    expect(frame(screen.getByRole('button'))).toContain('transparent');
   });
 });
