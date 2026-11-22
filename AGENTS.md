@@ -194,9 +194,11 @@ package version.
 - **`ci.yml` runs `npm publish --dry-run`** for both packages on every PR
   touching `packages/**` - the job log is the tarball contents; a stray file
   shows up there before it can ship.
-- `apps/docs/src/design-system/CHANGELOG.md` stays as the hand-written narrative
-  ("what shipped, in prose"); `packages/ui/CHANGELOG.md` is the Changesets
-  machine log. Keep the narrative one in sync when you add a changeset.
+- **The changelog is `packages/ui/CHANGELOG.md`, built by Changesets from the changeset
+  files, so write each changeset as prose** (what changed, why, what an app has to do):
+  that text is the changelog and the GitHub Release notes. `apps/docs/src/design-system/CHANGELOG.md`
+  is the older hand-written narrative, kept as history up to 0.25.0; an entry there is
+  optional and, when it exists for a version, `build-release-notes.mjs` prefers it.
 
 **Tags:** one stream - `@sereno-ds/ui@X.Y.Z` (`@sereno-ds/tokens@X.Y.Z` in lockstep),
 created by Changesets, plus a `vX.Y.Z` tag on the same commit for the GitHub

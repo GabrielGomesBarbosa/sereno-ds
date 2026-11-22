@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
 import { Accessibility, ArrowRight, Ban, ExternalLink, Feather, Layers, ListChecks, MonitorSmartphone, MoonStar, Palette, Server } from 'lucide-react';
 import { Brand, Card, ThemeToggle, Typography } from '@sereno-ds/ui';
+import { COMPONENTS } from '@/design-system/catalog';
 import { DS_VERSION } from '@/design-system/version';
 import { ComponentGallery } from '@/home/ComponentGallery';
 import { HeroPreview } from '@/home/HeroPreview';
@@ -18,9 +19,11 @@ const NPM_SEARCH = 'https://www.npmjs.com/search?q=%40sereno-ds';
 // the deployed build; locally it runs on :3002.
 const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:3002';
 
+// The number of primitives is the catalogue's: never typed by hand again (it was 30 here long after it was 37).
+const COUNT = COMPONENTS.length;
+
 const pageTitle = 'Sereno Design System';
-const pageDescription =
-  '30 token-driven React primitives for the Sereno scheduling platform, native dark mode, no UI base library, built for React and Next.js.';
+const pageDescription = `${COUNT} token-driven React primitives for the Sereno scheduling platform, native dark mode, no UI base library, built for React and Next.js.`;
 
 export const metadata: Metadata = {
   title: pageTitle,
@@ -36,7 +39,7 @@ const FEATURES: { icon: ReactNode; title: string; body: string }[] = [
   { icon: <MonitorSmartphone size={20} strokeWidth={1.75} />, title: 'Responsive UI', body: 'Adapts to the pointer, not just the width. Select opens as a bottom sheet on touch, Dialog as a slide-up, the dashboard re-homes its nav.' },
   { icon: <Accessibility size={20} strokeWidth={1.75} />, title: 'Keyboard & focus', body: 'Real focus rings, `:focus-visible`, roving tabindex where it matters, on every control.' },
   { icon: <ListChecks size={20} strokeWidth={1.75} />, title: 'WCAG 2.1 AA audited', body: 'Every primitive checked for contrast, keyboard access, screen readers and focus management, real issues found and fixed, not a badge.' },
-  { icon: <Layers size={20} strokeWidth={1.75} />, title: '37 primitives, 5 categories', body: 'Core, forms, navigation, feedback and the scheduling-domain cards, a live preview for each.' },
+  { icon: <Layers size={20} strokeWidth={1.75} />, title: `${COUNT} primitives, 5 categories`, body: 'Core, forms, navigation, feedback and the scheduling-domain cards, a live preview for each.' },
   { icon: <Feather size={20} strokeWidth={1.75} />, title: 'Zero runtime', body: 'No CSS-in-JS engine. Plain inline styles reading `var(--token)`: nothing ships but the components.' },
   { icon: <Server size={20} strokeWidth={1.75} />, title: 'RSC-ready', body: "Each primitive keeps its own `'use client'` boundary, server components import them freely; only what's interactive hydrates." },
 ];
@@ -162,7 +165,7 @@ export default function Home() {
               The UI behind Sereno, as a system.
             </Typography>
             <Typography variant="body" color="secondary" style={{ fontSize: 'var(--text-lg)', lineHeight: 1.6, maxWidth: 460 }}>
-              30 token-driven React primitives: native dark mode, no UI base library, one live preview per component.
+              {COUNT} token-driven React primitives: native dark mode, no UI base library, one live preview per component.
             </Typography>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
               <Typography as="span" variant="bodySm" style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
@@ -216,7 +219,7 @@ export default function Home() {
               The primitives
             </Typography>
             <Link href="/design-system" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-brand)', textDecoration: 'none' }}>
-              Browse all 30 <ArrowRight size={16} strokeWidth={2} />
+              Browse all {COUNT} <ArrowRight size={16} strokeWidth={2} />
             </Link>
           </div>
           <ComponentGallery />

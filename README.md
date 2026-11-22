@@ -39,7 +39,7 @@ npm workspaces + Turborepo.
 | Path | Name | What |
 |---|---|---|
 | `packages/tokens` | [`@sereno-ds/tokens`](https://www.npmjs.com/package/@sereno-ds/tokens) | the token layer: `*.css` (light × dark) + a `tokens.css` barrel |
-| `packages/ui` | [`@sereno-ds/ui`](https://www.npmjs.com/package/@sereno-ds/ui) | **30 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`), token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
+| `packages/ui` | [`@sereno-ds/ui`](https://www.npmjs.com/package/@sereno-ds/ui) | **37 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`), token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
 | `apps/docs` | [`docs`](https://docs-production-2f40.up.railway.app) | the `/design-system` showcase (Next 16, `output: 'export'`). MUI-doc-style page per component: live preview, "show code", Do / Don't, "on this page" rail, prev/next, versioned header |
 | `apps/demo` | [`demo`](https://demo-production-bfd0.up.railway.app) | `/demo` hub + `/agendar/[slug]` (public booking) + `/dashboard/[[...slug]]` + `/onboarding` + `src/screens/` + `src/lib/mock.ts`, fully responsive, components reflow |
 
@@ -165,7 +165,7 @@ demo-only PRs add nothing and bump nothing. `npm run version-packages` cuts the
 bump + `packages/ui/CHANGELOG.md`; `npm run release` publishes. Tags:
 `@sereno-ds/ui@X.Y.Z`: see
 [Releases](https://github.com/GabrielGomesBarbosa/sereno-ds/releases).
-`apps/docs/src/design-system/CHANGELOG.md` is the hand-written narrative.
+The changelog is `packages/ui/CHANGELOG.md`, built from the changeset files (written as prose); `apps/docs/src/design-system/CHANGELOG.md` is the older hand-written narrative, up to 0.25.0.
 
 ## Deploy
 
