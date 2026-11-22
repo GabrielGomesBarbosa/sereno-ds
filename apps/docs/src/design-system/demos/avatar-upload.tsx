@@ -9,12 +9,11 @@ function AvatarUploadBasico() {
 }
 
 function AvatarUploadExistente() {
-  const [photo, setPhoto] = React.useState<File | string | null>(
-    'data:image/svg+xml;utf8,' +
-      encodeURIComponent(
-        '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="%237C83E8"/><stop offset="1" stop-color="%232FBFA8"/></linearGradient></defs><rect width="200" height="200" fill="url(%23g)"/></svg>',
-      ),
-  );
+  // A real photo that ships with the docs, so the example needs no network: apps/docs/public/img/marcos.jpg is
+  // "Matthew Wiebe" on Unsplash (https://unsplash.com/photos/tBtuxtLvAZs, Unsplash License), 400x400 from picsum.photos.
+  // It replaces an inline SVG whose gradient was encoded twice (`%23` became `%2523`): the image loaded but painted
+  // nothing, so the example showed an empty gray disc.
+  const [photo, setPhoto] = React.useState<File | string | null>('/img/marcos.jpg');
   return <AvatarUpload label="Profile photo" name="Marcos Lima" value={photo} onChange={(f) => setPhoto(f)} />;
 }
 
