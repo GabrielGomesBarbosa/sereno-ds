@@ -219,7 +219,7 @@ export default function Home() {
               The primitives
             </Typography>
             <Link href="/design-system" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-brand)', textDecoration: 'none' }}>
-              Browse all 30 <ArrowRight size={16} strokeWidth={2} />
+              Browse all {COUNT} <ArrowRight size={16} strokeWidth={2} />
             </Link>
           </div>
           <ComponentGallery />
