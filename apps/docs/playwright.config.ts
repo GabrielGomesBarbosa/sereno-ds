@@ -46,11 +46,15 @@ export default defineConfig({
   },
   projects: [
     // The pixel tests: three looks of the same pages.
-    { name: 'light', testIgnore: /forced-colors/, use: { viewport: { width: 1280, height: 900 }, colorScheme: 'light' } },
-    { name: 'dark', testIgnore: /forced-colors/, use: { viewport: { width: 1280, height: 900 }, colorScheme: 'dark' } },
-    { name: 'mobile', testIgnore: /forced-colors/, use: { viewport: { width: 375, height: 812 }, colorScheme: 'light' } },
+    { name: 'light', testIgnore: /forced-colors|a11y/, use: { viewport: { width: 1280, height: 900 }, colorScheme: 'light' } },
+    { name: 'dark', testIgnore: /forced-colors|a11y/, use: { viewport: { width: 1280, height: 900 }, colorScheme: 'dark' } },
+    { name: 'mobile', testIgnore: /forced-colors|a11y/, use: { viewport: { width: 375, height: 812 }, colorScheme: 'light' } },
     // Windows High Contrast (#135): not a pixel test, it checks that every focusable element still shows a focus
     // indicator when the browser forces system colours and drops box-shadows (e2e/forced-colors.spec.ts).
     { name: 'forced', testMatch: /forced-colors\.spec\.ts/, use: { viewport: { width: 1280, height: 900 }, colorScheme: 'light', forcedColors: 'active' } },
+    // axe on every docs page, in the two themes (#142, e2e/a11y.spec.ts): fails on a WCAG 2.x A or AA violation that is not in
+    // e2e/a11y-baseline.json. Not a pixel test either: no reference images.
+    { name: 'axe-light', testMatch: /a11y\.spec\.ts/, use: { viewport: { width: 1280, height: 900 }, colorScheme: 'light' } },
+    { name: 'axe-dark', testMatch: /a11y\.spec\.ts/, use: { viewport: { width: 1280, height: 900 }, colorScheme: 'dark' } },
   ],
 });

@@ -133,6 +133,7 @@ Two layers, for two kinds of mistake. The full guide is [`docs/testing.md`](./do
 |---|---|---|---|
 | **Behavior tests** | a component that *does* the wrong thing (a click, a key, a state, a label, accessibility) | Vitest, Testing Library, user-event, jest-axe, in jsdom | `npm test` |
 | **Pixel tests** | a component that *looks* different: one pixel of colour, spacing, border, font or shadow | Playwright in a pinned Docker image | `npm run test:visual` |
+| **Accessibility in the browser** | a contrast, a name or a role that axe flags on a real docs page, in both themes (the pixel run includes it) | Playwright + axe, same Docker image | `npm run test:visual` |
 
 **Behavior tests** sit next to each component (`<Component>.test.tsx`), and a smoke test renders every exported
 component, drives it and runs an accessibility check (axe) on it: a new component adds its case to
