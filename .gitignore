@@ -54,3 +54,6 @@ apps/*/CLAUDE.md
 # Pixel tests (SS-579): the report and the failure artifacts are not tracked, the references are
 apps/docs/e2e-report/
 apps/docs/test-results/
+
+# the page the banner is photographed from (npm run gen:banner)
+scripts/.banner/
