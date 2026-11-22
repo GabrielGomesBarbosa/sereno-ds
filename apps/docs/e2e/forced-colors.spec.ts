@@ -9,6 +9,10 @@ import { COMPONENTS, examplesFor } from '../src/design-system/catalog';
  * It is not a pixel test: for each example of each component page it focuses the first interactive elements from the
  * keyboard and checks that SOMETHING is drawn, an `outline` on the element or, for a text box, on the frame around it.
  * So there are no reference images to keep, and a new component with a shadow-only ring fails here at once.
+ *
+ * A second test per page covers the STATES (#141): a current page, a selected tab, a checked box... that is told only by a
+ * fill or a shadow is lost in this mode. Each element that says it is current, selected, checked or pressed must look
+ * different from an unmarked sibling of the same kind (the text colour and a heavier font do not count, see `look`).
  */
 
 /** Elements a person can tab to, inside a demo (the same list as the pixel suite). */
@@ -76,5 +80,61 @@ for (const meta of COMPONENTS) {
       }
     }
     expect(missing, 'focusable elements with no visible focus indicator in forced colors').toEqual([]);
+  });
+}
+
+/** What marks an element as being in a state the user must be able to see. */
+const STATE = [
+  "[aria-current]:not([aria-current='false'])",
+  '[aria-selected=true]',
+  '[aria-checked=true]',
+  '[aria-pressed=true]',
+  '[data-current]',
+  '[data-selected]',
+  'input:checked',
+  'input:indeterminate',
+].join(', ');
+
+/**
+ * What a person can see of an element apart from its words: the fill, the edges, an underline, a mark drawn after it. The
+ * text colour and the weight are left out on purpose: forced colors rewrites the first, and the second is too faint to be
+ * the only cue. A table row is seen through its first cell (the row itself paints nothing).
+ */
+function look(el: Element) {
+  const target = el.tagName === 'TR' ? (el.querySelector('td') ?? el) : el;
+  const c = getComputedStyle(target);
+  const after = getComputedStyle(target, '::after');
+  return [
+    c.backgroundColor, c.borderTopColor, c.borderTopWidth, c.borderBottomColor, c.borderBottomWidth, c.borderLeftWidth,
+    c.outlineStyle, c.textDecorationLine, after.content, after.borderRightWidth,
+  ].join('|');
+}
+
+for (const meta of COMPONENTS) {
+  test(`${meta.category}/${meta.slug}: current, selected and checked states are visible`, async ({ page }) => {
+    await page.goto(`/design-system/${meta.category}/${meta.slug}/`);
+    await page.locator('[data-example-preview]').first().waitFor();
+    await page.waitForTimeout(300);
+
+    const lost: string[] = await page.evaluate(
+      ({ STATE, lookSrc }) => {
+        const look = new Function(`return (${lookSrc})`)() as (e: Element) => string;
+        const out: string[] = [];
+        document.querySelectorAll('[data-example-preview]').forEach((pv, n) => {
+          pv.querySelectorAll(STATE).forEach((el) => {
+            const kind = (o: Element) => o.tagName + ((o as HTMLInputElement).type ?? '') + (o.getAttribute('role') ?? '');
+            const others = [...pv.querySelectorAll(el.tagName.toLowerCase())].filter((o) => o !== el && !o.matches(STATE) && kind(o) === kind(el));
+            if (!others.length) return; // nothing unmarked to compare with
+            if (others.every((o) => look(o) === look(el))) {
+              const name = el.getAttribute('aria-label') || (el.textContent ?? '').trim().slice(0, 24);
+              out.push(`example ${n}: ${el.tagName.toLowerCase()}${el.getAttribute('role') ? `[role=${el.getAttribute('role')}]` : ''} "${name}"`);
+            }
+          });
+        });
+        return out;
+      },
+      { STATE, lookSrc: look.toString() },
+    );
+    expect(lost, 'elements in a state that looks like their unmarked siblings in forced colors').toEqual([]);
   });
 }

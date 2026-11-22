@@ -59,8 +59,10 @@ Open any of them to see exactly what is guarded.
 one and drops every `box-shadow`. For each example it focuses the first interactive elements from the keyboard and
 fails if one has no visible focus indicator (an `outline` on the element, or on the field frame around a text box). It
 keeps no reference images, so there is nothing to update; a new component whose focus ring is only a shadow fails it at
-once, and the fix is a rule in the `@media (forced-colors: active)` block of `packages/ui/src/styles.css`. Run it with
-`bash scripts/visual.sh --project=forced`.
+once, and the fix is a rule in the `@media (forced-colors: active)` block of `packages/ui/src/styles.css`. A second test
+per page (#141) checks the states: every element that says it is current, selected, checked or pressed must look
+different from an unmarked sibling of the same kind (fill, edges, underline, a mark after it; the text colour and the
+weight do not count), so a state told only by a fill or a shadow fails. Run it with `bash scripts/visual.sh --project=forced`.
 
 The tests live in `apps/docs/e2e/visual.spec.ts` and the settings in `apps/docs/playwright.config.ts`. The demos
 are marked with `data-example-preview` (`apps/docs/src/design-system/ExampleSection.tsx`), which is what the tests

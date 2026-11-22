@@ -429,7 +429,9 @@ previews (test locally + on the branch).
   widget) that **also shows in forced colors / Windows High Contrast** (a ring that is
   only a `box-shadow` vanishes there: give it an outline rule in the
   `@media (forced-colors: active)` block of `styles.css`; `bash scripts/visual.sh
-  --project=forced` fails when you forget), correct ARIA roles/labels, WCAG AA
+  --project=forced` fails when you forget; the same goes for a current, selected or
+  checked state told only by a fill or a shadow, and never put a `Highlight` fill
+  behind text there: the browser draws a box behind the letters), correct ARIA roles/labels, WCAG AA
   contrast. SS-227 exists only
   because earlier components shipped without this and had to be retrofitted
   one by one - don't add to that backlog. It also needs a Vitest +

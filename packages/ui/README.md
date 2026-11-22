@@ -40,6 +40,8 @@ These components carry a class the stylesheet's state rules hang on:
 | the collapse control of `SidebarNav` | `sereno-sidenav-toggle` | |
 | `Input` (its row), `Textarea`, the boxes of `Select`, `DatePicker` and `Autocomplete` | `sereno-field` | `data-active` while a popup is open |
 | `Switch` | `sereno-switch` on the track, `sereno-switch-thumb` on the thumb | |
+| each segment of a `Stepper` | `sereno-step` | `data-state` is `done`, `active` or `todo` |
+| `Card` | `sereno-card` | `data-selected` when `selected` |
 
 The state rules have the specificity of `.sereno-btn:hover` (one class and one pseudo-class), so a rule of yours with the same specificity **that comes later** wins, with no `!important`:
 
@@ -58,7 +60,7 @@ The class names and the `data-` attributes are the styling hooks. The `--sd-*` c
 
 #### High contrast (forced colors)
 
-In Windows High Contrast (`forced-colors: active`) the browser replaces every colour with a system one and drops every `box-shadow`. `styles.css` has a block for that mode: the keyboard focus of `Button`, `IconButton`, `Card`, `ActionCard`, `Switch` and the text fields is drawn as a `Highlight` outline, and the `Switch` is drawn with a border and system fills (it has no other way to show up). Nothing there applies outside forced colors, and an `outline` rule of your own on those classes still wins by coming later. If you restyle a focus ring as a shadow, do the same for forced colors.
+In Windows High Contrast (`forced-colors: active`) the browser replaces every colour with a system one and drops every `box-shadow`. `styles.css` has a block for that mode: the keyboard focus of `Button`, `IconButton`, `Card`, `ActionCard`, `Switch` and the text fields is drawn as a `Highlight` outline, and the `Switch` is drawn with a border and system fills (it has no other way to show up). Current, selected and checked states survive too: the current page of a `Pagination`, the current item of a `SidebarNav` or `BottomNav`, a selected `Tab` (an underline), a selected `Table` row and a selected `Card` or `ActionCard` (a heavier border in the selection colour), the segments of a `Stepper` (system fills) and a checked `Checkbox` or `Radio` (filled, with the mark drawn in the matching text colour). Nothing there applies outside forced colors, and a rule of your own on those classes still wins by coming later. If you restyle a focus ring or a selected state as a shadow or a fill, do the same for forced colors; and never put a `Highlight` fill behind text, the browser draws a box behind the letters in this mode.
 
 ### 2. Provide the fonts
 
