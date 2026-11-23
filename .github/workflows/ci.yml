@@ -37,7 +37,8 @@ jobs:
       - run: npm run build
 
   # What would actually ship to npm. Runs on every PR so a stray file in the
-  # tarball is caught before a release. `--dry-run` needs no auth.
+  # tarball is caught before a release, and so is a package whose `exports` or types a
+  # consumer's tooling cannot read. `--dry-run` needs no auth.
   publish-dry-run:
     name: npm publish --dry-run
     runs-on: ubuntu-latest
@@ -53,6 +54,11 @@ jobs:
         run: npm publish --dry-run --workspace=@sereno-ds/tokens
       - name: "@sereno-ds/ui: tarball contents"
         run: npm publish --dry-run --workspace=@sereno-ds/ui
+      # The tarballs as a consumer's tooling reads them (#169): publint checks the `exports` map and that every file it names is
+      # packed; attw (esm-only: both packages are ESM only) checks that the types resolve under `node16` and `bundler`. The .css
+      # entry points are left out of attw on purpose: it only understands JS and types and reports them as unresolved.
+      - name: Lint the packed packages (publint, attw)
+        run: npm run check:packages
 
   # Pixel-by-pixel regression tests (SS-579): the docs build is screenshotted (every example of every
   # component, light / dark / 375 px, plus hover, focus and what opens) and compared with the references in

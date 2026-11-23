@@ -254,6 +254,12 @@ package version.
 - **`ci.yml` runs `npm publish --dry-run`** for both packages on every PR
   touching `packages/**` - the job log is the tarball contents; a stray file
   shows up there before it can ship.
+- **`npm run check:packages` runs in that same job** (#169): `publint --strict` on both packages
+  and `attw --pack --profile esm-only` on the two JS entry points (`@sereno-ds/ui` and
+  `@sereno-ds/tokens/breakpoints`; the `.css` entries are excluded, `attw` only understands JS
+  and types). It fails when an `exports` entry names a file that is not packed or a `types` path
+  that does not resolve under `node16` / `bundler`. Both tools are pinned (no caret): a newer
+  release can add a rule, and a rule that starts failing should be a decision, not a surprise.
 - **The changelog is `packages/ui/CHANGELOG.md`, built by Changesets from the changeset
   files, so write each changeset as prose** (what changed, why, what an app has to do):
   that text is the changelog and the GitHub Release notes. `apps/docs/src/design-system/CHANGELOG.md`
