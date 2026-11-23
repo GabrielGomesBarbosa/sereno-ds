@@ -86,6 +86,8 @@ exist, so the job was green on day one:
 
 An entry is a page (`<category>/<slug>`), the themes, the rule id and the CSS selector axe reports. The selectors of the docs
 examples are positional (`:nth-child`), so adding an example above an entry can rename it: update the baseline in the same PR.
+The baseline is empty since #156 fixed the last of the violations it started with, so axe now fails on any violation at all:
+fix it, and only if that cannot be done in the same PR open an issue and baseline the entry with its `issue` number.
 Run it with `bash scripts/visual.sh --project=axe-light --project=axe-dark` (add `-g core/button` for one page).
 
 The tests live in `apps/docs/e2e/visual.spec.ts` and the settings in `apps/docs/playwright.config.ts`. The demos

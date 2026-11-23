@@ -13,6 +13,12 @@ describe('Toast', () => {
     expect(toast).toHaveTextContent('Your changes are live.');
   });
 
+  it('draws the description at full opacity, so it keeps the contrast of its tone (#156)', () => {
+    // opacity 0.85 over the success tone measured 3.79:1, under the 4.5:1 AA needs for 12 px text.
+    render(<Toast tone="success" title="Saved" description="Your changes are live." />);
+    expect(screen.getByText('Your changes are live.').getAttribute('style') ?? '').not.toContain('opacity');
+  });
+
   it('paints the requested tone', () => {
     const { rerender } = render(<Toast tone="error" title="Failed" />);
     expect(screen.getByRole('status').getAttribute('style')).toContain('--status-error-bg');

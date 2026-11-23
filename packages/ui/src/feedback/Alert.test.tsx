@@ -13,6 +13,13 @@ describe('Alert', () => {
     expect(alert).toHaveTextContent('You have used 18 of 20 bookings.');
   });
 
+  it('draws the body at full opacity, so it keeps the contrast of its tone (#156)', () => {
+    // opacity 0.9 over the tinted background took the success tone to 4.13:1, under the 4.5:1 AA needs for 12 px text.
+    // axe measures it in the docs (a11y.spec.ts); this keeps the unit suite from letting an opacity slip back in.
+    render(<Alert tone="success" title="Saved">Your changes are live.</Alert>);
+    expect(screen.getByText('Your changes are live.').getAttribute('style') ?? '').not.toContain('opacity');
+  });
+
   it('is role="status" by tone, but role="alert" for error', () => {
     const { rerender } = render(<Alert tone="info">heads up</Alert>);
     expect(screen.getByRole('status')).toBeInTheDocument();
