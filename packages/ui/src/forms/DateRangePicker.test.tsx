@@ -184,6 +184,15 @@ describe('DateRangePicker: what the calendar draws', () => {
     expect(day(12)).not.toHaveTextContent('período');
   });
 
+  it('a value with one end only is no value: the calendar does not read it as a pick in progress', () => {
+    render(<DateRangePicker label="Período" value={{ start: '2026-10-05', end: '' }} />);
+    open();
+    fireEvent.mouseEnter(day(9));
+    expect(status()).toHaveTextContent('Escolha a data inicial');
+    expect(day(5)).toHaveAttribute('aria-pressed', 'false');
+    expect(day(7)).not.toHaveAttribute('data-preview');
+  });
+
   it('a one-day range draws no band', () => {
     render(<DateRangePicker label="Período" defaultValue={{ start: '2026-10-05', end: '2026-10-05' }} />);
     open();

@@ -209,7 +209,8 @@ export const DateRangePicker = React.forwardRef<DateRangePickerHandle, DateRange
           <CalendarGrid
             year={viewYear}
             month={viewMonth}
-            range={anchor ? { start: anchor } : current}
+            // A range with one end only is no value (the trigger says so): the calendar must not read it as a pick in progress.
+            range={anchor ? { start: anchor } : parseISO(current.start) && parseISO(current.end) ? current : {}}
             min={min}
             max={max}
             onMonthChange={(y, m) => {
