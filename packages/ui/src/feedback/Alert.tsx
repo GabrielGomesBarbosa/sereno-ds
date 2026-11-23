@@ -55,7 +55,9 @@ export function Alert({ tone = 'info', title, children, icon, action, onDismiss,
       {icon && <span style={sx({ display: 'flex', flex: '0 0 auto', marginTop: 1 })}>{icon}</span>}
       <div style={sx({ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 })}>
         {title && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)' })}>{title}</span>}
-        {children && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', lineHeight: 1.5, opacity: 0.9 })}>{children}</span>}
+        {/* No `opacity` on the body: it lightened text that is already close to the limit on a tinted background (4.13:1 in
+            the success tone, 4.5:1 is needed, #156). The title above it is bolder and larger, which keeps the hierarchy. */}
+        {children && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', lineHeight: 1.5 })}>{children}</span>}
         {action && <span style={sx({ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-2)' })}>{action}</span>}
       </div>
       {onDismiss && (

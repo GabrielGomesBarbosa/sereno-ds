@@ -1,36 +1,3 @@
 {
-  "entries": [
-    {
-      "page": "feedback/alert",
-      "schemes": ["light"],
-      "rule": "color-contrast",
-      "target": "div[role=\"status\"]:nth-child(2) > div > span:nth-child(2)",
-      "reason": "The description is drawn with opacity 0.9 over the tone's own colour: 4.13:1 (success) against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text.",
-      "issue": 156
-    },
-    {
-      "page": "feedback/alert",
-      "schemes": ["light"],
-      "rule": "color-contrast",
-      "target": "div[role=\"status\"]:nth-child(3) > div > span:nth-child(2)",
-      "reason": "The description is drawn with opacity 0.9 over the tone's own colour: 4.44:1 (warning) against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text.",
-      "issue": 156
-    },
-    {
-      "page": "feedback/alert",
-      "schemes": ["light"],
-      "rule": "color-contrast",
-      "target": "div[role=\"alert\"] > div > span:nth-child(2)",
-      "reason": "The description is drawn with opacity 0.9 over the tone's own colour: 4.21:1 (error) against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text.",
-      "issue": 156
-    },
-    {
-      "page": "feedback/toast",
-      "schemes": ["light"],
-      "rule": "color-contrast",
-      "target": "div[role=\"status\"]:nth-child(1) > div > span:nth-child(2)",
-      "reason": "The description is drawn with opacity 0.85 over the success tone: 3.78:1 against the 4.5:1 needed. The fix is to drop the opacity or to darken the tone's text.",
-      "issue": 156
-    }
-  ]
+  "entries": []
 }

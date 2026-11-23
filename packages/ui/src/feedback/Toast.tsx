@@ -56,7 +56,9 @@ export function Toast({ tone = 'neutral', title, description, icon, action, onCl
       {icon && <span style={sx({ display: 'flex', flex: '0 0 auto', marginTop: 1 })}>{icon}</span>}
       <div style={sx({ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 })}>
         <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)' })}>{title}</span>
-        {description && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', opacity: 0.85, lineHeight: 1.45 })}>{description}</span>}
+        {/* No `opacity` on the description: at 0.85 it measured 3.79:1 over the success tone, 4.5:1 is needed (#156). The
+            title is bolder and larger, which keeps the hierarchy. */}
+        {description && <span style={sx({ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', lineHeight: 1.45 })}>{description}</span>}
       </div>
       {action}
       {onClose && (
