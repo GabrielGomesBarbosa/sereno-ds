@@ -40,7 +40,7 @@ npm workspaces + Turborepo.
 | Path | Name | What |
 |---|---|---|
 | `packages/tokens` | [`@sereno-ds/tokens`](https://www.npmjs.com/package/@sereno-ds/tokens) | the token layer: `*.css` (light × dark) + a `tokens.css` barrel |
-| `packages/ui` | [`@sereno-ds/ui`](https://www.npmjs.com/package/@sereno-ds/ui) | **37 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`), token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
+| `packages/ui` | [`@sereno-ds/ui`](https://www.npmjs.com/package/@sereno-ds/ui) | **38 React primitives** + `src/styles.css` + `_internal/` + `theme/` (`ThemeProvider` / `ThemeToggle`), token-driven inline styles, native dark mode, no Radix / MUI / Tailwind |
 | `apps/docs` | [`docs`](https://docs-production-2f40.up.railway.app) | the `/design-system` showcase (Next 16, `output: 'export'`). MUI-doc-style page per component: live preview, "show code", Do / Don't, "on this page" rail, prev/next, versioned header |
 | `apps/demo` | [`demo`](https://demo-production-bfd0.up.railway.app) | `/` hub + `/agendar/[slug]` (public booking) + `/dashboard/[[...slug]]` + `/onboarding` + `/kiosk` (waiting-room call panel) + `src/screens/` + `src/lib/mock.ts`, fully responsive, components reflow |
 
@@ -119,7 +119,7 @@ npm run dev          # docs on :3001, demo on :3002, and @sereno-ds/ui rebuilt o
 | `npm run changeset` | records a version note for a change in `packages/` (see [Versioning](#versioning--releases)) |
 | `npm run version-packages` / `release` | cut the version bump and changelog / build and publish to npm (CI does both) |
 
-`npm run build` must be green: **docs = 46 routes** (37 component pages + tokens +
+`npm run build` must be green: **docs = 47 routes** (38 component pages + tokens +
 overview + robots + a few static assets) and **demo = 49 routes** (hub + 3 `/agendar` slugs + all 36
 `/dashboard` nav destinations + onboarding + robots + sitemap), both counts move
 as components / nav items are added, treat them as a sanity check, not a fixed
@@ -163,7 +163,7 @@ typecheck · test · build` (also the em-dash check), `npm publish --dry-run` fo
 | Category | Components |
 |---|---|
 | **core** (13) | `ActionCard` · `Avatar` · `Badge` · `Brand` · `Button` · `Card` · `Divider` · `IconButton` · `Menu` · `StatCard` · `StatusDot` · `Table` · `Typography` |
-| **forms** (13) | `Autocomplete` · `AvatarUpload` · `CalendarLegend` · `Checkbox` · `DatePicker` · `DateTimePicker` · `FileUpload` · `Input` · `Radio` · `SearchInput` · `Select` · `Switch` · `Textarea` |
+| **forms** (14) | `Autocomplete` · `AvatarUpload` · `CalendarLegend` · `Checkbox` · `DatePicker` · `DateRangePicker` · `DateTimePicker` · `FileUpload` · `Input` · `Radio` · `SearchInput` · `Select` · `Switch` · `Textarea` |
 | **navigation** (6) | `BottomNav` · `Pagination` · `SidebarNav` · `Stepper` · `Tabs` · `TopBar` |
 | **feedback** (5) | `Alert` · `Dialog` · `EmptyState` · `Skeleton` · `Toast` |
 | **theme** (2) | `ThemeProvider` · `ThemeToggle` |
@@ -191,7 +191,7 @@ packages/
   ui/
     src/
       index.ts            the barrel
-      core/ forms/ navigation/ feedback/   the 37 primitives, each with its <Component>.test.tsx
+      core/ forms/ navigation/ feedback/   the 38 primitives, each with its <Component>.test.tsx
       _internal/           shared hooks and helpers (Field, useMenuPlacement, scrollLock, ...) and their tests
       theme/               ThemeProvider + ThemeToggle
       test/                the smoke test (every component, plus axe) and the Vitest setup

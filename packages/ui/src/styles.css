@@ -463,6 +463,33 @@ textarea.sereno-field {
    inline (a tone, or the text colour on the picked day) and its corners are here, so the forced-colors rules below can
    replace the fill and the shape: an inline `background` or `border-radius` would beat them. */
 .sereno-dtp-dot { background: var(--sd-dot); border-radius: var(--radius-pill); }
+/* A range in a calendar (`DateRangePicker`, #166). The two ends are picked days (the primary fill, set inline like any picked
+   day); the days between them are a continuous band, drawn here by a pseudo-element that reaches half a grid gap past the cell
+   on each side so the cells read as one bar. An end has only the half of the band that faces the range. A pick in progress
+   draws the stretch to the pointer or the keyboard cursor with a lighter band (`data-preview`). The week's first and last
+   column stop the band at the grid edge, with rounded ends, and an end that sits at the far edge of its row has no band. */
+.sereno-dtp-days button[data-in-range],
+.sereno-dtp-days button[data-range-edge],
+.sereno-dtp-days button[data-preview] { position: relative; isolation: isolate; }
+.sereno-dtp-days button[data-in-range]::before,
+.sereno-dtp-days button[data-range-edge]::before,
+.sereno-dtp-days button[data-preview]::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--space-1) / -2);
+  right: calc(var(--space-1) / -2);
+  background: color-mix(in srgb, var(--interactive-primary) 14%, transparent);
+}
+.sereno-dtp-days button[data-range-edge='start']::before { left: 50%; }
+.sereno-dtp-days button[data-range-edge='end']::before { right: 50%; }
+.sereno-dtp-days button[data-preview]::before { background: color-mix(in srgb, var(--interactive-primary) 8%, transparent); }
+.sereno-dtp-days > :nth-child(7n + 1):is([data-in-range], [data-preview]:not([data-range-edge]))::before { left: 0; border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.sereno-dtp-days > :nth-child(7n):is([data-in-range], [data-preview]:not([data-range-edge]))::before { right: 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.sereno-dtp-days > :nth-child(7n)[data-range-edge='start']::before,
+.sereno-dtp-days > :nth-child(7n + 1)[data-range-edge='end']::before { display: none; }
 /* BottomNav.Item (SS-228 sweep) - identical bug: outline suppressed inline
    with no substitute at all (no useInteract-style box-shadow ring either). */
 .sereno-bottom-nav-item { outline: none; }
@@ -636,6 +663,28 @@ textarea.sereno-field {
   .sereno-dtp-ring {
     box-sizing: border-box;
     border: 1px solid CanvasText;
+  }
+
+  /* A range in a calendar (#166): the band between the two ends is a background, which this mode turns into the page colour,
+     so it is drawn as a line above and a line below, a bar that runs through the days (never a `Highlight` fill: it holds the
+     day numbers). The two ends are picked days (`aria-pressed`) and already have their heavy border above; the far end of a
+     pick in progress, which is not picked yet, gets a dashed one, and the provisional stretch has dashed lines. The ends have no
+     band of their own here. */
+  .sereno-dtp-days button[data-in-range]::before,
+  .sereno-dtp-days button[data-preview]::before {
+    background: transparent;
+    border-block: 1px solid Highlight;
+  }
+  .sereno-dtp-days button[data-preview]::before {
+    border-block-style: dashed;
+  }
+  /* The ends have a border of their own (heavy when picked, dashed for the far end of a pick in progress): the half band that
+     joins them to the days between would run through it. */
+  .sereno-dtp-days button[data-range-edge]::before {
+    display: none;
+  }
+  .sereno-dtp-days button[data-preview-end] {
+    border: 2px dashed Highlight;
   }
 
   /* Checkbox and Radio: the check, the dash and the dot are images or inset shadows in the normal mode, and both are lost.

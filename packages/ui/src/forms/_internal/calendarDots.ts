@@ -9,7 +9,7 @@ import { sx } from '../../_internal/style';
 
 /** The second argument of `renderDay`: the three things the calendar already knows about the day. */
 export interface CalendarDayContext {
-  /** The day is the selected one (what `aria-pressed` reports). It is painted with the primary color, so content under it must use `--interactive-primary-fg`. */
+  /** The day is the selected one (what `aria-pressed` reports; in a `DateRangePicker`, either end of the range). It is painted with the primary color, so content under it must use `--interactive-primary-fg`. */
   selected: boolean;
   /** The day is today. */
   today: boolean;

@@ -6,7 +6,8 @@ import { sx } from '../../_internal/style';
 import { srOnlyStyle } from '../../_internal/srOnly';
 import { useOutsidePress } from '../../_internal/useOutsidePress';
 import { IconButton } from '../../core/IconButton';
-import { calendarRange, clampIndex, isDayOutside, yearWindowStart } from './calendarRange';
+import { calendarRange, clampIndex, isDayOutside, toISODate, yearWindowStart } from './calendarRange';
+import { dayInSpan, daySpan, type CalendarRangeValue } from './calendarSpan';
 import { dotFor, dotProps, TODAY_RING, type CalendarDayContext, type CalendarDayDots } from './calendarDots';
 
 /**
@@ -24,6 +25,13 @@ export interface CalendarGridProps {
   year?: number;
   month?: number;
   selectedDate?: number;
+  /**
+   * Draw a range instead of one picked day (`DateRangePicker`): the two ends like a picked day, the days between as a
+   * band, and, while only `start` is given (a pick in progress), the stretch from it to the day under the pointer or the
+   * keyboard cursor. ISO dates, so the range may span months. When set, `selectedDate` is ignored. The calendar only
+   * draws: what a click means (the first end, the second) is the caller's, through `onSelectDate`.
+   */
+  range?: CalendarRangeValue;
   unavailable?: number[];
   /**
    * Earliest date, ISO "YYYY-MM-DD". The calendar cannot be navigated to an earlier month or
@@ -82,6 +90,9 @@ const I18N = {
     nextYears: 'Próximos anos',
     pickerLabel: 'Escolher mês e ano',
     marked: 'com marcador',
+    rangeStart: 'início do período',
+    rangeEnd: 'fim do período',
+    inRange: 'no período',
   },
   en: {
     dow: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
@@ -95,6 +106,9 @@ const I18N = {
     nextYears: 'Next years',
     pickerLabel: 'Choose month and year',
     marked: 'marked',
+    rangeStart: 'start of the range',
+    rangeEnd: 'end of the range',
+    inRange: 'in the range',
   },
 } as const;
 
@@ -106,6 +120,7 @@ export function CalendarGrid({
   year,
   month,
   selectedDate,
+  range: rangeValue,
   unavailable = [],
   min,
   max,
@@ -172,6 +187,11 @@ export function CalendarGrid({
   // never on an unrelated render (a prop change, a re-render from the
   // parent) or the initial mount.
   const shouldFocusDayRef = React.useRef(false);
+  // A range in progress grows to the day under the pointer, or, with no pointer on the grid, to the keyboard cursor
+  // while the grid has the focus: so the arrow keys show the interval growing too. The pointer is remembered with the
+  // month it was in: the grid remounts on a month change, and a day number of the old month means nothing in the new one.
+  const [hover, setHover] = React.useState<{ index: number; day: number } | null>(null);
+  const [gridFocused, setGridFocused] = React.useState(false);
 
   // Notify on navigation - never on mount, always with the settled value.
   const onMonthChangeRef = React.useRef(onMonthChange);
@@ -304,6 +324,13 @@ export function CalendarGrid({
     shouldFocusDayRef.current = false;
     gridRef.current?.querySelector<HTMLButtonElement>(`[data-day="${rovingDay}"]`)?.focus();
   }, [viewIndex, rovingDay]);
+
+  // What the range, if there is one, says about each day (see `calendarSpan`).
+  const rangeMode = rangeValue !== undefined;
+  const pending = rangeMode && !!rangeValue.start && !rangeValue.end;
+  const hoverDay = hover && hover.index === viewIndex ? hover.day : null;
+  const cursorDay = pending ? (hoverDay ?? (gridFocused ? rovingDay : null)) : null;
+  const span = rangeMode ? daySpan(rangeValue, cursorDay ? toISODate(viewYear, viewMonth, cursorDay) : null) : null;
 
   const canPrevMonth = viewIndex > range.minIndex;
   const canNextMonth = viewIndex < range.maxIndex;
@@ -528,6 +555,9 @@ export function CalendarGrid({
         key={viewIndex}
         ref={gridRef}
         onKeyDown={onGridKeyDown}
+        onMouseLeave={rangeMode ? () => setHover(null) : undefined}
+        onFocus={rangeMode ? () => setGridFocused(true) : undefined}
+        onBlur={rangeMode ? (e) => !e.currentTarget.contains(e.relatedTarget) && setGridFocused(false) : undefined}
         className="sereno-dtp-days"
         style={sx({ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 'var(--space-1)' })}
       >
@@ -535,9 +565,13 @@ export function CalendarGrid({
           // Blank cells still take the row height so the 6-row grid can't collapse.
           if (d === null) return <span key={i} aria-hidden style={cellSizing} />;
           const off = unavailable.includes(d) || isDayOutside(range, viewIndex, d);
-          const sel = selectedDate === d && viewIndex === selectionIndex;
+          const inSpan = rangeMode ? dayInSpan(toISODate(viewYear, viewMonth, d), span) : null;
+          const sel = inSpan ? inSpan.picked : selectedDate === d && viewIndex === selectionIndex;
+          // The far end of a pick in progress is drawn like an end but is not picked yet (no aria-pressed).
+          const filled = sel || !!inSpan?.previewEnd;
           const today = viewIndex === todayIndex && d === now.getDate();
-          const extra = renderDay?.(d, { selected: sel, today, unavailable: off });
+          // `selected` is what is painted with the primary colour (the content under the number must follow it): in a range, both ends and the far end of a pick in progress.
+          const extra = renderDay?.(d, { selected: filled, today, unavailable: off });
           const dot = dotFor(dayDots, d);
           return (
             <button
@@ -554,6 +588,12 @@ export function CalendarGrid({
               aria-current={today ? 'date' : undefined}
               tabIndex={d === rovingDay ? 0 : -1}
               aria-pressed={sel}
+              // What the range says about the day, for the stylesheet: the band and its edges, the provisional stretch.
+              data-in-range={inSpan?.inside && !inSpan.preview ? true : undefined}
+              data-range-edge={inSpan?.edge}
+              data-preview={inSpan?.preview && (inSpan.inside || inSpan.edge) ? true : undefined}
+              data-preview-end={inSpan?.previewEnd ? true : undefined}
+              onMouseEnter={pending ? () => setHover({ index: viewIndex, day: d }) : undefined}
               onClick={() => {
                 if (off) return;
                 setSelectionIndex(viewIndex);
@@ -577,15 +617,15 @@ export function CalendarGrid({
                 // frame of the picked day and of today can win it back (an inline value always beats a rule).
                 padding: 0,
                 cursor: off ? 'not-allowed' : 'pointer',
-                background: sel ? 'var(--interactive-primary)' : 'transparent',
-                color: sel ? 'var(--interactive-primary-fg)' : off ? 'var(--text-disabled)' : 'var(--text-primary)',
+                background: filled ? 'var(--interactive-primary)' : 'transparent',
+                color: filled ? 'var(--interactive-primary-fg)' : off ? 'var(--text-disabled)' : 'var(--text-primary)',
                 fontFamily: 'var(--font-body)',
                 fontSize: 'var(--text-sm)',
-                fontWeight: sel ? 'var(--weight-bold)' : 'var(--weight-medium)',
+                fontWeight: filled ? 'var(--weight-bold)' : 'var(--weight-medium)',
                 textDecoration: off ? 'line-through' : 'none',
                 // Today is told apart by a thin inset ring (also `aria-current` above). Not when it
                 // is the selected day: the primary fill already says which day it is.
-                boxShadow: today && !sel ? TODAY_RING : undefined,
+                boxShadow: today && !filled ? TODAY_RING : undefined,
                 transition: 'var(--transition-control)',
                 // Not inline outline:none - that would always beat the
                 // .sereno-dtp-days:focus-visible rule below no matter what
@@ -598,10 +638,14 @@ export function CalendarGrid({
               {hasSlot ? (
                 <span style={sx({ display: 'flex', gap: 4, minHeight: 12, lineHeight: 1 })}>
                   {extra}
-                  {dot ? <span aria-hidden {...dotProps(dot.tone, { selected: sel, unavailable: off }, { alignSelf: 'center' })} /> : null}
+                  {dot ? <span aria-hidden {...dotProps(dot.tone, { selected: filled, unavailable: off }, { alignSelf: 'center' })} /> : null}
                 </span>
               ) : null}
               {dot ? <span style={srOnlyStyle}>{dot.label ?? dayDotLabel ?? t.marked}</span> : null}
+              {/* A range that is settled says where it starts, where it ends and what is in between: the band is only a picture. */}
+              {inSpan && !inSpan.preview && (inSpan.edge || inSpan.inside) ? (
+                <span style={srOnlyStyle}>{inSpan.edge === 'start' ? t.rangeStart : inSpan.edge === 'end' ? t.rangeEnd : t.inRange}</span>
+              ) : null}
             </button>
           );
         })}

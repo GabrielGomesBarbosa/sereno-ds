@@ -45,6 +45,7 @@ export {
 } from './forms/DateTimePicker';
 export { CalendarLegend, type CalendarLegendProps, type CalendarLegendItem } from './forms/CalendarLegend';
 export { DatePicker, type DatePickerProps, type DatePickerHandle } from './forms/DatePicker';
+export { DateRangePicker, type DateRangePickerProps, type DateRangePickerHandle, type DateRange } from './forms/DateRangePicker';
 export { FileUpload, type FileUploadProps } from './forms/FileUpload';
 export { AvatarUpload, type AvatarUploadProps } from './forms/AvatarUpload';
 export { SearchInput, type SearchInputProps } from './forms/SearchInput';

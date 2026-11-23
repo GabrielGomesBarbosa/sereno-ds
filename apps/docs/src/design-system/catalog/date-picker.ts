@@ -78,7 +78,7 @@ export const datePickerMeta: ComponentMeta = {
     ],
     dont: [
       'A date **and** a time in the same control; that’s `DateTimePicker`.',
-      'Multiple dates or a range picker: not this component\'s job.',
+      'A period (a start and an end date): that’s `DateRangePicker`. Several separate dates: not this component\'s job.',
       'Setting `locale="en"` in the real product. Sereno is pt-BR only; the prop exists for this docs site.',
     ],
   },
