@@ -1,37 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
-import { Calendar as CalendarIcon, X } from 'lucide-react';
-import { sx } from '../_internal/style';
-import { Field } from '../_internal/Field';
-import { fieldA11y } from '../_internal/fieldA11y';
-import { useIsoLayoutEffect } from '../_internal/useIsoLayoutEffect';
-import { useMenuPlacement } from '../_internal/useMenuPlacement';
-import { useOutsidePress } from '../_internal/useOutsidePress';
 import { CalendarGrid } from './_internal/CalendarGrid';
 import type { CalendarDayContext, CalendarDayDots } from './_internal/calendarDots';
 import { parseISODate as parseISO, toISODate as toISO } from './_internal/calendarRange';
-import { fieldBoxStyle } from './_internal/fieldBoxStyle';
-import { fieldBoxProps } from './_internal/fieldFrame';
+import { DatePopoverField } from './_internal/DatePopoverField';
 
 const TEXT = {
   'pt-BR': { placeholder: 'Selecionar data', dialogLabel: 'Escolher data', clearLabel: 'Limpar data' },
   en: { placeholder: 'Pick a date', dialogLabel: 'Choose a date', clearLabel: 'Clear date' },
 } as const;
-
-/**
- * The widest a calendar gets once it leaves the field's own width, i.e. when portalled out of a Dialog. Its
- * cells are square, so it is as tall as it is wide: at the width of a wide dialog field it would be a
- * 450px-tall slab that covers the field and half the window. Inline it is untouched (still the field's width).
- */
-const PORTALLED_MAX_WIDTH = 320;
-
-/** What a keyboard can reach inside `root`, in tab order (the calendar's roving day has `tabindex="0"`, the others `-1`). */
-function tabbables(root: HTMLElement | null): HTMLElement[] {
-  if (!root) return [];
-  return Array.from(root.querySelectorAll<HTMLElement>('button:not(:disabled), [tabindex]')).filter((el) => el.tabIndex >= 0);
-}
 
 /**
  * Imperative handle exposed via `ref` - there's no single native element
@@ -158,265 +136,70 @@ export const DatePicker = React.forwardRef<DatePickerHandle, DatePickerProps>(fu
   const parsed = parseISO(iso);
   const now = React.useMemo(() => new Date(), []);
 
-  const [open, setOpen] = React.useState(false);
   // The month currently shown in the popover - resets to the value's month
   // (or today's) every time the popover opens, via the conditional mount
-  // below; CalendarGrid itself only takes year/month as its *initial* view.
+  // of the calendar in `DatePopoverField`; CalendarGrid itself only takes
+  // year/month as its *initial* view.
   const [viewYear, setViewYear] = React.useState(parsed?.year ?? now.getFullYear());
   const [viewMonth, setViewMonth] = React.useState(parsed?.month ?? now.getMonth());
-
-  const rootRef = React.useRef<HTMLDivElement>(null);
-  const boxRef = React.useRef<HTMLDivElement>(null);
-  const popoverRef = React.useRef<HTMLDivElement>(null);
-  const triggerRef = React.useRef<HTMLButtonElement>(null);
-  const generatedId = React.useId();
-  const rid = id || generatedId;
-
-  React.useImperativeHandle(ref, () => ({ focus: () => triggerRef.current?.focus() }), []);
-
-  // Where the calendar sits. Normally a plain `position: absolute` child of
-  // `rootRef` (itself `position: relative`) - the same "inline" strategy
-  // Select's panel uses for its common case, and the same one DateTimePicker's
-  // own month/year popover already uses. The browser glues it to the trigger
-  // through *any* scroll (page or a nested overflow container) for free - no JS
-  // measuring position, no listening for scroll/resize, and critically, it
-  // never has to close on scroll the way a `position: fixed` popover computed
-  // once would (that was tried first here and didn't hold up - see PR history).
-  //
-  // The one place that fails is inside a `position: fixed` container (a
-  // Dialog): its body scrolls and clips an inline child, cutting the calendar
-  // off. There `useMenuPlacement` answers 'fixed' (what Select and
-  // Autocomplete already do) and the calendar is portalled to <body> at the
-  // field's viewport rect, closing if the field moves. Outside a dialog nothing
-  // changes: still inline, still below the field, never flipped (the hook's
-  // `above` / `maxH` are not used at all: see `fitTop` for the portalled case).
-  // `itemCount` is just the hook's height estimate; a calendar is not a list.
-  const place = useMenuPlacement({
-    open,
-    anchorRef: boxRef,
-    panelRef: popoverRef,
-    itemCount: 8,
-    onDismiss: () => setOpen(false),
-  });
-  const portalled = open && place?.strategy === 'fixed';
-
-  // The hook picks "below" or "above" from a rough guess at the height, which suits a list capped at 288px but not
-  // a calendar (about as tall as it is wide). So once the portalled calendar is on screen it is measured and kept
-  // inside the window: under the field if it fits, else above it, else as far up as it needs (over the field rather
-  // than cut off). The month changes the row count, hence the dependencies. Runs before paint: no visible jump.
-  const [fitTop, setFitTop] = React.useState<number | null>(null);
-  useIsoLayoutEffect(() => {
-    const popover = popoverRef.current;
-    const box = boxRef.current;
-    if (!portalled || !popover || !box) return;
-    const GAP = 6;
-    const EDGE = 8;
-    const field = box.getBoundingClientRect();
-    const height = popover.offsetHeight;
-    const viewport = window.innerHeight || document.documentElement.clientHeight || 900;
-    const below = field.bottom + GAP;
-    const above = field.top - GAP - height;
-    setFitTop(below + height <= viewport - EDGE ? below : above >= EDGE ? above : Math.max(EDGE, viewport - EDGE - height));
-  }, [portalled, place, viewYear, viewMonth]);
-
-  // A press outside the field closes the calendar. The portalled calendar is outside `rootRef` in the DOM but
-  // still part of the field, so both count as inside.
-  useOutsidePress(open, [rootRef, popoverRef], () => setOpen(false));
-  React.useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault(); // handled: a Dialog around the field keeps its own Esc for the next press
-        setOpen(false);
-        triggerRef.current?.focus();
-      }
-    };
-    document.addEventListener('keydown', onKey, true);
-    return () => document.removeEventListener('keydown', onKey, true);
-  }, [open]);
-
-  const openPopover = () => {
-    if (disabled) return;
-    setViewYear(parsed?.year ?? now.getFullYear());
-    setViewMonth(parsed?.month ?? now.getMonth());
-    setOpen(true);
-  };
-
-  const commit = (day: number) => {
-    const next = toISO(viewYear, viewMonth, day);
-    if (value === undefined) setInner(next);
-    onChange?.(next);
-    setOpen(false);
-    triggerRef.current?.focus();
-  };
 
   const clear = () => {
     if (value === undefined) setInner('');
     onChange?.('');
-    triggerRef.current?.focus();
   };
 
-  // Inline, the calendar follows the field in the DOM, so Tab walks field -> calendar -> next field on its
-  // own. Portalled to the end of <body> it does not, so the focus is handed over by hand to keep that order.
-  const onBoxKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key !== 'Tab' || e.shiftKey || !portalled) return;
-    const controls = tabbables(e.currentTarget);
-    if (e.target !== controls[controls.length - 1]) return; // not the control the calendar follows
-    const first = tabbables(popoverRef.current)[0];
-    if (!first) return;
-    e.preventDefault();
-    first.focus();
-  };
-
-  const onPopoverKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key !== 'Tab') return;
-    const controls = tabbables(boxRef.current);
-    const field = controls[controls.length - 1]; // the control the calendar follows in the DOM
-    const inside = tabbables(e.currentTarget);
-    if (e.shiftKey && e.target === inside[0]) {
-      e.preventDefault();
-      field?.focus();
-    } else if (!e.shiftKey && e.target === inside[inside.length - 1]) {
-      // Not prevented on purpose: with the focus back on the field the Tab goes on to whatever follows it.
-      setOpen(false);
-      field?.focus();
-    }
-  };
-
-  // One popover, two positions (see `useMenuPlacement` above): the calendar and its look are the same.
-  const renderPopover = (position: React.CSSProperties) => (
-    <div
-      ref={popoverRef}
-      role="dialog"
-      aria-label={label || copy.dialogLabel}
-      tabIndex={-1}
-      onKeyDown={portalled ? onPopoverKeyDown : undefined}
-      style={sx({
-        ...position,
-        // The 7-column grid needs some floor width to stay readable -
-        // a narrow field (e.g. a compact "Data" next to "Motivo")
-        // would otherwise squeeze it. `left`/`right: 0` already
-        // matches the trigger's own width for anything wider.
-        minWidth: 272,
-        background: 'var(--bg-surface)',
-        border: 'var(--border-width-hairline) solid var(--border-default)',
-        borderRadius: 'var(--radius-md)',
-        boxShadow: 'var(--shadow-lg)',
-        padding: 'var(--space-3)',
-        outline: 'none',
-      })}
-    >
-      <CalendarGrid
-        year={viewYear}
-        month={viewMonth}
-        selectedDate={parsed && parsed.year === viewYear && parsed.month === viewMonth ? parsed.day : undefined}
-        min={min}
-        max={max}
-        onMonthChange={(y, m) => {
-          setViewYear(y);
-          setViewMonth(m);
-          onMonthChange?.(y, m);
-        }}
-        renderDay={renderDay}
-        dayDots={dayDots}
-        dayDotLabel={dayDotLabel}
-        onSelectDate={commit}
-        squareCells
-        trimEmptyRows
-        locale={locale}
-      />
-    </div>
-  );
-
+  // The trigger, the clear button and the popover (inline under the field, or portalled out of a Dialog) are
+  // `DatePopoverField`, shared with `DateRangePicker`; what is left here is what one date means.
   return (
-    <Field label={label} hint={hint} error={error} required={required} htmlFor={rid} style={containerStyle} preserveHelperSpace={preserveHelperSpace}>
-      <div ref={rootRef} style={{ position: 'relative', width: '100%' }}>
-        {/* The bordered box lives on this wrapper `div`, not on a `<button>`
- - the open-trigger and the clear (×) button are real, independent
-            sibling buttons inside it, since a button can't nest another. */}
-        <div ref={boxRef} onKeyDown={onBoxKeyDown} {...fieldBoxProps(open)} style={fieldBoxStyle(size, !!error, disabled)}>
-          <button
-            ref={triggerRef}
-            id={rid}
-            type="button"
-            disabled={disabled}
-            aria-haspopup="dialog"
-            aria-expanded={open}
-            // Ties the trigger to the hint / error line below, so they are read when it takes focus.
-            {...fieldA11y(rid, { hint, error })}
-            onClick={() => (open ? setOpen(false) : openPopover())}
-            style={sx({
-              flex: 1,
-              minWidth: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-              border: 'none',
-              background: 'transparent',
-              padding: 0,
-              font: 'inherit',
-              color: 'inherit',
-              cursor: 'inherit',
-              textAlign: 'left',
-            })}
-          >
-            <CalendarIcon size={16} strokeWidth={1.75} style={{ flex: '0 0 auto', opacity: 0.7 }} />
-            <span
-              style={sx({
-                flex: 1,
-                textAlign: 'left',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                color: iso ? 'inherit' : 'var(--text-muted)',
-              })}
-            >
-              {iso ? formatDisplay(iso, locale) : (placeholder ?? copy.placeholder)}
-            </span>
-          </button>
-          {iso && !disabled && (
-            <button
-              type="button"
-              aria-label={clearLabel ?? copy.clearLabel}
-              onClick={(e) => {
-                e.stopPropagation();
-                clear();
-              }}
-              style={sx({
-                flex: '0 0 auto',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: -4,
-                padding: 4,
-                border: 'none',
-                borderRadius: 'var(--radius-sm)',
-                background: 'transparent',
-                color: 'var(--text-muted)',
-                cursor: 'pointer',
-              })}
-            >
-              <X size={14} strokeWidth={2} />
-            </button>
-          )}
-        </div>
-
-        {open && place?.strategy === 'inline' &&
-          renderPopover({ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 20 })}
-        {open && place?.strategy === 'fixed' &&
-          createPortal(
-            renderPopover({
-              position: 'fixed',
-              top: fitTop ?? place.top, // `fitTop` is measured (see above); the hook's guess only holds the first, unpainted render
-              left: place.left,
-              width: Math.min(place.width, PORTALLED_MAX_WIDTH),
-              boxSizing: 'border-box',
-              zIndex: 1100, // above the Dialog (1000), level with Select / Autocomplete's portalled lists
-            }),
-            document.body,
-          )}
-      </div>
-    </Field>
+    <DatePopoverField
+      ref={ref}
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      size={size}
+      disabled={disabled}
+      id={id}
+      containerStyle={containerStyle}
+      preserveHelperSpace={preserveHelperSpace}
+      text={iso ? formatDisplay(iso, locale) : ''}
+      placeholder={placeholder ?? copy.placeholder}
+      clearLabel={clearLabel ?? copy.clearLabel}
+      dialogLabel={copy.dialogLabel}
+      onClear={clear}
+      onOpen={() => {
+        setViewYear(parsed?.year ?? now.getFullYear());
+        setViewMonth(parsed?.month ?? now.getMonth());
+      }}
+      layoutKey={`${viewYear}-${viewMonth}`}
+    >
+      {({ close }) => (
+        <CalendarGrid
+          year={viewYear}
+          month={viewMonth}
+          selectedDate={parsed && parsed.year === viewYear && parsed.month === viewMonth ? parsed.day : undefined}
+          min={min}
+          max={max}
+          onMonthChange={(y, m) => {
+            setViewYear(y);
+            setViewMonth(m);
+            onMonthChange?.(y, m);
+          }}
+          renderDay={renderDay}
+          dayDots={dayDots}
+          dayDotLabel={dayDotLabel}
+          onSelectDate={(day) => {
+            const next = toISO(viewYear, viewMonth, day);
+            if (value === undefined) setInner(next);
+            onChange?.(next);
+            close();
+          }}
+          squareCells
+          trimEmptyRows
+          locale={locale}
+        />
+      )}
+    </DatePopoverField>
   );
 });
 
