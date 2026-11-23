@@ -17,6 +17,7 @@ import { Autocomplete } from '../forms/Autocomplete';
 import { DatePicker } from '../forms/DatePicker';
 import { Switch } from '../forms/Switch';
 import { DateTimePicker } from '../forms/DateTimePicker';
+import { CalendarLegend } from '../forms/CalendarLegend';
 import { MenuOption } from '../_internal/MenuOption';
 import { Stepper } from '../navigation/Stepper';
 import { SidebarNav } from '../navigation/SidebarNav';
@@ -583,10 +584,48 @@ describe('forced colors (#141): what the states key on', () => {
     expect(v(slot(/^09:00/), '--sd-border')).toBe('transparent');
     expect(v(slot(/^10:00/), '--sd-border')).toBe('var(--interactive-warning)');
   });
+
+  it('calendar marks: a day dot and a legend dot carry the class, the tone and a --sd-dot value, never an inline background; the legend ring has its class', () => {
+    const { container } = render(
+      <>
+        <DateTimePicker year={2026} month={9} selectedDate={15} dayDots={{ 15: { tone: 'success' }, 16: { tone: 'error' }, 17: {} }} />
+        <CalendarLegend items={[{ label: 'Today', outline: true, dot: 'warning' }, { label: 'Pending', dot: 'info' }, { label: 'Open', dot: true }]} />
+      </>,
+    );
+    const dots = [...container.querySelectorAll<HTMLElement>('.sereno-dtp-dot')];
+    expect(dots).toHaveLength(6); // 3 under the days, 3 in the legend
+    for (const d of dots) {
+      expect(d.getAttribute('data-tone')).toMatch(/^(brand|success|warning|error|info)$/);
+      expect(d.style.background).toBe(''); // an inline background beats the forced-colors rule that redraws the dot (#157)
+      expect(d.style.borderRadius).toBe('');
+      expect(v(d, '--sd-dot')).not.toBe('');
+    }
+    // the dot on the picked day is the text colour for the primary fill, whatever its tone; the others keep their tone
+    expect(v(container.querySelector('[data-day="15"] .sereno-dtp-dot')!, '--sd-dot')).toBe('var(--interactive-primary-fg)');
+    expect(v(container.querySelector('[data-day="16"] .sereno-dtp-dot')!, '--sd-dot')).toBe('var(--status-error-dot)');
+    expect(container.querySelector('[data-day="17"] .sereno-dtp-dot')).toHaveAttribute('data-tone', 'brand');
+    // the box-shadow ring for today in the legend is dropped in forced colors: its class is where the stylesheet gives it a border
+    const ring = container.querySelectorAll('.sereno-dtp-ring');
+    expect(ring).toHaveLength(1);
+    expect(ring[0].querySelector('.sereno-dtp-dot')).toHaveAttribute('data-tone', 'warning');
+  });
 });
 
 describe('the stylesheet has the rules the components rely on', () => {
   const css = readFileSync(resolve(__dirname, '../styles.css'), 'utf8');
+
+  it('calendar marks: the dot fill and corners are the stylesheet\'s, and forced colors draws each tone as its own shape and today\'s swatch with a border', () => {
+    expect(css).toMatch(/\.sereno-dtp-dot \{ background: var\(--sd-dot\); border-radius: var\(--radius-pill\); \}/);
+    const at = css.indexOf('@media (forced-colors: active) {');
+    const block = css.slice(at);
+    // the base rule comes before the media block, so the forced rules (same specificity, later) win
+    expect(css.indexOf('.sereno-dtp-dot { background: var(--sd-dot)')).toBeLessThan(at);
+    expect(block).toMatch(/\.sereno-dtp-dot \{\s*box-sizing: border-box;\s*background: CanvasText;/);
+    expect(block).toMatch(/\.sereno-dtp-dot\[data-tone='success'\],\s*\.sereno-dtp-dot\[data-tone='info'\] \{\s*background: transparent;\s*border: 1px solid CanvasText;/);
+    expect(block).toMatch(/\.sereno-dtp-dot\[data-tone='warning'\],\s*\.sereno-dtp-dot\[data-tone='error'\],\s*\.sereno-dtp-dot\[data-tone='info'\] \{\s*border-radius: 0;/);
+    expect(block).toMatch(/\.sereno-dtp-dot\[data-tone='error'\] \{\s*transform: rotate\(45deg\)/);
+    expect(block).toMatch(/\.sereno-dtp-ring \{\s*box-sizing: border-box;\s*border: 1px solid CanvasText;/);
+  });
 
   it('Button and IconButton: base, hover, press and focus-visible, in that order, none of them on a disabled control', () => {
     const at = (s: string) => css.indexOf(s);

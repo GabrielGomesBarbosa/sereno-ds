@@ -66,7 +66,9 @@ once, and the fix is a rule in the `@media (forced-colors: active)` block of `pa
 per page (#141) checks the states: every element that says it is current, selected, checked or pressed must look
 different from an unmarked sibling of the same kind (fill, edges, underline, a mark after it; the text colour and the
 weight do not count; a fill the same colour as the page counts as no fill; a check mark inside does count), so a state told only by a
-fill or a shadow fails. A third test per page does the same inside what a trigger opens (a list, a menu, a calendar): it
+fill or a shadow fails. The same test checks the marks of a calendar (#157): the dot under a day and the swatches of `CalendarLegend` are plain fills or a
+shadow, so each must still be drawn (a fill that is not the page colour, or a border), and two tones in one example must not look alike
+(the colour is gone, so each tone is a shape). A third test per page does the same inside what a trigger opens (a list, a menu, a calendar): it
 clicks each trigger, moves the cursor with the arrow key, and checks the active option or menu item (named by
 `aria-activedescendant`, or `data-active`), the selected one and the picked or current day. Run it with
 `bash scripts/visual.sh --project=forced`.

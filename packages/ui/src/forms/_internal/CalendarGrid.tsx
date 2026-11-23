@@ -7,7 +7,7 @@ import { srOnlyStyle } from '../../_internal/srOnly';
 import { useOutsidePress } from '../../_internal/useOutsidePress';
 import { IconButton } from '../../core/IconButton';
 import { calendarRange, clampIndex, isDayOutside, yearWindowStart } from './calendarRange';
-import { dotFor, dotStyle, TODAY_RING, type CalendarDayContext, type CalendarDayDots } from './calendarDots';
+import { dotFor, dotProps, TODAY_RING, type CalendarDayContext, type CalendarDayDots } from './calendarDots';
 
 /**
  * The month calendar body - header (‹ / › month nav + a month/year jump
@@ -598,7 +598,7 @@ export function CalendarGrid({
               {hasSlot ? (
                 <span style={sx({ display: 'flex', gap: 4, minHeight: 12, lineHeight: 1 })}>
                   {extra}
-                  {dot ? <span aria-hidden style={sx({ ...dotStyle(dot.tone, { selected: sel, unavailable: off }), alignSelf: 'center' })} /> : null}
+                  {dot ? <span aria-hidden {...dotProps(dot.tone, { selected: sel, unavailable: off }, { alignSelf: 'center' })} /> : null}
                 </span>
               ) : null}
               {dot ? <span style={srOnlyStyle}>{dot.label ?? dayDotLabel ?? t.marked}</span> : null}

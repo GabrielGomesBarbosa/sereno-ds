@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { sx } from '../_internal/style';
 import { Typography } from '../core/Typography';
-import { dotStyle, TODAY_RING, type CalendarDotTone } from './_internal/calendarDots';
+import { dotProps, TODAY_RING, type CalendarDotTone } from './_internal/calendarDots';
 
 export interface CalendarLegendItem {
   label: string;
@@ -25,10 +25,12 @@ const RING = 12;
 
 function Swatch({ dot, outline }: Pick<CalendarLegendItem, 'dot' | 'outline'>) {
   const tone: CalendarDotTone = typeof dot === 'string' ? dot : 'brand';
-  const dotEl = dot ? <span style={dotStyle(tone)} /> : null;
+  const dotEl = dot ? <span {...dotProps(tone)} /> : null;
   if (!outline) return dotEl;
   return (
     <span
+      // `.sereno-dtp-ring`: the box-shadow is dropped in forced colors, the stylesheet gives the ring a border there (#157)
+      className="sereno-dtp-ring"
       style={sx({
         display: 'inline-flex',
         alignItems: 'center',
