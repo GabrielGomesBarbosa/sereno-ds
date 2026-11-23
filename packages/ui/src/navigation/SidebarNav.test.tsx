@@ -26,6 +26,15 @@ describe('SidebarNav', () => {
     expect(screen.getByRole('button', { name: 'Agenda' })).toHaveAttribute('aria-current', 'page');
   });
 
+  it('draws a group label in the muted text colour, never the disabled one (contrast, #155)', () => {
+    // `--text-disabled` is 2.5:1 on the surface: fine for an inactive control, which WCAG exempts, wrong for a label
+    // people read. axe measures it in the docs (a11y.spec.ts); this keeps the unit suite from letting it slip back.
+    render(<Basic value="agenda" />);
+    const style = screen.getByText('Workspace').getAttribute('style') ?? '';
+    expect(style).toContain('var(--text-muted)');
+    expect(style).not.toContain('--text-disabled');
+  });
+
   it('clicking a leaf Item fires onChange', () => {
     const onChange = vi.fn();
     render(<Basic value="agenda" onChange={onChange} />);
