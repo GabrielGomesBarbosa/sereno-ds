@@ -96,6 +96,7 @@ const STATE = [
   '[aria-pressed=true]',
   '[data-current]',
   '[data-selected]',
+  '[data-in-range]', // a day between the two ends of a range (#166)
   'input:checked',
   'input:indeterminate',
 ].join(', ');
@@ -110,6 +111,9 @@ function look(el: Element) {
   const target = el.tagName === 'TR' ? (el.querySelector('td') ?? el) : el;
   const c = getComputedStyle(target);
   const after = getComputedStyle(target, '::after');
+  // The band of a range is drawn by a ::before (#166). Only its border counts: the pseudo-element exists in this mode with or
+  // without a forced-colors rule (its `content` is there either way), and its fill is the page colour, so a border is the cue.
+  const before = getComputedStyle(target, '::before');
   // A fill of the surface colour (Canvas, ButtonFace) is the page showing through: forced colors turns a `--bg-subtle` or a
   // primary fill into one of them, and an element that was transparent stays transparent, so the two have different
   // computed values and look the same. Only a fill in another system colour (Highlight, GrayText...) is a cue.
@@ -128,7 +132,7 @@ function look(el: Element) {
   const fill = clear || surface.has(c.backgroundColor) ? 'surface' : c.backgroundColor;
   return [
     fill, c.borderTopColor, c.borderTopWidth, c.borderBottomColor, c.borderBottomWidth, c.borderLeftWidth,
-    c.outlineStyle, c.textDecorationLine, after.content, after.borderRightWidth,
+    c.outlineStyle, c.textDecorationLine, after.content, after.borderRightWidth, before.borderTopWidth,
     target.querySelectorAll('svg').length, // a drawn mark inside (the check of a selected option) is a cue too
   ].join('|');
 }
@@ -279,3 +283,34 @@ for (const meta of COMPONENTS) {
     expect(lost, 'elements in a state, inside what a trigger opens, that look like their unmarked siblings in forced colors').toEqual([]);
   });
 }
+
+/**
+ * A range being picked (#166): after the first click the days from it to the pointer are the provisional stretch. It is the
+ * one state the pixel tests do not photograph (it needs a click and a hover), and its band is a pseudo-element that exists
+ * only if a rule gives it `content`: the first version had none for the days in the middle, which nothing noticed. In this
+ * mode the band is a line above and below, so each day of the stretch must have one, and the far end a dashed border.
+ */
+test('forms/date-range-picker: the stretch to the pointer is drawn while the first end is picked', async ({ page }) => {
+  await page.goto('/design-system/forms/date-range-picker/');
+  await page.locator('[data-example-preview]').first().waitFor();
+  await page.waitForTimeout(300);
+  await page.locator('section#basic [data-example-preview] [aria-haspopup]').first().click();
+  const dialog = page.locator('[role=dialog]');
+  await dialog.locator('[data-day="9"]').click();
+  await dialog.locator('[data-day="14"]').hover();
+  await page.waitForTimeout(200);
+  const drawn = await page.evaluate(() =>
+    [10, 11, 12, 13].map((n) => {
+      const b = document.querySelector(`[role=dialog] [data-day="${n}"]`)!;
+      const c = getComputedStyle(b, '::before');
+      // `content` too: the browser reports the declared border of a pseudo-element that is never generated (no `content`)
+      return `${n}: ${c.content} ${c.borderTopWidth} ${c.borderTopStyle}`;
+    }),
+  );
+  expect(drawn, 'days between the first end and the pointer: a line above and below').toEqual(['10: "" 1px dashed', '11: "" 1px dashed', '12: "" 1px dashed', '13: "" 1px dashed']);
+  const end = await page.evaluate(() => {
+    const c = getComputedStyle(document.querySelector('[role=dialog] [data-day="14"]')!);
+    return `${c.borderTopWidth} ${c.borderTopStyle}`;
+  });
+  expect(end, 'the far end, not picked yet: a dashed border').toBe('2px dashed');
+});

@@ -25,6 +25,7 @@ import { radioMeta } from './catalog/radio';
 import { switchMeta } from './catalog/switch';
 import { dateTimePickerMeta } from './catalog/date-time-picker';
 import { datePickerMeta } from './catalog/date-picker';
+import { dateRangePickerMeta } from './catalog/date-range-picker';
 import { calendarLegendMeta } from './catalog/calendar-legend';
 import { fileUploadMeta } from './catalog/file-upload';
 import { avatarUploadMeta } from './catalog/avatar-upload';
@@ -110,6 +111,7 @@ export const COMPONENTS: ComponentMeta[] = [
   switchMeta,
   dateTimePickerMeta,
   datePickerMeta,
+  dateRangePickerMeta,
   calendarLegendMeta,
   fileUploadMeta,
   avatarUploadMeta,

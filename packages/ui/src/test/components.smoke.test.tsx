@@ -9,7 +9,7 @@ afterEach(cleanup);
 /** Every component the barrel is meant to export. */
 const EXPECTED = [
   'Typography', 'Button', 'IconButton', 'Badge', 'StatusDot', 'Divider', 'Card', 'ActionCard', 'StatCard', 'Avatar', 'Brand', 'Menu', 'Table',
-  'Input', 'Textarea', 'Select', 'Autocomplete', 'Checkbox', 'Radio', 'Switch', 'DateTimePicker', 'DatePicker', 'CalendarLegend',
+  'Input', 'Textarea', 'Select', 'Autocomplete', 'Checkbox', 'Radio', 'Switch', 'DateTimePicker', 'DatePicker', 'DateRangePicker', 'CalendarLegend',
   'FileUpload', 'AvatarUpload', 'SearchInput',
   'TopBar', 'Tabs', 'BottomNav', 'SidebarNav', 'Stepper', 'Pagination',
   'Alert', 'Toast', 'Dialog', 'Skeleton', 'EmptyState',
@@ -57,6 +57,7 @@ const CASES: Record<string, React.ReactElement> = {
   Switch: <UI.Switch label="Notificações" />,
   DateTimePicker: <UI.DateTimePicker year={2026} month={0} selectedDate={5} times={['09:00', { value: '10:00', disabled: true }]} />,
   DatePicker: <UI.DatePicker label="Data" defaultValue="2026-10-12" />,
+  DateRangePicker: <UI.DateRangePicker label="Período" defaultValue={{ start: '2026-10-05', end: '2026-10-12' }} />,
   CalendarLegend: <UI.CalendarLegend items={[{ label: 'Tem agendamento', dot: true }, { label: 'Hoje', outline: true }]} />,
   FileUpload: <UI.FileUpload />,
   AvatarUpload: <UI.AvatarUpload />,

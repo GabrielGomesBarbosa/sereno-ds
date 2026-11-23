@@ -26,6 +26,7 @@ import { avatarUploadDemos } from './demos/avatar-upload';
 import { searchInputDemos } from './demos/search-input';
 import { dateTimePickerDemos } from './demos/date-time-picker';
 import { datePickerDemos } from './demos/date-picker';
+import { dateRangePickerDemos } from './demos/date-range-picker';
 import { calendarLegendDemos } from './demos/calendar-legend';
 import { topBarDemos } from './demos/top-bar';
 import { tabsDemos } from './demos/tabs';
@@ -69,6 +70,7 @@ export const DEMOS: Record<string, Record<string, React.FC>> = {
   'search-input': searchInputDemos,
   'date-time-picker': dateTimePickerDemos,
   'date-picker': datePickerDemos,
+  'date-range-picker': dateRangePickerDemos,
   'calendar-legend': calendarLegendDemos,
   'top-bar': topBarDemos,
   tabs: tabsDemos,

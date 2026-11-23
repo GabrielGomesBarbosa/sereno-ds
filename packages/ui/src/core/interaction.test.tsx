@@ -627,6 +627,25 @@ describe('the stylesheet has the rules the components rely on', () => {
     expect(block).toMatch(/\.sereno-dtp-ring \{\s*box-sizing: border-box;\s*border: 1px solid CanvasText;/);
   });
 
+  it('range calendar: a band behind the days between, half a band on each end, a lighter preview, and in forced colors two lines instead of a fill', () => {
+    const at = css.indexOf('@media (forced-colors: active) {');
+    const block = css.slice(at);
+    // normal mode, before the media block: the band is a ::before in the selection colour, reaching half a grid gap past the cell
+    // the band exists for a settled day, an end AND a day of the provisional stretch (the preview had none: found by looking at it)
+    expect(css).toMatch(/\.sereno-dtp-days button\[data-in-range\]::before,\s*\.sereno-dtp-days button\[data-range-edge\]::before,\s*\.sereno-dtp-days button\[data-preview\]::before \{[^}]*background: color-mix\(in srgb, var\(--interactive-primary\) 14%, transparent\);/);
+    expect(css).toMatch(/\[data-range-edge='start'\]::before \{ left: 50%; \}/);
+    expect(css).toMatch(/\[data-range-edge='end'\]::before \{ right: 50%; \}/);
+    expect(css).toMatch(/button\[data-preview\]::before \{ background: color-mix\(in srgb, var\(--interactive-primary\) 8%, transparent\); \}/);
+    expect(css.indexOf('button[data-in-range]::before')).toBeLessThan(at);
+    // forced colors: no fill (it would be the page colour), a line above and below in the selection colour, dashed while picking
+    expect(block).toMatch(/button\[data-in-range\]::before,\s*\.sereno-dtp-days button\[data-preview\]::before \{\s*background: transparent;\s*border-block: 1px solid Highlight;/);
+    expect(block).toMatch(/button\[data-range-edge\]::before \{\s*display: none;/); // an end has its own border: no band through it
+    expect(block).toMatch(/button\[data-preview\]::before \{\s*border-block-style: dashed;/);
+    expect(block).toMatch(/button\[data-preview-end\] \{\s*border: 2px dashed Highlight;/);
+    // and never a Highlight fill behind the day numbers
+    expect(block.replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/data-(in-range|range-edge|preview)[^{]*\{[^}]*background: Highlight/);
+  });
+
   it('Button and IconButton: base, hover, press and focus-visible, in that order, none of them on a disabled control', () => {
     const at = (s: string) => css.indexOf(s);
     const base = at('.sereno-btn {');
