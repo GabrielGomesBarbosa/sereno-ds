@@ -459,6 +459,10 @@ textarea.sereno-field {
 .sereno-dtp-time { border: var(--border-width-hairline) solid var(--sd-border, var(--border-default)); }
 .sereno-dtp-time button { outline: none; }
 .sereno-dtp-time button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
+/* The dot under a calendar day (`dayDots`) and the same dot in `CalendarLegend` (#157). Its colour is the `--sd-dot` it sets
+   inline (a tone, or the text colour on the picked day) and its corners are here, so the forced-colors rules below can
+   replace the fill and the shape: an inline `background` or `border-radius` would beat them. */
+.sereno-dtp-dot { background: var(--sd-dot); border-radius: var(--radius-pill); }
 /* BottomNav.Item (SS-228 sweep) - identical bug: outline suppressed inline
    with no substitute at all (no useInteract-style box-shadow ring either). */
 .sereno-bottom-nav-item { outline: none; }
@@ -604,6 +608,33 @@ textarea.sereno-field {
     border: 3px solid Highlight;
   }
   .sereno-dtp-days button[aria-current='date']:not([aria-pressed='true']) {
+    border: 1px solid CanvasText;
+  }
+
+  /* Calendar marks (#157): the dot under a day and the swatches of CalendarLegend are plain fills, which this mode turns into
+     the page colour, and the ring for today is a box-shadow, which it drops. The dot is drawn in the text colour (on the picked
+     day too, where its normal colour is white on a primary fill that is gone), and because the tone colours are not available
+     each tone is its own SHAPE, the same one in the calendar and in the legend: brand a filled circle, success a ring, warning a
+     filled square, error a filled diamond, info a hollow square. Today's swatch gets the border today's day has. */
+  .sereno-dtp-dot {
+    box-sizing: border-box;
+    background: CanvasText;
+  }
+  .sereno-dtp-dot[data-tone='success'],
+  .sereno-dtp-dot[data-tone='info'] {
+    background: transparent;
+    border: 1px solid CanvasText;
+  }
+  .sereno-dtp-dot[data-tone='warning'],
+  .sereno-dtp-dot[data-tone='error'],
+  .sereno-dtp-dot[data-tone='info'] {
+    border-radius: 0;
+  }
+  .sereno-dtp-dot[data-tone='error'] {
+    transform: rotate(45deg) scale(0.85);
+  }
+  .sereno-dtp-ring {
+    box-sizing: border-box;
     border: 1px solid CanvasText;
   }
 

@@ -12,7 +12,9 @@ import { COMPONENTS, examplesFor } from '../src/design-system/catalog';
  *
  * A second test per page covers the STATES (#141): a current page, a selected tab, a checked box... that is told only by a
  * fill or a shadow is lost in this mode. Each element that says it is current, selected, checked or pressed must look
- * different from an unmarked sibling of the same kind (the text colour and a heavier font do not count, see `look`).
+ * different from an unmarked sibling of the same kind (the text colour and a heavier font do not count, see `look`). The same
+ * test covers the MARKS of a calendar (#157): the dot under a day and the swatches of `CalendarLegend` are plain fills, which
+ * forced colors turns into the page colour, so each must still be drawn, and the tones must still be told apart by shape.
  *
  * A third test per page does the same INSIDE what a trigger opens (a list, a menu, a calendar): the option the keyboard is on
  * (`aria-activedescendant`, or `data-active` in a menu), the selected one, the day that is today.
@@ -120,7 +122,9 @@ function look(el: Element) {
     return v;
   };
   const surface = new Set([probe('Canvas'), probe('ButtonFace')]);
-  const clear = /, 0\)$/.test(c.backgroundColor); // any colour with no opacity (forced colors keeps its RGB: rgba(255, 255, 255, 0))
+  // Any colour with no opacity (forced colors keeps its RGB: rgba(255, 255, 255, 0)). It must start with `rgba(`: an opaque colour is
+  // `rgb(r, g, b)`, and `rgb(0, 0, 0)` (CanvasText) also ends in ", 0)", which a looser pattern read as "no fill" (found in #157).
+  const clear = /^rgba\(.*, 0\)$/.test(c.backgroundColor);
   const fill = clear || surface.has(c.backgroundColor) ? 'surface' : c.backgroundColor;
   return [
     fill, c.borderTopColor, c.borderTopWidth, c.borderBottomColor, c.borderBottomWidth, c.borderLeftWidth,
@@ -169,13 +173,74 @@ async function lostIn(page: Page, roots: string, state: string, what: string): P
   );
 }
 
+/**
+ * In the page: the marks of a calendar that forced colors would leave undrawn (#157). A dot is the 6 px `aria-hidden` circle under a
+ * day of a calendar grid or in a legend, found by what it is and not by a class, so the check does not depend on the fix; the
+ * swatch of today is the 12 px square in a legend. Reports a dot with no fill and no border, a swatch with no border, and two tones
+ * in the same example that look alike (the legend explains which dot means what, and the colour is gone in this mode).
+ */
+async function marksLost(page: Page): Promise<{ problems: string[]; dots: number; rings: number }> {
+  return page.evaluate(() => {
+    const out: string[] = [];
+    let dotCount = 0;
+    let ringCount = 0;
+    const probe = (name: string) => {
+      const p = document.createElement('i');
+      p.style.backgroundColor = name;
+      document.body.appendChild(p);
+      const v = getComputedStyle(p).backgroundColor;
+      p.remove();
+      return v;
+    };
+    const surface = new Set([probe('Canvas'), probe('ButtonFace')]);
+    const size = (e: Element) => {
+      const r = e.getBoundingClientRect();
+      return `${Math.round(r.width)}x${Math.round(r.height)}`;
+    };
+    const filled = (c: CSSStyleDeclaration) => !/^rgba\(.*, 0\)$/.test(c.backgroundColor) && !surface.has(c.backgroundColor);
+    const bordered = (c: CSSStyleDeclaration) => c.borderTopStyle !== 'none' && parseFloat(c.borderTopWidth) > 0 && !/^rgba\(.*, 0\)$/.test(c.borderTopColor);
+    document.querySelectorAll('[data-example-preview]').forEach((root, n) => {
+      const dots = [...root.querySelectorAll('.sereno-dtp-days button span[aria-hidden], [role=list] li span[aria-hidden] span')].filter((e) => size(e) === '6x6' || size(e) === '8x8');
+      const rings = [...root.querySelectorAll('[role=list] li span[aria-hidden] > span')].filter((e) => size(e) === '12x12');
+      dotCount += dots.length;
+      ringCount += rings.length;
+      const looks = new Map<string, string>();
+      dots.forEach((d) => {
+        const c = getComputedStyle(d);
+        const tone = d.getAttribute('data-tone') ?? 'no-tone';
+        if (!filled(c) && !bordered(c)) out.push(`example ${n}: a ${tone} dot is not drawn (no fill, no border)`);
+        // the shape: a fill or a hollow ring, its corners, its turn
+        const shape = [filled(c) ? 'fill' : 'hollow', c.borderTopLeftRadius, c.transform].join('|');
+        const seen = looks.get(tone);
+        if (seen === undefined) looks.set(tone, shape);
+        else if (seen !== shape) out.push(`example ${n}: two ${tone} dots are drawn differently`);
+      });
+      const byShape = new Map<string, string>();
+      looks.forEach((shape, tone) => {
+        const other = byShape.get(shape);
+        if (other !== undefined) out.push(`example ${n}: the ${tone} dot and the ${other} dot look alike`);
+        else byShape.set(shape, tone);
+      });
+      rings.forEach((r) => {
+        if (!bordered(getComputedStyle(r))) out.push(`example ${n}: the legend swatch of today is not drawn (no border)`);
+      });
+    });
+    return { problems: out, dots: dotCount, rings: ringCount };
+  });
+}
+
 for (const meta of COMPONENTS) {
-  test(`${meta.category}/${meta.slug}: current, selected and checked states are visible`, async ({ page }) => {
+  test(`${meta.category}/${meta.slug}: current, selected and checked states, and the marks of a calendar, are visible`, async ({ page }) => {
     await page.goto(`/design-system/${meta.category}/${meta.slug}/`);
     await page.locator('[data-example-preview]').first().waitFor();
     await page.waitForTimeout(300);
     const lost = await lostIn(page, '[data-example-preview]', STATE, 'example');
     expect(lost, 'elements in a state that looks like their unmarked siblings in forced colors').toEqual([]);
+    const marks = await marksLost(page);
+    // the check finds dots by what they are: make sure it does find them where they are known to be, so it cannot pass by looking at nothing
+    if (meta.slug === 'date-time-picker' || meta.slug === 'calendar-legend') expect(marks.dots, 'dots found on the page').toBeGreaterThan(0);
+    if (meta.slug === 'calendar-legend') expect(marks.rings, 'today swatches found on the page').toBeGreaterThan(0);
+    expect(marks.problems, 'calendar dots and legend swatches that are not drawn, or tones that look alike, in forced colors').toEqual([]);
   });
 }
 

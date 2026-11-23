@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { sx } from '../../_internal/style';
 
 /**
  * What the month calendar (`CalendarGrid`, so `DateTimePicker` and `DatePicker`) says about the
@@ -57,20 +58,32 @@ export function dotFor(dots: CalendarDayDots | undefined, day: number): Calendar
   return Object.prototype.hasOwnProperty.call(dots, day) ? (dots[day] ?? {}) : null;
 }
 
+/** The class the stylesheet gives every dot: its fill and corners, and the shapes forced colors draws (`styles.css`). */
+export const DOT_CLASS = 'sereno-dtp-dot';
+
 /**
- * The look of one dot. On the selected day the calendar paints the cell with the primary
- * color, so the dot turns to the color made for text on it (`--interactive-primary-fg`)
- * whatever its tone, or it would vanish into the fill. On a day that cannot be picked it
+ * The look of one dot. The fill is NOT set here: it is the `--sd-dot` value, which `.sereno-dtp-dot` paints (an inline
+ * `background` would beat the forced-colors rule that turns it into a system colour, #157). On the selected day the
+ * calendar paints the cell with the primary color, so the dot turns to the color made for text on it
+ * (`--interactive-primary-fg`) whatever its tone, or it would vanish into the fill. On a day that cannot be picked it
  * fades with the day number.
  */
 export function dotStyle(tone: CalendarDotTone = 'brand', state: { selected?: boolean; unavailable?: boolean } = {}): CSSProperties {
-  return {
+  return sx({
     display: 'block',
     width: DOT_SIZE,
     height: DOT_SIZE,
-    borderRadius: 'var(--radius-pill)',
     flex: '0 0 auto',
-    background: state.selected ? 'var(--interactive-primary-fg)' : 'var(' + TONE_VAR[tone] + ')',
+    '--sd-dot': state.selected ? 'var(--interactive-primary-fg)' : 'var(' + TONE_VAR[tone] + ')',
     opacity: !state.selected && state.unavailable ? 0.45 : 1,
-  };
+  });
+}
+
+/**
+ * Everything a dot's `<span>` needs: the class, the tone (`data-tone`, which forced colors reads to draw each tone as its own
+ * shape, since the colour is not available there) and the style. The grid and `CalendarLegend` both spread this, so the dot
+ * in the legend is always the dot in the calendar.
+ */
+export function dotProps(tone: CalendarDotTone = 'brand', state: { selected?: boolean; unavailable?: boolean } = {}, extra: CSSProperties = {}) {
+  return { className: DOT_CLASS, 'data-tone': tone, style: { ...dotStyle(tone, state), ...extra } };
 }

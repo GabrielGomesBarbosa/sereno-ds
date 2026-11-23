@@ -28,13 +28,13 @@ describe('CalendarLegend', () => {
     expect(swatch).toHaveAttribute('aria-hidden', 'true');
     expect(style(dot)).toContain('width: 6px');
     expect(style(dot)).toContain('height: 6px');
-    expect(style(dot)).toContain('background: var(--interactive-primary)');
+    expect(style(dot)).toContain('--sd-dot: var(--interactive-primary)');
   });
 
   it('a dot can take a tone, like dayDots', () => {
     render(<CalendarLegend items={[{ label: 'Pendente', dot: 'warning' }]} />);
     const dot = swatchOf(screen.getByRole('listitem'))!.firstElementChild as HTMLElement;
-    expect(style(dot)).toContain('background: var(--status-warning-dot)');
+    expect(style(dot)).toContain('--sd-dot: var(--status-warning-dot)');
   });
 
   it('an outline is the ring the calendar draws around today', () => {
@@ -48,7 +48,7 @@ describe('CalendarLegend', () => {
     render(<CalendarLegend items={[{ label: 'Hoje, com agendamento', dot: true, outline: true }]} />);
     const ring = swatchOf(screen.getByRole('listitem'))!.firstElementChild as HTMLElement;
     expect(style(ring)).toContain('inset 0 0 0 1px');
-    expect(style(ring.firstElementChild)).toContain('background: var(--interactive-primary)');
+    expect(style(ring.firstElementChild)).toContain('--sd-dot: var(--interactive-primary)');
   });
 
   it('passes className, style and other attributes to the list, the style after its own', () => {

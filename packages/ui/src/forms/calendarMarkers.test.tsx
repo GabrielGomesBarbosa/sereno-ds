@@ -122,15 +122,15 @@ describe('dayDots', () => {
 
   it('is brand by default and takes the tone from the object form', () => {
     const { container } = render(<DateTimePicker {...OCT} dayDots={{ 3: {}, 5: { tone: 'warning' }, 7: { tone: 'success' } }} />);
-    expect(style(dotOf(container, 3))).toContain('background: var(--interactive-primary)');
-    expect(style(dotOf(container, 5))).toContain('background: var(--status-warning-dot)');
-    expect(style(dotOf(container, 7))).toContain('background: var(--status-success-dot)');
+    expect(style(dotOf(container, 3))).toContain('--sd-dot: var(--interactive-primary)');
+    expect(style(dotOf(container, 5))).toContain('--sd-dot: var(--status-warning-dot)');
+    expect(style(dotOf(container, 7))).toContain('--sd-dot: var(--status-success-dot)');
   });
 
   it('on the selected day the dot turns to the primary foreground, so it does not vanish into the fill', () => {
     const { container } = render(<DateTimePicker {...OCT} selectedDate={17} dayDots={{ 3: {}, 17: { tone: 'warning' } }} />);
-    expect(style(dotOf(container, 17))).toContain('background: var(--interactive-primary-fg)');
-    expect(style(dotOf(container, 3))).toContain('background: var(--interactive-primary)');
+    expect(style(dotOf(container, 17))).toContain('--sd-dot: var(--interactive-primary-fg)');
+    expect(style(dotOf(container, 3))).toContain('--sd-dot: var(--interactive-primary)');
   });
 
   it('after the selection moves, the dot it left goes back to its own color', () => {
