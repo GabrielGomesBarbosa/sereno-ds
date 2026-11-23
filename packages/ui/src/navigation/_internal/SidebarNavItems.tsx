@@ -54,7 +54,9 @@ const groupHead = sx({
   fontWeight: 'var(--weight-bold)',
   letterSpacing: '0.09em',
   textTransform: 'uppercase',
-  color: 'var(--text-disabled)',
+  // Read text, not a disabled control: `--text-disabled` is exempt from WCAG contrast only on an inactive component, and
+  // it gave this 11 px label 2.5:1 (#155). `--text-muted` is the quietest colour that still passes 4.5:1 on the surface.
+  color: 'var(--text-muted)',
   // No top padding: the section's own top gap is the section break; this hugs its items.
   padding: '0 var(--space-3) var(--space-2)',
 });

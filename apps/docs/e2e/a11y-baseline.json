@@ -1,22 +1,6 @@
 {
   "entries": [
     {
-      "page": "navigation/sidebar-nav",
-      "schemes": ["light", "dark"],
-      "rule": "color-contrast",
-      "target": "#basic > div > div[data-example-preview=\"true\"] > div > .sereno-sidenav-root > .sereno-sidenav > .sereno-sidenav-section:nth-child(1) > span",
-      "reason": "The group label (11 px, bold) measures 2.53:1 in light (#9ba3b3 on white) and 2.66:1 in dark, and 4.5:1 is needed. It is drawn with --text-disabled, the colour of a disabled control, which a group label is not; the fix is --text-muted.",
-      "issue": 155
-    },
-    {
-      "page": "navigation/sidebar-nav",
-      "schemes": ["light", "dark"],
-      "rule": "color-contrast",
-      "target": "#basic > div > div[data-example-preview=\"true\"] > div > .sereno-sidenav-root > .sereno-sidenav > .sereno-sidenav-section:nth-child(2) > span",
-      "reason": "The group label (11 px, bold) measures 2.53:1 in light (#9ba3b3 on white) and 2.66:1 in dark, and 4.5:1 is needed. It is drawn with --text-disabled, the colour of a disabled control, which a group label is not; the fix is --text-muted.",
-      "issue": 155
-    },
-    {
       "page": "feedback/alert",
       "schemes": ["light"],
       "rule": "color-contrast",
