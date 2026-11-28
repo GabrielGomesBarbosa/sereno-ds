@@ -155,7 +155,7 @@ refresh.
   report); locally, open `apps/docs/e2e-report/index.html`.
 
 **Continuous integration** (`.github/workflows/ci.yml`, on every PR and on `main`) runs three jobs: `lint ·
-typecheck · test · build` (also the em-dash check), `npm publish --dry-run` for both packages (what would ship), and
+typecheck · test · build` (also the em-dash check), `npm publish --dry-run` for both packages (what would ship) plus `publint` and `attw` on the packed tarballs, and
 `visual regression (pixel by pixel)`. `release.yml` publishes to npm from `main` (see below).
 
 ## Components
