@@ -154,9 +154,9 @@ refresh.
 - When one fails, CI uploads the `visual-differences` artifact (expected, actual and diff images, plus an HTML
   report); locally, open `apps/docs/e2e-report/index.html`.
 
-**Continuous integration** (`.github/workflows/ci.yml`, on every PR and on `main`) runs three jobs: `lint ·
-typecheck · test · build` (also the em-dash check), `npm publish --dry-run` for both packages (what would ship) plus `publint` and `attw` on the packed tarballs, and
-`visual regression (pixel by pixel)`. `release.yml` publishes to npm from `main` (see below).
+**Continuous integration** (`.github/workflows/ci.yml`, on every PR and on `main`) runs four jobs: `lint ·
+typecheck · test · build` (also the em-dash check), `npm publish --dry-run` for both packages (what would ship) plus `publint` and `attw` on the packed tarballs,
+`public API surface` (the committed API snapshots, and a changeset of the right level when they change) and `visual regression (pixel by pixel)`. `release.yml` publishes to npm from `main` (see below).
 
 ## Components
 
@@ -248,6 +248,7 @@ demo-only PRs add nothing and bump nothing. `npm run version-packages` cuts the
 bump + `packages/ui/CHANGELOG.md`; `npm run release` publishes. Tags:
 `@sereno-ds/ui@X.Y.Z`: see
 [Releases](https://github.com/GabrielGomesBarbosa/sereno-ds/releases).
+What is public, what each level means (`patch` / `minor` / `major`), how a deprecation works and the checklist for 1.0 are in [`docs/api-stability.md`](./docs/api-stability.md).
 The changelog is `packages/ui/CHANGELOG.md`, built from the changeset files (written as prose); `apps/docs/src/design-system/CHANGELOG.md` is the older hand-written narrative, up to 0.25.0.
 
 ## Deploy

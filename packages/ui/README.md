@@ -189,6 +189,8 @@ import { Dialog, Button } from '@sereno-ds/ui';
 
 ## Contract
 
+What counts as public API, what does not, and how a change is versioned (a `minor` today, and a `major` for a break after 1.0) are written in [`docs/api-stability.md`](https://github.com/GabrielGomesBarbosa/sereno-ds/blob/main/docs/api-stability.md). The `sereno-*` classes and `data-*` hooks in the table above are public; the `--sd-*` custom properties are not.
+
 - **Tokens are required.** Components read only CSS custom properties (`--bg-*`, `--text-*`, `--border-*`, `--radius-*`, `--space-*`, `--font-*`, …). They live in `@sereno-ds/tokens`; without it, everything renders unstyled.
 - **Dark mode** is the same components on `[data-theme="dark"]`, no `theme` prop, no variant.
 - **Icons come from you.** Where a component takes an icon (`Button` `iconLeft`, `TopBar` actions, …) you pass a node, typically `lucide-react`, but any 20px-ish SVG works. `@sereno-ds/ui` also uses `lucide-react` for its own built-in affordances (the `Select` caret, the `Input` password eye, `ThemeToggle`), so it's a required peer.

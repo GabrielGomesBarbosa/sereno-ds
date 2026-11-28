@@ -60,6 +60,27 @@ jobs:
       - name: Lint the packed packages (publint, attw)
         run: npm run check:packages
 
+  # The public API surface (#170, docs/api-stability.md): four snapshots are committed in packages/*/etc (the api-extractor
+  # report of each package, the token names, the sereno-* classes and data-* hooks). The job fails when a snapshot is not the one
+  # the code produces (run `npm run api:update` and commit it: the diff is the API change), and, on a pull request, when a
+  # snapshot changed against the base and the PR has no changeset of the level the change needs.
+  api-surface:
+    name: public API surface
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the base branch, to compare the snapshots with it
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run api:check
+      - name: A changed surface needs a changeset of the right level
+        if: github.event_name == 'pull_request'
+        run: node scripts/api-surface.mjs changeset --base origin/${{ github.base_ref }}
+
   # Pixel-by-pixel regression tests (SS-579): the docs build is screenshotted (every example of every
   # component, light / dark / 375 px, plus hover, focus and what opens) and compared with the references in
   # apps/docs/e2e/__screenshots__ with zero tolerance. See docs/testing.md.
