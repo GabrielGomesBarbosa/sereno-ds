@@ -212,7 +212,16 @@ package version.
   touches a component / token / the barrel runs `npm run changeset`: pick
   `@sereno-ds/ui` (tokens rides along), `patch` = fix/tweak, `minor` = feature /
   structure / breaking (pre-1.0), one line for the consumer changelog. Commit
-  the generated `.changeset/*.md` with the PR.
+  the generated `.changeset/*.md` with the PR. **What each level means, what is public and what
+  is not, and how a deprecation works are in [`docs/api-stability.md`](docs/api-stability.md)**;
+  a visible change (a colour, a size) is `minor` too, not `patch`.
+- **The public surface is committed and checked (#170).** A PR that changes an export, a prop,
+  a token name or a `sereno-*` class / `data-*` hook runs `npm run api:update` and commits the
+  four snapshots in `packages/*/etc/`: their diff is the API change, in the review. CI (the
+  `public API surface` job) fails when a snapshot is not the one the code produces, and, on a
+  PR, when the surface changed and the PR has no changeset of the level it needs (a line removed
+  or changed is a break, a line only added an addition; both are `minor` while we are 0.x,
+  a break is `major` after 1.0). The tooling lives in `scripts/api-surface*.mjs`.
 - **`apps/docs` (the showcase) and `apps/demo` never bump anything.** They are
   `private` and in the Changesets `ignore` list - they can't be versioned or
   published. A showcase-only or demo-only PR (or a pure repo-meta PR -
